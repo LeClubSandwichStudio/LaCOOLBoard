@@ -31,7 +31,7 @@ WiFiManager wifiManager;
 
 Serial.println(mqtt.config());
 Serial.print("mqtt data ") ;
-mqtt.printData();
+mqtt.printConf();
 
 delay(500);
 
@@ -61,7 +61,7 @@ jetpack.write(0x00);
 
 void loop() {
   // put your main code here, to run repeatedly:
-if(mqtt.connect()==1)
+if(mqtt.connect(5)==1)
 {Serial.println("connected to mqtt ");
   }
   else
