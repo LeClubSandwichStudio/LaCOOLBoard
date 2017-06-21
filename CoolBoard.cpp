@@ -29,38 +29,38 @@ void CoolBoard::begin()
 	
 	coolBoardSensors.config(); 
 	coolBoardSensors.begin();
-	coolBoardSensors.printConf();
+	//coolBoardSensors.printConf();
 	
 	rtc.config();
 	rtc.begin();
-	rtc.printConf();
+	//rtc.printConf();
 	
 	coolBoardLed.config();	
 	coolBoardLed.begin();
-	coolBoardLed.printConf();
+	//coolBoardLed.printConf();
 
 	mqtt.config();
 	mqtt.begin();
-	mqtt.printConf();
+	//mqtt.printConf();
 
 	if(jetpackActive)	
 	{	
 		jetPack.config();
 		jetPack.begin();
-		jetPack.printConf();
+		//jetPack.printConf();
 	}
 
 	if(ireneActive)
 	{
 		irene3000.config();
 		irene3000.begin();
-		irene3000.printConf();
+		//irene3000.printConf();
 	}
 
 	if(externalSensorsActive)
 	{
 		externalSensors.config();
-		externalSensors.begin();//TODO	
+		externalSensors.begin();	
 		externalSensors.printConf();
 	}
 
@@ -69,16 +69,16 @@ void CoolBoard::begin()
 bool CoolBoard::connect()
 {	if(WiFi.status() != WL_CONNECTED)
 	{
-		Serial.println("Entering WiFi Connect");
+		//Serial.println("Entering WiFi Connect");
 		wifiManager.setConfigPortalTimeout(this->serverTimeOut);
 		wifiManager.autoConnect("CoolBoard");
-		Serial.println("Wifi Set" );
+		//Serial.println("Wifi Set" );
 	}
 	if(mqtt.state()!=0)
 	{	
-		Serial.println("setting mqtt connection");
+		//Serial.println("setting mqtt connection");
 		mqtt.connect(this->getDelay()) ;
-		Serial.println(mqtt.state());
+		//Serial.println(mqtt.state());
 	}
 	
 	return(mqtt.state()); 
@@ -97,7 +97,7 @@ void CoolBoard::onLineMode()
 		
 	if(externalSensorsActive)
 	{
-		data+=externalSensors.read();//TODO	
+		data+=externalSensors.read();	
 	}		
 	if(ireneActive)
 	{
@@ -110,15 +110,16 @@ void CoolBoard::onLineMode()
 
 	}
 	
-	Serial.println("On Line Data : ");
-	Serial.println(data);
+	//Serial.println("On Line Data : ");
+	//Serial.println(data);
 	 
-	Serial.println("success ??");	
-	Serial.println(mqtt.publish(data.c_str()));
+	//Serial.println("success ??");	
+	//Serial.println(mqtt.publish(data.c_str()));
+	mqtt.publish(data.c_str());
 	mqtt.mqttLoop();
 	answer=mqtt.read();	
-	Serial.println("answer is ");
-	Serial.println(answer);
+	//Serial.println("answer is ");
+	//Serial.println(answer);
 			
 }
 
@@ -129,7 +130,7 @@ void CoolBoard::offLineMode()
 	
 	if(externalSensorsActive)
 	{
-		data+=externalSensors.read();//TODO	
+		data+=externalSensors.read();	
 	}		
 	if(ireneActive)
 	{
@@ -140,8 +141,8 @@ void CoolBoard::offLineMode()
 	{
 		jetPack.doAction(data.c_str(),sensorJsonSize); 
 	}	
-	Serial.print("data :" );		
-        Serial.println(data);
+	//Serial.print("data :" );		
+        //Serial.println(data);
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize ); 
 }
 

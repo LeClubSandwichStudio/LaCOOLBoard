@@ -6,7 +6,7 @@
 #include"Wire.h"
 #include"OneWire.h"
 #include"GenericSensor.h"
-
+#include"ExternalSensor.h"
 
 class ExternalSensors : public GenericSensor
 {
@@ -28,7 +28,8 @@ struct sensor{
 	String type;
 	String connection;
 	int dataSize;
-	int address;	
+	uint8_t address;	
+	BaseExternalSensor *exSensor=NULL;
 }sensors[50];
 
 int sensorsNumber;

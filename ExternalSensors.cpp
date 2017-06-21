@@ -10,17 +10,76 @@
 
 #include "ArduinoJson.h"
 
+#include"ExternalSensor.h"
 void ExternalSensors::begin() // inherited
 {
 	for(int i=0;i< this->sensorsNumber ; i++)
 	{
-	
+		if( (sensors[i].reference) == "NDIR_I2C" )
+		{	
+
+			ExternalSensor<NDIR_I2C> ndirCO2(77);
+
+			sensors[i].exSensor=&ndirCO2;
+			sensors[i].exSensor->begin();
+
+		}
+		if( (sensors[i].reference) == "DallasTemperature")
+		{
+			//OneWire oneWire(0);
+			//ExternalSensor<DallasTemperature> dallasTemp;
+			//sensors[i].exSensor=&dallasTemp;
+			//sensors[i].exSensor->begin();
+			
+		}
+		
+		
 	}
 }
 
 String ExternalSensors::read()
 {
-return("  ");
+
+	String data;
+	DynamicJsonBuffer  jsonBuffer(jsonSizeVar) ;
+	JsonObject& root = jsonBuffer.createObject();
+	if(!root.success() )
+	{
+
+	 return("00 ");
+	}
+	
+	Serial.println("enter the for");	
+	for(int i=0;i<sensorsNumber;i++)
+	{
+		if( (sensors[i].reference) == "NDIR_I2C" )
+		{	
+
+			ExternalSensor<NDIR_I2C> ndirCO2(77);
+
+			sensors[i].exSensor=&ndirCO2;
+			sensors[i].exSensor->begin();
+			Serial.println("reading " );	 
+			Serial.println(sensors[i].exSensor->read() );
+			Serial.println("assigning " );	   	
+			root[sensors[i].type]=sensors[i].exSensor->read();
+
+
+		}
+
+		
+	
+	
+		
+	 	
+	}
+	
+	root.printTo(Serial);
+	Serial.println(" ");
+	root.printTo(data);
+	
+	return(data);
+
 }
 
 int ExternalSensors::jsonSize()
