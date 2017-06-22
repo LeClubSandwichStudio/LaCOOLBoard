@@ -77,7 +77,7 @@ public:
 	
 	virtual uint8_t begin()
 	{
-		Serial.println("NDIR shit ");
+		Serial.println("NDIR begin ");
 		 if (sensor.begin()) 
 		{
 
