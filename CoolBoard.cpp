@@ -82,29 +82,44 @@ bool CoolBoard::connect()
 
 void CoolBoard::onLineMode()
 {	
-	
+	DynamicJsonBuffer jsonBuffer(sensorJsonSize);
+	JsonObject& root = jsonBuffer.createObject();
 	rtc.update();
 	
 
 	this->update(answer.c_str());				
 
-	data=coolBoardSensors.read(); 
-		
+	data=coolBoardSensors.read(); // {..,..,..}
+
+
 	if(externalSensorsActive)
-	{
-		data+=externalSensors.read();	
+	{	
+
+		data+=externalSensors.read();//{..,..,..}{..,..}	
+		data.setCharAt(data.lastIndexOf('}'),',');//{..,..,..}{..,..,
+		data.setCharAt(data.lastIndexOf('{'),',');//{..,..,..},..,..,
+		data.remove(data.lastIndexOf('}'),1);//{..,..,..,..,..,
+		data.setCharAt(data.lastIndexOf(','),'}');//{..,..,..,..,..}		
 	}		
 	if(ireneActive)
 	{
-		data+=irene3000.read(); 
+		data+=irene3000.read();//{..,..,..,..,..}{..,..,..}
+		data.setCharAt(data.lastIndexOf('}'),',');//{..,..,..,..,..{..,..,.., 
+		data.setCharAt(data.lastIndexOf('{'),',');//{..,..,..,..,..},..,..,..,
+		data.remove(data.lastIndexOf('}'),1);//{..,..,..,..,..,..,..,..,	
+		data.setCharAt(data.lastIndexOf(','),'}');//{..,..,..,..,..,..,..,..}
 	}
+
 	
 	if(jetpackActive)
 	{
-		jetPack.doAction(data.c_str(), sensorJsonSize); 
+		jetPack.doAction(data.c_str(), sensorJsonSize);
+		
 
 	}
-	
+	JsonObject& reported=root.createNestedObject("reported");
+	root["reported"]=data;
+	root.printTo(data);
 	mqtt.publish(data.c_str());
 	mqtt.mqttLoop();
 	answer=mqtt.read();	
