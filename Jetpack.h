@@ -15,22 +15,17 @@ class Jetpack
 {
 public:
 
- //Jetpack(byte actors); //constructor
- 
- virtual void begin(byte pin);		       //starts the Jetpack
- virtual void begin();		       //starts the Jetpack
- 
 
+	void begin();		       //starts the Jetpack
 
+ 	void write(byte action);			//writes to the Jetpack
  
- virtual void write(byte action);			//writes to the Jetpack
+	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
  
- void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
- 
- void doAction(const char* data, int JSON_SIZE);
- 
- bool config();
- void printConf();
+	void doAction(const char* data, int JSON_SIZE);
+       
+	bool config();
+	void printConf();
 private:
 	// byte actors; //pin for the actor 
 

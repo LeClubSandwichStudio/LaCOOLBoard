@@ -11,21 +11,6 @@
 
 #include "Jetpack.h"
 
-/* Jetpack::Jetpack(byte actors)
- { 
-   //constructor
-   //sets the used pins of the shift register
-   this->actors=actors;
-
-
-
- }
-*/
-void Jetpack::begin(byte pin)
-{
-	this->begin();
-}
-
 void Jetpack::begin()
  { 
    //tests all the actors
@@ -47,7 +32,8 @@ void Jetpack::begin()
 	digitalWrite(EnI2C, HIGH);
 
  }
- 
+
+
 
 void Jetpack::write(byte action)
 {
@@ -82,10 +68,13 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	//if the value is outside the limits
 	for(int i=0;i<8;i++)
 	{
-	  if( ( (root[ this->actors[i].type ] ) > ( this->actors[i].high ) ) || ( (root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
-	  {
-		bitWrite(this->action , i , !(bitRead(this->action, i ) ) );	
-	  }
+		if(this->actors[i].actif==1)
+		{
+			if( ((root[this->actors[i].type])>(this->actors[i].high)) || ((root[ this->actors[i].type ])<(this->actors[i].low)) )	
+			{	
+			bitWrite(this->action , i , !(bitRead(this->action, i ) ) );	
+			}
+		}
 	}
 	this->write(this->action);
 }

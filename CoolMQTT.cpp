@@ -165,6 +165,18 @@ bool CoolMQTT::config()
 	
 
 }
+void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize)
+{
+	for(int i =0;i< 50 ;i++)
+	{
+		this->mqtt_server[i]=mqttServer[i];
+		this->inTopic[i]=inTopic[i];
+		this->outTopic[i]=outTopic[i];
+		this->clientId[i]=clientId[i];
+	}
+	this->bufferSize=bufferSize;
+
+}
 void CoolMQTT::printConf()
 {
 Serial.println("MQTT conf ");

@@ -6,13 +6,13 @@
 #include "ArduinoJson.h"
 
 void CoolBoardLed::colorFade(int R, int G, int B, int T) {
-  for (int k = 0; k < 100; k++) {
+  for (int k = 0; k < 1000; k++) {
     neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
     neoPixelLed->Show();
     delay(T);
   }
   // Fade OUT
-  for (int k = 100; k >= 0; k--) {
+  for (int k = 1000; k >= 0; k--) {
     neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
     neoPixelLed->Show();
     delay(T);
@@ -28,7 +28,7 @@ void CoolBoardLed::blink(int R, int G, int B, int T) {
 }
 
 void CoolBoardLed::fadeIn(int R, int G, int B, int T) {
-  for (int k = 0; k < 100; k++) {
+  for (int k = 0; k < 1000; k++) {
     neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
     neoPixelLed->Show();
     delay(T);
@@ -36,7 +36,7 @@ void CoolBoardLed::fadeIn(int R, int G, int B, int T) {
 }
 
 void CoolBoardLed::fadeOut(int R, int G, int B, int T) {
-  for (int k = 100; k >= 0; k--) {
+  for (int k = 1000; k >= 0; k--) {
     neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
     neoPixelLed->Show();
     delay(T);
@@ -44,7 +44,7 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T) {
 }
 
 void CoolBoardLed::strobe(int R, int G, int B, int T) {
-  for (int k = 5; k >= 0; k--) {
+  for (int k = 1000; k >= 0; k--) {
     neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
     neoPixelLed->Show();
     delay(T);

@@ -2,7 +2,8 @@
 *  CoolBoard.h
 *  
 *  This class is a wrapper.
-*  It handles everything
+*  It handles everything.
+*  
 *  
 *  
 *  

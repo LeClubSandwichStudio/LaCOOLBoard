@@ -16,7 +16,7 @@ String Irene3000::read()
 	DynamicJsonBuffer jsonBuffer(ireneJsonSize);
 	JsonObject& root = jsonBuffer.createObject();
 
-	//light data
+
 		
 	if(waterTemp.active)
 	{

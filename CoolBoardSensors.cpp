@@ -294,18 +294,20 @@ float CoolBoardSensors::readVBat()
 	return (val);	
 }
 
-int CoolBoardSensors::readMoisture()
+float CoolBoardSensors::readMoisture()
 {
-	  digitalWrite(EnMoisture, HIGH);                 //enable moisture sensor and waith a bit
+	  digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
   	  
-	  digitalWrite(AnMplex, HIGH);
+	  digitalWrite(AnMplex, HIGH);			//enable analog Switch to get the moisture
   	  
-	  delay(200);
+	  delay(2000);
   	  
 	  int val = analogRead(A0);                       //read the value form the moisture sensor
   	  
-	  digitalWrite(EnMoisture, LOW);                  //disable moisture sensor for minimum wear
+	  float result = (float)map(val, 0, 890, 0, 100);	
+
+	  digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
   	  
-	  return (val);
+	  return (result);
 }
 

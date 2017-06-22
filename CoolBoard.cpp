@@ -18,11 +18,6 @@
 #include "ArduinoJson.h"
 
 
-uint16_t CoolBoard::getDelay()
-{
-	return(this->delay);
-}
-
 void CoolBoard::begin()
 {       
 	fileSystem.begin(); 
@@ -269,4 +264,10 @@ void CoolBoard::update(const char*answer )
 		}
 
 }
+
+uint16_t CoolBoard::getDelay()
+{
+	return(this->delay);
+}
+
 

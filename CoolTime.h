@@ -28,7 +28,8 @@ public:
 	
 	void update();
 	
-	bool config(); 
+	bool config();
+	void config(int timeZone,IPAddress timeServer,unsigned int localPort); 
 	void printConf();
 
 	void setDateTime(int year, int month, int day, int hour, int minutes, int seconds);

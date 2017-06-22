@@ -19,55 +19,60 @@ class CoolBoardSensors
 
 public:
 
-//Constructor
+	//Constructor
 	CoolBoardSensors();
 
 
 
-void begin();
+	void begin();
 
 
 
-//data is in json
-String read();
+	//data is in json
+	String read();
 
-int jsonSize();
-void setJsonSize(int jsonSize);
-void allActive();
+	int jsonSize();
+	void setJsonSize(int jsonSize);
+	void allActive();
 
-void initReadI2C();
+	void initReadI2C();
 
-void stopReadI2C();
+	void stopReadI2C();
 
-//additional method
-void end();
+	//additional method
+	void end();
 
-bool config();
-void printConf();
+	bool config();
+	void printConf();
 
 
 
-//environment sensor methods
+	//environment sensor methods
 
-//set the enviornment sensor settings , if argument is ommitted , default value will be assigned
-        void setEnvSensorSettings( uint8_t commInterface=I2C_MODE, uint8_t I2CAddress=0x76,    uint8_t runMode = 3,
+	//set the enviornment sensor settings , if argument is ommitted , default value will be assigned
+	void setEnvSensorSettings( uint8_t commInterface=I2C_MODE, uint8_t I2CAddress=0x76,    uint8_t runMode = 3,
 					   
 				   uint8_t tStandby=0	, uint8_t filter=0,    uint8_t tempOverSample=1,                          					   
 				   uint8_t pressOverSample= 1,    uint8_t humidOverSample= 1);
 
 
 
-//VBat
+	//VBat
 	float readVBat();
 
-//Moisture
+	//Moisture
 
-	int readMoisture();	
+	float readMoisture();
+
+	//sensor objects :
+	SI114X lightSensor = SI114X();			// light sensor	
+	
+	BME280 envSensor;			        // environment sensor
 	
 private:
 	//sensor objects :
 	
-	SI114X lightSensor = SI114X();			// light sensor
+	
 	struct lightActive
 	{
 		byte visible;
@@ -76,7 +81,7 @@ private:
 
 	}lightDataActive;
 
-	BME280 envSensor;			        // environment sensor
+
 	struct airActive
 	{
 		byte temperature;

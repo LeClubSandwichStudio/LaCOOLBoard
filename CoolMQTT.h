@@ -18,6 +18,7 @@ bool publish(const char* data);
 
 String read();
 
+void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize);
 bool config();
 
 void callback(char* topic, byte* payload, unsigned int length);

@@ -137,6 +137,12 @@ void CoolTime::sendNTPpacket(IPAddress &address)
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
   Udp.endPacket();
 }
+void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
+{
+	this->timeZone=timeZone;
+	this->timeServer=timeServer;
+	this->localPort=localPort;
+} 
 
 bool CoolTime::config()
 {
