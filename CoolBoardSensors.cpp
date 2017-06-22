@@ -11,7 +11,7 @@
 #include "Wire.h"
 #include "ArduinoJson.h"
 #include "CoolBoardSensors.h"
-#include "GenericSensor.h"
+
 
 //Constructor
 CoolBoardSensors::CoolBoardSensors()
@@ -51,7 +51,7 @@ void CoolBoardSensors::allActive()
 
 }
 
-// inherited methods redifintion:
+
 
 void CoolBoardSensors::begin()
 {       

@@ -11,7 +11,7 @@
 #include "ArduinoJson.h"
 
 #include"ExternalSensor.h"
-void ExternalSensors::begin() // inherited
+void ExternalSensors::begin() 
 {
 	for(int i=0;i< this->sensorsNumber ; i++)
 	{

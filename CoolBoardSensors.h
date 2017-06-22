@@ -12,9 +12,9 @@
 #include "Arduino.h"
 #include "SI114X.h"        // Light sensor Support
 #include "SparkFunBME280.h"// Environmental sensor Support
-#include "GenericSensor.h"
 
-class CoolBoardSensors: public GenericSensor
+
+class CoolBoardSensors
 {
 
 public:
@@ -23,9 +23,8 @@ public:
 	CoolBoardSensors();
 
 
-// inherited methods redifintion:
 
-virtual void begin();
+void begin();
 
 
 

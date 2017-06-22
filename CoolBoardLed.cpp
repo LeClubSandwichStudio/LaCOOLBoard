@@ -1,6 +1,6 @@
 #include "FS.h"
 #include "Arduino.h"
-#include "GenericActor.h"
+
 #include <NeoPixelBus.h>
 #include "CoolBoardLed.h"
 #include "ArduinoJson.h"
@@ -68,32 +68,12 @@ void CoolBoardLed::neoPixelLedBegin()
 
 }
 
-void CoolBoardLed::begin(byte pin)
-{
-//starts the actor
-  this->neoPixelLedBegin();
-} 
-
 void CoolBoardLed::begin( )
 {
 //starts the actor
   this->neoPixelLedBegin();
 } 
 
-
-void CoolBoardLed::write(bool state)
-{
-
- this->write(128,128,128); 
- 
-
-}				
-void CoolBoardLed::write()
-{
-
- this->write(128,128,128); 
-
-}				
 
 void CoolBoardLed::write(int R, int G, int B)
 {

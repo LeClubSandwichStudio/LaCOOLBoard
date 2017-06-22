@@ -5,14 +5,14 @@
 #include"Arduino.h"  
 #include"Wire.h"
 #include"OneWire.h"
-#include"GenericSensor.h"
+
 #include"ExternalSensor.h"
 
-class ExternalSensors : public GenericSensor
+class ExternalSensors 
 {
 public:
 
-virtual void begin(); // inherited
+void begin(); 
 
 
 String read ();

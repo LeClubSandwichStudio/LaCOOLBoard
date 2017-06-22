@@ -9,25 +9,21 @@
 #define CoolOnBoardActors_H
 
 #include"Arduino.h"
-#include "GenericActor.h"
+
 #include <NeoPixelBus.h>
 
 
 //#define PixelCount  1   // this example assumes 4 pixels, making it smaller will cause a failure
 //#define PixelPin 2      // make sure to set this to the correct pin, ignored for Esp8266
 
-class CoolBoardLed: public GenericActor
+class CoolBoardLed
 
 {
 
 public:
 
-//inherited methods
-virtual void begin(byte pin);	         //starts the actor
-virtual void begin();			 //starts the actor
+void begin();			 //starts the actor
 
-virtual void write(bool state);	//writes to the actor
-virtual void write();			//writes to the actor 
 
 void write(int R, int G, int B);       
 void end();				//delete the dynamic led;

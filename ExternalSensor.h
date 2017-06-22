@@ -31,7 +31,7 @@ private:
 
 
 
-//Template Sons 
+//Template Derived Classes 
 template<class T >
 class ExternalSensor : public BaseExternalSensor
 {
