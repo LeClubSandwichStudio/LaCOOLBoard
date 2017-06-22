@@ -12,25 +12,26 @@ class ExternalSensors
 {
 public:
 
-void begin(); 
+	void begin(); 
 
 
-String read ();
+	String read ();
 
-bool config();
+	bool config();
 
-int jsonSize();
-void printConf();
+	int jsonSize();
+	void printConf();
 
 private:
-struct sensor{		
-	String reference;
-	String type;
-	String connection;
-	int dataSize;
-	uint8_t address;	
-	BaseExternalSensor *exSensor=NULL;
-}sensors[50];
+	struct sensor
+	{		
+		String reference;
+		String type;
+		String connection;
+		int dataSize;
+		uint8_t address;	
+		BaseExternalSensor *exSensor=NULL;
+	}sensors[50];
 
 int sensorsNumber;
 int jsonSizeVar;

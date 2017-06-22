@@ -16,21 +16,12 @@
 
 
 #include"CoolFileSystem.h" //CoolBoard File System Manager
-
-
-
 #include"CoolBoardSensors.h" //CoolBoard Sensor Board Manager
-
 #include"CoolBoardLed.h" //CoolBoard Led Manager
-
 #include"CoolTime.h" //CoolBoard Real Time Clock Manager
-
 #include"CoolMQTT.h"//CoolBoard MQTT Manager
-
 #include"Jetpack.h"//CoolBoard Jetpack Manager
-
 #include"Irene3000.h"//CoolBoard Irene3000 Manager
-
 #include"ExternalSensors.h" //CoolBoard External Sensors Manager
 
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)

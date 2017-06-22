@@ -70,9 +70,7 @@ public:
 	BME280 envSensor;			        // environment sensor
 	
 private:
-	//sensor objects :
-	
-	
+	//sensors control structs :
 	struct lightActive
 	{
 		byte visible;

@@ -5,80 +5,89 @@
 #include "CoolBoardLed.h"
 #include "ArduinoJson.h"
 
-void CoolBoardLed::colorFade(int R, int G, int B, int T) {
-  for (int k = 0; k < 1000; k++) {
-    neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
-    neoPixelLed->Show();
-    delay(T);
-  }
-  // Fade OUT
-  for (int k = 1000; k >= 0; k--) {
-    neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
-    neoPixelLed->Show();
-    delay(T);
-  }
+void CoolBoardLed::colorFade(int R, int G, int B, int T) 
+{
+	for (int k = 0; k < 1000; k++) 
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->Show();
+		delay(T);
+	}
+	for (int k = 1000; k >= 0; k--) 
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->Show();
+		delay(T);
+	}
 }
 
-void CoolBoardLed::blink(int R, int G, int B, int T) {
-  neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-  neoPixelLed->Show();
-  delay(T);
-  neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-  neoPixelLed->Show();
+void CoolBoardLed::blink(int R, int G, int B, int T) 
+{
+	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+	neoPixelLed->Show();
+	delay(T);
+	neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+	neoPixelLed->Show();
 }
 
-void CoolBoardLed::fadeIn(int R, int G, int B, int T) {
-  for (int k = 0; k < 1000; k++) {
-    neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
-    neoPixelLed->Show();
-    delay(T);
-  }
+void CoolBoardLed::fadeIn(int R, int G, int B, int T) 
+{
+	for (int k = 0; k < 1000; k++) 
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->Show();
+		delay(T);
+	}
 }
 
-void CoolBoardLed::fadeOut(int R, int G, int B, int T) {
-  for (int k = 1000; k >= 0; k--) {
-    neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
-    neoPixelLed->Show();
-    delay(T);
-  }
+void CoolBoardLed::fadeOut(int R, int G, int B, int T) 
+{
+	for (int k = 1000; k >= 0; k--) 
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->Show();
+		delay(T);
+	}
 }
 
-void CoolBoardLed::strobe(int R, int G, int B, int T) {
-  for (int k = 1000; k >= 0; k--) {
-    neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-    neoPixelLed->Show();
-    delay(T);
-    neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-    neoPixelLed->Show();
-    delay(T);
-  }
+void CoolBoardLed::strobe(int R, int G, int B, int T) 
+{
+	for (int k = 1000; k >= 0; k--) 
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+		neoPixelLed->Show();
+		delay(T);
+		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+		neoPixelLed->Show();
+		delay(T);
+	}
 }
 
 void CoolBoardLed::end()
 {
- delete neoPixelLed;
+	delete neoPixelLed;
 }
 
 void CoolBoardLed::neoPixelLedBegin()
-{   pinMode(5,OUTPUT);
-    digitalWrite(5,HIGH);
-    neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); //create the led
-    neoPixelLed->Begin();
-    neoPixelLed->Show();
-
+{  
+	pinMode(5,OUTPUT);
+	digitalWrite(5,HIGH);
+	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); //create the led
+	neoPixelLed->Begin();
+	neoPixelLed->Show();
 }
 
 void CoolBoardLed::begin( )
 {
-//starts the actor
-  this->neoPixelLedBegin();
+	//starts the actor
+	this->neoPixelLedBegin();
 } 
 
 
 void CoolBoardLed::write(int R, int G, int B)
 {
-    neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-    neoPixelLed->Show();
+	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+	neoPixelLed->Show();
 }
 
 bool CoolBoardLed::config()

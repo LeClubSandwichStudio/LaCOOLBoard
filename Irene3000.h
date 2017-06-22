@@ -32,60 +32,58 @@ class Irene3000
 {
 public:
 
-void begin();
+	void begin();
 
-bool config();
-void printConf();
+	bool config();
+	void printConf();
 
-String read();
+	String read();
 
-int readButton(adsGain_t gain);
+	int readButton(adsGain_t gain);
 
-void setGain(adsGain_t gain);
+	void setGain(adsGain_t gain);
 
-int readADSChannel2(adsGain_t gain);
+	int readADSChannel2(adsGain_t gain);
 
-float readPh(adsGain_t gain);
+	float readPh(adsGain_t gain);
 
-double readTemp(adsGain_t gain);
+	double readTemp(adsGain_t gain);
 
-void resetParams(void);
+	void resetParams(void);
 
-void calibratepH7(adsGain_t gain);
+	void calibratepH7(adsGain_t gain);
 
-void calibratepH4(adsGain_t gain);
+	void calibratepH4(adsGain_t gain);
 
-void calcpHSlope ();
+	void calcpHSlope ();
 
-adsGain_t gainConvert(uint16_t tempGain);
+	adsGain_t gainConvert(uint16_t tempGain);
 
 
 private:
 
-Adafruit_ADS1115 ads;                                                                                           // ADC Object
+	Adafruit_ADS1115 ads;                                                                                           // ADC Object
 
 
-struct parameters_T
-{
-  unsigned int WriteCheck;
-  int pH7Cal, pH4Cal;
-  float pHStep;
-}params;
+	struct parameters_T
+	{
+		unsigned int WriteCheck;
+		int pH7Cal, pH4Cal;
+		float pHStep;
+	}params;
 
-struct state
-{
-byte active;
-adsGain_t gain;
-String type;
-} waterTemp, phProbe,adc2;
+	struct state
+	{
+		byte active;
+		adsGain_t gain;
+		String type;
+	} waterTemp, phProbe,adc2;
 
-int ireneJsonSize;
+	int ireneJsonSize;
 
-const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exact
+	const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exa
 
-
-
-const float opampGain = 5.25;                                 //what is our Op-Amps gain (stage 1)
+	const float opampGain = 5.25;                                 //what is our Op-Amps gain (stage 1)
 
 };
 

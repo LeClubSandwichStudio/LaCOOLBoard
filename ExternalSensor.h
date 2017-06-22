@@ -8,24 +8,24 @@
 //Base Classe
 class BaseExternalSensor
 {
+
 public:
-BaseExternalSensor()
-{
-}
+	BaseExternalSensor()
+	{
+	
+	}
 
-virtual uint8_t begin()
-{
-Serial.println("base");
-return(-2);
-}
+	virtual uint8_t begin()
+	{
+		Serial.println("base");
+		return(-2);
+	}
 
-virtual int read()
-{
-	Serial.println("base reading");	
-	return(-1);
-}
-
-private:
+	virtual int read()
+	{
+		Serial.println("base reading");	
+		return(-1);
+	}
 	
 };
 
@@ -59,8 +59,6 @@ public :
 private :
 	
 	T sensor; //the sensor itself
-	
-
 
 };
 

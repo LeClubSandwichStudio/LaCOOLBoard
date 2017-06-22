@@ -24,39 +24,39 @@ void CoolBoard::begin()
 	
 	coolBoardSensors.config(); 
 	coolBoardSensors.begin();
-	//coolBoardSensors.printConf();
+
 	
 	rtc.config();
 	rtc.begin();
-	//rtc.printConf();
+
 	
 	coolBoardLed.config();	
 	coolBoardLed.begin();
-	//coolBoardLed.printConf();
+
 
 	mqtt.config();
 	mqtt.begin();
-	//mqtt.printConf();
+
 
 	if(jetpackActive)	
 	{	
 		jetPack.config();
 		jetPack.begin();
-		//jetPack.printConf();
+
 	}
 
 	if(ireneActive)
 	{
 		irene3000.config();
 		irene3000.begin();
-		//irene3000.printConf();
+
 	}
 
 	if(externalSensorsActive)
 	{
 		externalSensors.config();
 		externalSensors.begin();	
-		externalSensors.printConf();
+
 	}
 
 }
@@ -64,16 +64,16 @@ void CoolBoard::begin()
 bool CoolBoard::connect()
 {	if(WiFi.status() != WL_CONNECTED)
 	{
-		//Serial.println("Entering WiFi Connect");
+
 		wifiManager.setConfigPortalTimeout(this->serverTimeOut);
 		wifiManager.autoConnect("CoolBoard");
-		//Serial.println("Wifi Set" );
+
 	}
 	if(mqtt.state()!=0)
 	{	
-		//Serial.println("setting mqtt connection");
+
 		mqtt.connect(this->getDelay()) ;
-		//Serial.println(mqtt.state());
+
 	}
 	
 	return(mqtt.state()); 
@@ -105,22 +105,15 @@ void CoolBoard::onLineMode()
 
 	}
 	
-	//Serial.println("On Line Data : ");
-	//Serial.println(data);
-	 
-	//Serial.println("success ??");	
-	//Serial.println(mqtt.publish(data.c_str()));
 	mqtt.publish(data.c_str());
 	mqtt.mqttLoop();
 	answer=mqtt.read();	
-	//Serial.println("answer is ");
-	//Serial.println(answer);
-			
+				
 }
 
 void CoolBoard::offLineMode()
 {
-	//offLineMode
+
 	data=coolBoardSensors.read();
 	
 	if(externalSensorsActive)
@@ -136,8 +129,7 @@ void CoolBoard::offLineMode()
 	{
 		jetPack.doAction(data.c_str(),sensorJsonSize); 
 	}	
-	//Serial.print("data :" );		
-        //Serial.println(data);
+	
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize ); 
 }
 
@@ -212,15 +204,16 @@ bool CoolBoard::config()
 
 void CoolBoard::printConf()
 {
-Serial.println("Cool Board Conf");
-Serial.println(delay);
-Serial.println(sensorJsonSize);
-Serial.println(answerJsonSize);
-Serial.println(ireneActive);
-Serial.println(jetpackActive);
-Serial.println(externalSensorsActive);
-Serial.println(serverTimeOut);
-Serial.println(" ");
+	Serial.println("Cool Board Conf");
+	Serial.println(delay);
+	Serial.println(sensorJsonSize);
+	Serial.println(answerJsonSize);
+	Serial.println(ireneActive);
+	Serial.println(jetpackActive);
+	Serial.println(externalSensorsActive);
+	Serial.println(serverTimeOut);
+	Serial.println(" ");
+
 }
 
 void CoolBoard::update(const char*answer )

@@ -13,7 +13,7 @@
 
 void Jetpack::begin()
  { 
-   //tests all the actors
+	//tests all the actors
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
 	pinMode(clockPin,OUTPUT);

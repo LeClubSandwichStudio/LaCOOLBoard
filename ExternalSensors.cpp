@@ -11,6 +11,7 @@
 #include "ArduinoJson.h"
 
 #include"ExternalSensor.h"
+
 void ExternalSensors::begin() 
 {
 	for(int i=0;i< this->sensorsNumber ; i++)
@@ -26,10 +27,10 @@ void ExternalSensors::begin()
 		}
 		if( (sensors[i].reference) == "DallasTemperature")
 		{
-			//OneWire oneWire(0);
-			//ExternalSensor<DallasTemperature> dallasTemp;
-			//sensors[i].exSensor=&dallasTemp;
-			//sensors[i].exSensor->begin();
+			OneWire oneWire(0);
+			ExternalSensor<DallasTemperature> dallasTemp;
+			sensors[i].exSensor=&dallasTemp;
+			sensors[i].exSensor->begin();
 			
 		}
 		

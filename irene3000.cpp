@@ -10,6 +10,7 @@ void Irene3000::begin()
 {
 	this->ads.begin();
 }
+
 String Irene3000::read()
 {	
 	String data;
@@ -41,6 +42,7 @@ String Irene3000::read()
 	
 
 }
+
 bool Irene3000::config()
 {
 
@@ -186,6 +188,7 @@ double Irene3000::readTemp(adsGain_t gain)
   }
 
 }
+
 // pH 7 CALIBRATION ==================================================
 void Irene3000::calibratepH7(adsGain_t gain)
 {
@@ -197,6 +200,7 @@ void Irene3000::calibratepH7(adsGain_t gain)
 
 
 }
+
 // pH 4 CALIBRATION ==================================================
 void Irene3000::calibratepH4(adsGain_t gain)
 {
@@ -210,12 +214,11 @@ void Irene3000::calibratepH4(adsGain_t gain)
 
 
 }
+
 // pH SLOPE ==========================================================
 void Irene3000::calcpHSlope ()
 {
 
-  //RefVoltage * our deltaRawpH / 12bit steps *mV in V / OP-Amp gain /pH step difference 7-4
-  //params.pHStep = ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
   params.pHStep = ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
 
  

@@ -9,25 +9,26 @@
 
 class CoolMQTT
 {
+
 public:
 
-void begin();
-int connect(uint16_t keepAlive);
+	void begin();
+	int connect(uint16_t keepAlive);
 
-bool publish(const char* data);
+	bool publish(const char* data);
 
-String read();
+	String read();
 
-void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize);
-bool config();
+	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize);
+	bool config();
 
-void callback(char* topic, byte* payload, unsigned int length);
+	void callback(char* topic, byte* payload, unsigned int length);
 
-void printConf();
+	void printConf();
 
-bool state();
+	bool state();
 
-bool mqttLoop();
+	bool mqttLoop();
 
 private:
 	
@@ -40,8 +41,6 @@ private:
 	WiFiClient espClient;
 	PubSubClient client;
 
-
-		
 
 };
 

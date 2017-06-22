@@ -7,20 +7,18 @@
 
 void CoolMQTT::begin()
 { 
-  client.setClient(espClient);
-  client.setServer(mqtt_server, 1883);	
-  client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
-  client.setBufferSize((unsigned short)bufferSize);
+	client.setClient(espClient);
+	client.setServer(mqtt_server, 1883);	
+	client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
+	client.setBufferSize((unsigned short)bufferSize);
 
-
-
-
-  
 }
+
 bool CoolMQTT::state()
 {
-return(client.state());
+	return(client.state());
 }
+
 int CoolMQTT::connect(uint16_t keepAlive)
 {       
 	int i=0;
@@ -68,21 +66,23 @@ bool CoolMQTT::mqttLoop()
 	this->client.loop();
 	return(client.loop());
 }
-void CoolMQTT::callback(char* topic, byte* payload, unsigned int length) {
-   //some leak problems
-    char temp[length+1];
-    for (int i = 0; i < length; i++) {
-    temp[i]=(char)payload[i]; 
-    
 
-  }
-  
-  temp[length+1]='\0';
-  
-  msg=String(temp);
-  msg.remove(length,1);
-  Serial.println("received");
-  Serial.println(msg);
+void CoolMQTT::callback(char* topic, byte* payload, unsigned int length) 
+{
+	char temp[length+1];
+
+	for (int i = 0; i < length; i++) 
+	{
+		temp[i]=(char)payload[i]; 
+
+	}
+
+	temp[length+1]='\0';
+
+	msg=String(temp);
+	msg.remove(length,1);
+	Serial.println("received");
+	Serial.println(msg);
 
 }
 
@@ -165,6 +165,7 @@ bool CoolMQTT::config()
 	
 
 }
+
 void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize)
 {
 	for(int i =0;i< 50 ;i++)
@@ -177,15 +178,16 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 	this->bufferSize=bufferSize;
 
 }
+
 void CoolMQTT::printConf()
 {
-Serial.println("MQTT conf ");
-Serial.println(mqtt_server);
-Serial.println(inTopic);
-Serial.println(outTopic);
-Serial.println(clientId);
-Serial.println(bufferSize);
-Serial.println(" ");
+	Serial.println("MQTT conf ");
+	Serial.println(mqtt_server);
+	Serial.println(inTopic);
+	Serial.println(outTopic);
+	Serial.println(clientId);
+	Serial.println(bufferSize);
+	Serial.println(" ");
 
 
 }
