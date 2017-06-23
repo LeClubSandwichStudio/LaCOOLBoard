@@ -24,24 +24,25 @@ void CoolBoard::begin()
 	
 	coolBoardSensors.config(); 
 	coolBoardSensors.begin();
-
+	coolBoardSensors.printConf();
 	
 	rtc.config();
 	rtc.begin();
-
+	rtc.printConf();
 	
 	coolBoardLed.config();	
 	coolBoardLed.begin();
-
+	coolBoardLed.printConf();
 
 	mqtt.config();
 	mqtt.begin();
-
+	mqtt.printConf();
 
 	if(jetpackActive)	
 	{	
 		jetPack.config();
 		jetPack.begin();
+		jetPack.printConf();
 
 	}
 
@@ -49,6 +50,7 @@ void CoolBoard::begin()
 	{
 		irene3000.config();
 		irene3000.begin();
+		irene3000.printConf();
 
 	}
 
@@ -56,7 +58,7 @@ void CoolBoard::begin()
 	{
 		externalSensors.config();
 		externalSensors.begin();	
-
+		externalSensors.printConf();
 	}
 
 }
@@ -86,8 +88,6 @@ void CoolBoard::onLineMode()
 	
 	
 
-	this->update(answer.c_str());				
-	
 	rtc.update();	
 
 	data=coolBoardSensors.read(); //{..,..,..}
@@ -125,7 +125,8 @@ void CoolBoard::onLineMode()
 	
 	mqtt.publish(jsonData.c_str());
 	mqtt.mqttLoop();
-	answer=mqtt.read();	
+	answer=mqtt.read();
+	this->update(answer.c_str());	
 				
 }
 
@@ -177,40 +178,40 @@ bool CoolBoard::config()
 		} 
 		else
 		{  	  
-			if( json["delay"].success() )
+			if( json["CoolBoard"]["delay"].success() )
 			{
-				this->delay = json["delay"]; 
+				this->delay = json["CoolBoard"]["delay"]; 
 			}
 
-			if(json["sensorJsonSize"].success())
+			if(json["CoolBoard"]["sensorJsonSize"].success())
 			{
-				this->sensorJsonSize = json["sensorJsonSize"];
+				this->sensorJsonSize = json["CoolBoard"]["sensorJsonSize"];
 			}
 
-			if(json["answerJsonSize"].success())
+			if(json["CoolBoard"]["answerJsonSize"].success())
 			{
-				this->answerJsonSize = json["answerJsonSize"];
+				this->answerJsonSize = json["CoolBoard"]["answerJsonSize"];
 			}
 			
-			if(json["ireneActive"].success() )
+			if(json["CoolBoard"]["ireneActive"].success() )
 			{
-				this->ireneActive=json["ireneActive"];
+				this->ireneActive=json["CoolBoard"]["ireneActive"];
 			}	
 
-			if(json["jetpackActive"].success() )
+			if(json["CoolBoard"]["jetpackActive"].success() )
 			{		
-				this->jetpackActive=json["jetpackActive"];
+				this->jetpackActive=json["CoolBoard"]["jetpackActive"];
 			}
 			
-			if(json["externalSensorsActive"].success() )
+			if(json["CoolBoard"]["externalSensorsActive"].success() )
 			{			
 			
-				this->externalSensorsActive=json["externalSensorsActive"];
+				this->externalSensorsActive=json["CoolBoard"]["externalSensorsActive"];
 			}
 			
-			if(json["serverTimeOut"].success() )
+			if(json["CoolBoard"]["serverTimeOut"].success() )
 			{			
-				this->serverTimeOut=json["serverTimeOut"];
+				this->serverTimeOut=json["CoolBoard"]["serverTimeOut"];
 			}
 				
 			return(true); 

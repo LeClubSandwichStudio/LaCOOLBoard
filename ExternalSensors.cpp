@@ -107,31 +107,32 @@ bool ExternalSensors::config()
 		externalSensorsConfig.readBytes(buf.get(), size);
 		DynamicJsonBuffer jsonBuffer;
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
+
 		if (!json.success()) 
 		{
 			  return(false);
 		} 
 		else
 		{  	
-			if(json["jsonSize"]!=NULL )
+			if(json["externalSensors"]["jsonSize"]!=NULL )
 			{			
-				this->jsonSizeVar=json["jsonSize"];
+				this->jsonSizeVar=json["externalSensors"]["jsonSize"];
 			}			
 
 			
-			if(json["sensorsNumber"]!=NULL)
+			if(json["externalSensors"]["sensorsNumber"]!=NULL)
 			{
-				this->sensorsNumber = json["sensorsNumber"];
+				this->sensorsNumber = json["externalSensors"]["sensorsNumber"];
 				
 				
 
 				for(int i=0;i<sensorsNumber;i++)
 				{	String name="sensor"+String(i);
-
-					if(json.containsKey(name ) )
+					Serial.print("name is ");Serial.println(name);
+					if(json["externalSensors"][name].success())
 					{  
-						JsonObject& sensorJson=json[name];
-
+						JsonObject& sensorJson=json["externalSensors"][name];
+						
 						if(sensorJson["reference"].success() )
 						{  
 							this->sensors[i].reference =sensorJson["reference"].as<String>();

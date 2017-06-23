@@ -77,7 +77,7 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 
 	}
 
-	newMsg=true;
+	this->newMsg=true;
 
 	temp[length+1]='\0';
 
@@ -90,10 +90,10 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 
 String CoolMQTT::read()
 {	
-	if(newMsg==true)
+	if(this->newMsg==true)
 	{
 		return(this->msg);
-		newMSg=false;
+		this->newMsg=false;
 	}
 	return(" ");
 
@@ -124,27 +124,27 @@ bool CoolMQTT::config()
 		} 
 		else
 		{				
-				if(json["mqtt_server"].success() )
+				if(json["mqtt"]["mqtt_server"].success() )
 				{			
-					const char* temp_mqttServer = json["mqtt_server"]; // "inTopic"
+					const char* temp_mqttServer = json["mqtt"]["mqtt_server"]; // "inTopic"
 					for(int i =0;i< 50 ;i++)
 					{
 						mqtt_server[i]=temp_mqttServer[i];
 					}
 				}
 				
-				if(json["inTopic"].success() )
+				if(json["mqtt"]["inTopic"].success() )
 				{
-					const char* temp_inTopic = json["inTopic"]; // "inTopic"
+					const char* temp_inTopic = json["mqtt"]["inTopic"]; // "inTopic"
 					for(int i =0;i< 50;i++)
 					{
 						inTopic[i]=temp_inTopic[i];
 					}
 				}
 				
-				if(json["outTopic"].success() )
+				if(json["mqtt"]["outTopic"].success() )
 				{
-					const char* temp_outTopic = json["outTopic"]; // "outTopic"
+					const char* temp_outTopic = json["mqtt"]["outTopic"]; // "outTopic"
 					for(int i =0;i<50;i++)
 					{
 						outTopic[i]=temp_outTopic[i];
@@ -152,21 +152,21 @@ bool CoolMQTT::config()
 				}
 			
 				
-				if(json["clientId"].success() )
+				if(json["mqtt"]["clientId"].success() )
 				{				
-					const char* temp_clientId = json["clientId"]; // "espAshiroji"
+					const char* temp_clientId = json["mqtt"]["clientId"]; // "espAshiroji"
 					for(int i =0;i<50;i++)
 					{
 						clientId[i]=temp_clientId[i];
 					}
 				}
 				
-				if(json["bufferSize"].success() )
+				if(json["mqtt"]["bufferSize"].success() )
 				{
-					int temp_bufferSize = json["bufferSize"]; // 512
+					int temp_bufferSize = json["mqtt"]["bufferSize"]; // 512
 					bufferSize=temp_bufferSize;
 				}
-				
+			  
 			  return(true); 
 		}
 	}	

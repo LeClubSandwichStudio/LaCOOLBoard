@@ -113,9 +113,9 @@ bool CoolBoardLed::config()
 		} 
 		else
 		{  	  
-			if(json["ledActive"].success() )
+			if(json["Led"]["ledActive"].success() )
 			{
-			this->ledActive = json["ledActive"]; 
+			this->ledActive = json["Led"]["ledActive"]; 
 			}
 			  return(true); 
 		}

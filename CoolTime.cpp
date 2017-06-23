@@ -168,21 +168,21 @@ bool CoolTime::config()
 		else
 		{  	
 			
-			if(json["timeZone"].success() )
+			if(json["rtc"]["timeZone"].success() )
 			{
-				this->timeZone=json["timeZone"] ;
+				this->timeZone=json["rtc"]["timeZone"] ;
 			}
 			
-			if(json["timeServer"].success() )
+			if(json["rtc"]["timeServer"].success() )
 			{			
-				String ip=json["timeServer"];
+				String ip=json["rtc"]["timeServer"];
 				this->timeServer.fromString(ip);
  
 			}
 			
-			if(json["localPort"].success() )
+			if(json["rtc"]["localPort"].success() )
 			{						
-				this->localPort=json["localPort"];
+				this->localPort=json["rtc"]["localPort"];
 			}
 						
 			return(true); 
