@@ -114,24 +114,24 @@ bool ExternalSensors::config()
 		} 
 		else
 		{  	
-			if(json["externalSensors"]["jsonSize"]!=NULL )
+			if(json["jsonSize"]!=NULL )
 			{			
-				this->jsonSizeVar=json["externalSensors"]["jsonSize"];
+				this->jsonSizeVar=json["jsonSize"];
 			}			
 
 			
-			if(json["externalSensors"]["sensorsNumber"]!=NULL)
+			if(json["sensorsNumber"]!=NULL)
 			{
-				this->sensorsNumber = json["externalSensors"]["sensorsNumber"];
+				this->sensorsNumber = json["sensorsNumber"];
 				
 				
 
 				for(int i=0;i<sensorsNumber;i++)
 				{	String name="sensor"+String(i);
 					Serial.print("name is ");Serial.println(name);
-					if(json["externalSensors"][name].success())
+					if(json[name].success())
 					{  
-						JsonObject& sensorJson=json["externalSensors"][name];
+						JsonObject& sensorJson=json[name];
 						
 						if(sensorJson["reference"].success() )
 						{  

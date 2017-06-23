@@ -182,50 +182,50 @@ bool CoolBoardSensors::config()
 		} 
 		else
 		{  	  
-			if(json["CoolSensorsBoard"]["SENSOR_JSON_SIZE"].success() )
+			if(json["SENSOR_JSON_SIZE"].success() )
 			{
-				this->SENSOR_JSON_SIZE = json["CoolSensorsBoard"]["SENSOR_JSON_SIZE"]; 
+				this->SENSOR_JSON_SIZE = json["SENSOR_JSON_SIZE"]; 
 			}
 
-			if(json["CoolSensorsBoard"]["BME280"]["temperature"].success() )
+			if(json["BME280"]["temperature"].success() )
 			{			
-				this->airDataActive.temperature=json["CoolSensorsBoard"]["BME280"]["temperature"];
+				this->airDataActive.temperature=json["BME280"]["temperature"];
 			}
 			
-			if(json["CoolSensorsBoard"]["BME280"]["humidity"].success() )
+			if(json["BME280"]["humidity"].success() )
 			{			
 			
-				this->airDataActive.humidity=json["CoolSensorsBoard"]["BME280"]["humidity"];
+				this->airDataActive.humidity=json["BME280"]["humidity"];
 			}
 			
-			if(json["CoolSensorsBoard"]["BME280"]["pressure"].success() )
+			if(json["BME280"]["pressure"].success() )
 			{
-				this->airDataActive.pressure=json["CoolSensorsBoard"]["BME280"]["pressure"];
+				this->airDataActive.pressure=json["BME280"]["pressure"];
 			}
 			
-			if(json["CoolSensorsBoard"]["SI114X"]["visible"].success() )
+			if(json["SI114X"]["visible"].success() )
 			{
-				this->lightDataActive.visible=json["CoolSensorsBoard"]["SI114X"]["visible"];
+				this->lightDataActive.visible=json["SI114X"]["visible"];
 			}
 			
-			if(json["CoolSensorsBoard"]["SI114X"]["ir"].success() )
+			if(json["SI114X"]["ir"].success() )
 			{			
-				this->lightDataActive.ir=json["CoolSensorsBoard"]["SI114X"]["ir"];
+				this->lightDataActive.ir=json["SI114X"]["ir"];
 			}
 			
-			if(json["CoolSensorsBoard"]["SI114X"]["uv"].success() )			
+			if(json["SI114X"]["uv"].success() )			
 			{			
-				this->lightDataActive.uv=json["CoolSensorsBoard"]["SI114X"]["uv"];
+				this->lightDataActive.uv=json["SI114X"]["uv"];
 			}
 
-			if(json["CoolSensorsBoard"]["vbat"].success() )
+			if(json["vbat"].success() )
 			{
-				this->vbatActive=json["CoolSensorsBoard"]["vbat"];
+				this->vbatActive=json["vbat"];
 			}
 			
-			if(json["CoolSensorsBoard"]["earthMoisture"].success() )
+			if(json["earthMoisture"].success() )
 			{			
-				this->earthMoistureActive= json["CoolSensorsBoard"]["earthMoisture"];
+				this->earthMoistureActive= json["earthMoisture"];
 			}
 			  
 			  return(true); 

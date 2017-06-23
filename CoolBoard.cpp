@@ -178,40 +178,40 @@ bool CoolBoard::config()
 		} 
 		else
 		{  	  
-			if( json["CoolBoard"]["delay"].success() )
+			if( json["delay"].success() )
 			{
-				this->delay = json["CoolBoard"]["delay"]; 
+				this->delay = json["delay"]; 
 			}
 
-			if(json["CoolBoard"]["sensorJsonSize"].success())
+			if(json["sensorJsonSize"].success())
 			{
-				this->sensorJsonSize = json["CoolBoard"]["sensorJsonSize"];
+				this->sensorJsonSize = json["sensorJsonSize"];
 			}
 
-			if(json["CoolBoard"]["answerJsonSize"].success())
+			if(json["answerJsonSize"].success())
 			{
-				this->answerJsonSize = json["CoolBoard"]["answerJsonSize"];
+				this->answerJsonSize = json["answerJsonSize"];
 			}
 			
-			if(json["CoolBoard"]["ireneActive"].success() )
+			if(json["ireneActive"].success() )
 			{
-				this->ireneActive=json["CoolBoard"]["ireneActive"];
+				this->ireneActive=json["ireneActive"];
 			}	
 
-			if(json["CoolBoard"]["jetpackActive"].success() )
+			if(json["jetpackActive"].success() )
 			{		
-				this->jetpackActive=json["CoolBoard"]["jetpackActive"];
+				this->jetpackActive=json["jetpackActive"];
 			}
 			
-			if(json["CoolBoard"]["externalSensorsActive"].success() )
+			if(json["externalSensorsActive"].success() )
 			{			
 			
-				this->externalSensorsActive=json["CoolBoard"]["externalSensorsActive"];
+				this->externalSensorsActive=json["externalSensorsActive"];
 			}
 			
-			if(json["CoolBoard"]["serverTimeOut"].success() )
+			if(json["serverTimeOut"].success() )
 			{			
-				this->serverTimeOut=json["CoolBoard"]["serverTimeOut"];
+				this->serverTimeOut=json["serverTimeOut"];
 			}
 				
 			return(true); 
@@ -240,15 +240,19 @@ void CoolBoard::update(const char*answer )
 	DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
 	JsonObject& root = jsonBuffer.parseObject(answer);
 	JsonObject& stateDesired = root["state"]["desired"];
+	Serial.println("the update msg is : ");	
+	stateDesired.printTo(Serial);
 	//or ( root["state"]["desired"].success() )	
 	if(stateDesired["update"]==1) 
 		{	
 			String answerDesired;
 			stateDesired.printTo(answerDesired);
+			Serial.println("answer desired is ");
+			Serial.println(answerDesired);
 			Serial.println("begin config " );
 			Serial.println("printing the config files ");
-			fileSystem.updateConfigFiles(answerDesired.c_str(),answerJsonSize); 
-	
+			bool result=fileSystem.updateConfigFiles(answerDesired,answerJsonSize); 
+			Serial.print("result is ");Serial.println(result);
 			this->config();	
 		
 			coolBoardSensors.config();

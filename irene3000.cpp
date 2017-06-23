@@ -67,47 +67,47 @@ bool Irene3000::config()
 		} 
 		else
 		{  	
-			if(json["irene3000"]["ireneJsonSize"].success() )
+			if(json["ireneJsonSize"].success() )
 			{
-				this->ireneJsonSize=json["irene3000"]["ireneJsonSize"];
+				this->ireneJsonSize=json["ireneJsonSize"];
 			}
 			
-			if(json["irene3000"]["waterTemp"]["active"].success() )
+			if(json["waterTemp"]["active"].success() )
 			{			
-				this->waterTemp.active = json["irene3000"]["waterTemp"]["active"]; 
+				this->waterTemp.active = json["waterTemp"]["active"]; 
 			}
 			
-			if(json["irene3000"]["waterTemp"]["gain"].success() )
+			if(json["waterTemp"]["gain"].success() )
 			{			
-				tempGain = json["irene3000"]["waterTemp"]["gain"]; 
+				tempGain = json["waterTemp"]["gain"]; 
 				this->waterTemp.gain=this->gainConvert(tempGain);
 			}
 			
-			if(json["irene3000"]["phProbe"]["active"].success())
+			if(json["phProbe"]["active"].success())
 			{
-				this->phProbe.active=json["irene3000"]["phProbe"]["active"];
+				this->phProbe.active=json["phProbe"]["active"];
 			}	
 			
-			if(json["irene3000"]["phProbe"]["gain"].success() )
+			if(json["phProbe"]["gain"].success() )
 			{		
-				tempGain=json["irene3000"]["phProbe"]["gain"];
+				tempGain=json["phProbe"]["gain"];
 				this->phProbe.gain=this->gainConvert(tempGain);			
 			}
 			
-			if(json["irene3000"]["adc2"]["active"].success() )
+			if(json["adc2"]["active"].success() )
 			{
-				this->adc2.active=json["irene3000"]["adc2"]["active"];
+				this->adc2.active=json["adc2"]["active"];
 			}
 			
-			if(json["irene3000"]["adc2"]["gain"].success() )
+			if(json["adc2"]["gain"].success() )
 			{			
-				tempGain=json["irene3000"]["adc2"]["gain"];
+				tempGain=json["adc2"]["gain"];
 				this->adc2.gain=this->gainConvert(tempGain);
 			}
 			
-			if(json["irene3000"]["adc2"]["type"].success() )
+			if(json["adc2"]["type"].success() )
 			{
-				this->adc2.type=json["irene3000"]["adc2"]["type"].as<String>(); 
+				this->adc2.type=json["adc2"]["type"].as<String>(); 
 			}
 
 			return(true); 

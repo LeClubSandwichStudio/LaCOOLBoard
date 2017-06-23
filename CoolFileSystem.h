@@ -22,7 +22,7 @@ class CoolFileSystem
 public:
 	bool begin(); 
 
-	bool updateConfigFiles(const char* answer,int JSON_SIZE);	
+	bool updateConfigFiles(String answer,int JSON_SIZE);	
 	
 	bool saveSensorData(const char* data,int Sensor_JSON_SIZE);
 
