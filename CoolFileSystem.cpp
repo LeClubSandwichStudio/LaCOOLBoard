@@ -46,8 +46,8 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	//total json object	
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(jsonRoot);
-	Serial.println("answer in updateConfig Files ");	
-	root.printTo(Serial);
+
+
 		
 	//temp string
 	String temp;
@@ -55,8 +55,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	//CoolBoard Configuration File
 
     	JsonObject& jsonCoolBoard=root["CoolBoard"];
-	Serial.println("before config coolBoard json");
-	jsonCoolBoard.printTo(Serial);
 	if(jsonCoolBoard.success())
 	{
 		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w+");	
@@ -81,8 +79,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	//Cool Board Sensors Configuration File
 	DynamicJsonBuffer jsonSBoard;
     	JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];	
-	Serial.println("before config coolBoard sensors json");	
-	jsonSensorsBoard.printTo(Serial);
 	if(jsonSensorsBoard.success())
 	{	
 		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w+");	

@@ -42,12 +42,15 @@ bool CoolTime::begin()
 
 void CoolTime::update()
 {
-	if(timeStatus() != timeNotSet )
+	if(!this->isTimeSync() )
 	{
+		if(timeStatus() != timeNotSet )
+		{
 
-		rtc.setDateTime(this->getNtpTime());
-	        this->timeSync=this->rtc.getTimestamp();
-		this->rtc.clearOSF();                               //since the sync worked fine we reset eventual error flags in the RTC
+			rtc.setDateTime(this->getNtpTime());
+	        	this->timeSync=this->rtc.getTimestamp();
+			this->rtc.clearOSF();                         //since the sync worked fine we reset eventual error flags in the RTC
+		}
 	}
 	
 	
@@ -172,17 +175,29 @@ bool CoolTime::config()
 			{
 				this->timeZone=json["timeZone"] ;
 			}
+			else
+			{
+				this->timeZone=this->timeZone;			
+			}
 			
 			if(json["timeServer"].success() )
 			{			
 				String ip=json["timeServer"];
 				this->timeServer.fromString(ip);
- 
+ 				
+			}
+			else
+			{
+				this->timeServer=this->timeServer;
 			}
 			
 			if(json["localPort"].success() )
 			{						
 				this->localPort=json["localPort"];
+			}
+			else
+			{
+				this->localPort=this->localPort;
 			}
 						
 			return(true); 

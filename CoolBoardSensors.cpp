@@ -27,11 +27,11 @@ CoolBoardSensors::CoolBoardSensors()
 
 int CoolBoardSensors::jsonSize()
 {
-	return(this->SENSOR_JSON_SIZE );
+	return(this->sensorJsonSize );
 }
 void CoolBoardSensors::setJsonSize(int jsonSize)
 {
-	this->SENSOR_JSON_SIZE=jsonSize;
+	this->sensorJsonSize=jsonSize;
 }
 
 void CoolBoardSensors::allActive()
@@ -82,11 +82,11 @@ void CoolBoardSensors::end()
 String CoolBoardSensors::read()
 {
 	String data;
-	DynamicJsonBuffer  jsonBuffer(SENSOR_JSON_SIZE) ;
+	DynamicJsonBuffer  jsonBuffer(sensorJsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
 	
 	initReadI2C();
-	delay(100);
+	delay(10);
 	//light data
 	if(lightDataActive.visible)
 	{
@@ -182,14 +182,22 @@ bool CoolBoardSensors::config()
 		} 
 		else
 		{  	  
-			if(json["SENSOR_JSON_SIZE"].success() )
+			if(json["sensorJsonSize"].success() )
 			{
-				this->SENSOR_JSON_SIZE = json["SENSOR_JSON_SIZE"]; 
+				this->sensorJsonSize = json["sensorJsonSize"]; 
+			}
+			else
+			{
+				this->sensorJsonSize=this->sensorJsonSize;			
 			}
 
 			if(json["BME280"]["temperature"].success() )
 			{			
 				this->airDataActive.temperature=json["BME280"]["temperature"];
+			}
+			else
+			{
+				this->airDataActive.temperature=this->airDataActive.temperature;			
 			}
 			
 			if(json["BME280"]["humidity"].success() )
@@ -197,35 +205,63 @@ bool CoolBoardSensors::config()
 			
 				this->airDataActive.humidity=json["BME280"]["humidity"];
 			}
+			else
+			{
+				this->airDataActive.humidity=this->airDataActive.humidity;
+			}
 			
 			if(json["BME280"]["pressure"].success() )
 			{
 				this->airDataActive.pressure=json["BME280"]["pressure"];
+			}
+			else
+			{
+				this->airDataActive.pressure=this->airDataActive.pressure;
 			}
 			
 			if(json["SI114X"]["visible"].success() )
 			{
 				this->lightDataActive.visible=json["SI114X"]["visible"];
 			}
+			else
+			{
+				this->lightDataActive.visible=this->lightDataActive.visible;
+			}
 			
 			if(json["SI114X"]["ir"].success() )
 			{			
 				this->lightDataActive.ir=json["SI114X"]["ir"];
+			}
+			else
+			{
+				this->lightDataActive.ir=this->lightDataActive.ir;
 			}
 			
 			if(json["SI114X"]["uv"].success() )			
 			{			
 				this->lightDataActive.uv=json["SI114X"]["uv"];
 			}
+			else
+			{
+				this->lightDataActive.uv=this->lightDataActive.uv;
+			}
 
 			if(json["vbat"].success() )
 			{
 				this->vbatActive=json["vbat"];
 			}
+			else
+			{
+				this->vbatActive=this->vbatActive;
+			}
 			
 			if(json["earthMoisture"].success() )
 			{			
 				this->earthMoistureActive= json["earthMoisture"];
+			}
+			else
+			{
+				this->earthMoistureActive=this->earthMoistureActive;
 			}
 			  
 			  return(true); 
@@ -237,7 +273,7 @@ bool CoolBoardSensors::config()
 void CoolBoardSensors::printConf()
 {
 	Serial.println("Sensors Conf ");
-	Serial.print(SENSOR_JSON_SIZE);
+	Serial.print(sensorJsonSize);
 	Serial.println(airDataActive.temperature);
 	Serial.println(airDataActive.humidity);
 	Serial.println(airDataActive.pressure);

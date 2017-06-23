@@ -117,6 +117,10 @@ bool ExternalSensors::config()
 			if(json["jsonSize"]!=NULL )
 			{			
 				this->jsonSizeVar=json["jsonSize"];
+			}
+			else
+			{
+				this->jsonSizeVar=this->jsonSizeVar;
 			}			
 
 			
@@ -128,7 +132,7 @@ bool ExternalSensors::config()
 
 				for(int i=0;i<sensorsNumber;i++)
 				{	String name="sensor"+String(i);
-					Serial.print("name is ");Serial.println(name);
+					
 					if(json[name].success())
 					{  
 						JsonObject& sensorJson=json[name];
@@ -136,13 +140,11 @@ bool ExternalSensors::config()
 						if(sensorJson["reference"].success() )
 						{  
 							this->sensors[i].reference =sensorJson["reference"].as<String>();
-							
-													
 						}
 						else
 						{
-							Serial.println("Not Found Name " );
-								
+							this->sensors[i].reference=this->sensors[i].reference;							
+							Serial.println("Not Found Name " );		
 						}
 					
 						if(sensorJson["type"].success() )
@@ -151,48 +153,55 @@ bool ExternalSensors::config()
 						}
 						else
 						{
-								Serial.println("Not Found Name " ) ;						
+							this->sensors[i].type=this->sensors[i].type;
+							Serial.println("Not Found Name " ) ;						
 						}
 					
 					
 						if(sensorJson["connection"].success() )
 						{
 							this->sensors[i].connection=sensorJson["connection"].as<String>();
-					
 						}
 						else
 						{
-								Serial.println("Not Found Name " ) ;						
+							this->sensors[i].connection=this->sensors[i].connection;
+							Serial.println("Not Found Name " ) ;						
 						}
 					
-						if(sensorJson["dataSize"]!=NULL )
-						{					
-
+						if(sensorJson["dataSize"].success() )
+						{				
 							this->sensors[i].dataSize=sensorJson["dataSize"];
-
 						}
 						else
 						{
-								Serial.println("Not Found Name " ) ;						
+							this->sensors[i].dataSize=this->sensors[i].dataSize;
+							Serial.println("Not Found Name " ) ;						
 						}
 					
-						if(sensorJson["address"]!=NULL )
+						if(sensorJson["address"].success() )
 						{					
-
 							this->sensors[i].address=sensorJson["address"];
-
 						}
 						else
-						{
-								Serial.println("Not Found Name " ) ;						
+						{	
+							this->sensors[i].address=this->sensors[i].address;
+							Serial.println("Not Found Name " ) ;						
 						}
 					
 	
+					}
+					else
+					{
+						this->sensors[i]=this->sensors[i];					
 					}			        	
 										
 
 				}
  
+			}
+			else
+			{
+				this->sensorsNumber=this->sensorsNumber;
 			}
 			
 			

@@ -97,7 +97,7 @@ private:
         byte vbatActive;
 	byte earthMoistureActive;
 
-	int SENSOR_JSON_SIZE;//for the json output
+	int sensorJsonSize;//for the json output
 };
 
 #endif

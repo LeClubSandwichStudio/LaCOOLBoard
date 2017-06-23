@@ -182,25 +182,45 @@ bool CoolBoard::config()
 			{
 				this->delay = json["delay"]; 
 			}
+			else
+			{
+				this->delay=this->delay;
+			}
 
 			if(json["sensorJsonSize"].success())
 			{
 				this->sensorJsonSize = json["sensorJsonSize"];
+			}
+			else
+			{
+				this->sensorJsonSize=this->sensorJsonSize;
 			}
 
 			if(json["answerJsonSize"].success())
 			{
 				this->answerJsonSize = json["answerJsonSize"];
 			}
+			else
+			{
+				this->answerJsonSize=this->answerJsonSize;
+			}
 			
 			if(json["ireneActive"].success() )
 			{
 				this->ireneActive=json["ireneActive"];
+			}
+			else
+			{
+				this->ireneActive=this->ireneActive;
 			}	
 
 			if(json["jetpackActive"].success() )
 			{		
 				this->jetpackActive=json["jetpackActive"];
+			}
+			else
+			{
+				this->jetpackActive=this->jetpackActive;
 			}
 			
 			if(json["externalSensorsActive"].success() )
@@ -208,10 +228,18 @@ bool CoolBoard::config()
 			
 				this->externalSensorsActive=json["externalSensorsActive"];
 			}
+			else
+			{
+				this->externalSensorsActive=this->externalSensorsActive;
+			}
 			
 			if(json["serverTimeOut"].success() )
 			{			
 				this->serverTimeOut=json["serverTimeOut"];
+			}
+			else
+			{
+				this->serverTimeOut=this->serverTimeOut;
 			}
 				
 			return(true); 
@@ -240,50 +268,44 @@ void CoolBoard::update(const char*answer )
 	DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
 	JsonObject& root = jsonBuffer.parseObject(answer);
 	JsonObject& stateDesired = root["state"]["desired"];
-	Serial.println("the update msg is : ");	
-	stateDesired.printTo(Serial);
-	//or ( root["state"]["desired"].success() )	
-	if(stateDesired["update"]==1) 
-		{	
-			String answerDesired;
-			stateDesired.printTo(answerDesired);
-			Serial.println("answer desired is ");
-			Serial.println(answerDesired);
-			Serial.println("begin config " );
-			Serial.println("printing the config files ");
-			bool result=fileSystem.updateConfigFiles(answerDesired,answerJsonSize); 
-			Serial.print("result is ");Serial.println(result);
-			this->config();	
+	if(stateDesired.success() )
+	{
+		if(stateDesired["update"]==1) 
+			{	
+				String answerDesired;
+				stateDesired.printTo(answerDesired);
+				Serial.println(answerDesired);
+				
+				bool result=fileSystem.updateConfigFiles(answerDesired,answerJsonSize); 
+				Serial.print("update : ");Serial.println(result);
+				
+				this->config();	
 		
-			coolBoardSensors.config();
+				coolBoardSensors.config();
 
-			rtc.config(); 
+				rtc.config(); 
 
-			coolBoardLed.config();
+				coolBoardLed.config();
 			
-			mqtt.config();			
+				mqtt.config();			
 						
-			if(jetpackActive)
-			{
-				jetPack.config(); 
+				if(jetpackActive)
+				{
+					jetPack.config(); 
+				}
+
+				if(ireneActive)
+				{
+					irene3000.config();	
+				}
+			
+				if(externalSensorsActive)
+				{
+					externalSensors.config();			
+				}
+
 			}
-
-			if(ireneActive)
-			{
-				irene3000.config();	
-			}
-			
-			if(externalSensorsActive)
-			{
-				externalSensors.config();			
-			}
-
-			
-			
-			
-
-		}
-
+	}
 }
 
 uint16_t CoolBoard::getDelay()

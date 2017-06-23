@@ -71,10 +71,18 @@ bool Irene3000::config()
 			{
 				this->ireneJsonSize=json["ireneJsonSize"];
 			}
+			else
+			{
+				this->ireneJsonSize=this->ireneJsonSize;
+			}
 			
 			if(json["waterTemp"]["active"].success() )
 			{			
 				this->waterTemp.active = json["waterTemp"]["active"]; 
+			}
+			else
+			{
+				this->waterTemp.active=this->waterTemp.active;
 			}
 			
 			if(json["waterTemp"]["gain"].success() )
@@ -82,10 +90,18 @@ bool Irene3000::config()
 				tempGain = json["waterTemp"]["gain"]; 
 				this->waterTemp.gain=this->gainConvert(tempGain);
 			}
+			else
+			{
+				this->waterTemp.gain=this->waterTemp.gain;
+			}
 			
 			if(json["phProbe"]["active"].success())
 			{
 				this->phProbe.active=json["phProbe"]["active"];
+			}
+			else
+			{
+				this->phProbe.active=this->phProbe.active;
 			}	
 			
 			if(json["phProbe"]["gain"].success() )
@@ -93,10 +109,18 @@ bool Irene3000::config()
 				tempGain=json["phProbe"]["gain"];
 				this->phProbe.gain=this->gainConvert(tempGain);			
 			}
+			else
+			{
+				this->phProbe.gain=this->phProbe.gain;
+			}
 			
 			if(json["adc2"]["active"].success() )
 			{
 				this->adc2.active=json["adc2"]["active"];
+			}
+			else
+			{
+				this->adc2.active=this->adc2.active;
 			}
 			
 			if(json["adc2"]["gain"].success() )
@@ -104,10 +128,18 @@ bool Irene3000::config()
 				tempGain=json["adc2"]["gain"];
 				this->adc2.gain=this->gainConvert(tempGain);
 			}
+			else
+			{
+				this->adc2.gain=this->adc2.gain;
+			}
 			
 			if(json["adc2"]["type"].success() )
 			{
 				this->adc2.type=json["adc2"]["type"].as<String>(); 
+			}
+			else
+			{
+				this->adc2.type=this->adc2.type;
 			}
 
 			return(true); 

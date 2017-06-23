@@ -8,7 +8,7 @@
 void CoolMQTT::begin()
 { 
 	client.setClient(espClient);
-	client.setServer(mqtt_server, 1883);	
+	client.setServer(mqttServer, 1883);	
 	client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
 	client.setBufferSize((unsigned short)bufferSize);
 
@@ -41,7 +41,7 @@ int CoolMQTT::connect(uint16_t keepAlive)
 			return(client.state());
 			
 		}
-	delay(50);
+	delay(5);
 	i++;
 	}
 	
@@ -124,47 +124,80 @@ bool CoolMQTT::config()
 		} 
 		else
 		{				
-				if(json["mqtt_server"].success() )
+				if(json["mqttServer"].success() )
 				{			
-					const char* temp_mqttServer = json["mqtt_server"]; // "inTopic"
+					const char* tempmqttServer = json["mqttServer"]; // "inTopic"
 					for(int i =0;i< 50 ;i++)
 					{
-						mqtt_server[i]=temp_mqttServer[i];
+						mqttServer[i]=tempmqttServer[i];
 					}
 				}
+				else
+				{
+					for(int i =0;i< 50 ;i++)
+					{
+						this->mqttServer[i]=this->mqttServer[i];
+					}
+
+				}
+
 				
 				if(json["inTopic"].success() )
 				{
-					const char* temp_inTopic = json["inTopic"]; // "inTopic"
+					const char* tempInTopic = json["inTopic"]; // "inTopic"
 					for(int i =0;i< 50;i++)
 					{
-						inTopic[i]=temp_inTopic[i];
+						inTopic[i]=tempInTopic[i];
 					}
+				}
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->inTopic[i]=this->inTopic[i];
+					}				
 				}
 				
 				if(json["outTopic"].success() )
 				{
-					const char* temp_outTopic = json["outTopic"]; // "outTopic"
+					const char* tempOutTopic = json["outTopic"]; // "outTopic"
 					for(int i =0;i<50;i++)
 					{
-						outTopic[i]=temp_outTopic[i];
+						outTopic[i]=tempOutTopic[i];
 					}
 				}
-			
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->outTopic[i]=this->outTopic[i];
+					}
+				}			
 				
 				if(json["clientId"].success() )
 				{				
-					const char* temp_clientId = json["clientId"]; // "espAshiroji"
+					const char* tempClientId = json["clientId"]; // "espAshiroji"
 					for(int i =0;i<50;i++)
 					{
-						clientId[i]=temp_clientId[i];
+						clientId[i]=tempClientId[i];
 					}
+				}
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->clientId[i]=this->clientId[i];
+					}				
 				}
 				
 				if(json["bufferSize"].success() )
 				{
-					int temp_bufferSize = json["bufferSize"]; // 512
-					bufferSize=temp_bufferSize;
+					int tempBufferSize = json["bufferSize"]; // 512
+					bufferSize=tempBufferSize;
+				}
+				else
+				{
+					this->bufferSize=this->bufferSize;
 				}
 			  
 			  return(true); 
@@ -178,7 +211,7 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 {
 	for(int i =0;i< 50 ;i++)
 	{
-		this->mqtt_server[i]=mqttServer[i];
+		this->mqttServer[i]=mqttServer[i];
 		this->inTopic[i]=inTopic[i];
 		this->outTopic[i]=outTopic[i];
 		this->clientId[i]=clientId[i];
@@ -190,7 +223,7 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 void CoolMQTT::printConf()
 {
 	Serial.println("MQTT conf ");
-	Serial.println(mqtt_server);
+	Serial.println(mqttServer);
 	Serial.println(inTopic);
 	Serial.println(outTopic);
 	Serial.println(clientId);

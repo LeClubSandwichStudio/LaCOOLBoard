@@ -32,7 +32,7 @@ public:
 
 private:
 	
-	char mqtt_server[50];
+	char mqttServer[50];
 	String msg;
 	char inTopic[50];
 	char outTopic[50];

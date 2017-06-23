@@ -109,27 +109,53 @@ bool Jetpack::config()
 				this->actorsNumber = json["ActorsNumber"]; 
 			
 				for(int i=0;i<this->actorsNumber;i++)
-				{	
-					if(json[String("Act")+String(i)]["actif"].success() )
+				{	if(json[String("Act")+String(i)].success())
 					{
-						this->actors[i].actif=json[String("Act")+String(i)]["actif"];
+						if(json[String("Act")+String(i)]["actif"].success() )
+						{
+							this->actors[i].actif=json[String("Act")+String(i)]["actif"];
+						}
+						else
+						{
+							this->actors[i].actif=this->actors[i].actif;
+						}
+
+						if(json[String("Act")+String(i)]["low"].success() )
+						{					
+							this->actors[i].low=json[String("Act")+String(i)]["low"];
+						}
+						else
+						{
+							this->actors[i].low=this->actors[i].low;					
+						}	
+					
+						if(json[String("Act")+String(i)]["high"].success() )
+						{				
+							this->actors[i].high=json[String("Act")+String(i)]["high"];
+						}
+						else
+						{
+							this->actors[i].high=this->actors[i].high;
+						}
+					
+						if(json[String("Act")+String(i)]["type"].success() )
+						{				
+							this->actors[i].type=json[String("Act")+String(i)]["type"]; 
+						}
+						else
+						{
+							this->actors[i].type=this->actors[i].type;
+						}	
 					}
-					
-					if(json[String("Act")+String(i)]["low"].success() )
-					{					
-						this->actors[i].low=json[String("Act")+String(i)]["low"];
-					}	
-					
-					if(json[String("Act")+String(i)]["high"].success() )
-					{				
-						this->actors[i].high=json[String("Act")+String(i)]["high"];
+					else
+					{
+						this->actors[i]=this->actors[i];
 					}
-					
-					if(json[String("Act")+String(i)]["type"].success() )
-					{				
-						this->actors[i].type=json[String("Act")+String(i)]["type"]; 
-					}	
 				}
+			}
+			else
+			{
+				this->actorsNumber=this->actorsNumber;
 			}
 			
 			return(true); 
