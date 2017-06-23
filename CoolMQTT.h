@@ -40,6 +40,7 @@ private:
 	int bufferSize;	
 	WiFiClient espClient;
 	PubSubClient client;
+	bool newMsg;
 
 
 };

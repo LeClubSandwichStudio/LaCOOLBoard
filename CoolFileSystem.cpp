@@ -58,6 +58,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
+		Serial.println("CoolBoard Config");
+		jsonCoolBoard.printTo(Serial);
+		
 		jsonCoolBoard.printTo(coolBoardConfig);
 		
 		coolBoardConfig.close();
@@ -76,8 +79,10 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
+		
+		Serial.println("CoolBoardSensors Config");
 		jsonSensorsBoard.printTo(coolBoardSensorsConfig);
-	
+		jsonSensorsBoard.printTo(Serial);
 		coolBoardSensorsConfig.close();
 	}
 	
@@ -95,8 +100,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
-	
+		Serial.println("RTC Config");
 		jsonRTC.printTo(rtcConfig);
+		jsonRTC.printTo(Serial);
 		rtcConfig.close();
 	
 	}
@@ -116,8 +122,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
-
+		Serial.println("CoolBoardLed Config");
 		jsonLedBoard.printTo(coolBoardLedConfig);
+		jsonLedBoard.printTo(Serial);
 		coolBoardLedConfig.close();
 	
 	}
@@ -137,8 +144,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
-	
+		Serial.println("jetpack Config");	
 		jsonJetpack.printTo(jetPackConfig);
+		jsonJetpack.printTo(Serial);
 		jetPackConfig.close();
 	}
 	
@@ -154,7 +162,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
+		Serial.println("irene3000 Config");
 		jsonIrene.printTo(irene3000Config);
+		jsonIrene.printTo(Serial);
 		irene3000Config.close();
 	
 	}
@@ -173,13 +183,16 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
+		Serial.println("externalSensors Config");
 		jsonExternalSensors.printTo(externalSensorsConfig);
-		
+		jsonExternalSensors.printTo(Serial);
 		for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)
 		{	
 			String path="/"+String(i)+".json"; 
          		File temp=SPIFFS.open(path,"w+");
+			Serial.print(" external sensor ");Serial.print(i);Serial.println(" Config");
 			jsonExternalSensors[String(i)].printTo(temp);
+			jsonExternalSensors[String(i)].printTo(Serial);
 			temp.close();
 		}
 			
@@ -200,8 +213,9 @@ bool CoolFileSystem::updateConfigFiles(const char* answer,int JSON_SIZE)
 		{
 			return(false);
 		}
-	
+		Serial.println("mqtt config");
 		jsonMQTT.printTo(mqttConfig);
+		jsonMQTT.printTo(Serial);
 		mqttConfig.close();
 	}	
 		

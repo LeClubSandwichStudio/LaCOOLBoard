@@ -77,6 +77,8 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 
 	}
 
+	newMsg=true;
+
 	temp[length+1]='\0';
 
 	msg=String(temp);
@@ -87,8 +89,14 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 }
 
 String CoolMQTT::read()
-{
-	return(this->msg);
+{	
+	if(newMsg==true)
+	{
+		return(this->msg);
+		newMSg=false;
+	}
+	return(" ");
+
 }
 
 bool CoolMQTT::config()

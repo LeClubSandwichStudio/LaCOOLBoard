@@ -83,12 +83,13 @@ bool CoolBoard::connect()
 void CoolBoard::onLineMode()
 {	
 	
-	rtc.update();
+	
 	
 
 	this->update(answer.c_str());				
-
 	
+	rtc.update();	
+
 	data=coolBoardSensors.read(); //{..,..,..}
 
 
@@ -120,7 +121,7 @@ void CoolBoard::onLineMode()
 	
 	String jsonData="{\"state\":{\"reported\":";	
 	jsonData+=data;//{"state":{"reported":{..,..,..,..,..,..,..,..}
-	jsonData+="}}";
+	jsonData+=",\"desired\":null} }";//{"state":{"reported":{..,..,..,..,..,..,..,..},"desired" :null }  }
 	
 	mqtt.publish(jsonData.c_str());
 	mqtt.mqttLoop();
@@ -237,10 +238,15 @@ void CoolBoard::update(const char*answer )
 {	
 	DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
 	JsonObject& root = jsonBuffer.parseObject(answer);
-	
-	if(root["update"]==1)
-		{
-			fileSystem.updateConfigFiles(answer,answerJsonSize); 
+	JsonObject& stateDesired = root["state"]["desired"];
+	//or ( root["state"]["desired"].success() )	
+	if(stateDesired["update"]==1) 
+		{	
+			String answerDesired;
+			stateDesired.printTo(answerDesired);
+			Serial.println("begin config " );
+			Serial.println("printing the config files ");
+			fileSystem.updateConfigFiles(answerDesired.c_str(),answerJsonSize); 
 	
 			this->config();	
 		
