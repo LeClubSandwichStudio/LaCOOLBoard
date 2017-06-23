@@ -82,14 +82,14 @@ bool CoolBoard::connect()
 
 void CoolBoard::onLineMode()
 {	
-	DynamicJsonBuffer jsonBuffer(sensorJsonSize);
-	JsonObject& root = jsonBuffer.createObject();
+	
 	rtc.update();
 	
 
 	this->update(answer.c_str());				
 
-	data=coolBoardSensors.read(); // {..,..,..}
+	
+	data=coolBoardSensors.read(); //{..,..,..}
 
 
 	if(externalSensorsActive)
@@ -117,10 +117,12 @@ void CoolBoard::onLineMode()
 		
 
 	}
-	JsonObject& reported=root.createNestedObject("reported");
-	root["reported"]=data;
-	root.printTo(data);
-	mqtt.publish(data.c_str());
+	
+	String jsonData="{\"state\":{\"reported\":";	
+	jsonData+=data;//{"state":{"reported":{..,..,..,..,..,..,..,..}
+	jsonData+="}}";
+	
+	mqtt.publish(jsonData.c_str());
 	mqtt.mqttLoop();
 	answer=mqtt.read();	
 				
