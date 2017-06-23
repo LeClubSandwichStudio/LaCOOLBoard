@@ -13,23 +13,12 @@
 
 void Jetpack::begin()
  { 
-	//tests all the actors
+
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
 	pinMode(clockPin,OUTPUT);
 
-	this->action=0xFF;
 
-	digitalWrite(EnI2C, LOW);
-	
-	shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-	
-	delay(100);
-	
-	this->action=0x00;
-	shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-
-	digitalWrite(EnI2C, HIGH);
 
  }
 

@@ -86,7 +86,7 @@ String CoolBoardSensors::read()
 	JsonObject& root = jsonBuffer.createObject();
 	
 	initReadI2C();
-	delay(10);
+	delay(100);
 	//light data
 	if(lightDataActive.visible)
 	{

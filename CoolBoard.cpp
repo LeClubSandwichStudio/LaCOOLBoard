@@ -148,7 +148,7 @@ void CoolBoard::offLineMode()
 	{
 		jetPack.doAction(data.c_str(),sensorJsonSize); 
 	}	
-	
+	Serial.println(data);
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize ); 
 }
 
