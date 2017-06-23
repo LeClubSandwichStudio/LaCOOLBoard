@@ -75,6 +75,8 @@ bool Irene3000::config()
 			{
 				this->ireneJsonSize=this->ireneJsonSize;
 			}
+			json["ireneJsonSize"]=this->ireneJsonSize;
+
 			
 			if(json["waterTemp"]["active"].success() )
 			{			
@@ -84,6 +86,8 @@ bool Irene3000::config()
 			{
 				this->waterTemp.active=this->waterTemp.active;
 			}
+			json["waterTemp"]["active"]=this->waterTemp.active;
+
 			
 			if(json["waterTemp"]["gain"].success() )
 			{			
@@ -94,6 +98,8 @@ bool Irene3000::config()
 			{
 				this->waterTemp.gain=this->waterTemp.gain;
 			}
+			json["waterTemp"]["gain"]=this->waterTemp.gain;
+
 			
 			if(json["phProbe"]["active"].success())
 			{
@@ -102,7 +108,9 @@ bool Irene3000::config()
 			else
 			{
 				this->phProbe.active=this->phProbe.active;
-			}	
+			}
+			json["phProbe"]["active"]=this->phProbe.active;
+	
 			
 			if(json["phProbe"]["gain"].success() )
 			{		
@@ -113,6 +121,8 @@ bool Irene3000::config()
 			{
 				this->phProbe.gain=this->phProbe.gain;
 			}
+			json["phProbe"]["gain"]=this->phProbe.gain;
+
 			
 			if(json["adc2"]["active"].success() )
 			{
@@ -122,6 +132,8 @@ bool Irene3000::config()
 			{
 				this->adc2.active=this->adc2.active;
 			}
+			json["adc2"]["active"]=this->adc2.active;
+
 			
 			if(json["adc2"]["gain"].success() )
 			{			
@@ -132,6 +144,8 @@ bool Irene3000::config()
 			{
 				this->adc2.gain=this->adc2.gain;
 			}
+			json["adc2"]["gain"]=this->adc2.gain;
+
 			
 			if(json["adc2"]["type"].success() )
 			{
@@ -141,6 +155,18 @@ bool Irene3000::config()
 			{
 				this->adc2.type=this->adc2.type;
 			}
+			json["adc2"]["type"]=this->adc2.type;
+
+			irene3000Config.close();
+			irene3000Config = SPIFFS.open("/irene3000Config.json", "w");
+
+			if(!irene3000Config)
+			{
+				return(false);
+			}
+
+			json.printTo(irene3000Config);
+			irene3000Config.close();
 
 			return(true); 
 		}

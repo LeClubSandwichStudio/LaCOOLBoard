@@ -42,7 +42,7 @@ String ExternalSensors::read()
 {
 
 	String data;
-	DynamicJsonBuffer  jsonBuffer(jsonSizeVar) ;
+	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
 	if(!root.success() )
 	{
@@ -83,9 +83,9 @@ String ExternalSensors::read()
 
 }
 
-int ExternalSensors::jsonSize()
+int ExternalSensors::getJsonSize()
 {
-	return(this->jsonSizeVar );
+	return(this->jsonSize );
 }
 
 bool ExternalSensors::config()
@@ -116,12 +116,13 @@ bool ExternalSensors::config()
 		{  	
 			if(json["jsonSize"]!=NULL )
 			{			
-				this->jsonSizeVar=json["jsonSize"];
+				this->jsonSize=json["jsonSize"];
 			}
 			else
 			{
-				this->jsonSizeVar=this->jsonSizeVar;
-			}			
+				this->jsonSize=this->jsonSize;
+			}
+			json["jsonSize"]=this->jsonSize;			
 
 			
 			if(json["sensorsNumber"]!=NULL)
@@ -146,6 +147,8 @@ bool ExternalSensors::config()
 							this->sensors[i].reference=this->sensors[i].reference;							
 							Serial.println("Not Found Name " );		
 						}
+						sensorJson["reference"]=this->sensors[i].reference;
+
 					
 						if(sensorJson["type"].success() )
 						{					
@@ -156,6 +159,7 @@ bool ExternalSensors::config()
 							this->sensors[i].type=this->sensors[i].type;
 							Serial.println("Not Found Name " ) ;						
 						}
+						sensorJson["type"]=this->sensors[i].type;
 					
 					
 						if(sensorJson["connection"].success() )
@@ -167,6 +171,8 @@ bool ExternalSensors::config()
 							this->sensors[i].connection=this->sensors[i].connection;
 							Serial.println("Not Found Name " ) ;						
 						}
+						sensorJson["connection"]=this->sensors[i].connection;
+
 					
 						if(sensorJson["dataSize"].success() )
 						{				
@@ -177,6 +183,8 @@ bool ExternalSensors::config()
 							this->sensors[i].dataSize=this->sensors[i].dataSize;
 							Serial.println("Not Found Name " ) ;						
 						}
+						sensorJson["dataSize"]=this->sensors[i].dataSize;
+
 					
 						if(sensorJson["address"].success() )
 						{					
@@ -187,14 +195,16 @@ bool ExternalSensors::config()
 							this->sensors[i].address=this->sensors[i].address;
 							Serial.println("Not Found Name " ) ;						
 						}
+						sensorJson["address"]=this->sensors[i].address;
 					
 	
 					}
 					else
 					{
 						this->sensors[i]=this->sensors[i];					
-					}			        	
-										
+					}
+								        	
+					//json[name]=this->sensors[i];					
 
 				}
  
@@ -203,7 +213,18 @@ bool ExternalSensors::config()
 			{
 				this->sensorsNumber=this->sensorsNumber;
 			}
+			json["sensorsNumber"]=this->sensorsNumber;
+
+			externalSensorsConfig.close();
+			externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");
+
+			if(!externalSensorsConfig)
+			{
+				return(false);
+			}
 			
+			json.printTo(externalSensorsConfig);
+			externalSensorsConfig.close();
 			
 			return(true); 
 		}
@@ -217,7 +238,7 @@ void ExternalSensors::printConf()
 {
 	Serial.println("External Sensors config ");
 	Serial.println(sensorsNumber);
-	Serial.println(jsonSizeVar);
+	Serial.println(jsonSize);
 	for(int i=0;i<sensorsNumber;i++)
 	{
 		Serial.println(this->sensors[i].reference);

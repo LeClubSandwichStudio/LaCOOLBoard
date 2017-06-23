@@ -185,7 +185,9 @@ bool CoolBoard::config()
 			else
 			{
 				this->delay=this->delay;
+				
 			}
+			json["delay"]=this->delay;
 
 			if(json["sensorJsonSize"].success())
 			{
@@ -195,6 +197,7 @@ bool CoolBoard::config()
 			{
 				this->sensorJsonSize=this->sensorJsonSize;
 			}
+			json["sensorJsonSize"]=this->sensorJsonSize;
 
 			if(json["answerJsonSize"].success())
 			{
@@ -204,6 +207,7 @@ bool CoolBoard::config()
 			{
 				this->answerJsonSize=this->answerJsonSize;
 			}
+			json["answerJsonSize"]=this->answerJsonSize;
 			
 			if(json["ireneActive"].success() )
 			{
@@ -212,7 +216,8 @@ bool CoolBoard::config()
 			else
 			{
 				this->ireneActive=this->ireneActive;
-			}	
+			}
+			json["ireneActive"]=this->ireneActive;	
 
 			if(json["jetpackActive"].success() )
 			{		
@@ -222,6 +227,7 @@ bool CoolBoard::config()
 			{
 				this->jetpackActive=this->jetpackActive;
 			}
+			json["jetpackActive"]=this->jetpackActive;
 			
 			if(json["externalSensorsActive"].success() )
 			{			
@@ -232,6 +238,7 @@ bool CoolBoard::config()
 			{
 				this->externalSensorsActive=this->externalSensorsActive;
 			}
+			json["externalSensorsActive"]=this->externalSensorsActive;
 			
 			if(json["serverTimeOut"].success() )
 			{			
@@ -241,7 +248,19 @@ bool CoolBoard::config()
 			{
 				this->serverTimeOut=this->serverTimeOut;
 			}
-				
+			json["serverTimeOut"]=this->serverTimeOut;
+			
+			configFile.close();
+			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
+		
+			if(!configFile)
+			{
+				return(false);
+			}
+
+			json.printTo(configFile);
+			configFile.close();
+	
 			return(true); 
 		}
 	}	

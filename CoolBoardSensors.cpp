@@ -190,7 +190,9 @@ bool CoolBoardSensors::config()
 			{
 				this->sensorJsonSize=this->sensorJsonSize;			
 			}
+			json["sensorJsonSize"]=this->sensorJsonSize;
 
+			
 			if(json["BME280"]["temperature"].success() )
 			{			
 				this->airDataActive.temperature=json["BME280"]["temperature"];
@@ -199,6 +201,8 @@ bool CoolBoardSensors::config()
 			{
 				this->airDataActive.temperature=this->airDataActive.temperature;			
 			}
+			json["BME280"]["temperature"]=this->airDataActive.temperature;
+			
 			
 			if(json["BME280"]["humidity"].success() )
 			{			
@@ -209,6 +213,8 @@ bool CoolBoardSensors::config()
 			{
 				this->airDataActive.humidity=this->airDataActive.humidity;
 			}
+			json["BME280"]["humidity"]=this->airDataActive.humidity;
+			
 			
 			if(json["BME280"]["pressure"].success() )
 			{
@@ -218,6 +224,8 @@ bool CoolBoardSensors::config()
 			{
 				this->airDataActive.pressure=this->airDataActive.pressure;
 			}
+			json["BME280"]["pressure"]=this->airDataActive.pressure;
+
 			
 			if(json["SI114X"]["visible"].success() )
 			{
@@ -227,6 +235,8 @@ bool CoolBoardSensors::config()
 			{
 				this->lightDataActive.visible=this->lightDataActive.visible;
 			}
+			json["SI114X"]["visible"]=this->lightDataActive.visible;
+			
 			
 			if(json["SI114X"]["ir"].success() )
 			{			
@@ -236,6 +246,8 @@ bool CoolBoardSensors::config()
 			{
 				this->lightDataActive.ir=this->lightDataActive.ir;
 			}
+			json["SI114X"]["ir"]=this->lightDataActive.ir;
+
 			
 			if(json["SI114X"]["uv"].success() )			
 			{			
@@ -245,6 +257,8 @@ bool CoolBoardSensors::config()
 			{
 				this->lightDataActive.uv=this->lightDataActive.uv;
 			}
+			json["SI114X"]["uv"]=this->lightDataActive.uv;
+
 
 			if(json["vbat"].success() )
 			{
@@ -254,6 +268,8 @@ bool CoolBoardSensors::config()
 			{
 				this->vbatActive=this->vbatActive;
 			}
+			json["vbat"]=this->vbatActive;
+
 			
 			if(json["earthMoisture"].success() )
 			{			
@@ -263,7 +279,18 @@ bool CoolBoardSensors::config()
 			{
 				this->earthMoistureActive=this->earthMoistureActive;
 			}
-			  
+			json["earthMoisture"]=this->earthMoistureActive;
+
+			coolBoardSensorsConfig.close();			
+			coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");			
+			if(!coolBoardSensorsConfig)
+			{
+				return(false);			
+			}  
+
+			json.printTo(coolBoardSensorsConfig);
+			coolBoardSensorsConfig.close();			
+			
 			  return(true); 
 		}
 	}	

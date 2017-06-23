@@ -108,6 +108,8 @@ bool Jetpack::config()
 						{
 							this->actors[i].actif=this->actors[i].actif;
 						}
+						json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
+
 
 						if(json[String("Act")+String(i)]["low"].success() )
 						{					
@@ -116,7 +118,9 @@ bool Jetpack::config()
 						else
 						{
 							this->actors[i].low=this->actors[i].low;					
-						}	
+						}
+						json[String("Act")+String(i)]["low"]=this->actors[i].low;
+	
 					
 						if(json[String("Act")+String(i)]["high"].success() )
 						{				
@@ -126,6 +130,8 @@ bool Jetpack::config()
 						{
 							this->actors[i].high=this->actors[i].high;
 						}
+						json[String("Act")+String(i)]["high"]=this->actors[i].high;
+
 					
 						if(json[String("Act")+String(i)]["type"].success() )
 						{				
@@ -134,18 +140,23 @@ bool Jetpack::config()
 						else
 						{
 							this->actors[i].type=this->actors[i].type;
-						}	
+						}
+						json[String("Act")+String(i)]["type"]=this->actors[i].type;	
+
 					}
 					else
 					{
 						this->actors[i]=this->actors[i];
 					}
+					
+					//json[String("Act")+String(i)]=this->actors[i];
 				}
 			}
 			else
 			{
 				this->actorsNumber=this->actorsNumber;
 			}
+			json["actorsNumber"]=this->actorsNumber;
 			
 			return(true); 
 		}

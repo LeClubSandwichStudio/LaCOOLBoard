@@ -140,6 +140,7 @@ bool CoolMQTT::config()
 					}
 
 				}
+				json["mqttServer"]=this->mqttServer;
 
 				
 				if(json["inTopic"].success() )
@@ -157,6 +158,8 @@ bool CoolMQTT::config()
 						this->inTopic[i]=this->inTopic[i];
 					}				
 				}
+				json["inTopic"]=this->inTopic;
+				
 				
 				if(json["outTopic"].success() )
 				{
@@ -172,7 +175,9 @@ bool CoolMQTT::config()
 					{
 						this->outTopic[i]=this->outTopic[i];
 					}
-				}			
+				}
+				json["outTopic"]=this->outTopic;
+			
 				
 				if(json["clientId"].success() )
 				{				
@@ -189,6 +194,7 @@ bool CoolMQTT::config()
 						this->clientId[i]=this->clientId[i];
 					}				
 				}
+				json["clientId"]=this->clientId;
 				
 				if(json["bufferSize"].success() )
 				{
@@ -199,6 +205,17 @@ bool CoolMQTT::config()
 				{
 					this->bufferSize=this->bufferSize;
 				}
+				json["bufferSize"]=this->bufferSize;
+
+				configFile.close();
+				configFile = SPIFFS.open("/mqttConfig.json", "w");
+				if(!configFile)
+				{
+					return(false);				
+				}
+				
+				json.printTo(configFile);
+				configFile.close();
 			  
 			  return(true); 
 		}

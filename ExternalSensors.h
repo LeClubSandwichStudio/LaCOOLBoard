@@ -19,7 +19,7 @@ public:
 
 	bool config();
 
-	int jsonSize();
+	int getJsonSize();
 	void printConf();
 
 private:
@@ -34,7 +34,7 @@ private:
 	}sensors[50];
 
 int sensorsNumber;
-int jsonSizeVar;
+int jsonSize;
 
 };
 

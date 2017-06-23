@@ -121,6 +121,19 @@ bool CoolBoardLed::config()
 			{
 				this->ledActive=this->ledActive;			
 			}
+			
+			json["ledActive"]=this->ledActive;
+			coolBoardLedConfig.close();
+			
+			coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");
+			if(!coolBoardLedConfig)
+			{
+				return(false);			
+			}
+
+			json.printTo(coolBoardLedConfig);
+			coolBoardLedConfig.close();
+
 			  return(true); 
 		}
 	}	

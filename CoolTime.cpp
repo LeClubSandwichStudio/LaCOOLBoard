@@ -169,7 +169,7 @@ bool CoolTime::config()
 			  return(false);
 		} 
 		else
-		{  	
+		{  	String ip;
 			
 			if(json["timeZone"].success() )
 			{
@@ -179,10 +179,11 @@ bool CoolTime::config()
 			{
 				this->timeZone=this->timeZone;			
 			}
+			json["timeZone"]=this->timeZone;
 			
 			if(json["timeServer"].success() )
 			{			
-				String ip=json["timeServer"];
+				 ip=json["timeServer"].as<String>();
 				this->timeServer.fromString(ip);
  				
 			}
@@ -190,6 +191,7 @@ bool CoolTime::config()
 			{
 				this->timeServer=this->timeServer;
 			}
+			json["timeServer"]=ip;
 			
 			if(json["localPort"].success() )
 			{						
@@ -199,6 +201,18 @@ bool CoolTime::config()
 			{
 				this->localPort=this->localPort;
 			}
+			json["localPort"]=this->localPort;
+
+			rtcConfig.close();
+			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
+			
+			if(!rtcConfig)
+			{
+				return(false);
+			}
+			
+			json.printTo(rtcConfig);
+			rtcConfig.close();
 						
 			return(true); 
 		}

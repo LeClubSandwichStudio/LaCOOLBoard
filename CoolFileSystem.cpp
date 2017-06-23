@@ -218,7 +218,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		Serial.println("externalSensors Config");
 		jsonExternalSensors.printTo(externalSensorsConfig);
 		jsonExternalSensors.printTo(Serial);
-		for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)
+/*		for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)
 		{	
 			String path="/"+String(i)+".json"; 
          		File temp=SPIFFS.open(path,"w+");
@@ -233,7 +233,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 			jsonExternalSensors[String(i)].printTo(Serial);
 			temp.close();
 		}
-			
+*/			
 		externalSensorsConfig.close();
 
 	}
