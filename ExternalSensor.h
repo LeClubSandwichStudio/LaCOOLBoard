@@ -17,13 +17,13 @@ public:
 
 	virtual uint8_t begin()
 	{
-		Serial.println("base");
+
 		return(-2);
 	}
 
 	virtual int read()
 	{
-		Serial.println("base reading");	
+
 		return(-1);
 	}
 	
@@ -44,13 +44,13 @@ public :
 	
 	virtual uint8_t begin()
 	{
-		Serial.println("generic type ");
+
 		return(sensor.begin() );	
 	}
 
 	virtual int read()
 	{
-		Serial.println("generic read ");
+
 		return(0);
 	}
 
@@ -75,7 +75,7 @@ public:
 	
 	virtual uint8_t begin()
 	{
-		Serial.println("NDIR begin ");
+
 		 if (sensor.begin()) 
 		{
 
@@ -90,18 +90,18 @@ public:
 
 	virtual int read()
 	{
-	Serial.println("reading co2");
+
 		if (sensor.measure())
 		{
-			Serial.println("reading co2");
-			Serial.println(sensor.ppm);
+
+
 			return(sensor.ppm);
 			
 		}
 		
 		else
 		{
-			Serial.println("not reading co2");
+
 			return(-42);
 		}
 	}

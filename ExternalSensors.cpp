@@ -18,18 +18,19 @@ void ExternalSensors::begin()
 	{
 		if( (sensors[i].reference) == "NDIR_I2C" )
 		{	
+			std::unique_ptr< ExternalSensor<NDIR_I2C> > sensorCO2(new ExternalSensor<NDIR_I2C> (77));
 
-			ExternalSensor<NDIR_I2C> ndirCO2(77);
 
-			sensors[i].exSensor=&ndirCO2;
+			sensors[i].exSensor= sensorCO2.release();                       // using std::move;
 			sensors[i].exSensor->begin();
 
 		}
 		if( (sensors[i].reference) == "DallasTemperature")
 		{
 			OneWire oneWire(0);
-			ExternalSensor<DallasTemperature> dallasTemp;
-			sensors[i].exSensor=&dallasTemp;
+			std::unique_ptr< ExternalSensor<DallasTemperature> > dallasTemp(new ExternalSensor<DallasTemperature> ());
+			 ;
+			sensors[i].exSensor=dallasTemp.release();
 			sensors[i].exSensor->begin();
 			
 		}
@@ -50,32 +51,14 @@ String ExternalSensors::read()
 	 return("00 ");
 	}
 	
-	Serial.println("enter the for");	
+
 	for(int i=0;i<sensorsNumber;i++)
 	{
-		if( (sensors[i].reference) == "NDIR_I2C" )
-		{	
-
-			ExternalSensor<NDIR_I2C> ndirCO2(77);
-
-			sensors[i].exSensor=&ndirCO2;
-			sensors[i].exSensor->begin();
-			Serial.println("reading " );	 
-			Serial.println(sensors[i].exSensor->read() );
-			Serial.println("assigning " );	   	
-			root[sensors[i].type]=sensors[i].exSensor->read();
-
-
-		}
-
-		
-	
-	
-		
-	 	
+			
+			root[sensors[i].type]=sensors[i].exSensor->read();	 	
 	}
 	
-	root.printTo(Serial);
+
 	Serial.println(" ");
 	root.printTo(data);
 	
