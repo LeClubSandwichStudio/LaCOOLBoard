@@ -1,7 +1,7 @@
 /*
 * This class handles the On-Board Sensors.
 * 
-* It's just a wrapper
+* 
 * 
 *
 */
@@ -31,7 +31,7 @@ public:
 	//data is in json
 	String read();
 
-	int jsonSize();
+	int getJsonSize();
 	void setJsonSize(int jsonSize);
 	void allActive();
 
@@ -97,7 +97,7 @@ private:
         byte vbatActive;
 	byte earthMoistureActive;
 
-	int sensorJsonSize;//for the json output
+	int jsonSize;//for the json output
 };
 
 #endif

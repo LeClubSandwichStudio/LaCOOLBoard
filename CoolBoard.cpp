@@ -1,9 +1,8 @@
-/*
-*  CoolBoard.cpp
+/**
+*  CoolBoard.h
 *  
-*  This class is a wrapper.
-*  It starts and calls everything
-*  
+*  This class handles the entire CoolBoard.
+*    
 *  
 *  
 *  
@@ -17,7 +16,13 @@
 #include "CoolBoard.h"
 #include "ArduinoJson.h"
 
-
+/**
+*	CoolBoard::begin():
+*	This method is provided to configure, 
+*	begin the used CoolKit Parts.
+*	If Serial is enabled,it prints the configuration
+*	of the used parts.
+*/
 void CoolBoard::begin()
 {       
 	fileSystem.begin(); 
@@ -63,6 +68,12 @@ void CoolBoard::begin()
 
 }
 
+/**
+*	CoolBoard::connect():
+*	This method is provided to manage the network
+*	connection and the mqtt connection.
+*		
+*/
 bool CoolBoard::connect()
 {	if(WiFi.status() != WL_CONNECTED)
 	{
@@ -82,6 +93,16 @@ bool CoolBoard::connect()
 		
 }
 
+/**
+*	CoolBoard::onLineMode():
+*	This method is provided to manage the online
+*	mode:	-update clock
+*		-read sensors
+*		-do actions
+*		-publish data
+*		-read answer
+*		-update config
+*/
 void CoolBoard::onLineMode()
 {	
 	
@@ -130,6 +151,13 @@ void CoolBoard::onLineMode()
 				
 }
 
+/**
+*	CoolBoard::offlineMode():
+*	This method is provided to manage the offLine
+*	mode:	-read sensors
+*		-do actions
+*		-save data in the file system
+*/
 void CoolBoard::offLineMode()
 {
 
@@ -148,10 +176,22 @@ void CoolBoard::offLineMode()
 	{
 		jetPack.doAction(data.c_str(),sensorJsonSize); 
 	}	
-	Serial.println(data);
+
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize ); 
 }
 
+
+/**
+*	CoolBoard::config():
+*	This method is provided to configure
+*	the CoolBoard :	-log interval
+*			-Size of the data to write
+*			-Size of the data to read
+*			-irene3000 activated/deactivated
+*			-jetpack activated/deactivated
+*			-external Sensors activated/deactivated
+*			-mqtt server timeout
+*/
 bool CoolBoard::config()
 {
 	fileSystem.begin(); 
@@ -268,6 +308,13 @@ bool CoolBoard::config()
 
 }
 
+/**
+*
+*	CoolBoard::printConf():
+*	This method is provided to print
+*	the configuration to the Serial
+*	Monitor.
+*/
 void CoolBoard::printConf()
 {
 	Serial.println("Cool Board Conf");
@@ -282,6 +329,11 @@ void CoolBoard::printConf()
 
 }
 
+/**
+*	CoolBoard::update(mqtt answer):
+*	This method is provided to handle the
+*	configuration update of the different parts 
+*/
 void CoolBoard::update(const char*answer )
 {	
 	DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
@@ -327,6 +379,11 @@ void CoolBoard::update(const char*answer )
 	}
 }
 
+/**
+*	CoolBoard::getDelay():
+*	This method is provided to get
+*	the log interval
+*/
 uint16_t CoolBoard::getDelay()
 {
 	return(this->delay);

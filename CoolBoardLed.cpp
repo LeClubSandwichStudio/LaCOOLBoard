@@ -1,3 +1,11 @@
+/**
+*
+* This class handles the led in the Sensor Board
+*
+*
+*
+*/
+
 #include "FS.h"
 #include "Arduino.h"
 
@@ -5,22 +13,33 @@
 #include "CoolBoardLed.h"
 #include "ArduinoJson.h"
 
+
+/**
+*	CoolBoardLed::colorFade ( Red , Green , Blue, Time in seconds ):
+*	colorFade animation:	Fade In over T(seconds)
+*				Fade Out over T(seconds)
+*/
 void CoolBoardLed::colorFade(int R, int G, int B, int T) 
 {
 	for (int k = 0; k < 1000; k++) 
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
 		neoPixelLed->Show();
 		delay(T);
 	}
 	for (int k = 1000; k >= 0; k--) 
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
 		neoPixelLed->Show();
 		delay(T);
 	}
 }
 
+/**
+*	CoolBoardLed::blink( Red , Green , Blue , Time in seconds ):
+*	Blink animation:	Led On for T seconds
+				Led off
+*/
 void CoolBoardLed::blink(int R, int G, int B, int T) 
 {
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
@@ -30,26 +49,38 @@ void CoolBoardLed::blink(int R, int G, int B, int T)
 	neoPixelLed->Show();
 }
 
+/**
+*	CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
+*	Fade In animation:	gradual increase over T(seconds)
+*/
 void CoolBoardLed::fadeIn(int R, int G, int B, int T) 
 {
 	for (int k = 0; k < 1000; k++) 
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
 		neoPixelLed->Show();
 		delay(T);
 	}
 }
 
+/**
+*	CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
+*	Fade Out animation:	gradual decrease over T(seconds)
+*/
 void CoolBoardLed::fadeOut(int R, int G, int B, int T) 
 {
 	for (int k = 1000; k >= 0; k--) 
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 100, k * G / 100, k * B / 100));
+		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
 		neoPixelLed->Show();
 		delay(T);
 	}
 }
 
+/**
+*	CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
+*	Strobe animation:	blinks over T(seconds)	
+*/
 void CoolBoardLed::strobe(int R, int G, int B, int T) 
 {
 	for (int k = 1000; k >= 0; k--) 
@@ -63,33 +94,48 @@ void CoolBoardLed::strobe(int R, int G, int B, int T)
 	}
 }
 
+/**
+* 	CoolBoardLed::end() :
+*	this method is provided to delete the dynamically created neoPixelLed
+*/
 void CoolBoardLed::end()
 {
 	delete neoPixelLed;
 }
 
-void CoolBoardLed::neoPixelLedBegin()
-{  
-	pinMode(5,OUTPUT);
-	digitalWrite(5,HIGH);
-	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); //create the led
-	neoPixelLed->Begin();
-	neoPixelLed->Show();
-}
 
+/**
+*	CoolBoardLed::begin():
+*	This method is provided to start the Led Object 
+*	by setting the correct pin and creating a dynamic
+*	neoPixelBus  
+*/
 void CoolBoardLed::begin( )
 {
-	//starts the actor
-	this->neoPixelLedBegin();
+	pinMode(5,OUTPUT);
+	digitalWrite(5,HIGH);
+	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
+	neoPixelLed->Begin();
+	neoPixelLed->Show();
 } 
 
-
+/**
+*	CoolBoardLed::write(Red,Green,Blue):
+*	This method is provided to set the 
+*	Color of the Led
+*/
 void CoolBoardLed::write(int R, int G, int B)
 {
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 	neoPixelLed->Show();
 }
 
+/**
+*	CoolBoardLed::config():
+*	This method is provided to configure
+*	the Led Object :	-ledActive=0 : deactivated
+*				-ledActive=1 : activated			
+*/
 bool CoolBoardLed::config()
 {
 	File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "r");
@@ -140,6 +186,12 @@ bool CoolBoardLed::config()
 
 }				
 
+/**
+*	CoolBoardLed::printConf():
+*	This method is provided to print the
+*	Led Object Configuration to the Serial
+*	Monitor
+*/
 void CoolBoardLed::printConf()
 {
 	Serial.println("Led Conf");

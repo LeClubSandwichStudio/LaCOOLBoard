@@ -1,6 +1,6 @@
-/*
+/**
 *
-* This class manages the On Board Led
+* This class handles the led in the Sensor Board
 *
 *
 *
@@ -40,7 +40,7 @@ public:
 
 	void strobe(int R, int G, int B, int T); 
 
-	void neoPixelLedBegin();
+
 
 private:
 

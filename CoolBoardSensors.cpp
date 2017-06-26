@@ -1,19 +1,24 @@
 /*
 * This class handles the On-Board Sensors.
 *
-* It's just a wrapper.
+* 
 *
 *
 */
 #include "FS.h"
 #include "Arduino.h"
-#include <stdint.h>        // needed for the Environmental sensor
+#include <stdint.h>        
 #include "Wire.h"
 #include "ArduinoJson.h"
 #include "CoolBoardSensors.h"
 
 
-//Constructor
+/**
+*	CoolBoardSensors::CoolBoardSensors():
+*	This Constructor is provided to start
+*	the I2C interface and Init the different
+*	used pins
+*/
 CoolBoardSensors::CoolBoardSensors()
 {
 	Wire.begin(2, 14);                       //I2C init Maybe change this to the CoolBoard?
@@ -25,15 +30,32 @@ CoolBoardSensors::CoolBoardSensors()
 
 }
 
-int CoolBoardSensors::jsonSize()
+/**
+*	CoolBoardSensors::getJsonSize():
+*	This method is provided to get
+*	the sensor board answer size
+*/
+int CoolBoardSensors::getJsonSize()
 {
-	return(this->sensorJsonSize );
-}
-void CoolBoardSensors::setJsonSize(int jsonSize)
-{
-	this->sensorJsonSize=jsonSize;
+	return(this->jsonSize );
 }
 
+/**
+*	CoolBoardSensors::setJsonSize( JSON size):
+*	This method is provided to set the
+*	sensor board answer size
+*/
+void CoolBoardSensors::setJsonSize(int jsonSize)
+{
+	this->jsonSize=jsonSize;
+}
+
+/**
+*	CoolBoardSensors::allActive():
+*	This method is provided to allow
+*	activation of all the sensor board sensors
+*	without passing by the configuration file/method
+*/
 void CoolBoardSensors::allActive()
 {
 	lightDataActive.visible=1;
@@ -52,7 +74,11 @@ void CoolBoardSensors::allActive()
 }
 
 
-
+/**
+*	CoolBoardSensors::begin():
+*	This method is provided to start the
+*	sensors that are on the sensor board
+*/
 void CoolBoardSensors::begin()
 {       
 	initReadI2C();
@@ -71,6 +97,11 @@ void CoolBoardSensors::begin()
 
 }
 
+/**
+*	CoolBoardSensors::end():
+*	This method is provided to end
+*	the sensors on the sensor board
+*/
 void CoolBoardSensors::end()
 {
 
@@ -78,7 +109,11 @@ void CoolBoardSensors::end()
 
 }
 
-
+/**
+*	CoolBoardSensors::read():
+*	This method is provided to return the
+*	data read by the sensor board
+**/
 String CoolBoardSensors::read()
 {
 	String data;
@@ -130,7 +165,7 @@ String CoolBoardSensors::read()
 	//earth Moisture
 	if(earthMoistureActive)
 	{	
-		root["earthMoisture"]=this->readMoisture();
+		root["soilMoisture"]=this->readMoisture();
 	}
 	
 	
@@ -143,6 +178,11 @@ String CoolBoardSensors::read()
 
 }
 
+/**
+*	CoolBoardSensors::initReadI2C():
+*	This method is provided to enable the I2C
+*	Interface on the sensor board.
+*/
 void CoolBoardSensors::initReadI2C()
 {
   
@@ -150,6 +190,11 @@ void CoolBoardSensors::initReadI2C()
 
 }
 
+/**
+*	CoolBoardSensors::stopReadI2C():
+*	This method is provided to disable the I2C
+*	Interface on the sensor board
+*/
 void CoolBoardSensors::stopReadI2C()
 {
 
@@ -157,6 +202,13 @@ void CoolBoardSensors::stopReadI2C()
 
 }
 
+
+/**
+*	CoolBoardSensors::config():
+*	This method is provided to configure the
+*	sensor board :	-activate   1
+*			-deactivate 0
+*/
 bool CoolBoardSensors::config()
 {
 	//read config file
@@ -271,15 +323,15 @@ bool CoolBoardSensors::config()
 			json["vbat"]=this->vbatActive;
 
 			
-			if(json["earthMoisture"].success() )
+			if(json["soilMoisture"].success() )
 			{			
-				this->earthMoistureActive= json["earthMoisture"];
+				this->earthMoistureActive= json["soilMoisture"];
 			}
 			else
 			{
 				this->earthMoistureActive=this->earthMoistureActive;
 			}
-			json["earthMoisture"]=this->earthMoistureActive;
+			json["soilMoisture"]=this->earthMoistureActive;
 
 			coolBoardSensorsConfig.close();			
 			coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");			
@@ -297,6 +349,12 @@ bool CoolBoardSensors::config()
 
 }
 
+
+/**
+*	CoolBoardSensors::printConf():
+*	This method is provided to print the 
+*	configuration to the Serial Monitor
+*/
 void CoolBoardSensors::printConf()
 {
 	Serial.println("Sensors Conf ");
@@ -314,12 +372,11 @@ void CoolBoardSensors::printConf()
 }
 
 
-
-
-
-//environment sensor methods
-
-//set the enviornment sensor settings , if argument is ommitted , default value will be assigned
+/**
+*	CoolBoardSensors::setEnvSensorSetting():
+*	This method is provided to set the enviornment
+*	sensor settings , if argument is ommitted , default value will be assigned
+*/
 void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CAddress,    
 
 						   uint8_t runMode , uint8_t tStandby, uint8_t filter, 						   
@@ -343,7 +400,12 @@ void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CA
   envSensor.settings.humidOverSample = humidOverSample;
 
 }
-	
+
+/**
+*	CoolBoardSensors::readVBat():
+*	This method is provided to read the
+*	Battery Voltage.
+*/	
 float CoolBoardSensors::readVBat()
 {
 	digitalWrite(AnMplex, LOW);                                  //Enable Analog Switch to get the batterie tension
@@ -357,6 +419,11 @@ float CoolBoardSensors::readVBat()
 	return (val);	
 }
 
+/**
+*	CoolBoardSensors::readMoisture():
+*	This method is provided to red the
+*	Soil Moisture
+*/
 float CoolBoardSensors::readMoisture()
 {
 	  digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit

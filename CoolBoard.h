@@ -1,10 +1,8 @@
-/*
+/**
 *  CoolBoard.h
 *  
-*  This class is a wrapper.
-*  It handles everything.
-*  
-*  
+*  This class handles the entire CoolBoard.
+*    
 *  
 *  
 *  
@@ -15,21 +13,21 @@
 #define CoolBoard_H
 
 
-#include"CoolFileSystem.h" //CoolBoard File System Manager
-#include"CoolBoardSensors.h" //CoolBoard Sensor Board Manager
-#include"CoolBoardLed.h" //CoolBoard Led Manager
-#include"CoolTime.h" //CoolBoard Real Time Clock Manager
-#include"CoolMQTT.h"//CoolBoard MQTT Manager
-#include"Jetpack.h"//CoolBoard Jetpack Manager
-#include"Irene3000.h"//CoolBoard Irene3000 Manager
-#include"ExternalSensors.h" //CoolBoard External Sensors Manager
+#include"CoolFileSystem.h" 	//CoolBoard File System Manager
+#include"CoolBoardSensors.h"	//CoolBoard Sensor Board Manager
+#include"CoolBoardLed.h"	//CoolBoard Led Manager
+#include"CoolTime.h"		//CoolBoard Real Time Clock Manager
+#include"CoolMQTT.h"		//CoolBoard MQTT Manager
+#include"Jetpack.h"		//CoolBoard Jetpack Manager
+#include"Irene3000.h"		//CoolBoard Irene3000 Manager
+#include"ExternalSensors.h"	//CoolBoard External Sensors Manager
 
-#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
-#include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
-#include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
-#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
+#include <ESP8266WiFi.h>	//ESP8266 Core WiFi Library (you most likely already have this in your sketch)
+#include <DNSServer.h>		//Local DNS Server used for redirecting all requests to the configuration portal
+#include <ESP8266WebServer.h>	//Local WebServer used to serve the configuration portal
+#include <WiFiManager.h>	//https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 
-#include"Arduino.h" //Arduino Defs
+#include"Arduino.h"		//Arduino Defs
 
 class CoolBoard
 {
@@ -37,7 +35,7 @@ class CoolBoard
 public:
 
 	void begin(); 
-
+	
 	bool config();
 
 	void update(const char*answer );
