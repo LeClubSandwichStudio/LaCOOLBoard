@@ -78,11 +78,10 @@ private:
 
 	byte externalSensorsActive;		
 
-
-
 	uint16_t delay;
 
 	int answerJsonSize;
+	
 	int sensorJsonSize;
 
 	int serverTimeOut;
