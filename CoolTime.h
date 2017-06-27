@@ -1,13 +1,10 @@
-/*
-*	CoolTime.h
-*  
-*	This class manages the DS1337 RTC .
-*  
-*  
-*  
-*  
-*  
-*  
+/**
+*	\file CoolTime.h
+*	\brief CoolTime Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
+*
 */
 
 #ifndef CoolTime_H
@@ -19,6 +16,13 @@
 #include <WiFiUdp.h>
 
 #define NTP_PACKET_SIZE  48 // NTP time is in the first 48 bytes of message
+
+/**
+*	\class CoolTime
+*  
+*	\brief This class manages the DS1337 RTC .
+*  
+*/
 
 class CoolTime
 {

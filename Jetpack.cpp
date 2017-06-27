@@ -1,8 +1,9 @@
 /**
-*	Jetpack.cpp
-*	This class manages the Jetpack shield.
-*
-*
+*	\file Jetpack.cpp
+*	\brief Jetpack Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
 
@@ -109,6 +110,8 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 *	Jetpack::config():
 *	This method is provided to configure the
 *	Jetpack with a configuration file
+*
+*	\return true if successful,false otherwise
 */ 
 bool Jetpack::config()
 {

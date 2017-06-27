@@ -1,7 +1,9 @@
 /**
-*	ExternalSensors.h
-*	This class handles the external sensors
-*	run time defintion , configuartion and actions
+*	\file ExternalSensors.h
+*	\brief ExternalSensors Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
 
@@ -15,6 +17,12 @@
 
 #include"ExternalSensor.h"
 
+/**
+*	\class ExternalSensors
+*	\brief This class handles the external sensors
+*	run time defintion , configuartion and actions
+*
+*/
 class ExternalSensors 
 {
 public:

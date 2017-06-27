@@ -1,6 +1,6 @@
 var NAVTREE =
 [
-  [ "COOLAPI", "index.html", [
+  [ "CoolAPI", "index.html", [
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],

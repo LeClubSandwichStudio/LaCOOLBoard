@@ -1,16 +1,24 @@
-/*
-*	Jetpack.h
-*	This class manages the Jetpack shield
-*
-*
+/**
+*	\file Jetpack.h
+*	\brief Jetpack Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
+
 #ifndef Jetpack_H
 #define Jetpack_H
 
 #include"Arduino.h"
 
-
+/**
+*	\class Jetpack
+*	\brief This class manages the Jetpack shield
+*
+*
+*
+*/
 class Jetpack
 {
 public:

@@ -1,7 +1,12 @@
 /**
-*	CoolMQTT.h
-*	This class handles the mqtt client
+*	\file CoolMQTT.h
+*	\brief CoolMQTT Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
+*
 */
+
 
 #ifndef CoolMQTT_H
 #define CoolMQTT_H
@@ -10,7 +15,10 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-
+/**
+*	\class CoolMQTT
+*	\brief This class handles the mqtt client
+*/
 class CoolMQTT
 {
 

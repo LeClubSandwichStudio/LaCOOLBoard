@@ -1,8 +1,9 @@
-/*
-*
-*	CoolBoardSensors.cpp
-*	This class handles the On-Board Sensors. 
-*
+/**
+*	\file CoolBoardSensors.cpp
+*	\brief CoolBoardSensors Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
 #include "FS.h"
@@ -34,6 +35,8 @@ CoolBoardSensors::CoolBoardSensors()
 *	CoolBoardSensors::getJsonSize():
 *	This method is provided to get
 *	the sensor board answer size
+*	
+*	\return json data size
 */
 int CoolBoardSensors::getJsonSize()
 {
@@ -113,6 +116,9 @@ void CoolBoardSensors::end()
 *	CoolBoardSensors::read():
 *	This method is provided to return the
 *	data read by the sensor board
+*
+*	\return a json string containing the 
+*	sensors data
 **/
 String CoolBoardSensors::read()
 {
@@ -208,6 +214,9 @@ void CoolBoardSensors::stopReadI2C()
 *	This method is provided to configure the
 *	sensor board :	-activate   1
 *			-deactivate 0
+*
+*	\return true if configuration is successful,
+*	false otherwise
 */
 bool CoolBoardSensors::config()
 {
@@ -376,6 +385,7 @@ void CoolBoardSensors::printConf()
 *	CoolBoardSensors::setEnvSensorSetting():
 *	This method is provided to set the enviornment
 *	sensor settings , if argument is ommitted , default value will be assigned
+*	
 */
 void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CAddress,    
 
@@ -405,6 +415,9 @@ void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CA
 *	CoolBoardSensors::readVBat():
 *	This method is provided to read the
 *	Battery Voltage.
+*
+*	\return a float representing the battery
+*	voltage
 */	
 float CoolBoardSensors::readVBat()
 {
@@ -423,6 +436,9 @@ float CoolBoardSensors::readVBat()
 *	CoolBoardSensors::readMoisture():
 *	This method is provided to red the
 *	Soil Moisture
+*
+*	\return a float represnting the
+*	soil moisture
 */
 float CoolBoardSensors::readMoisture()
 {

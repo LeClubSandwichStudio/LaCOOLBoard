@@ -1,10 +1,11 @@
 /**
-*	ExternalSensor.h
-*	This class handles the actual	
-*	usage and creation of the external
-*	sensors
+*	\file ExternalSensor.h
+*	\brief ExternalSensor Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
+*
 */
-
 #ifndef BaseExternalSensor_H
 #define BaseExternalSensor_H
 
@@ -13,8 +14,8 @@
 #include"Arduino.h"  
 
 /**
-*	BaseExternalSensor:
-*	This class is a generic external Sensor
+*	\class BaseExternalSensor:
+*	\brief This class is a generic external Sensor
 *	it is a way to access real external sensor
 *	methods through run Time polymorphism
 */
@@ -34,6 +35,9 @@ public:
 	*	begin():
 	*	Base class virtual 
 	*	generic begin method
+	*	
+	*	\return generic value as it's not supposed
+	*	to be used
 	*/
 	virtual uint8_t begin()
 	{
@@ -45,6 +49,10 @@ public:
 	*	read():
 	*	Base class virtual
 	*	generic read method
+	*
+	*	\return generic value
+	*	as it is not supposed 
+	*	to be used	
 	*/
 	virtual int read()
 	{
@@ -57,8 +65,10 @@ public:
 
 
 /**
-*	template<class SensorClass> class External Sensor: 
+*	\class ExternalSensor	
+*	\brief template<class SensorClass> class External Sensor: 
 *	Derived class from BaseExternalSensor.
+*
 *	This is the generic Template for an external sensor
 *	This class works automatically with sensors that 
 *	provide the following methods :
@@ -87,6 +97,8 @@ public :
 
 	/**
 	*	Generic begin method
+	*
+	*	
 	*/
 	virtual uint8_t begin()
 	{
@@ -112,7 +124,8 @@ private :
 };
 
 /**
-*	NDIR_I2C Specialization Class
+*	\class ExternalSensor<NDIR_I2C>	
+*	\brief NDIR_I2C Specialization Class
 *	This is the template specialization
 *	for the NDIR_I2C CO2 sensor
 */
@@ -133,6 +146,9 @@ public:
 	/**
 	*	begin():
 	*	NDIR_I2C specific begin method
+	*
+	*	\return true if successful,
+	*	false otherwise
 	*/
 	virtual uint8_t begin()
 	{
@@ -152,6 +168,9 @@ public:
 	/**
 	*	read():
 	*	NDIR_I2C specific read method
+	*
+	*	\return the ppm value if successful,
+	*	else return -42
 	*/
 	virtual int read()
 	{
@@ -177,7 +196,8 @@ private:
 };
 
 /**
-*	DallasTemperature Specialization Class
+*	\class ExternalSensor<DallasTemperature>	
+*	\brief DallasTemperature Specialization Class
 *	This is the template specialization
 *	for the Dallas Temperature sensor
 */
@@ -199,6 +219,8 @@ public:
 	/**
 	*	begin():
 	*	DallasTemperature specific begin method
+	*
+	*	\return true if successful
 	*/
 	virtual uint8_t begin()
 	{
@@ -211,6 +233,8 @@ public:
 	/**
 	*	read():
 	*	DallasTemperature specific read method
+	*
+	*	\return the temperature in °C
 	*/
 	virtual int read()
 	{

@@ -1,7 +1,9 @@
 /**
-*	ExternalSensors.h
-*	This class handles the external sensors
-*	run time defintion , configuartion and actions
+*	\file ExternalSensors.cpp
+*	\brief ExternalSensors Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
 
@@ -56,6 +58,9 @@ void ExternalSensors::begin()
 *	ExternalSensors::read():	
 *	This method is provided to
 *	read the data from the external sensors
+*
+*	\return json string that contains the
+*	sensors data
 */
 String ExternalSensors::read()
 {
@@ -89,6 +94,8 @@ String ExternalSensors::read()
 *	This method is provided to return
 *	the size of the json data as a way
 *	to control memory usage
+*
+*	\return the json data size
 */
 int ExternalSensors::getJsonSize()
 {
@@ -100,6 +107,8 @@ int ExternalSensors::getJsonSize()
 *	This method is provided to configure
 *	the externalSensors through a configuration
 *	file
+*
+*	\return true if successful,false otherwise
 */
 bool ExternalSensors::config()
 {

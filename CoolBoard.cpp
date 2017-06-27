@@ -1,9 +1,9 @@
 /**
-*	CoolBoard.cpp
-*  	This class handles the entire CoolBoard.
-*    
-*  
-*  
+*	\file	CoolBoard.cpp
+*  	\breif	CoolBoard Source file
+*	\author	Mehdi Zemzem
+*	\version 1.0  
+*  	\date	27/06/2017
 *  
 *  
 */
@@ -70,7 +70,8 @@ void CoolBoard::begin()
 *	CoolBoard::connect():
 *	This method is provided to manage the network
 *	connection and the mqtt connection.
-*		
+*	
+*	 \return mqtt client state		
 */
 int CoolBoard::connect()
 {	if(WiFi.status() != WL_CONNECTED)
@@ -189,6 +190,9 @@ void CoolBoard::offLineMode()
 *			-jetpack activated/deactivated
 *			-external Sensors activated/deactivated
 *			-mqtt server timeout
+*
+*	\return true if configuration is done, 
+*	false otherwise
 */
 bool CoolBoard::config()
 {
@@ -381,6 +385,7 @@ void CoolBoard::update(const char*answer )
 *	CoolBoard::getDelay():
 *	This method is provided to get
 *	the log interval
+*	\return interval value in ms
 */
 uint16_t CoolBoard::getDelay()
 {

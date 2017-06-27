@@ -1,8 +1,9 @@
-/*
-*
-*	CoolBoardSensors.h 
-*	This class handles the On-Board Sensors. 
-* 
+/**
+*	\file CoolBoardSensors.h
+*	\brief CoolBoardSensors Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
 
@@ -13,7 +14,13 @@
 #include "SI114X.h"        // Light sensor Support
 #include "SparkFunBME280.h"// Environmental sensor Support
 
-
+/**
+*
+*	\class CoolBoardSensors 
+*	\brief This class handles the On-Board Sensors. 
+* 
+*
+*/
 class CoolBoardSensors
 {
 

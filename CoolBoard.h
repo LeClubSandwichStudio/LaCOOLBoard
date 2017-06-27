@@ -1,9 +1,9 @@
 /**
-*	CoolBoard.h
-*  	This class handles the entire CoolBoard.
-*    
-*  
-*  
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\author	Mehdi Zemzem
+*	\version 1.0  
+*  	\date	27/06/2017
 *  
 *  
 */
@@ -28,6 +28,12 @@
 
 #include"Arduino.h"		//Arduino Defs
 
+/**
+*	\class	CoolBoard
+*	
+*	\brief This class manages the CoolBoard and all of
+*	Its functions
+*/
 class CoolBoard
 {
 

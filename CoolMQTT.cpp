@@ -1,7 +1,12 @@
 /**
-*	CoolMQTT.cpp
-*	This class handles the mqtt client
+*	\file CoolMQTT.cpp
+*	\brief CoolMQTT Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
+*
 */
+
 
 #include "FS.h"
 #include "Arduino.h"  
@@ -30,17 +35,18 @@ void CoolMQTT::begin()
 /**
 *	CoolMQTT::state():
 *	This method is provided to return the 
-*	mqtt client's state:	
-*	-4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond within the keepalive time
-*	-3 : MQTT_CONNECTION_LOST - the network connection was broken
-*	-2 : MQTT_CONNECT_FAILED - the network connection failed
-*	-1 : MQTT_DISCONNECTED - the client is disconnected cleanly
-*	0 : MQTT_CONNECTED - the cient is connected
-*	1 : MQTT_CONNECT_BAD_PROTOCOL - the server doesn't support the requested version of MQTT
-*	2 : MQTT_CONNECT_BAD_CLIENT_ID - the server rejected the client identifier
-*	3 : MQTT_CONNECT_UNAVAILABLE - the server was unable to accept the connection
-*	4 : MQTT_CONNECT_BAD_CREDENTIALS - the username/password were rejected
-*	5 : MQTT_CONNECT_UNAUTHORIZED - the client was not authorized to connect
+*	mqtt client's state.
+*	\return mqtt client state:	
+*		-4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond within the keepalive time
+*		-3 : MQTT_CONNECTION_LOST - the network connection was broken
+*		-2 : MQTT_CONNECT_FAILED - the network connection failed
+*		-1 : MQTT_DISCONNECTED - the client is disconnected cleanly
+*		0 : MQTT_CONNECTED - the cient is connected
+*		1 : MQTT_CONNECT_BAD_PROTOCOL - the server doesn't support the requested version of MQTT
+*		2 : MQTT_CONNECT_BAD_CLIENT_ID - the server rejected the client identifier
+*		3 : MQTT_CONNECT_UNAVAILABLE - the server was unable to accept the connection
+*		4 : MQTT_CONNECT_BAD_CREDENTIALS - the username/password were rejected
+*		5 : MQTT_CONNECT_UNAUTHORIZED - the client was not authorized to connect
 */
 int CoolMQTT::state()
 {
@@ -52,6 +58,8 @@ int CoolMQTT::state()
 *	This method is provided to connect the client to the server,
 *	publish to the out topic , subscribe to the in topic and set
 *	the keepAlive time.
+*	
+*	\return mqtt client state
 */
 int CoolMQTT::connect(uint16_t keepAlive)
 {       
@@ -87,6 +95,9 @@ int CoolMQTT::connect(uint16_t keepAlive)
 *	CoolMQTT::publish(data):
 *	This method is provided to publish data
 *	to the out topic
+*
+*	\return true if publish successful,
+*	false otherwise
 */
 bool CoolMQTT::publish(const char* data)
 {
@@ -103,6 +114,9 @@ bool CoolMQTT::publish(const char* data)
 *	CoolMQTT::mqttLoop():
 *	This method is provided to allow the
 *	client to process the data
+*
+*	\return true if successful,false
+*	otherwise
 */	
 bool CoolMQTT::mqttLoop()
 {
@@ -162,6 +176,8 @@ String CoolMQTT::read()
 *				-outTopic
 *				-client Id
 *				-buffer size	
+*
+*	\return true if successful,false otherwise
 */
 bool CoolMQTT::config()
 {

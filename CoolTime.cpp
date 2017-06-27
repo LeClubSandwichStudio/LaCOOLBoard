@@ -1,14 +1,12 @@
-/*
-*	CoolTime.cpp
-*  
-*	This class manages the DS1337 RTC .
-*  
-*  
-*  
-*  
-*  
-*  
+/**
+*	\file CoolTime.cpp
+*	\brief CoolTime Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
+*
 */
+
 
 #include "FS.h"
 #include "Arduino.h"
@@ -21,6 +19,8 @@
 *	CoolTime::begin():
 *	This method is provided to init the rtc,
 *	the udp connection and the Sync Provider
+*
+*	\return true if successful,false otherwise
 */
 bool CoolTime::begin()
 {
@@ -95,6 +95,9 @@ void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minu
 *	CoolTime::getLastSyncTime():
 *	This method is provided to get the last time
 *	we syncronised the time
+*
+*	\return unsigned long representation of
+*	last syncronisation time in seconds 
 */	
 unsigned long CoolTime::getLastSyncTime()
 {
@@ -107,6 +110,9 @@ unsigned long CoolTime::getLastSyncTime()
 *	This method is provided to test if the
 *	time is syncronised or not.
 *	By default we test once per week.
+*
+*	\return true if time is syncronised,false
+*	otherwise
 */
 bool CoolTime::isTimeSync(unsigned long seconds)
 {
@@ -125,6 +131,8 @@ return(true);
 *	This method is provided to get the
 *	Time through an NTP request to
 *	a Time Server
+*
+*	\return a time_t (unsigned long ) timestamp in seconds
 */
 time_t CoolTime::getNtpTime()
 {
@@ -197,6 +205,8 @@ void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
 *	This method is provided to configure
 *	the CoolTime object through a configuration
 *	file.
+*
+*	\return true if successful,false otherwise
 */
 bool CoolTime::config()
 {

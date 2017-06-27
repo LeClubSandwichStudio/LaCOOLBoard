@@ -1,9 +1,12 @@
 /**
-*	Irene3000.h
-*	This class is provided to manage
-*	the Irene3000 Ph/Temperature Shield
+*	\file Irene3000.h
+*	\brief Irene3000 Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
+*	\date 27/06/2017
 *
 */
+
 
 #ifndef IRENE3000_H
 #define IRENE3000_H
@@ -23,7 +26,12 @@
 #define freeAdc 2
 #define ph 3
 
-
+/**
+*	\class Irene3000
+*	\brief This class is provided to manage
+*	the Irene3000 Ph/Temperature Shield
+*
+*/
 class Irene3000
 {
 public:

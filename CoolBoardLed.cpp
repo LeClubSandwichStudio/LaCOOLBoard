@@ -1,8 +1,8 @@
 /**
-*	CoolBoardLed.cpp	
-*	This class handles the led in the Sensor Board
-*
-*
+*	\file CoolBoardLed.cpp	
+*	\brief CoolBoardLed Source File
+*	\author Mehdi Zemzem
+*	\version 1.0
 *
 */
 
@@ -134,7 +134,9 @@ void CoolBoardLed::write(int R, int G, int B)
 *	CoolBoardLed::config():
 *	This method is provided to configure
 *	the Led Object :	-ledActive=0 : deactivated
-*				-ledActive=1 : activated			
+*				-ledActive=1 : activated
+*	\return true if the configuration done,
+*	false otherwise			
 */
 bool CoolBoardLed::config()
 {

@@ -1,8 +1,8 @@
 /**
-*	CoolBoardLed.h
-*	This class handles the led in the Sensor Board
-*
-*
+*	\file CoolBoardLed.h	
+*	\brief CoolBoardLed Header File
+*	\author Mehdi Zemzem
+*	\version 1.0
 *
 */
 #ifndef CoolOnBoardLed_H
@@ -13,6 +13,10 @@
 #include <NeoPixelBus.h>
 
 
+/**
+*	\class	CoolBoardLed
+*	\brief	This class handles the led in the Sensor Board
+*/
 class CoolBoardLed
 
 {
