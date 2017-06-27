@@ -1,7 +1,6 @@
 /**
 *	CoolBoard.h
-*  
-*	This class handles the entire CoolBoard.
+*  	This class handles the entire CoolBoard.
 *    
 *  
 *  

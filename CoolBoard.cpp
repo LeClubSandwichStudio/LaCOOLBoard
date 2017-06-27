@@ -1,7 +1,6 @@
 /**
 *	CoolBoard.cpp
-*  
-*	This class handles the entire CoolBoard.
+*  	This class handles the entire CoolBoard.
 *    
 *  
 *  
@@ -11,7 +10,6 @@
 
 
 #include "FS.h"
-
 #include "Arduino.h"
 #include "CoolBoard.h"
 #include "ArduinoJson.h"
