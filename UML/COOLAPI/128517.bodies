@@ -1,0 +1,179 @@
+class CoolTime
+!!!133765.cpp!!!	begin() : bool
+	bool trust = true;
+
+	this->rtc.init();                                                          //initialise DS1337
+
+	if (!rtc.isRunning()) {                                                   //if ever the RTC is stopped
+		trust = false;                                                          //clock is not ok
+		this->rtc.start();
+
+	}
+
+	if (rtc.hasStopped()) {                                                   //if the clock has stoped one moment or another
+		trust = false;
+	}
+
+	Udp.begin(localPort);
+	
+	setSyncProvider(std::bind(&CoolTime::getNtpTime,this));
+
+	return(trust);
+
+!!!133893.cpp!!!	update() : void
+	if(!this->isTimeSync() )
+	{
+		if(timeStatus() != timeNotSet )
+		{
+
+			rtc.setDateTime(this->getNtpTime());
+	        	this->timeSync=this->rtc.getTimestamp();
+			this->rtc.clearOSF();                         //since the sync worked fine we reset eventual error flags in the RTC
+		}
+	}
+	
+	
+!!!134021.cpp!!!	config() : bool
+	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+
+	if (!rtcConfig) 
+	{
+		return(false);
+	}
+	else
+	{
+		size_t size = rtcConfig.size();
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr<char[]> buf(new char[size]);
+
+		rtcConfig.readBytes(buf.get(), size);
+		DynamicJsonBuffer jsonBuffer;
+		JsonObject& json = jsonBuffer.parseObject(buf.get());
+		if (!json.success()) 
+		{
+			  return(false);
+		} 
+		else
+		{  	String ip;
+			
+			if(json["timeZone"].success() )
+			{
+				this->timeZone=json["timeZone"] ;
+			}
+			else
+			{
+				this->timeZone=this->timeZone;			
+			}
+			json["timeZone"]=this->timeZone;
+			
+			if(json["timeServer"].success() )
+			{			
+				 ip=json["timeServer"].as<String>();
+				this->timeServer.fromString(ip);
+ 				
+			}
+			else
+			{
+				this->timeServer=this->timeServer;
+			}
+			json["timeServer"]=ip;
+			
+			if(json["localPort"].success() )
+			{						
+				this->localPort=json["localPort"];
+			}
+			else
+			{
+				this->localPort=this->localPort;
+			}
+			json["localPort"]=this->localPort;
+
+			rtcConfig.close();
+			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
+			
+			if(!rtcConfig)
+			{
+				return(false);
+			}
+			
+			json.printTo(rtcConfig);
+			rtcConfig.close();
+						
+			return(true); 
+		}
+	}	
+
+
+
+!!!134149.cpp!!!	config(in timeZone : int, in timeServer : IPAddress, in localPort : uint) : void
+	this->timeZone=timeZone;
+	this->timeServer=timeServer;
+	this->localPort=localPort;
+!!!134277.cpp!!!	printConf() : void
+	Serial.println("RTC Config") ;
+	Serial.println(timeZone);
+	Serial.println(timeServer);
+	Serial.println(localPort);
+!!!134405.cpp!!!	setDateTime(in year : int, in month : int, in day : int, in hour : int, in minutes : int, in seconds : int) : void
+            this->rtc.setDateTime( year,  month,  day,  hour,  minutes,  seconds);                                   //set RTC to new time
+
+
+
+!!!134533.cpp!!!	getTimeDate(inout year : int, inout month : int, inout day : int, inout hour : int, inout minute : int, inout second : int) : void
+	
+ DS1337::getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
+	
+
+!!!134661.cpp!!!	getLastSyncTime() : ulong
+	return(this->timeSync);
+!!!134789.cpp!!!	isTimeSync(in seconds : ulong = 604800) : bool
+//default is once per week we try to get a time update
+	if (this->getLastSyncTime() + seconds < rtc.getTimestamp()) 
+	{           
+		return(false);
+	}
+
+return(true);
+!!!134917.cpp!!!	getNtpTime() : time_t
+	while (Udp.parsePacket() > 0) ; // discard any previously received packets
+
+	this->sendNTPpacket(timeServer);
+	uint32_t beginWait = millis();
+	while (millis() - beginWait < 1500) 
+	{
+		int size = this->Udp.parsePacket();
+		if (size >= NTP_PACKET_SIZE) 
+		{
+			this->Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+			unsigned long secsSince1900;
+			// convert four bytes starting at location 40 to a long integer
+			secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+			secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+			secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+			secsSince1900 |= (unsigned long)packetBuffer[43];
+      			return secsSince1900 - 2208988800UL;
+
+
+		}
+	}
+
+	return 0; // return 0 if unable to get the time
+!!!135045.cpp!!!	sendNTPpacket(inout address : IPAddress) : void
+	// set all bytes in the buffer to 0
+	memset(packetBuffer, 0, NTP_PACKET_SIZE);
+	// Initialize values needed to form NTP request
+
+	packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+	packetBuffer[1] = 0;     // Stratum, or type of clock
+	packetBuffer[2] = 6;     // Polling Interval
+	packetBuffer[3] = 0xEC;  // Peer Clock Precision
+	// 8 bytes of zero for Root Delay & Root Dispersion
+	packetBuffer[12]  = 49;
+	packetBuffer[13]  = 0x4E;
+	packetBuffer[14]  = 49;
+	packetBuffer[15]  = 52;
+	// all NTP fields have been given values, now
+	// you can send a packet requesting a timestamp:                 
+	Udp.beginPacket(address, 123); //NTP requests are to port 123
+	Udp.write(packetBuffer, NTP_PACKET_SIZE);
+	Udp.endPacket();

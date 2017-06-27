@@ -1,0 +1,218 @@
+class CoolMQTT
+!!!132485.cpp!!!	begin() : void
+ 
+	client.setClient(espClient);
+	client.setServer(mqttServer, 1883);	
+	client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
+	client.setBufferSize((unsigned short)bufferSize);
+
+!!!132613.cpp!!!	connect(in keepAlive : uint16_t) : int
+       
+	int i=0;
+	Serial.println("MQTT connecting...");
+	while ((!client.connected())&&(i<100)) 
+	{
+		// Attempt to connect
+		if (client.connect(clientId,keepAlive)) {
+			Serial.println("connected");
+			// Once connected, publish an announcement...
+			client.publish(outTopic, "hello world by Ash");
+			// ... and resubscribe
+			client.subscribe(inTopic);
+			Serial.println("published and subscribed , leavin ") ;
+			return(client.state());
+		}
+		else
+		{
+			Serial.println("not connected , leaving");
+			return(client.state());
+			
+		}
+	delay(5);
+	i++;
+	}
+	
+	return(1);
+
+!!!132741.cpp!!!	publish(in data : char) : bool
+
+	//data is in JSON, publish it directly
+	Serial.println("data to publish");
+	Serial.println(data);
+	bool pub=client.publish( outTopic, data,sizeof(data) );
+	return( pub);
+
+!!!132869.cpp!!!	read() : String
+	
+	if(this->newMsg==true)
+	{
+		return(this->msg);
+		this->newMsg=false;
+	}
+	return(" ");
+
+!!!132997.cpp!!!	config(in mqttServer : char, in inTopic : char, in outTopic : char, in clientId : char, in bufferSize : int) : void
+	for(int i =0;i< 50 ;i++)
+	{
+		this->mqttServer[i]=mqttServer[i];
+		this->inTopic[i]=inTopic[i];
+		this->outTopic[i]=outTopic[i];
+		this->clientId[i]=clientId[i];
+	}
+	this->bufferSize=bufferSize;
+
+!!!133125.cpp!!!	config() : bool
+	//read config file
+	//update data
+	File configFile = SPIFFS.open("/mqttConfig.json", "r");
+
+	if (!configFile) 
+	{
+		return(false);
+	}
+	else
+	{
+		size_t size = configFile.size();
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr<char[]> buf(new char[size]);
+
+		configFile.readBytes(buf.get(), size);
+		DynamicJsonBuffer jsonBuffer;
+		JsonObject& json = jsonBuffer.parseObject(buf.get());
+		if (!json.success()) 
+		{
+			  return(false);
+		} 
+		else
+		{				
+				if(json["mqttServer"].success() )
+				{			
+					const char* tempmqttServer = json["mqttServer"]; // "inTopic"
+					for(int i =0;i< 50 ;i++)
+					{
+						mqttServer[i]=tempmqttServer[i];
+					}
+				}
+				else
+				{
+					for(int i =0;i< 50 ;i++)
+					{
+						this->mqttServer[i]=this->mqttServer[i];
+					}
+
+				}
+				json["mqttServer"]=this->mqttServer;
+
+				
+				if(json["inTopic"].success() )
+				{
+					const char* tempInTopic = json["inTopic"]; // "inTopic"
+					for(int i =0;i< 50;i++)
+					{
+						inTopic[i]=tempInTopic[i];
+					}
+				}
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->inTopic[i]=this->inTopic[i];
+					}				
+				}
+				json["inTopic"]=this->inTopic;
+				
+				
+				if(json["outTopic"].success() )
+				{
+					const char* tempOutTopic = json["outTopic"]; // "outTopic"
+					for(int i =0;i<50;i++)
+					{
+						outTopic[i]=tempOutTopic[i];
+					}
+				}
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->outTopic[i]=this->outTopic[i];
+					}
+				}
+				json["outTopic"]=this->outTopic;
+			
+				
+				if(json["clientId"].success() )
+				{				
+					const char* tempClientId = json["clientId"]; // "espAshiroji"
+					for(int i =0;i<50;i++)
+					{
+						clientId[i]=tempClientId[i];
+					}
+				}
+				else
+				{
+					for(int i=0;i<50;i++)
+					{
+						this->clientId[i]=this->clientId[i];
+					}				
+				}
+				json["clientId"]=this->clientId;
+				
+				if(json["bufferSize"].success() )
+				{
+					int tempBufferSize = json["bufferSize"]; // 512
+					bufferSize=tempBufferSize;
+				}
+				else
+				{
+					this->bufferSize=this->bufferSize;
+				}
+				json["bufferSize"]=this->bufferSize;
+
+				configFile.close();
+				configFile = SPIFFS.open("/mqttConfig.json", "w");
+				if(!configFile)
+				{
+					return(false);				
+				}
+				
+				json.printTo(configFile);
+				configFile.close();
+			  
+			  return(true); 
+		}
+	}	
+	
+
+!!!133253.cpp!!!	callback(inout topic : char, inout payload : byte, in length : uint) : void
+	char temp[length+1];
+
+	for (int i = 0; i < length; i++) 
+	{
+		temp[i]=(char)payload[i]; 
+
+	}
+
+	this->newMsg=true;
+
+	temp[length+1]='\0';
+
+	msg=String(temp);
+	msg.remove(length,1);
+	Serial.println("received");
+	Serial.println(msg);
+
+!!!133381.cpp!!!	printConf() : void
+	Serial.println("MQTT conf ");
+	Serial.println(mqttServer);
+	Serial.println(inTopic);
+	Serial.println(outTopic);
+	Serial.println(clientId);
+	Serial.println(bufferSize);
+	Serial.println(" ");
+
+
+!!!133509.cpp!!!	state() : int
+	return(client.state());
+!!!133637.cpp!!!	mqttLoop() : bool
+	this->client.loop();
+	return(client.loop());
