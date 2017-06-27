@@ -358,7 +358,7 @@ bool CoolBoardSensors::config()
 void CoolBoardSensors::printConf()
 {
 	Serial.println("Sensors Conf ");
-	Serial.print(jsonSize);
+	Serial.println(jsonSize);
 	Serial.println(airDataActive.temperature);
 	Serial.println(airDataActive.humidity);
 	Serial.println(airDataActive.pressure);
