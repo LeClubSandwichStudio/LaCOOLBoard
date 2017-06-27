@@ -1,7 +1,7 @@
 /**
-*  CoolBoard.h
+*	CoolBoard.h
 *  
-*  This class handles the entire CoolBoard.
+*	This class handles the entire CoolBoard.
 *    
 *  
 *  
@@ -44,7 +44,7 @@ public:
 
 	void onLineMode();
 
-	bool connect();
+	int connect();
 
 	uint16_t getDelay();
 

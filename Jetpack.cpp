@@ -1,16 +1,23 @@
-/*
-*
-* This class manages the external Actors
+/**
+*	Jetpack.cpp
+*	This class manages the Jetpack shield.
 *
 *
 *
 */
+
 #include "FS.h"
 #include "Arduino.h"
 #include "ArduinoJson.h"
 
 #include "Jetpack.h"
 
+/**
+*	Jetpack::begin():
+*	This method is provided to
+*	initialise the pin that control
+*	the Jetpack shield
+*/
 void Jetpack::begin()
  { 
 
@@ -23,7 +30,14 @@ void Jetpack::begin()
  }
 
 
-
+/**
+*	Jetpack::write(action):
+*	This method is provided to write
+*	the given action to the entire Jetpack
+*	action is a Byte (8 bits ), each bit goes 
+*	to an output. 
+*	MSBFirst 
+*/
 void Jetpack::write(byte action)
 {
 	this->action=action;
@@ -35,7 +49,11 @@ void Jetpack::write(byte action)
 	digitalWrite(EnI2C, HIGH);
 }	
 
-
+/**
+*	Jetpack::writeBit(pin,state):
+*	This method is provided to write
+*	the given state to the given pin
+*/
 void Jetpack::writeBit(byte pin,bool state) 
 {
 
@@ -48,6 +66,25 @@ void Jetpack::writeBit(byte pin,bool state)
 
 }
 
+/**
+*	Jetpack::doAction(sensor data, sensor data size):
+*	This method is provided to automate the Jetpack.
+*	exemple:
+*	initial state:
+*		current Temperature = 23 °C
+*		actors[0].actif=1
+*		actors[0].low=25 °C
+*		actors[0].high=30 °C
+*		actors[0].type="Temperature"
+*		
+*	condition verified:		
+*		root["Temperature"]<actors[0].low
+*
+*	action: invert the state of actors[0]:
+*		bitWrite( action,0,!( bitRead ( action,0 ) ) )
+*		write(action)
+*	
+*/
 void Jetpack::doAction(const char* data,int JSON_SIZE)
 {
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
@@ -68,7 +105,11 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	this->write(this->action);
 }
 
- 
+/**
+*	Jetpack::config():
+*	This method is provided to configure the
+*	Jetpack with a configuration file
+*/ 
 bool Jetpack::config()
 {
 
@@ -165,6 +206,12 @@ bool Jetpack::config()
 
 }
 
+/**
+*	Jetpack::printConf():
+*	This method is provided to
+*	print the configuration to the 
+*	Serial Monitor
+*/
 void Jetpack::printConf()
 {
 	Serial.println("Jetpack Config ");

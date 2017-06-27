@@ -1,3 +1,8 @@
+/**
+*	CoolMQTT.cpp
+*	This class handles the mqtt client
+*/
+
 #include "FS.h"
 #include "Arduino.h"  
 #include <ESP8266WiFi.h>
@@ -5,6 +10,14 @@
 #include "CoolMQTT.h"
 #include "ArduinoJson.h"
 
+/**
+*	CoolMQTT::begin():
+*	This method is provided to set the mqtt
+*	client's parameters:	-client
+*				-server
+*				-callback method
+*				-buffer size
+*/
 void CoolMQTT::begin()
 { 
 	client.setClient(espClient);
@@ -14,11 +27,32 @@ void CoolMQTT::begin()
 
 }
 
-bool CoolMQTT::state()
+/**
+*	CoolMQTT::state():
+*	This method is provided to return the 
+*	mqtt client's state:	
+*	-4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond within the keepalive time
+*	-3 : MQTT_CONNECTION_LOST - the network connection was broken
+*	-2 : MQTT_CONNECT_FAILED - the network connection failed
+*	-1 : MQTT_DISCONNECTED - the client is disconnected cleanly
+*	0 : MQTT_CONNECTED - the cient is connected
+*	1 : MQTT_CONNECT_BAD_PROTOCOL - the server doesn't support the requested version of MQTT
+*	2 : MQTT_CONNECT_BAD_CLIENT_ID - the server rejected the client identifier
+*	3 : MQTT_CONNECT_UNAVAILABLE - the server was unable to accept the connection
+*	4 : MQTT_CONNECT_BAD_CREDENTIALS - the username/password were rejected
+*	5 : MQTT_CONNECT_UNAUTHORIZED - the client was not authorized to connect
+*/
+int CoolMQTT::state()
 {
 	return(client.state());
 }
 
+/**
+*	CoolMQTT::connect( time to keep the connection alive ):
+*	This method is provided to connect the client to the server,
+*	publish to the out topic , subscribe to the in topic and set
+*	the keepAlive time.
+*/
 int CoolMQTT::connect(uint16_t keepAlive)
 {       
 	int i=0;
@@ -49,7 +83,11 @@ int CoolMQTT::connect(uint16_t keepAlive)
 
 }
 
-
+/**
+*	CoolMQTT::publish(data):
+*	This method is provided to publish data
+*	to the out topic
+*/
 bool CoolMQTT::publish(const char* data)
 {
 
@@ -61,12 +99,24 @@ bool CoolMQTT::publish(const char* data)
 
 }
 
+/**
+*	CoolMQTT::mqttLoop():
+*	This method is provided to allow the
+*	client to process the data
+*/	
 bool CoolMQTT::mqttLoop()
 {
 	this->client.loop();
 	return(client.loop());
 }
 
+/**
+*	CoolMQTT::callback(in topic, incoming message , message length):
+*	This method is provided to handle incoming messages from the
+*	subscribed inTopic.
+*	
+*	Arguments are automatically assigned in client.setCallback()
+*/
 void CoolMQTT::callback(char* topic, byte* payload, unsigned int length) 
 {
 	char temp[length+1];
@@ -88,6 +138,11 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 
 }
 
+/**
+*	CoolMQTT::read():
+*	This method is provided to return the last
+*	read message.
+*/
 String CoolMQTT::read()
 {	
 	if(this->newMsg==true)
@@ -99,6 +154,15 @@ String CoolMQTT::read()
 
 }
 
+/**
+*	CoolMQTT::config():
+*	This method is provided to configure
+*	the mqttClient :	-server
+*				-inTopic
+*				-outTopic
+*				-client Id
+*				-buffer size	
+*/
 bool CoolMQTT::config()
 {
 	//read config file
@@ -224,6 +288,11 @@ bool CoolMQTT::config()
 
 }
 
+/**
+*	CoolMQTT::config(server,in topic, out topic , client id , buffer size):
+*	This method is provided to manually configure the mqtt client	
+*
+*/
 void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize)
 {
 	for(int i =0;i< 50 ;i++)
@@ -237,6 +306,11 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 
 }
 
+/**
+*	CoolMQTT::printConf():
+*	This method is provided to print the
+*	configuration to the Serial Monitor
+*/
 void CoolMQTT::printConf()
 {
 	Serial.println("MQTT conf ");

@@ -1,7 +1,7 @@
 /*
-*  CoolTime.cpp
+*	CoolTime.cpp
 *  
-*  This class manages the DS1337 RTC .
+*	This class manages the DS1337 RTC .
 *  
 *  
 *  
@@ -9,6 +9,7 @@
 *  
 *  
 */
+
 #include "FS.h"
 #include "Arduino.h"
 #include "DS1337.h"
@@ -16,6 +17,11 @@
 #include "ArduinoJson.h"
 #include "Time.h"
 
+/**
+*	CoolTime::begin():
+*	This method is provided to init the rtc,
+*	the udp connection and the Sync Provider
+*/
 bool CoolTime::begin()
 {
 	bool trust = true;
@@ -40,6 +46,11 @@ bool CoolTime::begin()
 
 }
 
+/**
+*	CoolTime::update():
+*	This method is provided to correct the
+*	rtc Time when it drifts,once every week.
+*/
 void CoolTime::update()
 {
 	if(!this->isTimeSync() )
@@ -56,6 +67,11 @@ void CoolTime::update()
 	
 }
 
+/**
+*	CoolTime::setDateTime(year,month,dat,hour,minutes,seconds):
+*	This method is provided to manually set the RTc Time
+*
+*/
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, int seconds)
 {
             this->rtc.setDateTime( year,  month,  day,  hour,  minutes,  seconds);                                   //set RTC to new time
@@ -64,6 +80,10 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 
 }
 
+/**
+*	CoolTime::getTimeDate(year,month,day,hour,minute,seconds):
+*	This method is provided to get the RTC Time
+*/
 void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second)
 {	
  DS1337::getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
@@ -71,13 +91,23 @@ void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minu
 
 }
 
+/**
+*	CoolTime::getLastSyncTime():
+*	This method is provided to get the last time
+*	we syncronised the time
+*/	
 unsigned long CoolTime::getLastSyncTime()
 {
 	return(this->timeSync);
 }
 
 
-
+/**
+*	CoolTime::isTimeSync( time in seconds):
+*	This method is provided to test if the
+*	time is syncronised or not.
+*	By default we test once per week.
+*/
 bool CoolTime::isTimeSync(unsigned long seconds)
 {
 //default is once per week we try to get a time update
@@ -90,7 +120,12 @@ return(true);
 }
 
 
-
+/**
+*	CoolTime::getNtopTime():
+*	This method is provided to get the
+*	Time through an NTP request to
+*	a Time Server
+*/
 time_t CoolTime::getNtpTime()
 {
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
@@ -118,7 +153,11 @@ time_t CoolTime::getNtpTime()
 	return 0; // return 0 if unable to get the time
 }
 
-// send an NTP request to the time server at the given address
+/**
+*	CoolTime::sendNTPpacket( Time Server IP address):
+*	This method is provided to send an NTP request to 
+*	the time server at the given address
+*/ 
 void CoolTime::sendNTPpacket(IPAddress &address)
 {
 	// set all bytes in the buffer to 0
@@ -140,6 +179,12 @@ void CoolTime::sendNTPpacket(IPAddress &address)
 	Udp.write(packetBuffer, NTP_PACKET_SIZE);
 	Udp.endPacket();
 }
+
+/**
+*	CoolTime::config(time Zone, Time server IP , udp Port):
+*	This method is provided to do manual configuration.
+*	
+*/
 void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
 {
 	this->timeZone=timeZone;
@@ -147,6 +192,12 @@ void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
 	this->localPort=localPort;
 } 
 
+/**
+*	CoolTime::config():
+*	This method is provided to configure
+*	the CoolTime object through a configuration
+*	file.
+*/
 bool CoolTime::config()
 {
 	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
@@ -222,6 +273,12 @@ bool CoolTime::config()
 
 }
 
+/**
+*	CoolTime::printConf():
+*	This method is provided to print
+*	the CoolTime configuration to the
+*	Serial Monitor
+*/
 void CoolTime::printConf()
 {
 	Serial.println("RTC Config") ;

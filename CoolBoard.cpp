@@ -1,7 +1,7 @@
 /**
-*  CoolBoard.h
+*	CoolBoard.cpp
 *  
-*  This class handles the entire CoolBoard.
+*	This class handles the entire CoolBoard.
 *    
 *  
 *  
@@ -74,7 +74,7 @@ void CoolBoard::begin()
 *	connection and the mqtt connection.
 *		
 */
-bool CoolBoard::connect()
+int CoolBoard::connect()
 {	if(WiFi.status() != WL_CONNECTED)
 	{
 

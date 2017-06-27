@@ -1,7 +1,7 @@
 /*
-*  CoolFileSystem.h
+*	CoolFileSystem.cpp
 *  
-*  This class manages the file system and on board server
+*	This class handles the file system 
 *  
 *  
 *  
@@ -13,13 +13,22 @@
 #include"CoolFileSystem.h"
 #include "ArduinoJson.h"      // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
 
-
+/**
+*	CoolFileSystem::begin():
+*	This method is provided to start the
+*	SPIFFS object.
+*/
 bool CoolFileSystem::begin()
 {
 	return( SPIFFS.begin() );                                   //Initialize Filesystem
 
 }
 
+/**
+*	CoolFileSystem::saveSensorData( data, data size ):
+*	This method is provided to save the data on the local
+*	memory when there is no internet available
+*/
 bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 {
 	File sensorsData=SPIFFS.open("/sensorsData.json","a");
@@ -37,6 +46,11 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	return true;		
 }
 
+/**
+*	CoolFileSyste::updateConfigFiles( mqtt answer, answer size):
+*	This method is provided to update the configuration files when
+*	the appropriate mqtt answer is received:	-update : 1
+*/
 bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 {
 	//String conversion to char*

@@ -1,3 +1,11 @@
+/**
+*	ExternalSensors.h
+*	This class handles the external sensors
+*	run time defintion , configuartion and actions
+*
+*/
+
+
 #include "FS.h"
 
 #include"Arduino.h"  
@@ -12,6 +20,11 @@
 
 #include"ExternalSensor.h"
 
+/**
+*	ExternalSensors::begin():
+*	This method is provided to initialise
+*	the external sensors. 
+*/
 void ExternalSensors::begin() 
 {
 	for(int i=0;i< this->sensorsNumber ; i++)
@@ -39,6 +52,11 @@ void ExternalSensors::begin()
 	}
 }
 
+/**
+*	ExternalSensors::read():	
+*	This method is provided to
+*	read the data from the external sensors
+*/
 String ExternalSensors::read()
 {
 
@@ -66,11 +84,23 @@ String ExternalSensors::read()
 
 }
 
+/**
+*	ExternalSensors::getJsonSize():
+*	This method is provided to return
+*	the size of the json data as a way
+*	to control memory usage
+*/
 int ExternalSensors::getJsonSize()
 {
 	return(this->jsonSize );
 }
 
+/**
+*	ExternalSensors::config():
+*	This method is provided to configure
+*	the externalSensors through a configuration
+*	file
+*/
 bool ExternalSensors::config()
 {
 	//read config file
@@ -217,6 +247,12 @@ bool ExternalSensors::config()
 
 
 }
+
+/**
+*	ExternalSensors::printConf():
+*	This method is provided to print the
+*	configuration to the Serial Monitor
+*/
 void ExternalSensors::printConf()
 {
 	Serial.println("External Sensors config ");

@@ -1,16 +1,31 @@
+/**
+*	Irene3000.cpp
+*	This class is provided to manage
+*	the Irene3000 Ph/Temperature Shield
+*
+*/
+
 #include "FS.h"
-#include <Adafruit_ADS1015.h>                                                                               // Necessary to run IRENE 3000*/
+#include <Adafruit_ADS1015.h>                                                                              
 #include <Arduino.h>
 #include <Irene3000.h>
 #include "ArduinoJson.h"
-//=============================================================================================================
-// ----------------- > IRENE 3000 FUNCTIONS
-//=============================================================================================================
+
+/**
+*	Irene3000::begin():
+*	This method is provided to start the
+*	Irene3000 ADS chip
+*/
 void Irene3000::begin()
 {
 	this->ads.begin();
 }
 
+/**
+*	Irene3000:read():
+*	This method is provided to read
+*	the Irene3000 sensors data
+*/
 String Irene3000::read()
 {	
 	String data;
@@ -43,6 +58,11 @@ String Irene3000::read()
 
 }
 
+/**
+*	Irene3000::config():
+*	This method is provided to configure the
+*	Irene3000 shield through a configuration file
+*/
 bool Irene3000::config()
 {
 
@@ -174,6 +194,11 @@ bool Irene3000::config()
 
 }
 
+/**
+*	Irene3000::printConf():
+*	This method is provided to print the configuration
+*	to the Serial Monitor
+*/
 void Irene3000::printConf()
 {
 	Serial.println("Irene Config ");
@@ -187,6 +212,11 @@ void Irene3000::printConf()
 	Serial.println(" ");
 }
 
+/**
+*	Irene3000::readButton(gain):
+*	This method is provided to read the
+*	Irene3000 button
+*/
 int Irene3000::readButton(adsGain_t gain)
 {
 	this->setGain(gain);
@@ -194,17 +224,35 @@ int Irene3000::readButton(adsGain_t gain)
 	
 }
 
+/**
+*	Irene3000::setGain(gain):
+*	This method is provided to set the
+*	ADS chip gain
+*/
 void Irene3000::setGain(adsGain_t gain)
 {
 	this->ads.setGain(gain);
 }
 
+/**
+*	Irene3000::readADSChannel2(gain):
+*	This method is provided to read from
+*	the ADS channel 2 .
+*	ADS Channel 2 is free and the user can connect
+*	another analog sensor to it.
+*/
 int Irene3000::readADSChannel2(adsGain_t gain)
 {	
 	this->setGain(gain);
 	return( this->ads.readADC_SingleEnded(freeAdc) ) ;
 }
 
+/**
+*	Irene3000::readPh(gain):
+*	This method is provided to read the PH probe
+*	note that for the best results, PH must be 
+*	correlated to Temperature.
+*/
 float Irene3000::readPh(adsGain_t gain)
 {
   this->setGain(gain);
@@ -219,6 +267,11 @@ float Irene3000::readPh(adsGain_t gain)
 
 }
 
+/**
+*	Irene3000::readTemp(gain):
+*	This method is provided to read
+*	the Temeperature probe
+*/
 double Irene3000::readTemp(adsGain_t gain)
 {
   const double A = 3.9083E-3;
@@ -247,7 +300,12 @@ double Irene3000::readTemp(adsGain_t gain)
 
 }
 
-// pH 7 CALIBRATION ==================================================
+
+/**
+*	Irene3000::calibratepH7(gain):
+*	This method is provided to calibrate the
+*	PH probe to 7
+*/
 void Irene3000::calibratepH7(adsGain_t gain)
 {
   	this->setGain(gain);
@@ -259,7 +317,11 @@ void Irene3000::calibratepH7(adsGain_t gain)
 
 }
 
-// pH 4 CALIBRATION ==================================================
+/**
+*	Irene3000::calibratepH4(gain):
+*	This method is provided to calibrate the
+*	PH probe to 4
+*/
 void Irene3000::calibratepH4(adsGain_t gain)
 {
 
@@ -273,7 +335,11 @@ void Irene3000::calibratepH4(adsGain_t gain)
 
 }
 
-// pH SLOPE ==========================================================
+/**
+*	Irene3000::calcpHSlop():
+*	This method is provided to calculate
+*	th PH slope
+*/
 void Irene3000::calcpHSlope ()
 {
 
@@ -282,6 +348,12 @@ void Irene3000::calcpHSlope ()
  
 }
 
+/**
+*	Irene3000::resetParams():
+*	This method is provided to reset
+*	the PH configuration, 
+*	assuming Ideal configuration
+*/
 void Irene3000::resetParams(void)
 {
   //Restore to default set of parameters!
@@ -293,6 +365,11 @@ void Irene3000::resetParams(void)
   
 }
 
+/**
+*	Irene3000::gainConvert( gain : { 2/3,1,2,4,8,16 } )
+*	This method is provided to convert the gain to
+*	Internal Constants
+*/
 adsGain_t Irene3000::gainConvert(uint16_t tempGain)
 {
 	switch(tempGain)

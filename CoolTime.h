@@ -1,7 +1,7 @@
 /*
-*  CoolTime.h
+*	CoolTime.h
 *  
-*  This class manages the DS1337 RTC .
+*	This class manages the DS1337 RTC .
 *  
 *  
 *  

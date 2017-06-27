@@ -1,14 +1,10 @@
-
-/* IRENE 3000 header ========================================================
-*
-*
-*
-*
-*
-*
-*
+/**
+*	Irene3000.h
+*	This class is provided to manage
+*	the Irene3000 Ph/Temperature Shield
 *
 */
+
 #ifndef IRENE3000_H
 #define IRENE3000_H
 

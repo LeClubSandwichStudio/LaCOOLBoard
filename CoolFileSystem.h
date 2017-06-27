@@ -1,7 +1,7 @@
 /*
-*  CoolFileSystem.h
+*	CoolFileSystem.h
 *  
-*  This class manages the file system 
+*	This class handles the file system 
 *  
 *  
 *  

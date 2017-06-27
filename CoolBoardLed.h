@@ -1,6 +1,6 @@
 /**
-*
-* This class handles the led in the Sensor Board
+*	CoolBoardLed.h
+*	This class handles the led in the Sensor Board
 *
 *
 *

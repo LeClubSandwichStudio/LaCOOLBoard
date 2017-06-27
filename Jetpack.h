@@ -1,6 +1,6 @@
 /*
-*
-* This class manages the Jetpack
+*	Jetpack.h
+*	This class manages the Jetpack shield
 *
 *
 *

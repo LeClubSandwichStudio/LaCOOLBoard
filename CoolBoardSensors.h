@@ -1,7 +1,7 @@
 /*
-* This class handles the On-Board Sensors.
-* 
-* 
+*
+*	CoolBoardSensors.h 
+*	This class handles the On-Board Sensors. 
 * 
 *
 */

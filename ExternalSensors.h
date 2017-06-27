@@ -1,3 +1,10 @@
+/**
+*	ExternalSensors.h
+*	This class handles the external sensors
+*	run time defintion , configuartion and actions
+*
+*/
+
 #ifndef ExternalSensors_H
 #define ExternalSensors_H
 

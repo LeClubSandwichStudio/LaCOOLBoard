@@ -1,6 +1,10 @@
+/**
+*	CoolMQTT.h
+*	This class handles the mqtt client
+*/
+
 #ifndef CoolMQTT_H
 #define CoolMQTT_H
-
 
 #include"Arduino.h"  
 #include <ESP8266WiFi.h>
@@ -26,7 +30,7 @@ public:
 
 	void printConf();
 
-	bool state();
+	int state();
 
 	bool mqttLoop();
 
