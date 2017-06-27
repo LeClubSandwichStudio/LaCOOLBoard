@@ -117,7 +117,7 @@ void CoolBoardSensors::end()
 String CoolBoardSensors::read()
 {
 	String data;
-	DynamicJsonBuffer  jsonBuffer(sensorJsonSize) ;
+	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
 	
 	initReadI2C();
@@ -234,15 +234,15 @@ bool CoolBoardSensors::config()
 		} 
 		else
 		{  	  
-			if(json["sensorJsonSize"].success() )
+			if(json["jsonSize"].success() )
 			{
-				this->sensorJsonSize = json["sensorJsonSize"]; 
+				this->jsonSize = json["jsonSize"]; 
 			}
 			else
 			{
-				this->sensorJsonSize=this->sensorJsonSize;			
+				this->jsonSize=this->jsonSize;			
 			}
-			json["sensorJsonSize"]=this->sensorJsonSize;
+			json["jsonSize"]=this->jsonSize;
 
 			
 			if(json["BME280"]["temperature"].success() )
@@ -358,7 +358,7 @@ bool CoolBoardSensors::config()
 void CoolBoardSensors::printConf()
 {
 	Serial.println("Sensors Conf ");
-	Serial.print(sensorJsonSize);
+	Serial.print(jsonSize);
 	Serial.println(airDataActive.temperature);
 	Serial.println(airDataActive.humidity);
 	Serial.println(airDataActive.pressure);
