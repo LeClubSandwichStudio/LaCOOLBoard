@@ -31,7 +31,7 @@ public:
 
 	String read();
 
-	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize);
+	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize);
 	bool config();
 
 	void callback(char* topic, byte* payload, unsigned int length);
@@ -42,13 +42,15 @@ public:
 
 	bool mqttLoop();
 
+	String getUser();
+
 private:
 	
 	char mqttServer[50];
 	String msg;
 	char inTopic[50];
 	char outTopic[50];
-	char clientId[50];
+	char user[50];
 	int bufferSize;	
 	WiFiClient espClient;
 	PubSubClient client;

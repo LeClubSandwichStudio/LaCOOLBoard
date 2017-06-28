@@ -13,7 +13,7 @@
 #include "DS1337.h"
 #include "CoolTime.h"
 #include "ArduinoJson.h"
-#include "Time.h"
+#include "TimeLib.h"
 
 /**
 *	CoolTime::begin():
@@ -87,8 +87,28 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second)
 {	
  DS1337::getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
-	
 
+
+}
+
+String CoolTime::getESDate()
+{
+	char yymmddhhmmss[] = "\"timestamp\":\"20yy-mm-ddT00:00:00Z\"";
+	int year,month,day,hour,minute,second;
+	this->getTimeDate(year,month,day,hour,minute,second);
+	yymmddhhmmss[30] =  second / 10 + 48;
+	yymmddhhmmss[31] = second % 10 + 48;
+	yymmddhhmmss[27] = minute / 10 + 48;
+	yymmddhhmmss[28] = minute % 10 + 48;
+	yymmddhhmmss[24] = hour / 10 + 48;
+	yymmddhhmmss[25] = hour % 10 + 48;
+	yymmddhhmmss[21] = day / 10 + 48;
+	yymmddhhmmss[22] = day % 10 + 48;
+	yymmddhhmmss[18] = month / 10 + 48;
+	yymmddhhmmss[19] = month % 10 + 48;
+	yymmddhhmmss[15] = year / 10 + 48;
+	yymmddhhmmss[16] = year % 10 + 48;
+	return yymmddhhmmss;
 }
 
 /**

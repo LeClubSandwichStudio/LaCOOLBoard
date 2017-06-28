@@ -68,7 +68,7 @@ int CoolMQTT::connect(uint16_t keepAlive)
 	while ((!client.connected())&&(i<100)) 
 	{
 		// Attempt to connect
-		if (client.connect(clientId,keepAlive)) {
+		if (client.connect(user,keepAlive)) {
 			Serial.println("connected");
 			// Once connected, publish an announcement...
 			client.publish(outTopic, "hello world by Ash");
@@ -259,22 +259,22 @@ bool CoolMQTT::config()
 				json["outTopic"]=this->outTopic;
 			
 				
-				if(json["clientId"].success() )
+				if(json["user"].success() )
 				{				
-					const char* tempClientId = json["clientId"]; // "espAshiroji"
+					const char* tempUser = json["user"]; // "espAshiroji"
 					for(int i =0;i<50;i++)
 					{
-						clientId[i]=tempClientId[i];
+						user[i]=tempUser[i];
 					}
 				}
 				else
 				{
 					for(int i=0;i<50;i++)
 					{
-						this->clientId[i]=this->clientId[i];
+						this->user[i]=this->user[i];
 					}				
 				}
-				json["clientId"]=this->clientId;
+				json["user"]=this->user;
 				
 				if(json["bufferSize"].success() )
 				{
@@ -309,14 +309,14 @@ bool CoolMQTT::config()
 *	This method is provided to manually configure the mqtt client	
 *
 */
-void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char clientId[],int bufferSize)
+void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize)
 {
 	for(int i =0;i< 50 ;i++)
 	{
 		this->mqttServer[i]=mqttServer[i];
 		this->inTopic[i]=inTopic[i];
 		this->outTopic[i]=outTopic[i];
-		this->clientId[i]=clientId[i];
+		this->user[i]=user[i];
 	}
 	this->bufferSize=bufferSize;
 
@@ -333,9 +333,18 @@ void CoolMQTT::printConf()
 	Serial.println(mqttServer);
 	Serial.println(inTopic);
 	Serial.println(outTopic);
-	Serial.println(clientId);
+	Serial.println(user);
 	Serial.println(bufferSize);
 	Serial.println(" ");
 
 
+}
+
+/**
+*	CoolMQTT::getUser():
+*	This method is provided to get the user name
+*/
+String CoolMQTT::getUser()
+{
+	return user;
 }

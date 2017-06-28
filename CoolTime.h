@@ -39,6 +39,8 @@ public:
 	void setDateTime(int year, int month, int day, int hour, int minutes, int seconds);
 	
 	void getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second);
+
+	String getESDate();
 	
 	unsigned long getLastSyncTime();
 	
