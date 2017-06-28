@@ -71,7 +71,7 @@ int CoolMQTT::connect(uint16_t keepAlive)
 		if (client.connect(user,keepAlive)) {
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			client.publish(outTopic, "hello world by Ash");
+			//client.publish(outTopic, "hello world by Ash");
 			// ... and resubscribe
 			client.subscribe(inTopic);
 			Serial.println("published and subscribed , leavin ") ;
@@ -233,10 +233,11 @@ bool CoolMQTT::config()
 				}
 				else
 				{
-					for(int i=0;i<50;i++)
-					{
-						this->inTopic[i]=this->inTopic[i];
-					}				
+					String tempMAC = WiFi.macAddress();
+					tempMAC.replace(":","");
+					snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC.c_str());	
+					Serial.print("Set Incomming MQTT Channel to : ");
+					Serial.println(inTopic);	
 				}
 				json["inTopic"]=this->inTopic;
 				
@@ -251,10 +252,11 @@ bool CoolMQTT::config()
 				}
 				else
 				{
-					for(int i=0;i<50;i++)
-					{
-						this->outTopic[i]=this->outTopic[i];
-					}
+					String tempMAC = WiFi.macAddress();
+					tempMAC.replace(":","");
+					snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
+					Serial.print("Set Outgoing MQTT Channel to : ");
+					Serial.println(outTopic);
 				}
 				json["outTopic"]=this->outTopic;
 			

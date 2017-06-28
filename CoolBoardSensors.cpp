@@ -142,7 +142,8 @@ String CoolBoardSensors::read()
 
 	if(lightDataActive.uv)
 	{
-		root["ultraViolet"] =lightSensor.ReadUV()/100 ;
+		float tempUV = (float)lightSensor.ReadUV()/100 ;
+		root["ultraViolet"] = tempUV;
 	}
 	
 	//BME280 data

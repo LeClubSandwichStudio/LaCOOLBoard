@@ -101,6 +101,8 @@ private:
 
 	byte station;
 
+	unsigned long intervalF;
+
 };
 
 #endif

@@ -104,26 +104,32 @@ int CoolBoard::connect()
 */
 void CoolBoard::onLineMode()
 {
-	rtc.update();	
-	if(COOLActive){
-		data += "{\"user\":\"";
-		data += mqtt.getUser();
-		data += "\",";
-		data += rtc.getESDate();	//"timestamp":"20yy-mm-ddThh:mm:ssZ"
-		data += ",\"mac\":\"";
-		data += WiFi.macAddress();
-		data +="\",";
-		data += coolBoardSensors.read(); //{..,..,..}
-		data.remove( data.lastIndexOf('{'), 1);
-
-	}
-	else
+	if((intervalF + interval) < millis())
 	{
-		data = coolBoardSensors.read(); //{..,..,..}
+		intervalF = millis();
+		rtc.update();	
+		if(COOLActive)
+		{
+			String tempMAC = WiFi.macAddress();
+			tempMAC.replace(":","");
+			data = "{\"user\":\"";
+			data += mqtt.getUser();
+			data += "\",";
+			data += rtc.getESDate();	//"timestamp":"20yy-mm-ddThh:mm:ssZ"
+			data += ",\"mac\":\"";
+			data += tempMAC;
+			data +="\",";
+			data += coolBoardSensors.read(); //{..,..,..}
+			data.remove( data.lastIndexOf('{'), 1);
 
-	}
+		}
+		else
+		{
+			data = coolBoardSensors.read(); //{..,..,..}
 
-	if(externalSensorsActive)
+		}
+
+		if(externalSensorsActive)
 	{	
 
 		data+=externalSensors.read();//{..,..,..}{..,..}	
@@ -151,13 +157,14 @@ void CoolBoard::onLineMode()
 	
 	String jsonData="{\"state\":{\"reported\":";	
 	jsonData+=data;//{"state":{"reported":{..,..,..,..,..,..,..,..}
-	jsonData+=",\"desired\":null} }";//{"state":{"reported":{..,..,..,..,..,..,..,..},"desired" :null }  }
+	jsonData+=" } }";//{"state":{"reported":{..,..,..,..,..,..,..,..}  } }
 	
 	mqtt.publish(jsonData.c_str());
 	mqtt.mqttLoop();
 	answer=mqtt.read();
 	this->update(answer.c_str());	
 				
+}
 }
 
 /**
