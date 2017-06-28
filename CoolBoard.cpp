@@ -105,9 +105,23 @@ int CoolBoard::connect()
 void CoolBoard::onLineMode()
 {
 	rtc.update();	
+	if(COOLActive){
+		data += "{\"user\":\"";
+		data += mqtt.getUser();
+		data += "\",";
+		data += rtc.getESDate();	//"timestamp":"20yy-mm-ddThh:mm:ssZ"
+		data += ",\"mac\":\"";
+		data += WiFi.macAddress();
+		data +="\",";
+		data += coolBoardSensors.read(); //{..,..,..}
+		data.remove( data.lastIndexOf('{'), 1);
 
-	data=coolBoardSensors.read(); //{..,..,..}
+	}
+	else
+	{
+		data = coolBoardSensors.read(); //{..,..,..}
 
+	}
 
 	if(externalSensorsActive)
 	{	
@@ -216,6 +230,18 @@ bool CoolBoard::config()
 		} 
 		else
 		{  	  
+			if( json["COOLActive"].success() )
+			{
+				this->COOLActive = json["COOLActive"]; 
+			}
+			else
+			{
+				this->COOLActive=this->COOLActive;
+				
+			}
+			json["COOLActive"]=this->COOLActive;
+
+
 			if( json["interval"].success() )
 			{
 				this->interval = json["interval"]; 

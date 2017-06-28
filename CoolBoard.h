@@ -77,6 +77,8 @@ private:
 
 	ExternalSensors externalSensors;
 
+	byte COOLActive;
+
 	byte ireneActive;
 
 	byte jetpackActive;
