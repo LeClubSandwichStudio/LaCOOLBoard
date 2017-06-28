@@ -1,12 +1,13 @@
 var searchData=
 [
-  ['savesensordata',['saveSensorData',['../class_cool_file_system.html#a4c560c2ddd40b74b7758e6ceb2c58957',1,'CoolFileSystem']]],
-  ['sendntppacket',['sendNTPpacket',['../class_cool_time.html#a236a38d120dc53bc67456d763838c5a1',1,'CoolTime']]],
-  ['setdatetime',['setDateTime',['../class_cool_time.html#ab81ea7fdaace111aa01cc1ec84c6d297',1,'CoolTime']]],
-  ['setenvsensorsettings',['setEnvSensorSettings',['../class_cool_board_sensors.html#a406307ffd70272282d91479c7ed8d66f',1,'CoolBoardSensors']]],
-  ['setgain',['setGain',['../class_irene3000.html#aff7c5da186b388e7272e63ff88a20c34',1,'Irene3000']]],
-  ['setjsonsize',['setJsonSize',['../class_cool_board_sensors.html#ab76e6dbd6efbcc25ff460535badd8d45',1,'CoolBoardSensors']]],
-  ['state',['state',['../class_cool_m_q_t_t.html#a5d003307eff78efbd585e42b43b72b6d',1,'CoolMQTT']]],
-  ['stopreadi2c',['stopReadI2C',['../class_cool_board_sensors.html#ab67b900b9e5e7c18d52d2d9107ba171b',1,'CoolBoardSensors']]],
-  ['strobe',['strobe',['../class_cool_board_led.html#adc08c0ac07473499971c503d300f0413',1,'CoolBoardLed']]]
+  ['read',['read',['../classCoolBoardSensors.html#a91badb2539d91fda8679f2a597874c48',1,'CoolBoardSensors::read()'],['../classCoolMQTT.html#ae3c18f6ae9723746d32765f1c8f176ca',1,'CoolMQTT::read()'],['../classBaseExternalSensor.html#a7e0a98f350148d7645031315657aa5ec',1,'BaseExternalSensor::read()'],['../classExternalSensor.html#a6dbf2d6b1c183740ce0f153d6e43ccb2',1,'ExternalSensor::read()'],['../classExternalSensor_3_01NDIR__I2C_01_4.html#add67f5ecaf47d2ee675e8299aee7322d',1,'ExternalSensor&lt; NDIR_I2C &gt;::read()'],['../classExternalSensor_3_01DallasTemperature_01_4.html#a127ead06440ec972c22db2abeb8e2b51',1,'ExternalSensor&lt; DallasTemperature &gt;::read()'],['../classExternalSensors.html#a53177b81eca3be89508b5511ddcd00fc',1,'ExternalSensors::read()'],['../classIrene3000.html#a852a170feea994ea1df01c6b245b5d9a',1,'Irene3000::read()']]],
+  ['readadschannel2',['readADSChannel2',['../classIrene3000.html#ae73bd2ed14a199a7e83f4d6458476a7c',1,'Irene3000']]],
+  ['readbutton',['readButton',['../classIrene3000.html#ae0e0a5b773c3625b44c1d113c76a1540',1,'Irene3000']]],
+  ['readmoisture',['readMoisture',['../classCoolBoardSensors.html#a8761bff50373c485f4465c8db47d0633',1,'CoolBoardSensors']]],
+  ['readph',['readPh',['../classIrene3000.html#abf3db725fabb0634ec889b32068a5eec',1,'Irene3000']]],
+  ['readtemp',['readTemp',['../classIrene3000.html#a94ad40f281d83ad1be20bf1edd6fe802',1,'Irene3000']]],
+  ['readvbat',['readVBat',['../classCoolBoardSensors.html#a6944b6ea7bce8e2fce1b434acfd9d5f3',1,'CoolBoardSensors']]],
+  ['reference',['reference',['../structExternalSensors_1_1sensor.html#afed5bdfd49732202a368b600cb8396fe',1,'ExternalSensors::sensor']]],
+  ['resetparams',['resetParams',['../classIrene3000.html#a0fba280e8b7c881307efa31281aa691d',1,'Irene3000']]],
+  ['rtc',['rtc',['../classCoolBoard.html#a50d2a6716879d64a85f3c6b44ad63275',1,'CoolBoard::rtc()'],['../classCoolTime.html#afa77d58c0c21cfe8b7c27e34d82f07b9',1,'CoolTime::rtc()']]]
 ];

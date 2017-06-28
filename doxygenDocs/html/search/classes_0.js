@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['baseexternalsensor',['BaseExternalSensor',['../class_base_external_sensor.html',1,'']]]
+  ['airactive',['airActive',['../structCoolBoardSensors_1_1airActive.html',1,'CoolBoardSensors']]]
 ];

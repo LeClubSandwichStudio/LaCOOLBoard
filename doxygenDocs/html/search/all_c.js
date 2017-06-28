@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['offlinemode',['offLineMode',['../class_cool_board.html#ae6b5e1274d760462290192acea4adca8',1,'CoolBoard']]],
-  ['onlinemode',['onLineMode',['../class_cool_board.html#aa0bbc4bc605e35618d18e68795c61363',1,'CoolBoard']]]
+  ['neopixelled',['neoPixelLed',['../classCoolBoardLed.html#ac2c13fa462a010cd9242bf297c013923',1,'CoolBoardLed']]],
+  ['newmsg',['newMsg',['../classCoolMQTT.html#a3240388137b885775aadf38e96b24c6b',1,'CoolMQTT']]],
+  ['ntp_5fpacket_5fsize',['NTP_PACKET_SIZE',['../CoolTime_8h.html#a56a6ea64006651b4f42adf713e244f06',1,'CoolTime.h']]]
 ];

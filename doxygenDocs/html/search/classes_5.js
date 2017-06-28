@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['jetpack',['Jetpack',['../class_jetpack.html',1,'']]]
+  ['jetpack',['Jetpack',['../classJetpack.html',1,'']]]
 ];

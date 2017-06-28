@@ -23,7 +23,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_cool_board_8cpp.html"
+"CoolBoardLed_8cpp.html",
+"structIrene3000_1_1parameters__T.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

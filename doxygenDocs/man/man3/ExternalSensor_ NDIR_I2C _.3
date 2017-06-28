@@ -1,4 +1,4 @@
-.TH "ExternalSensor< NDIR_I2C >" 3 "Tue Jun 27 2017" "CoolAPI" \" -*- nroff -*-
+.TH "ExternalSensor< NDIR_I2C >" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -24,6 +24,13 @@ Inherits \fBBaseExternalSensor\fP\&.
 .RI "virtual int \fBread\fP ()"
 .br
 .in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "NDIR_I2C \fBsensor\fP =NULL"
+.br
+.in -1c
 .SH "Detailed Description"
 .PP 
 
@@ -39,6 +46,14 @@ Definition at line 133 of file ExternalSensor\&.h\&.
 \fBExternalSensor(I2C address)\fP: NDIR_I2C specific constructor 
 .PP
 Definition at line 141 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+142     {
+143         sensor=NDIR_I2C(i2c_addr);
+144     }
+.fi
 .SH "Member Function Documentation"
 .PP 
 .SS "virtual uint8_t \fBExternalSensor\fP< NDIR_I2C >::begin (void)\fC [inline]\fP, \fC [virtual]\fP"
@@ -54,6 +69,24 @@ true if successful, false otherwise
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
 Definition at line 153 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+154     {
+155 
+156          if (sensor\&.begin()) 
+157         {
+158 
+159             delay(10000);
+160             return(true);
+161             }
+162          else 
+163         {
+164             return(false);
+165         }   
+166     }
+.fi
 .SS "virtual int \fBExternalSensor\fP< NDIR_I2C >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
 \fBread()\fP: NDIR_I2C specific read method
 .PP
@@ -67,6 +100,33 @@ the ppm value if successful, else return -42
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
 Definition at line 175 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+176     {
+177 
+178         if (sensor\&.measure())
+179         {
+180 
+181 
+182             return(sensor\&.ppm);
+183             
+184         }
+185         
+186         else
+187         {
+188 
+189             return(-42);
+190         }
+191     }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "NDIR_I2C \fBExternalSensor\fP< NDIR_I2C >::sensor =NULL\fC [private]\fP"
+
+.PP
+Definition at line 195 of file ExternalSensor\&.h\&.
 
 .SH "Author"
 .PP 

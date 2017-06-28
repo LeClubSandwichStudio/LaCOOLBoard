@@ -1,41 +1,45 @@
 var files =
 [
-    [ "CoolBoard.cpp", "_cool_board_8cpp.html", null ],
-    [ "CoolBoard.h", "_cool_board_8h.html", [
-      [ "CoolBoard", "class_cool_board.html", "class_cool_board" ]
+    [ "CoolBoard.cpp", "CoolBoard_8cpp.html", null ],
+    [ "CoolBoard.h", "CoolBoard_8h.html", [
+      [ "CoolBoard", "classCoolBoard.html", "classCoolBoard" ]
     ] ],
-    [ "CoolBoardLed.cpp", "_cool_board_led_8cpp.html", null ],
-    [ "CoolBoardLed.h", "_cool_board_led_8h.html", [
-      [ "CoolBoardLed", "class_cool_board_led.html", "class_cool_board_led" ]
+    [ "CoolBoardLed.cpp", "CoolBoardLed_8cpp.html", null ],
+    [ "CoolBoardLed.h", "CoolBoardLed_8h.html", [
+      [ "CoolBoardLed", "classCoolBoardLed.html", "classCoolBoardLed" ]
     ] ],
-    [ "CoolBoardSensors.cpp", "_cool_board_sensors_8cpp.html", null ],
-    [ "CoolBoardSensors.h", "_cool_board_sensors_8h.html", [
-      [ "CoolBoardSensors", "class_cool_board_sensors.html", "class_cool_board_sensors" ]
+    [ "CoolBoardSensors.cpp", "CoolBoardSensors_8cpp.html", null ],
+    [ "CoolBoardSensors.h", "CoolBoardSensors_8h.html", [
+      [ "CoolBoardSensors", "classCoolBoardSensors.html", "classCoolBoardSensors" ],
+      [ "airActive", "structCoolBoardSensors_1_1airActive.html", "structCoolBoardSensors_1_1airActive" ],
+      [ "lightActive", "structCoolBoardSensors_1_1lightActive.html", "structCoolBoardSensors_1_1lightActive" ]
     ] ],
-    [ "CoolFileSystem.cpp", "_cool_file_system_8cpp.html", null ],
-    [ "CoolFileSystem.h", "_cool_file_system_8h.html", [
-      [ "CoolFileSystem", "class_cool_file_system.html", "class_cool_file_system" ]
+    [ "CoolFileSystem.cpp", "CoolFileSystem_8cpp.html", null ],
+    [ "CoolFileSystem.h", "CoolFileSystem_8h.html", [
+      [ "CoolFileSystem", "classCoolFileSystem.html", "classCoolFileSystem" ]
     ] ],
-    [ "CoolMQTT.cpp", "_cool_m_q_t_t_8cpp.html", null ],
-    [ "CoolMQTT.h", "_cool_m_q_t_t_8h.html", [
-      [ "CoolMQTT", "class_cool_m_q_t_t.html", "class_cool_m_q_t_t" ]
+    [ "CoolMQTT.cpp", "CoolMQTT_8cpp.html", null ],
+    [ "CoolMQTT.h", "CoolMQTT_8h.html", [
+      [ "CoolMQTT", "classCoolMQTT.html", "classCoolMQTT" ]
     ] ],
-    [ "CoolTime.cpp", "_cool_time_8cpp.html", null ],
-    [ "CoolTime.h", "_cool_time_8h.html", "_cool_time_8h" ],
-    [ "ExternalSensor.h", "_external_sensor_8h.html", [
-      [ "BaseExternalSensor", "class_base_external_sensor.html", "class_base_external_sensor" ],
-      [ "ExternalSensor", "class_external_sensor.html", "class_external_sensor" ],
-      [ "ExternalSensor< NDIR_I2C >", "class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html", "class_external_sensor_3_01_n_d_i_r___i2_c_01_4" ],
-      [ "ExternalSensor< DallasTemperature >", "class_external_sensor_3_01_dallas_temperature_01_4.html", "class_external_sensor_3_01_dallas_temperature_01_4" ]
+    [ "CoolTime.cpp", "CoolTime_8cpp.html", null ],
+    [ "CoolTime.h", "CoolTime_8h.html", "CoolTime_8h" ],
+    [ "ExternalSensor.h", "ExternalSensor_8h.html", [
+      [ "BaseExternalSensor", "classBaseExternalSensor.html", "classBaseExternalSensor" ],
+      [ "ExternalSensor", "classExternalSensor.html", "classExternalSensor" ],
+      [ "ExternalSensor< DallasTemperature >", "classExternalSensor_3_01DallasTemperature_01_4.html", "classExternalSensor_3_01DallasTemperature_01_4" ],
+      [ "ExternalSensor< NDIR_I2C >", "classExternalSensor_3_01NDIR__I2C_01_4.html", "classExternalSensor_3_01NDIR__I2C_01_4" ]
     ] ],
-    [ "ExternalSensors.cpp", "_external_sensors_8cpp.html", null ],
-    [ "ExternalSensors.h", "_external_sensors_8h.html", [
-      [ "ExternalSensors", "class_external_sensors.html", "class_external_sensors" ]
+    [ "ExternalSensors.cpp", "ExternalSensors_8cpp.html", null ],
+    [ "ExternalSensors.h", "ExternalSensors_8h.html", [
+      [ "ExternalSensors", "classExternalSensors.html", "classExternalSensors" ],
+      [ "sensor", "structExternalSensors_1_1sensor.html", "structExternalSensors_1_1sensor" ]
     ] ],
     [ "irene3000.cpp", "irene3000_8cpp.html", null ],
-    [ "Irene3000.h", "_irene3000_8h.html", "_irene3000_8h" ],
-    [ "Jetpack.cpp", "_jetpack_8cpp.html", null ],
-    [ "Jetpack.h", "_jetpack_8h.html", [
-      [ "Jetpack", "class_jetpack.html", "class_jetpack" ]
+    [ "Irene3000.h", "Irene3000_8h.html", "Irene3000_8h" ],
+    [ "Jetpack.cpp", "Jetpack_8cpp.html", null ],
+    [ "Jetpack.h", "Jetpack_8h.html", [
+      [ "Jetpack", "classJetpack.html", "classJetpack" ],
+      [ "state", "structJetpack_1_1state.html", "structJetpack_1_1state" ]
     ] ]
 ];

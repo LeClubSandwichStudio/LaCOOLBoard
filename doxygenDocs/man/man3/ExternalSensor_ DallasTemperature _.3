@@ -1,4 +1,4 @@
-.TH "ExternalSensor< DallasTemperature >" 3 "Tue Jun 27 2017" "CoolAPI" \" -*- nroff -*-
+.TH "ExternalSensor< DallasTemperature >" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -24,6 +24,16 @@ Inherits \fBBaseExternalSensor\fP\&.
 .RI "virtual int \fBread\fP ()"
 .br
 .in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "DeviceAddress \fBdallasAddress\fP"
+.br
+.ti -1c
+.RI "DallasTemperature \fBsensor\fP =NULL"
+.br
+.in -1c
 .SH "Detailed Description"
 .PP 
 
@@ -39,6 +49,16 @@ Definition at line 205 of file ExternalSensor\&.h\&.
 \fBExternalSensor()\fP: DallasTemperature specific constructor 
 .PP
 Definition at line 212 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+213     {
+214         OneWire oneWire(0);
+215         
+216         sensor=DallasTemperature(&oneWire);
+217     }
+.fi
 .SH "Member Function Documentation"
 .PP 
 .SS "virtual uint8_t \fBExternalSensor\fP< DallasTemperature >::begin (void)\fC [inline]\fP, \fC [virtual]\fP"
@@ -54,6 +74,18 @@ true if successful
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
 Definition at line 225 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+226     {
+227         
+228         sensor\&.begin(); 
+229         delay(5);
+230         sensor\&.getAddress(this->dallasAddress, 1);   
+231         return(true);
+232     }
+.fi
 .SS "virtual int \fBExternalSensor\fP< DallasTemperature >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
 \fBread()\fP: DallasTemperature specific read method
 .PP
@@ -67,6 +99,24 @@ the temperature in °C
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
 Definition at line 239 of file ExternalSensor\&.h\&.
+.PP
+References ExternalSensor< T >::sensor\&.
+.PP
+.nf
+240     {
+241          return( (int) sensor\&.getTempC(this->dallasAddress) );
+242     }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "DeviceAddress \fBExternalSensor\fP< DallasTemperature >::dallasAddress\fC [private]\fP"
+
+.PP
+Definition at line 247 of file ExternalSensor\&.h\&.
+.SS "DallasTemperature \fBExternalSensor\fP< DallasTemperature >::sensor =NULL\fC [private]\fP"
+
+.PP
+Definition at line 246 of file ExternalSensor\&.h\&.
 
 .SH "Author"
 .PP 

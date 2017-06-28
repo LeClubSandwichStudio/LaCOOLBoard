@@ -1,4 +1,4 @@
-.TH "CoolBoard" 3 "Tue Jun 27 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolBoard" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -19,7 +19,10 @@ CoolBoard \- This class manages the \fBCoolBoard\fP and all of Its functions\&.
 .RI "bool \fBconfig\fP ()"
 .br
 .ti -1c
-.RI "void \fBupdate\fP (const char *answer)"
+.RI "int \fBconnect\fP ()"
+.br
+.ti -1c
+.RI "uint16_t \fBgetInterval\fP ()"
 .br
 .ti -1c
 .RI "void \fBoffLineMode\fP ()"
@@ -28,13 +31,77 @@ CoolBoard \- This class manages the \fBCoolBoard\fP and all of Its functions\&.
 .RI "void \fBonLineMode\fP ()"
 .br
 .ti -1c
-.RI "int \fBconnect\fP ()"
-.br
-.ti -1c
-.RI "uint16_t \fBgetDelay\fP ()"
-.br
-.ti -1c
 .RI "void \fBprintConf\fP ()"
+.br
+.ti -1c
+.RI "void \fBsleep\fP ()"
+.br
+.ti -1c
+.RI "void \fBupdate\fP (const char *\fBanswer\fP)"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "String \fBanswer\fP"
+.br
+.ti -1c
+.RI "int \fBanswerJsonSize\fP"
+.br
+.ti -1c
+.RI "byte \fBcnxStatus\fP"
+.br
+.ti -1c
+.RI "\fBCoolBoardLed\fP \fBcoolBoardLed\fP"
+.br
+.ti -1c
+.RI "\fBCoolBoardSensors\fP \fBcoolBoardSensors\fP"
+.br
+.ti -1c
+.RI "String \fBdata\fP"
+.br
+.ti -1c
+.RI "\fBExternalSensors\fP \fBexternalSensors\fP"
+.br
+.ti -1c
+.RI "byte \fBexternalSensorsActive\fP"
+.br
+.ti -1c
+.RI "\fBCoolFileSystem\fP \fBfileSystem\fP"
+.br
+.ti -1c
+.RI "uint16_t \fBinterval\fP"
+.br
+.ti -1c
+.RI "\fBIrene3000\fP \fBirene3000\fP"
+.br
+.ti -1c
+.RI "byte \fBireneActive\fP"
+.br
+.ti -1c
+.RI "\fBJetpack\fP \fBjetPack\fP"
+.br
+.ti -1c
+.RI "byte \fBjetpackActive\fP"
+.br
+.ti -1c
+.RI "\fBCoolMQTT\fP \fBmqtt\fP"
+.br
+.ti -1c
+.RI "\fBCoolTime\fP \fBrtc\fP"
+.br
+.ti -1c
+.RI "int \fBsensorJsonSize\fP"
+.br
+.ti -1c
+.RI "int \fBserverTimeOut\fP"
+.br
+.ti -1c
+.RI "byte \fBstation\fP"
+.br
+.ti -1c
+.RI "WiFiManager \fBwifiManager\fP"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -48,6 +115,54 @@ Definition at line 37 of file CoolBoard\&.h\&.
 \fBCoolBoard::begin()\fP: This method is provided to configure, begin the used CoolKit Parts\&. If Serial is enabled,it prints the configuration of the used parts\&. 
 .PP
 Definition at line 24 of file CoolBoard\&.cpp\&.
+.PP
+References CoolFileSystem::begin(), CoolBoardLed::begin(), CoolMQTT::begin(), Jetpack::begin(), ExternalSensors::begin(), CoolTime::begin(), CoolBoardSensors::begin(), Irene3000::begin(), CoolBoardLed::config(), CoolMQTT::config(), CoolTime::config(), Jetpack::config(), ExternalSensors::config(), Irene3000::config(), CoolBoardSensors::config(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolBoardLed::printConf(), Jetpack::printConf(), CoolTime::printConf(), ExternalSensors::printConf(), CoolMQTT::printConf(), Irene3000::printConf(), CoolBoardSensors::printConf(), and rtc\&.
+.PP
+.nf
+25 {       
+26     fileSystem\&.begin(); 
+27     
+28     coolBoardSensors\&.config(); 
+29     coolBoardSensors\&.begin();
+30     coolBoardSensors\&.printConf();
+31     
+32     rtc\&.config();
+33     rtc\&.begin();
+34     rtc\&.printConf();
+35     
+36     coolBoardLed\&.config();   
+37     coolBoardLed\&.begin();
+38     coolBoardLed\&.printConf();
+39 
+40     mqtt\&.config();
+41     mqtt\&.begin();
+42     mqtt\&.printConf();
+43 
+44     if(jetpackActive)   
+45     {   
+46         jetPack\&.config();
+47         jetPack\&.begin();
+48         jetPack\&.printConf();
+49 
+50     }
+51 
+52     if(ireneActive)
+53     {
+54         irene3000\&.config();
+55         irene3000\&.begin();
+56         irene3000\&.printConf();
+57 
+58     }
+59 
+60     if(externalSensorsActive)
+61     {
+62         externalSensors\&.config();
+63         externalSensors\&.begin(); 
+64         externalSensors\&.printConf();
+65     }
+66 
+67 }
+.fi
 .SS "bool CoolBoard::config ()"
 \fBCoolBoard::config()\fP: This method is provided to configure the \fBCoolBoard\fP : -log interval -Size of the data to write -Size of the data to read -irene3000 activated/deactivated -jetpack activated/deactivated -external Sensors activated/deactivated -mqtt server timeout
 .PP
@@ -58,7 +173,139 @@ true if configuration is done, false otherwise
 .PP
 
 .PP
-Definition at line 197 of file CoolBoard\&.cpp\&.
+Definition at line 193 of file CoolBoard\&.cpp\&.
+.PP
+References answerJsonSize, CoolFileSystem::begin(), externalSensorsActive, fileSystem, interval, ireneActive, jetpackActive, sensorJsonSize, serverTimeOut, and station\&.
+.PP
+Referenced by update()\&.
+.PP
+.nf
+194 {
+195     fileSystem\&.begin(); 
+196     //read config file
+197     //update data
+198     File configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "r");
+199 
+200     if (!configFile) 
+201     {
+202         return(false);
+203     }
+204     else
+205     {
+206         size_t size = configFile\&.size();
+207         // Allocate a buffer to store contents of the file\&.
+208         std::unique_ptr<char[]> buf(new char[size]);
+209 
+210         configFile\&.readBytes(buf\&.get(), size);
+211         DynamicJsonBuffer jsonBuffer;
+212         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+213         if (!json\&.success()) 
+214         {
+215               return(false);
+216         } 
+217         else
+218         {     
+219             if( json["interval"]\&.success() )
+220             {
+221                 this->interval = json["interval"]; 
+222             }
+223             else
+224             {
+225                 this->interval=this->interval;
+226                 
+227             }
+228             json["interval"]=this->interval;
+229 
+230             if(json["sensorJsonSize"]\&.success())
+231             {
+232                 this->sensorJsonSize = json["sensorJsonSize"];
+233             }
+234             else
+235             {
+236                 this->sensorJsonSize=this->sensorJsonSize;
+237             }
+238             json["sensorJsonSize"]=this->sensorJsonSize;
+239 
+240             if(json["answerJsonSize"]\&.success())
+241             {
+242                 this->answerJsonSize = json["answerJsonSize"];
+243             }
+244             else
+245             {
+246                 this->answerJsonSize=this->answerJsonSize;
+247             }
+248             json["answerJsonSize"]=this->answerJsonSize;
+249             
+250             if(json["ireneActive"]\&.success() )
+251             {
+252                 this->ireneActive=json["ireneActive"];
+253             }
+254             else
+255             {
+256                 this->ireneActive=this->ireneActive;
+257             }
+258             json["ireneActive"]=this->ireneActive;  
+259 
+260             if(json["jetpackActive"]\&.success() )
+261             {       
+262                 this->jetpackActive=json["jetpackActive"];
+263             }
+264             else
+265             {
+266                 this->jetpackActive=this->jetpackActive;
+267             }
+268             json["jetpackActive"]=this->jetpackActive;
+269             
+270             if(json["externalSensorsActive"]\&.success() )
+271             {           
+272             
+273                 this->externalSensorsActive=json["externalSensorsActive"];
+274             }
+275             else
+276             {
+277                 this->externalSensorsActive=this->externalSensorsActive;
+278             }
+279             json["externalSensorsActive"]=this->externalSensorsActive;
+280             
+281             if(json["serverTimeOut"]\&.success() )
+282             {           
+283                 this->serverTimeOut=json["serverTimeOut"];
+284             }
+285             else
+286             {
+287                 this->serverTimeOut=this->serverTimeOut;
+288             }
+289             json["serverTimeOut"]=this->serverTimeOut;
+290             
+291             if( json["station"]\&.success() )
+292             {
+293                 this->station=json["station"];          
+294             }
+295             else
+296             {
+297                 this->station=this->station;            
+298             }
+299             json["station"]=this->station;          
+300             
+301             
+302             configFile\&.close();
+303             configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "w");
+304         
+305             if(!configFile)
+306             {
+307                 return(false);
+308             }
+309 
+310             json\&.printTo(configFile);
+311             configFile\&.close();
+312     
+313             return(true); 
+314         }
+315     }   
+316     
+317 
+318 }
+.fi
 .SS "int CoolBoard::connect ()"
 \fBCoolBoard::connect()\fP: This method is provided to manage the network connection and the mqtt connection\&.
 .PP
@@ -70,8 +317,30 @@ mqtt client state
 
 .PP
 Definition at line 76 of file CoolBoard\&.cpp\&.
-.SS "uint16_t CoolBoard::getDelay ()"
-\fBCoolBoard::getDelay()\fP: This method is provided to get the log interval 
+.PP
+References CoolMQTT::connect(), getInterval(), mqtt, serverTimeOut, CoolMQTT::state(), and wifiManager\&.
+.PP
+.nf
+77 {  if(WiFi\&.status() != WL_CONNECTED)
+78     {
+79 
+80         wifiManager\&.setConfigPortalTimeout(this->serverTimeOut);
+81         wifiManager\&.autoConnect("CoolBoard");
+82 
+83     }
+84     if(mqtt\&.state()!=0)
+85     {   
+86 
+87         mqtt\&.connect(this->getInterval()) ;
+88 
+89     }
+90     
+91     return(mqtt\&.state()); 
+92         
+93 }
+.fi
+.SS "uint16_t CoolBoard::getInterval ()"
+\fBCoolBoard::getInterval()\fP: This method is provided to get the log interval 
 .PP
 \fBReturns:\fP
 .RS 4
@@ -80,23 +349,311 @@ interval value in ms
 .PP
 
 .PP
-Definition at line 390 of file CoolBoard\&.cpp\&.
+Definition at line 397 of file CoolBoard\&.cpp\&.
+.PP
+References interval\&.
+.PP
+Referenced by connect(), and sleep()\&.
+.PP
+.nf
+398 {
+399     return(this->interval);
+400 }
+.fi
 .SS "void CoolBoard::offLineMode ()"
 CoolBoard::offlineMode(): This method is provided to manage the offLine mode: -read sensors -do actions -save data in the file system 
 .PP
-Definition at line 160 of file CoolBoard\&.cpp\&.
+Definition at line 156 of file CoolBoard\&.cpp\&.
+.PP
+References coolBoardSensors, data, Jetpack::doAction(), externalSensors, externalSensorsActive, fileSystem, irene3000, ireneActive, jetPack, jetpackActive, ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), CoolFileSystem::saveSensorData(), and sensorJsonSize\&.
+.PP
+.nf
+157 {
+158 
+159     data=coolBoardSensors\&.read();
+160     
+161     if(externalSensorsActive)
+162     {
+163         data+=externalSensors\&.read();    
+164     }       
+165     if(ireneActive)
+166     {
+167         data+=irene3000\&.read(); 
+168     }
+169     
+170     if(jetpackActive)
+171     {
+172         jetPack\&.doAction(data\&.c_str(),sensorJsonSize); 
+173     }   
+174 
+175     fileSystem\&.saveSensorData(data\&.c_str(), sensorJsonSize ); 
+176 }
+.fi
 .SS "void CoolBoard::onLineMode ()"
 \fBCoolBoard::onLineMode()\fP: This method is provided to manage the online mode: -update clock -read sensors -do actions -publish data -read answer -update config 
 .PP
 Definition at line 105 of file CoolBoard\&.cpp\&.
+.PP
+References answer, coolBoardSensors, data, Jetpack::doAction(), externalSensors, externalSensorsActive, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolMQTT::mqttLoop(), CoolMQTT::publish(), CoolMQTT::read(), ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), rtc, sensorJsonSize, CoolTime::update(), and update()\&.
+.PP
+.nf
+106 {
+107     rtc\&.update();    
+108 
+109     data=coolBoardSensors\&.read(); //{\&.\&.,\&.\&.,\&.\&.}
+110 
+111 
+112     if(externalSensorsActive)
+113     {   
+114 
+115         data+=externalSensors\&.read();//{\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.}   
+116         data\&.setCharAt(data\&.lastIndexOf('}'),',');//{\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,
+117         data\&.setCharAt(data\&.lastIndexOf('{'),',');//{\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,
+118         data\&.remove(data\&.lastIndexOf('}'),1);//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
+119         data\&.setCharAt(data\&.lastIndexOf(','),'}');//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}        
+120     }       
+121     if(ireneActive)
+122     {
+123         data+=irene3000\&.read();//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,\&.\&.}
+124         data\&.setCharAt(data\&.lastIndexOf('}'),',');//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.{\&.\&.,\&.\&.,\&.\&., 
+125         data\&.setCharAt(data\&.lastIndexOf('{'),',');//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,\&.\&.,
+126         data\&.remove(data\&.lastIndexOf('}'),1);//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,  
+127         data\&.setCharAt(data\&.lastIndexOf(','),'}');//{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+128     }
+129 
+130     
+131     if(jetpackActive)
+132     {
+133         jetPack\&.doAction(data\&.c_str(), sensorJsonSize);
+134         
+135 
+136     }
+137     
+138     String jsonData="{\"state\":{\"reported\":";    
+139     jsonData+=data;//{"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+140     jsonData+=",\"desired\":null} }";//{"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.},"desired" :null }  }
+141     
+142     mqtt\&.publish(jsonData\&.c_str());
+143     mqtt\&.mqttLoop();
+144     answer=mqtt\&.read();
+145     this->update(answer\&.c_str());    
+146                 
+147 }
+.fi
 .SS "void CoolBoard::printConf ()"
 \fBCoolBoard::printConf()\fP: This method is provided to print the configuration to the Serial Monitor\&. 
 .PP
-Definition at line 320 of file CoolBoard\&.cpp\&.
+Definition at line 327 of file CoolBoard\&.cpp\&.
+.PP
+References answerJsonSize, externalSensorsActive, interval, ireneActive, jetpackActive, sensorJsonSize, and serverTimeOut\&.
+.PP
+.nf
+328 {
+329     Serial\&.println("Cool Board Conf");
+330     Serial\&.println(interval);
+331     Serial\&.println(sensorJsonSize);
+332     Serial\&.println(answerJsonSize);
+333     Serial\&.println(ireneActive);
+334     Serial\&.println(jetpackActive);
+335     Serial\&.println(externalSensorsActive);
+336     Serial\&.println(serverTimeOut);
+337     Serial\&.println(" ");
+338 
+339 }
+.fi
+.SS "void CoolBoard::sleep ()"
+\fBCoolBoard::sleep()\fP: This method is provided to either use delay or set esp to deep sleep 
+.PP
+Definition at line 407 of file CoolBoard\&.cpp\&.
+.PP
+References getInterval(), and station\&.
+.PP
+.nf
+408 {
+409     if(this->station == 1)
+410     {
+411         ESP\&.deepSleep( ( (this->getInterval() )*1000 ) , WAKE_RF_DEFAULT );  
+412     }
+413     else
+414     {
+415         delay( this->getInterval() );   
+416     }
+417 }
+.fi
 .SS "void CoolBoard::update (const char * answer)"
 CoolBoard::update(mqtt answer): This method is provided to handle the configuration update of the different parts 
 .PP
-Definition at line 339 of file CoolBoard\&.cpp\&.
+Definition at line 346 of file CoolBoard\&.cpp\&.
+.PP
+References answerJsonSize, CoolBoardLed::config(), CoolMQTT::config(), CoolTime::config(), ExternalSensors::config(), Jetpack::config(), Irene3000::config(), config(), CoolBoardSensors::config(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, rtc, and CoolFileSystem::updateConfigFiles()\&.
+.PP
+Referenced by onLineMode()\&.
+.PP
+.nf
+347 {   
+348     DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
+349     JsonObject& root = jsonBuffer\&.parseObject(answer);
+350     JsonObject& stateDesired = root["state"]["desired"];
+351     if(stateDesired\&.success() )
+352     {
+353         if(stateDesired["update"]==1) 
+354             {   
+355                 String answerDesired;
+356                 stateDesired\&.printTo(answerDesired);
+357                 Serial\&.println(answerDesired);
+358                 
+359                 bool result=fileSystem\&.updateConfigFiles(answerDesired,answerJsonSize); 
+360                 Serial\&.print("update : ");Serial\&.println(result);
+361                 
+362                 this->config(); 
+363         
+364                 coolBoardSensors\&.config();
+365 
+366                 rtc\&.config(); 
+367 
+368                 coolBoardLed\&.config();
+369             
+370                 mqtt\&.config();           
+371                         
+372                 if(jetpackActive)
+373                 {
+374                     jetPack\&.config(); 
+375                 }
+376 
+377                 if(ireneActive)
+378                 {
+379                     irene3000\&.config();  
+380                 }
+381             
+382                 if(externalSensorsActive)
+383                 {
+384                     externalSensors\&.config();            
+385                 }
+386 
+387             }
+388     }
+389 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "String CoolBoard::answer\fC [private]\fP"
+
+.PP
+Definition at line 96 of file CoolBoard\&.h\&.
+.PP
+Referenced by onLineMode()\&.
+.SS "int CoolBoard::answerJsonSize\fC [private]\fP"
+
+.PP
+Definition at line 88 of file CoolBoard\&.h\&.
+.PP
+Referenced by config(), printConf(), and update()\&.
+.SS "byte CoolBoard::cnxStatus\fC [private]\fP"
+
+.PP
+Definition at line 98 of file CoolBoard\&.h\&.
+.SS "\fBCoolBoardLed\fP CoolBoard::coolBoardLed\fC [private]\fP"
+
+.PP
+Definition at line 66 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), and update()\&.
+.SS "\fBCoolBoardSensors\fP CoolBoard::coolBoardSensors\fC [private]\fP"
+
+.PP
+Definition at line 64 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
+.SS "String CoolBoard::data\fC [private]\fP"
+
+.PP
+Definition at line 94 of file CoolBoard\&.h\&.
+.PP
+Referenced by offLineMode(), and onLineMode()\&.
+.SS "\fBExternalSensors\fP CoolBoard::externalSensors\fC [private]\fP"
+
+.PP
+Definition at line 78 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
+.SS "byte CoolBoard::externalSensorsActive\fC [private]\fP"
+
+.PP
+Definition at line 84 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), config(), offLineMode(), onLineMode(), printConf(), and update()\&.
+.SS "\fBCoolFileSystem\fP CoolBoard::fileSystem\fC [private]\fP"
+
+.PP
+Definition at line 62 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), config(), offLineMode(), and update()\&.
+.SS "uint16_t CoolBoard::interval\fC [private]\fP"
+
+.PP
+Definition at line 86 of file CoolBoard\&.h\&.
+.PP
+Referenced by config(), getInterval(), and printConf()\&.
+.SS "\fBIrene3000\fP CoolBoard::irene3000\fC [private]\fP"
+
+.PP
+Definition at line 76 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
+.SS "byte CoolBoard::ireneActive\fC [private]\fP"
+
+.PP
+Definition at line 80 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), config(), offLineMode(), onLineMode(), printConf(), and update()\&.
+.SS "\fBJetpack\fP CoolBoard::jetPack\fC [private]\fP"
+
+.PP
+Definition at line 74 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
+.SS "byte CoolBoard::jetpackActive\fC [private]\fP"
+
+.PP
+Definition at line 82 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), config(), offLineMode(), onLineMode(), printConf(), and update()\&.
+.SS "\fBCoolMQTT\fP CoolBoard::mqtt\fC [private]\fP"
+
+.PP
+Definition at line 72 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), connect(), onLineMode(), and update()\&.
+.SS "\fBCoolTime\fP CoolBoard::rtc\fC [private]\fP"
+
+.PP
+Definition at line 68 of file CoolBoard\&.h\&.
+.PP
+Referenced by begin(), onLineMode(), and update()\&.
+.SS "int CoolBoard::sensorJsonSize\fC [private]\fP"
+
+.PP
+Definition at line 90 of file CoolBoard\&.h\&.
+.PP
+Referenced by config(), offLineMode(), onLineMode(), and printConf()\&.
+.SS "int CoolBoard::serverTimeOut\fC [private]\fP"
+
+.PP
+Definition at line 92 of file CoolBoard\&.h\&.
+.PP
+Referenced by config(), connect(), and printConf()\&.
+.SS "byte CoolBoard::station\fC [private]\fP"
+
+.PP
+Definition at line 100 of file CoolBoard\&.h\&.
+.PP
+Referenced by config(), and sleep()\&.
+.SS "WiFiManager CoolBoard::wifiManager\fC [private]\fP"
+
+.PP
+Definition at line 70 of file CoolBoard\&.h\&.
+.PP
+Referenced by connect()\&.
 
 .SH "Author"
 .PP 

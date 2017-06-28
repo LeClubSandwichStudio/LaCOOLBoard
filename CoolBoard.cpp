@@ -1,6 +1,6 @@
 /**
 *	\file	CoolBoard.cpp
-*  	\breif	CoolBoard Source file
+*  	\brief	CoolBoard Source file
 *	\author	Mehdi Zemzem
 *	\version 1.0  
 *  	\date	27/06/2017
@@ -84,7 +84,7 @@ int CoolBoard::connect()
 	if(mqtt.state()!=0)
 	{	
 
-		mqtt.connect(this->getDelay()) ;
+		mqtt.connect(this->getInterval()) ;
 
 	}
 	
@@ -103,11 +103,7 @@ int CoolBoard::connect()
 *		-update config
 */
 void CoolBoard::onLineMode()
-{	
-	
-	
-	
-
+{
 	rtc.update();	
 
 	data=coolBoardSensors.read(); //{..,..,..}
@@ -220,16 +216,16 @@ bool CoolBoard::config()
 		} 
 		else
 		{  	  
-			if( json["delay"].success() )
+			if( json["interval"].success() )
 			{
-				this->delay = json["delay"]; 
+				this->interval = json["interval"]; 
 			}
 			else
 			{
-				this->delay=this->delay;
+				this->interval=this->interval;
 				
 			}
-			json["delay"]=this->delay;
+			json["interval"]=this->interval;
 
 			if(json["sensorJsonSize"].success())
 			{
@@ -292,6 +288,17 @@ bool CoolBoard::config()
 			}
 			json["serverTimeOut"]=this->serverTimeOut;
 			
+			if( json["station"].success() )
+			{
+				this->station=json["station"];			
+			}
+			else
+			{
+				this->station=this->station;			
+			}
+			json["station"]=this->station;			
+			
+			
 			configFile.close();
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
 		
@@ -320,7 +327,7 @@ bool CoolBoard::config()
 void CoolBoard::printConf()
 {
 	Serial.println("Cool Board Conf");
-	Serial.println(delay);
+	Serial.println(interval);
 	Serial.println(sensorJsonSize);
 	Serial.println(answerJsonSize);
 	Serial.println(ireneActive);
@@ -382,14 +389,31 @@ void CoolBoard::update(const char*answer )
 }
 
 /**
-*	CoolBoard::getDelay():
+*	CoolBoard::getInterval():
 *	This method is provided to get
 *	the log interval
 *	\return interval value in ms
 */
-uint16_t CoolBoard::getDelay()
+uint16_t CoolBoard::getInterval()
 {
-	return(this->delay);
+	return(this->interval);
+}
+
+/**
+*	CoolBoard::sleep():
+*	This method is provided to either
+*	use delay or set esp to deep sleep
+*/
+void CoolBoard::sleep()
+{
+	if(this->station == 1)
+	{
+		ESP.deepSleep( ( (this->getInterval() )*1000 ) , WAKE_RF_DEFAULT );	
+	}
+	else
+	{
+		delay( this->getInterval() );	
+	}
 }
 
 

@@ -1,0 +1,390 @@
+\hypertarget{classCoolFileSystem}{}\section{Cool\+File\+System Class Reference}
+\label{classCoolFileSystem}\index{Cool\+File\+System@{Cool\+File\+System}}
+
+
+This class handles the file system.  
+
+
+
+
+{\ttfamily \#include $<$Cool\+File\+System.\+h$>$}
+
+
+
+Collaboration diagram for Cool\+File\+System\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=190pt]{classCoolFileSystem__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748}{begin} ()
+\item 
+bool \hyperlink{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}{save\+Sensor\+Data} (const char $\ast$data, int Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE)
+\item 
+bool \hyperlink{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}{update\+Config\+Files} (String answer, int J\+S\+O\+N\+\_\+\+S\+I\+ZE)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class handles the file system. 
+
+Definition at line 22 of file Cool\+File\+System.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748}\label{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!begin@{begin}}
+\index{begin@{begin}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{begin()}{begin()}}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748}{Cool\+File\+System\+::begin()}\+: This method is provided to start the S\+P\+I\+F\+FS object.
+
+\begin{DoxyReturn}{Returns}
+true if S\+P\+I\+F\+FS was initialized correctly, false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 22 of file Cool\+File\+System.\+cpp.
+
+
+
+Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
+
+
+\begin{DoxyCode}
+23 \{
+24     \textcolor{keywordflow}{return}( SPIFFS.begin() );                                   \textcolor{comment}{//Initialize Filesystem}
+25 
+26 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}\label{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!save\+Sensor\+Data@{save\+Sensor\+Data}}
+\index{save\+Sensor\+Data@{save\+Sensor\+Data}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{save\+Sensor\+Data()}{saveSensorData()}}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::save\+Sensor\+Data (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data,  }\item[{int}]{Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE }\end{DoxyParamCaption})}
+
+Cool\+File\+System\+::save\+Sensor\+Data( data, data size )\+: This method is provided to save the data on the local memory when there is no internet available
+
+\begin{DoxyReturn}{Returns}
+true if the data was saved, false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 36 of file Cool\+File\+System.\+cpp.
+
+
+
+Referenced by Cool\+Board\+::off\+Line\+Mode().
+
+
+\begin{DoxyCode}
+37 \{
+38     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"a"});
+39     \textcolor{keywordflow}{if}(!sensorsData)
+40     \{
+41         \textcolor{keywordflow}{return} \textcolor{keyword}{false};   
+42     \}   
+43 
+44     DynamicJsonBuffer jsonBuffer(Sensor\_JSON\_SIZE);
+45     JsonObject& root = jsonBuffer.parseObject(data);
+46     
+47     root.printTo(sensorsData);
+48     sensorsData.close();
+49     
+50     \textcolor{keywordflow}{return} \textcolor{keyword}{true};        
+51 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}\label{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!update\+Config\+Files@{update\+Config\+Files}}
+\index{update\+Config\+Files@{update\+Config\+Files}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{update\+Config\+Files()}{updateConfigFiles()}}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::update\+Config\+Files (\begin{DoxyParamCaption}\item[{String}]{answer,  }\item[{int}]{J\+S\+O\+N\+\_\+\+S\+I\+ZE }\end{DoxyParamCaption})}
+
+Cool\+File\+Syste\+::update\+Config\+Files( mqtt answer, answer size)\+: This method is provided to update the configuration files when the appropriate mqtt answer is received\+: -\/update \+: 1
+
+\begin{DoxyReturn}{Returns}
+true if the files are updated correctly, false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 61 of file Cool\+File\+System.\+cpp.
+
+
+
+References temp.
+
+
+
+Referenced by Cool\+Board\+::update().
+
+
+\begin{DoxyCode}
+62 \{
+63     \textcolor{comment}{//String conversion to char*}
+64 
+65     \textcolor{keywordtype}{char} *jsonRoot = \textcolor{keyword}{new} \textcolor{keywordtype}{char}[answer.length() + 1];
+66     strcpy(jsonRoot, answer.c\_str());
+67     \textcolor{comment}{//total json object }
+68     DynamicJsonBuffer jsonBuffer(JSON\_SIZE);
+69     JsonObject& root = jsonBuffer.parseObject(jsonRoot);
+70 
+71 
+72         
+73     \textcolor{comment}{//temp string}
+74     String \hyperlink{Irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
+75 
+76     \textcolor{comment}{//CoolBoard Configuration File}
+77 
+78         JsonObject& jsonCoolBoard=root[\textcolor{stringliteral}{"CoolBoard"}];
+79     \textcolor{keywordflow}{if}(jsonCoolBoard.success())
+80     \{
+81         File coolBoardConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w+"});  
+82         \textcolor{keywordflow}{if}(!coolBoardConfig)
+83         \{   
+84             Serial.println(\textcolor{stringliteral}{"failed to open coolBoardConfig.json"});
+85             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+86         \}
+87         Serial.println(\textcolor{stringliteral}{"CoolBoard Config"});
+88         jsonCoolBoard.printTo(Serial);
+89         
+90         jsonCoolBoard.printTo(coolBoardConfig);
+91         
+92         coolBoardConfig.close();
+93     \}
+94     \textcolor{keywordflow}{else}
+95     \{
+96         Serial.println(\textcolor{stringliteral}{"failed to pars coolBoard "});
+97     \}       
+98 
+99     
+100     \textcolor{comment}{//Cool Board Sensors Configuration File}
+101     DynamicJsonBuffer jsonSBoard;
+102         JsonObject& jsonSensorsBoard=root[\textcolor{stringliteral}{"CoolSensorsBoard"}];  
+103     \textcolor{keywordflow}{if}(jsonSensorsBoard.success())
+104     \{   
+105         File coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"w+"});    
+106         \textcolor{keywordflow}{if}(!coolBoardSensorsConfig)
+107         \{
+108             Serial.println(\textcolor{stringliteral}{"failed to open coolBoardSensors.json"});
+109             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+110         \}
+111         
+112         Serial.println(\textcolor{stringliteral}{"CoolBoardSensors Config"});
+113         jsonSensorsBoard.printTo(coolBoardSensorsConfig);
+114         jsonSensorsBoard.printTo(Serial);
+115         coolBoardSensorsConfig.close();
+116     \}
+117     \textcolor{keywordflow}{else}
+118     \{
+119         Serial.println(\textcolor{stringliteral}{"failed to parse on board sensors "});    
+120     \}
+121     
+122     
+123     
+124     \textcolor{comment}{//rtc configuration file}
+125     DynamicJsonBuffer jsonR;
+126         JsonObject& jsonRTC=root[\textcolor{stringliteral}{"rtc"}];
+127     Serial.println(\textcolor{stringliteral}{"before config rtc json"});
+128     jsonRTC.printTo(Serial);
+129     \textcolor{keywordflow}{if}(jsonRTC.success() )
+130     \{
+131         File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w+"});  
+132         \textcolor{keywordflow}{if}(!rtcConfig)
+133         \{
+134             Serial.println(\textcolor{stringliteral}{"failed to open rtcConfig.json"});
+135             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+136         \}
+137         Serial.println(\textcolor{stringliteral}{"RTC Config"});
+138         jsonRTC.printTo(rtcConfig);
+139         jsonRTC.printTo(Serial);
+140         rtcConfig.close();
+141     
+142     \}
+143     \textcolor{keywordflow}{else}
+144     \{
+145         Serial.println(\textcolor{stringliteral}{"failed to parse rtc "});
+146     \}
+147 
+148     
+149     
+150     
+151     
+152         \textcolor{comment}{//cool board led configuration}
+153     DynamicJsonBuffer jsonLBoard;
+154         JsonObject& jsonLedBoard=root[\textcolor{stringliteral}{"led"}];
+155     Serial.println(\textcolor{stringliteral}{"before config Led json"});
+156     jsonLedBoard.printTo(Serial);
+157     \textcolor{keywordflow}{if}(jsonLedBoard.success())
+158     \{   
+159         File coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w+"});    
+160         \textcolor{keywordflow}{if}(!coolBoardLedConfig)
+161         \{
+162             Serial.println(\textcolor{stringliteral}{"failed to open led config"});
+163             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+164         \}
+165         Serial.println(\textcolor{stringliteral}{"CoolBoardLed Config"});
+166         jsonLedBoard.printTo(coolBoardLedConfig);
+167         jsonLedBoard.printTo(Serial);
+168         coolBoardLedConfig.close();
+169     
+170     \}
+171     \textcolor{keywordflow}{else}
+172     \{
+173         Serial.println(\textcolor{stringliteral}{"failed to parse led"});
+174     \}
+175         
+176 
+177     
+178 
+179     \textcolor{comment}{//jetpack configuration}
+180     DynamicJsonBuffer jsonJBoard;
+181         JsonObject& jsonJetpack=root[\textcolor{stringliteral}{"jetPack"}];
+182     Serial.println(\textcolor{stringliteral}{"before config jetpack json"});
+183     jsonJetpack.printTo(Serial);
+184     \textcolor{keywordflow}{if}(jsonJetpack.success())
+185     \{   
+186         File jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"w+"});  
+187         \textcolor{keywordflow}{if}(!jetPackConfig)
+188         \{
+189             Serial.println(\textcolor{stringliteral}{"failed to open jetpack file"});
+190             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+191         \}
+192         Serial.println(\textcolor{stringliteral}{"jetpack Config"});   
+193         jsonJetpack.printTo(jetPackConfig);
+194         jsonJetpack.printTo(Serial);
+195         jetPackConfig.close();
+196     \}
+197     \textcolor{keywordflow}{else}
+198     \{
+199         Serial.println(\textcolor{stringliteral}{"failed to parse jetpack"});  
+200     \}
+201     
+202     \textcolor{comment}{//irene configuration   }
+203     DynamicJsonBuffer jsonIBoard;
+204         JsonObject& jsonIrene=root[\textcolor{stringliteral}{"irene3000"}];
+205     Serial.println(\textcolor{stringliteral}{"before config irene json"}); 
+206     jsonIrene.printTo(Serial);
+207     \textcolor{keywordflow}{if}(jsonIrene.success())
+208     \{
+209         File irene3000Config = SPIFFS.open(\textcolor{stringliteral}{"/irene3000Config.json"}, \textcolor{stringliteral}{"w+"});  
+210         \textcolor{keywordflow}{if}(!irene3000Config)
+211         \{
+212             Serial.println(\textcolor{stringliteral}{"failed to open irene file"});
+213             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+214         \}
+215         Serial.println(\textcolor{stringliteral}{"irene3000 Config"});
+216         jsonIrene.printTo(irene3000Config);
+217         jsonIrene.printTo(Serial);
+218         irene3000Config.close();
+219     
+220     \}
+221     \textcolor{keywordflow}{else}
+222     \{
+223         Serial.println(\textcolor{stringliteral}{"failed to parse irene"});    
+224     \}
+225     
+226     \textcolor{comment}{//external sensors}
+227     DynamicJsonBuffer jsonESBoard;
+228         JsonObject& jsonExternalSensors=root[\textcolor{stringliteral}{"externalSensors"}];
+229     Serial.println(\textcolor{stringliteral}{"before config external Sensors json"});
+230     jsonExternalSensors.printTo(Serial);
+231     \textcolor{keywordflow}{if}(jsonExternalSensors.success())
+232     \{
+233         File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w+"});  
+234         \textcolor{keywordflow}{if}(!externalSensorsConfig)
+235         \{
+236             Serial.println(\textcolor{stringliteral}{"failed to open external sensors file "});
+237             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+238         \}
+239         Serial.println(\textcolor{stringliteral}{"externalSensors Config"});
+240         jsonExternalSensors.printTo(externalSensorsConfig);
+241         jsonExternalSensors.printTo(Serial);
+242 \textcolor{comment}{/*      for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)}
+243 \textcolor{comment}{        \{   }
+244 \textcolor{comment}{            String path="/"+String(i)+".json"; }
+245 \textcolor{comment}{                File temp=SPIFFS.open(path,"w+");}
+246 \textcolor{comment}{            if(!temp)}
+247 \textcolor{comment}{            \{}
+248 \textcolor{comment}{                Serial.print("failed to open  external sensor file n°");Serial.println(i);}
+249 \textcolor{comment}{                return(false);}
+250 \textcolor{comment}{            \}}
+251 \textcolor{comment}{                }
+252 \textcolor{comment}{            Serial.print(" external sensor ");Serial.print(i);Serial.println(" Config");}
+253 \textcolor{comment}{            jsonExternalSensors[String(i)].printTo(temp);}
+254 \textcolor{comment}{            jsonExternalSensors[String(i)].printTo(Serial);}
+255 \textcolor{comment}{            temp.close();}
+256 \textcolor{comment}{        \}}
+257 \textcolor{comment}{*/}          
+258         externalSensorsConfig.close();
+259 
+260     \}
+261     \textcolor{keywordflow}{else}
+262     \{
+263         Serial.println(\textcolor{stringliteral}{"failed to parse external sensors"}); 
+264     \}
+265 
+266     
+267     \textcolor{comment}{//mqtt config}
+268     DynamicJsonBuffer jsonMQ;
+269         JsonObject& jsonMQTT=root[\textcolor{stringliteral}{"mqtt"}];
+270     Serial.println(\textcolor{stringliteral}{"before config mqtt json"});
+271     jsonMQTT.printTo(Serial);
+272     \textcolor{keywordflow}{if}(jsonMQTT.success())
+273     \{
+274         File mqttConfig = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"w+"});    
+275         \textcolor{keywordflow}{if}(!mqttConfig)
+276         \{
+277             Serial.println(\textcolor{stringliteral}{"failed to open mqtt file "});        
+278             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+279         \}
+280         Serial.println(\textcolor{stringliteral}{"mqtt config"});
+281         jsonMQTT.printTo(mqttConfig);
+282         jsonMQTT.printTo(Serial);
+283         mqttConfig.close();
+284     \}
+285     \textcolor{keywordflow}{else}
+286     \{
+287         Serial.println(\textcolor{stringliteral}{"failed to parse mqtt"}); 
+288     \}   
+289         
+290     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+291 
+292 \}   
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b_icgraph}
+\end{center}
+\end{figure}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{CoolFileSystem_8h}{Cool\+File\+System.\+h}\item 
+\hyperlink{CoolFileSystem_8cpp}{Cool\+File\+System.\+cpp}\end{DoxyCompactItemize}

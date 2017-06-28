@@ -51,9 +51,11 @@ public:
 
 	int connect();
 
-	uint16_t getDelay();
+	uint16_t getInterval();
 
 	void printConf();
+
+	void sleep();
 
 private:
 
@@ -81,7 +83,7 @@ private:
 
 	byte externalSensorsActive;		
 
-	uint16_t delay;
+	uint16_t interval;
 
 	int answerJsonSize;
 	
@@ -94,6 +96,8 @@ private:
 	String answer;
 
 	byte cnxStatus;
+
+	byte station;
 
 };
 

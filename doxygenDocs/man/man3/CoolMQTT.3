@@ -1,4 +1,4 @@
-.TH "CoolMQTT" 3 "Tue Jun 27 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolMQTT" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,7 +16,22 @@ CoolMQTT \- This class handles the mqtt client\&.
 .RI "void \fBbegin\fP ()"
 .br
 .ti -1c
+.RI "void \fBcallback\fP (char *topic, byte *payload, unsigned int length)"
+.br
+.ti -1c
+.RI "void \fBconfig\fP (const char \fBmqttServer\fP[], const char \fBinTopic\fP[], const char \fBoutTopic\fP[], const char \fBclientId\fP[], int \fBbufferSize\fP)"
+.br
+.ti -1c
+.RI "bool \fBconfig\fP ()"
+.br
+.ti -1c
 .RI "int \fBconnect\fP (uint16_t keepAlive)"
+.br
+.ti -1c
+.RI "bool \fBmqttLoop\fP ()"
+.br
+.ti -1c
+.RI "void \fBprintConf\fP ()"
 .br
 .ti -1c
 .RI "bool \fBpublish\fP (const char *data)"
@@ -25,22 +40,38 @@ CoolMQTT \- This class handles the mqtt client\&.
 .RI "String \fBread\fP ()"
 .br
 .ti -1c
-.RI "void \fBconfig\fP (const char mqttServer[], const char inTopic[], const char outTopic[], const char clientId[], int bufferSize)"
-.br
-.ti -1c
-.RI "bool \fBconfig\fP ()"
-.br
-.ti -1c
-.RI "void \fBcallback\fP (char *topic, byte *payload, unsigned int length)"
-.br
-.ti -1c
-.RI "void \fBprintConf\fP ()"
-.br
-.ti -1c
 .RI "int \fBstate\fP ()"
 .br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
 .ti -1c
-.RI "bool \fBmqttLoop\fP ()"
+.RI "int \fBbufferSize\fP"
+.br
+.ti -1c
+.RI "PubSubClient \fBclient\fP"
+.br
+.ti -1c
+.RI "char \fBclientId\fP [50]"
+.br
+.ti -1c
+.RI "WiFiClient \fBespClient\fP"
+.br
+.ti -1c
+.RI "char \fBinTopic\fP [50]"
+.br
+.ti -1c
+.RI "char \fBmqttServer\fP [50]"
+.br
+.ti -1c
+.RI "String \fBmsg\fP"
+.br
+.ti -1c
+.RI "bool \fBnewMsg\fP"
+.br
+.ti -1c
+.RI "char \fBoutTopic\fP [50]"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -54,16 +85,74 @@ Definition at line 22 of file CoolMQTT\&.h\&.
 \fBCoolMQTT::begin()\fP: This method is provided to set the mqtt client's parameters: -client -server -callback method -buffer size 
 .PP
 Definition at line 26 of file CoolMQTT\&.cpp\&.
+.PP
+References bufferSize, callback(), client, espClient, and mqttServer\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+27 { 
+28     client\&.setClient(espClient);
+29     client\&.setServer(mqttServer, 1883);  
+30     client\&.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
+31     client\&.setBufferSize((unsigned short)bufferSize);
+32 
+33 }
+.fi
 .SS "void CoolMQTT::callback (char * topic, byte * payload, unsigned int length)"
 CoolMQTT::callback(in topic, incoming message , message length): This method is provided to handle incoming messages from the subscribed inTopic\&.
 .PP
 Arguments are automatically assigned in client\&.setCallback() 
 .PP
 Definition at line 134 of file CoolMQTT\&.cpp\&.
+.PP
+References msg, newMsg, and temp\&.
+.PP
+Referenced by begin()\&.
+.PP
+.nf
+135 {
+136     char temp[length+1];
+137 
+138     for (int i = 0; i < length; i++) 
+139     {
+140         temp[i]=(char)payload[i]; 
+141 
+142     }
+143 
+144     this->newMsg=true;
+145 
+146     temp[length+1]='\0';
+147 
+148     msg=String(temp);
+149     msg\&.remove(length,1);
+150     Serial\&.println("received");
+151     Serial\&.println(msg);
+152 
+153 }
+.fi
 .SS "void CoolMQTT::config (const char mqttServer[], const char inTopic[], const char outTopic[], const char clientId[], int bufferSize)"
 CoolMQTT::config(server,in topic, out topic , client id , buffer size): This method is provided to manually configure the mqtt client 
 .PP
 Definition at line 312 of file CoolMQTT\&.cpp\&.
+.PP
+References bufferSize\&.
+.PP
+Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
+.PP
+.nf
+313 {
+314     for(int i =0;i< 50 ;i++)
+315     {
+316         this->mqttServer[i]=mqttServer[i];
+317         this->inTopic[i]=inTopic[i];
+318         this->outTopic[i]=outTopic[i];
+319         this->clientId[i]=clientId[i];
+320     }
+321     this->bufferSize=bufferSize;
+322 
+323 }
+.fi
 .SS "bool CoolMQTT::config ()"
 \fBCoolMQTT::config()\fP: This method is provided to configure the mqttClient : -server -inTopic -outTopic -client Id -buffer size
 .PP
@@ -75,6 +164,134 @@ true if successful,false otherwise
 
 .PP
 Definition at line 182 of file CoolMQTT\&.cpp\&.
+.PP
+References bufferSize, clientId, inTopic, mqttServer, and outTopic\&.
+.PP
+.nf
+183 {
+184     //read config file
+185     //update data
+186     File configFile = SPIFFS\&.open("/mqttConfig\&.json", "r");
+187 
+188     if (!configFile) 
+189     {
+190         return(false);
+191     }
+192     else
+193     {
+194         size_t size = configFile\&.size();
+195         // Allocate a buffer to store contents of the file\&.
+196         std::unique_ptr<char[]> buf(new char[size]);
+197 
+198         configFile\&.readBytes(buf\&.get(), size);
+199         DynamicJsonBuffer jsonBuffer;
+200         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+201         if (!json\&.success()) 
+202         {
+203               return(false);
+204         } 
+205         else
+206         {               
+207                 if(json["mqttServer"]\&.success() )
+208                 {           
+209                     const char* tempmqttServer = json["mqttServer"]; // "inTopic"
+210                     for(int i =0;i< 50 ;i++)
+211                     {
+212                         mqttServer[i]=tempmqttServer[i];
+213                     }
+214                 }
+215                 else
+216                 {
+217                     for(int i =0;i< 50 ;i++)
+218                     {
+219                         this->mqttServer[i]=this->mqttServer[i];
+220                     }
+221 
+222                 }
+223                 json["mqttServer"]=this->mqttServer;
+224 
+225                 
+226                 if(json["inTopic"]\&.success() )
+227                 {
+228                     const char* tempInTopic = json["inTopic"]; // "inTopic"
+229                     for(int i =0;i< 50;i++)
+230                     {
+231                         inTopic[i]=tempInTopic[i];
+232                     }
+233                 }
+234                 else
+235                 {
+236                     for(int i=0;i<50;i++)
+237                     {
+238                         this->inTopic[i]=this->inTopic[i];
+239                     }               
+240                 }
+241                 json["inTopic"]=this->inTopic;
+242                 
+243                 
+244                 if(json["outTopic"]\&.success() )
+245                 {
+246                     const char* tempOutTopic = json["outTopic"]; // "outTopic"
+247                     for(int i =0;i<50;i++)
+248                     {
+249                         outTopic[i]=tempOutTopic[i];
+250                     }
+251                 }
+252                 else
+253                 {
+254                     for(int i=0;i<50;i++)
+255                     {
+256                         this->outTopic[i]=this->outTopic[i];
+257                     }
+258                 }
+259                 json["outTopic"]=this->outTopic;
+260             
+261                 
+262                 if(json["clientId"]\&.success() )
+263                 {               
+264                     const char* tempClientId = json["clientId"]; // "espAshiroji"
+265                     for(int i =0;i<50;i++)
+266                     {
+267                         clientId[i]=tempClientId[i];
+268                     }
+269                 }
+270                 else
+271                 {
+272                     for(int i=0;i<50;i++)
+273                     {
+274                         this->clientId[i]=this->clientId[i];
+275                     }               
+276                 }
+277                 json["clientId"]=this->clientId;
+278                 
+279                 if(json["bufferSize"]\&.success() )
+280                 {
+281                     int tempBufferSize = json["bufferSize"]; // 512
+282                     bufferSize=tempBufferSize;
+283                 }
+284                 else
+285                 {
+286                     this->bufferSize=this->bufferSize;
+287                 }
+288                 json["bufferSize"]=this->bufferSize;
+289 
+290                 configFile\&.close();
+291                 configFile = SPIFFS\&.open("/mqttConfig\&.json", "w");
+292                 if(!configFile)
+293                 {
+294                     return(false);              
+295                 }
+296                 
+297                 json\&.printTo(configFile);
+298                 configFile\&.close();
+299               
+300               return(true); 
+301         }
+302     }   
+303     
+304 
+305 }
+.fi
 .SS "int CoolMQTT::connect (uint16_t keepAlive)"
 CoolMQTT::connect( time to keep the connection alive ): This method is provided to connect the client to the server, publish to the out topic , subscribe to the in topic and set the keepAlive time\&.
 .PP
@@ -86,6 +303,41 @@ mqtt client state
 
 .PP
 Definition at line 64 of file CoolMQTT\&.cpp\&.
+.PP
+References client, clientId, inTopic, and outTopic\&.
+.PP
+Referenced by CoolBoard::connect()\&.
+.PP
+.nf
+65 {       
+66     int i=0;
+67     Serial\&.println("MQTT connecting\&.\&.\&.");
+68     while ((!client\&.connected())&&(i<100)) 
+69     {
+70         // Attempt to connect
+71         if (client\&.connect(clientId,keepAlive)) {
+72             Serial\&.println("connected");
+73             // Once connected, publish an announcement\&.\&.\&.
+74             client\&.publish(outTopic, "hello world by Ash");
+75             // \&.\&.\&. and resubscribe
+76             client\&.subscribe(inTopic);
+77             Serial\&.println("published and subscribed , leavin ") ;
+78             return(client\&.state());
+79         }
+80         else
+81         {
+82             Serial\&.println("not connected , leaving");
+83             return(client\&.state());
+84             
+85         }
+86     delay(5);
+87     i++;
+88     }
+89     
+90     return(1);
+91 
+92 }
+.fi
 .SS "bool CoolMQTT::mqttLoop ()"
 \fBCoolMQTT::mqttLoop()\fP: This method is provided to allow the client to process the data
 .PP
@@ -97,10 +349,39 @@ true if successful,false otherwise
 
 .PP
 Definition at line 121 of file CoolMQTT\&.cpp\&.
+.PP
+References client\&.
+.PP
+Referenced by CoolBoard::onLineMode()\&.
+.PP
+.nf
+122 {
+123     this->client\&.loop();
+124     return(client\&.loop());
+125 }
+.fi
 .SS "void CoolMQTT::printConf ()"
 \fBCoolMQTT::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
 Definition at line 330 of file CoolMQTT\&.cpp\&.
+.PP
+References bufferSize, clientId, inTopic, mqttServer, and outTopic\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+331 {
+332     Serial\&.println("MQTT conf ");
+333     Serial\&.println(mqttServer);
+334     Serial\&.println(inTopic);
+335     Serial\&.println(outTopic);
+336     Serial\&.println(clientId);
+337     Serial\&.println(bufferSize);
+338     Serial\&.println(" ");
+339 
+340 
+341 }
+.fi
 .SS "bool CoolMQTT::publish (const char * data)"
 CoolMQTT::publish(data): This method is provided to publish data to the out topic
 .PP
@@ -112,10 +393,42 @@ true if publish successful, false otherwise
 
 .PP
 Definition at line 102 of file CoolMQTT\&.cpp\&.
+.PP
+References client, and outTopic\&.
+.PP
+Referenced by CoolBoard::onLineMode()\&.
+.PP
+.nf
+103 {
+104 
+105     //data is in JSON, publish it directly
+106     Serial\&.println("data to publish");
+107     Serial\&.println(data);
+108     bool pub=client\&.publish( outTopic, data,sizeof(data) );
+109     return( pub);
+110 
+111 }
+.fi
 .SS "String CoolMQTT::read ()"
 \fBCoolMQTT::read()\fP: This method is provided to return the last read message\&. 
 .PP
 Definition at line 160 of file CoolMQTT\&.cpp\&.
+.PP
+References msg, and newMsg\&.
+.PP
+Referenced by CoolBoard::onLineMode()\&.
+.PP
+.nf
+161 {   
+162     if(this->newMsg==true)
+163     {
+164         return(this->msg);
+165         this->newMsg=false;
+166     }
+167     return(" ");
+168 
+169 }
+.fi
 .SS "int CoolMQTT::state ()"
 \fBCoolMQTT::state()\fP: This method is provided to return the mqtt client's state\&. 
 .PP
@@ -127,6 +440,72 @@ mqtt client state: -4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond with
 
 .PP
 Definition at line 51 of file CoolMQTT\&.cpp\&.
+.PP
+References client\&.
+.PP
+Referenced by CoolBoard::connect()\&.
+.PP
+.nf
+52 {
+53     return(client\&.state());
+54 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "int CoolMQTT::bufferSize\fC [private]\fP"
+
+.PP
+Definition at line 52 of file CoolMQTT\&.h\&.
+.PP
+Referenced by begin(), config(), and printConf()\&.
+.SS "PubSubClient CoolMQTT::client\fC [private]\fP"
+
+.PP
+Definition at line 54 of file CoolMQTT\&.h\&.
+.PP
+Referenced by begin(), connect(), mqttLoop(), publish(), and state()\&.
+.SS "char CoolMQTT::clientId[50]\fC [private]\fP"
+
+.PP
+Definition at line 51 of file CoolMQTT\&.h\&.
+.PP
+Referenced by config(), connect(), and printConf()\&.
+.SS "WiFiClient CoolMQTT::espClient\fC [private]\fP"
+
+.PP
+Definition at line 53 of file CoolMQTT\&.h\&.
+.PP
+Referenced by begin()\&.
+.SS "char CoolMQTT::inTopic[50]\fC [private]\fP"
+
+.PP
+Definition at line 49 of file CoolMQTT\&.h\&.
+.PP
+Referenced by config(), connect(), and printConf()\&.
+.SS "char CoolMQTT::mqttServer[50]\fC [private]\fP"
+
+.PP
+Definition at line 47 of file CoolMQTT\&.h\&.
+.PP
+Referenced by begin(), config(), and printConf()\&.
+.SS "String CoolMQTT::msg\fC [private]\fP"
+
+.PP
+Definition at line 48 of file CoolMQTT\&.h\&.
+.PP
+Referenced by callback(), and read()\&.
+.SS "bool CoolMQTT::newMsg\fC [private]\fP"
+
+.PP
+Definition at line 55 of file CoolMQTT\&.h\&.
+.PP
+Referenced by callback(), and read()\&.
+.SS "char CoolMQTT::outTopic[50]\fC [private]\fP"
+
+.PP
+Definition at line 50 of file CoolMQTT\&.h\&.
+.PP
+Referenced by config(), connect(), printConf(), and publish()\&.
 
 .SH "Author"
 .PP 

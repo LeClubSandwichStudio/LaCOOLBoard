@@ -67,16 +67,16 @@ class CoolBoard
 		} 
 		else
 		{  	  
-			if( json["delay"].success() )
+			if( json["interval"].success() )
 			{
-				this->delay = json["delay"]; 
+				this->interval = json["interval"]; 
 			}
 			else
 			{
-				this->delay=this->delay;
+				this->interval=this->interval;
 				
 			}
-			json["delay"]=this->delay;
+			json["interval"]=this->interval;
 
 			if(json["sensorJsonSize"].success())
 			{
@@ -138,6 +138,17 @@ class CoolBoard
 				this->serverTimeOut=this->serverTimeOut;
 			}
 			json["serverTimeOut"]=this->serverTimeOut;
+			
+			if( json["station"].success() )
+			{
+				this->station=json["station"];			
+			}
+			else
+			{
+				this->station=this->station;			
+			}
+			json["station"]=this->station;			
+			
 			
 			configFile.close();
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
@@ -274,17 +285,17 @@ class CoolBoard
 	if(mqtt.state()!=0)
 	{	
 
-		mqtt.connect(this->getDelay()) ;
+		mqtt.connect(this->getInterval()) ;
 
 	}
 	
 	return(mqtt.state()); 
 		
-!!!128773.cpp!!!	getDelay() : uint16_t
-	return(this->delay);
+!!!146309.cpp!!!	getInterval() : uint16_t
+	return(this->interval);
 !!!128901.cpp!!!	printConf() : void
 	Serial.println("Cool Board Conf");
-	Serial.println(delay);
+	Serial.println(interval);
 	Serial.println(sensorJsonSize);
 	Serial.println(answerJsonSize);
 	Serial.println(ireneActive);
@@ -293,3 +304,12 @@ class CoolBoard
 	Serial.println(serverTimeOut);
 	Serial.println(" ");
 
+!!!146437.cpp!!!	sleep() : void
+	if(this->station == 1)
+	{
+		ESP.deepSleep( ( (this->getInterval() )*1000 ) , WAKE_RF_DEFAULT );	
+	}
+	else
+	{
+		delay( this->getInterval() );	
+	}

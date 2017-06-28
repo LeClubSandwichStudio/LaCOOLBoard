@@ -1,17 +1,23 @@
 var hierarchy =
 [
-    [ "BaseExternalSensor", "class_base_external_sensor.html", [
-      [ "ExternalSensor< T >", "class_external_sensor.html", null ],
-      [ "ExternalSensor< DallasTemperature >", "class_external_sensor_3_01_dallas_temperature_01_4.html", null ],
-      [ "ExternalSensor< NDIR_I2C >", "class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html", null ]
+    [ "BaseExternalSensor", "classBaseExternalSensor.html", [
+      [ "ExternalSensor< T >", "classExternalSensor.html", null ],
+      [ "ExternalSensor< DallasTemperature >", "classExternalSensor_3_01DallasTemperature_01_4.html", null ],
+      [ "ExternalSensor< NDIR_I2C >", "classExternalSensor_3_01NDIR__I2C_01_4.html", null ]
     ] ],
-    [ "CoolBoard", "class_cool_board.html", null ],
-    [ "CoolBoardLed", "class_cool_board_led.html", null ],
-    [ "CoolBoardSensors", "class_cool_board_sensors.html", null ],
-    [ "CoolFileSystem", "class_cool_file_system.html", null ],
-    [ "CoolMQTT", "class_cool_m_q_t_t.html", null ],
-    [ "CoolTime", "class_cool_time.html", null ],
-    [ "ExternalSensors", "class_external_sensors.html", null ],
-    [ "Irene3000", "class_irene3000.html", null ],
-    [ "Jetpack", "class_jetpack.html", null ]
+    [ "CoolBoard", "classCoolBoard.html", null ],
+    [ "CoolBoardLed", "classCoolBoardLed.html", null ],
+    [ "CoolBoardSensors", "classCoolBoardSensors.html", null ],
+    [ "CoolBoardSensors::airActive", "structCoolBoardSensors_1_1airActive.html", null ],
+    [ "CoolBoardSensors::lightActive", "structCoolBoardSensors_1_1lightActive.html", null ],
+    [ "CoolFileSystem", "classCoolFileSystem.html", null ],
+    [ "CoolMQTT", "classCoolMQTT.html", null ],
+    [ "CoolTime", "classCoolTime.html", null ],
+    [ "ExternalSensors", "classExternalSensors.html", null ],
+    [ "ExternalSensors::sensor", "structExternalSensors_1_1sensor.html", null ],
+    [ "Irene3000", "classIrene3000.html", null ],
+    [ "Irene3000::parameters_T", "structIrene3000_1_1parameters__T.html", null ],
+    [ "Irene3000::state", "structIrene3000_1_1state.html", null ],
+    [ "Jetpack", "classJetpack.html", null ],
+    [ "Jetpack::state", "structJetpack_1_1state.html", null ]
 ];
