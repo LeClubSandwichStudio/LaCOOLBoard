@@ -91,6 +91,14 @@ void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minu
 
 }
 
+/**
+*	CoolTime::getESD():
+*	This method is provided to return an
+*	Elastic Search compatible date Format
+*	
+*	\return date String in Elastic Search
+*	format
+*/
 String CoolTime::getESDate()
 {
 	char yymmddhhmmss[] = "\"timestamp\":\"20yy-mm-ddT00:00:00Z\"";

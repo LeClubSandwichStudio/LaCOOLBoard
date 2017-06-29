@@ -103,6 +103,7 @@ bool CoolMQTT::publish(const char* data)
 {
 
 	//data is in JSON, publish it directly
+
 	Serial.println("data to publish");
 	Serial.println(data);
 	bool pub=client.publish( outTopic, data,sizeof(data) );
@@ -307,7 +308,7 @@ bool CoolMQTT::config()
 }
 
 /**
-*	CoolMQTT::config(server,in topic, out topic , client id , buffer size):
+*	CoolMQTT::config(server,in topic, out topic , user Id, buffer size):
 *	This method is provided to manually configure the mqtt client	
 *
 */

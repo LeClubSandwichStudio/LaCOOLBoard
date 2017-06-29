@@ -30,15 +30,18 @@ bool CoolFileSystem::begin()
 *	This method is provided to save the data on the local
 *	memory when there is no internet available
 *
+*	sets the saved data flag to TRUE when successful
+*
 *	\return true if the data was saved,
 *	false otherwise
 */
 bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 {
-	File sensorsData=SPIFFS.open("/sensorsData.json","a");
+	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
 	if(!sensorsData)
 	{
-		return false;	
+		this->savedData=false;
+		return (false);	
 	}	
 
 	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
@@ -47,7 +50,8 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	root.printTo(sensorsData);
 	sensorsData.close();
 	
-	return true;		
+	this->savedData=true;
+	return (true);		
 }
 
 /**
@@ -78,7 +82,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
     	JsonObject& jsonCoolBoard=root["CoolBoard"];
 	if(jsonCoolBoard.success())
 	{
-		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w+");	
+		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w");	
 		if(!coolBoardConfig)
 		{	
 			Serial.println("failed to open coolBoardConfig.json");
@@ -102,7 +106,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
     	JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];	
 	if(jsonSensorsBoard.success())
 	{	
-		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w+");	
+		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");	
 		if(!coolBoardSensorsConfig)
 		{
 			Serial.println("failed to open coolBoardSensors.json");
@@ -128,7 +132,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonRTC.printTo(Serial);
 	if(jsonRTC.success() )
 	{
-		File rtcConfig = SPIFFS.open("/rtcConfig.json", "w+");	
+		File rtcConfig = SPIFFS.open("/rtcConfig.json", "w");	
 		if(!rtcConfig)
 		{
 			Serial.println("failed to open rtcConfig.json");
@@ -156,7 +160,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonLedBoard.printTo(Serial);
 	if(jsonLedBoard.success())
 	{	
-		File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w+");	
+		File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");	
 		if(!coolBoardLedConfig)
 		{
 			Serial.println("failed to open led config");
@@ -183,7 +187,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonJetpack.printTo(Serial);
 	if(jsonJetpack.success())
 	{	
-		File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w+");	
+		File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");	
 		if(!jetPackConfig)
 		{
 			Serial.println("failed to open jetpack file");
@@ -206,7 +210,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonIrene.printTo(Serial);
 	if(jsonIrene.success())
 	{
-		File irene3000Config = SPIFFS.open("/irene3000Config.json", "w+");	
+		File irene3000Config = SPIFFS.open("/irene3000Config.json", "w");	
 		if(!irene3000Config)
 		{
 			Serial.println("failed to open irene file");
@@ -230,7 +234,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonExternalSensors.printTo(Serial);
 	if(jsonExternalSensors.success())
 	{
-		File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w+");	
+		File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");	
 		if(!externalSensorsConfig)
 		{
 			Serial.println("failed to open external sensors file ");
@@ -239,22 +243,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		Serial.println("externalSensors Config");
 		jsonExternalSensors.printTo(externalSensorsConfig);
 		jsonExternalSensors.printTo(Serial);
-/*		for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)
-		{	
-			String path="/"+String(i)+".json"; 
-         		File temp=SPIFFS.open(path,"w+");
-			if(!temp)
-			{
-				Serial.print("failed to open  external sensor file n°");Serial.println(i);
-				return(false);
-			}
-				
-			Serial.print(" external sensor ");Serial.print(i);Serial.println(" Config");
-			jsonExternalSensors[String(i)].printTo(temp);
-			jsonExternalSensors[String(i)].printTo(Serial);
-			temp.close();
-		}
-*/			
+	
 		externalSensorsConfig.close();
 
 	}
@@ -271,7 +260,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	jsonMQTT.printTo(Serial);
 	if(jsonMQTT.success())
 	{
-		File mqttConfig = SPIFFS.open("/mqttConfig.json", "w+");	
+		File mqttConfig = SPIFFS.open("/mqttConfig.json", "w");	
 		if(!mqttConfig)
 		{
 			Serial.println("failed to open mqtt file ");		
@@ -291,5 +280,84 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 }	
 
+/**
+*	CoolFileSystem::isDataSaved():
+*	This method is provided to report
+*	wether there is sensor data saved in the
+*	File System.
+*
+*	\return true if there is data saved, false
+*	otherwise
+*/
+bool CoolFileSystem::isDataSaved()
+{
+	return( this->savedData );
+}
 
+/**
+*	CoolFileSystem::getSensorData():
+*	This method is provided to return the 
+*	sensor data saved in the File System
+*
+*	\return string json of the saved sensor 
+*	data file
+*/
+String CoolFileSystem::getSensorSavedData()
+{
+	//open sensors data file
+	File sensorsData=SPIFFS.open("/sensorsData.json","r");
+	
+	if (!sensorsData)
+
+	{
+		return("failed to open file");
+	}
+	else
+	{
+		size_t size = sensorsData.size();
+
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr < char[] > buf(new char[size]);
+
+		sensorsData.readBytes(buf.get(), size);
+
+		DynamicJsonBuffer jsonBuffer;
+
+		JsonObject & json = jsonBuffer.parseObject(buf.get());
+		
+		if (!json.success())
+		{
+			return("failed to parse json");
+		}
+		else
+		{	
+			//the return string
+			String sensorDataString;
+			
+			//print the json to the string
+			json.printTo(sensorDataString);
+			
+			//close the file
+			sensorsData.close();
+
+			//delete data in the file
+			File sensorsData=SPIFFS.open("/sensorsData.json","w");
+			if (!sensorsData)	
+			{
+				return("failed to delete data in the file");
+			}
+
+			sensorsData.close();
+			
+			//position the saved data flag to false
+			this->savedData=false;			
+
+			//return the string
+			return(sensorDataString);		
+		}
+		
+		
+	}
+
+}
 

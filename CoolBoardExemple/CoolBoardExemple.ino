@@ -14,7 +14,7 @@ void setup()
 	coolBoard.connect(); 
 
 	Serial.print("one log every ");
-	Serial.print(coolBoard.getInterval()/1000);
+	Serial.print(coolBoard.getLogInterval()/1000);
 	Serial.println(" s " );
 }
 
@@ -29,6 +29,6 @@ void loop()
 		coolBoard.offLineMode();
 	}
 
-	delay(coolBoard.getInterval());
+	delay(coolBoard.getLogInterval());
  
 }

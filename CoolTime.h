@@ -44,8 +44,6 @@ public:
 	
 	unsigned long getLastSyncTime();
 	
-
-	
 	bool isTimeSync(unsigned long seconds=604800);
 
 	time_t getNtpTime();
@@ -65,8 +63,6 @@ private:
 	
 	unsigned int localPort;  // local port to listen for UDP packets
 
-	
-	
 	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 

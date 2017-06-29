@@ -51,13 +51,16 @@ public:
 
 	int connect();
 
-	uint16_t getInterval();
+	uint16_t getLogInterval();
 
 	void printConf();
 
-	void sleep();
+	void sleep(int interval);
 
-	void sendMQTTMessage();
+	String readSensors();
+	
+	String userData();
+
 
 private:
 
@@ -79,15 +82,17 @@ private:
 
 	ExternalSensors externalSensors;
 
-	byte COOLActive;
+	bool userActive;
 
-	byte ireneActive;
+	bool ireneActive;
 
-	byte jetpackActive;
+	bool jetpackActive;
 
-	byte externalSensorsActive;		
+	bool externalSensorsActive;		
 
-	uint16_t interval;
+	bool sleepActive;	
+
+	uint16_t logInterval;
 
 	int answerJsonSize;
 	
@@ -99,11 +104,6 @@ private:
 
 	String answer;
 
-	byte cnxStatus;
-
-	byte station;
-
-	unsigned long intervalF;
 
 };
 

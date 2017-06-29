@@ -21,36 +21,44 @@
 void CoolBoard::begin()
 {
 	fileSystem.begin();
+	
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	coolBoardSensors.printConf();
+
 	rtc.config();
 	rtc.begin();
 	rtc.printConf();
+
 	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.printConf();
+
 	mqtt.config();
 	mqtt.begin();
 	mqtt.printConf();
+
 	if (jetpackActive)
 	{
 		jetPack.config();
 		jetPack.begin();
 		jetPack.printConf();
 	}
+
 	if (ireneActive)
 	{
 		irene3000.config();
 		irene3000.begin();
 		irene3000.printConf();
 	}
+
 	if (externalSensorsActive)
 	{
 		externalSensors.config();
 		externalSensors.begin();
 		externalSensors.printConf();
 	}
+
 }
 
 /**
@@ -67,10 +75,12 @@ int CoolBoard::connect()
 		wifiManager.setConfigPortalTimeout(this -> serverTimeOut);
 		wifiManager.autoConnect("CoolBoard");
 	}
+
 	if (mqtt.state() != 0)
 	{
-		mqtt.connect(this -> getInterval());
+		mqtt.connect(this -> getLogInterval());
 	}
+
 	return(mqtt.state());
 }
 
@@ -78,7 +88,7 @@ int CoolBoard::connect()
 *	CoolBoard::onLineMode():
 *	This method is provided to manage the online
 *	mode:	-update clock
-*		-read sensors
+*		-read sensor
 *		-do actions
 *		-publish data
 *		-read answer
@@ -86,22 +96,74 @@ int CoolBoard::connect()
 */
 void CoolBoard::onLineMode()
 {
-	if (station)
+	data="";
+
+	//clock update
+	rtc.update();
+
+	//read user data if user is active
+	if(userActive)
 	{
-		sendMQTTMessage();
-		mqtt.mqttLoop();
-		answer = mqtt.read();
-		this -> update(answer.c_str());
-		sleep();
-	}
-	if ((intervalF + interval) < millis())
+		//reading user data
+		data=this->userData();//{"":"","":"","",""}
+		
+		//formatting json 
+		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+		
+		//read sensors data
+		data+=this->readSensors();//{"":"","":"","","",{.......}
+
+		//formatting json correctly
+		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+
+	}	
+	else
 	{
-		intervalF = millis();
-		sendMQTTMessage();
-		mqtt.mqttLoop();
-		answer = mqtt.read();
-		this -> update(answer.c_str());
+		data=this->readSensors();//{..,..,..}
 	}
+	
+	//do action
+	if (jetpackActive)
+	{
+		jetPack.doAction(data.c_str(), sensorJsonSize);
+	}
+	
+	//formatting data:
+	String jsonData = "{\"state\":{\"reported\":";
+	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+	
+	//publishing data
+	mqtt.publish(jsonData.c_str());
+
+	//mqtt client loop to allow data handling
+	mqtt.mqttLoop();
+
+	//read mqtt answer
+	answer = mqtt.read();
+	
+	//mqtt client loop to allow data handling
+	mqtt.mqttLoop();
+
+	//check if the configuration needs update 
+	//and update it if needed 
+	this -> update(answer.c_str());
+	
+	//send saved data if any
+	if(fileSystem.isDataSaved())
+	{
+		mqtt.publish("sending saved data");
+		
+		data+=fileSystem.getSensorSavedData();//{..,..,..}
+
+		//formatting data:
+		String jsonData = "{\"state\":{\"reported\":";
+		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+
+		mqtt.publish( data.c_str() );
+	}
+		
 }
 
 /**
@@ -113,19 +175,32 @@ void CoolBoard::onLineMode()
 */
 void CoolBoard::offLineMode()
 {
-	data = coolBoardSensors.read();
-	if (externalSensorsActive)
+	//clock update
+	rtc.update();
+	
+	//read user data if user is active
+	if(userActive)
 	{
-		data += externalSensors.read();
-	}
-	if (ireneActive)
-	{
-		data += irene3000.read();
-	}
+		//reading user data
+		data=this->userData();//{"":"","":"","",""}
+		
+		//formatting json correctly
+		data.setCharAt(data.lastIndexOf('{'), ',');//{"":"","":"","","",
+	}	
+	
+	//read sensors data
+	data+=this->readSensors();//{"":"","":"","","",{.......}
+	
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+
+	//do action
 	if (jetpackActive)
 	{
 		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
+	
+	//saving data in the file system
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize);
 }
 
@@ -145,46 +220,62 @@ void CoolBoard::offLineMode()
 */
 bool CoolBoard::config()
 {
+	//open file system
 	fileSystem.begin();
-	// read config file
-	// update data
+	
+	//open configuration file
 	File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
+	
 	if (!configFile)
+
 	{
 		return(false);
 	}
+
 	else
 	{
 		size_t size = configFile.size();
+
 		// Allocate a buffer to store contents of the file.
 		std::unique_ptr < char[] > buf(new char[size]);
+
 		configFile.readBytes(buf.get(), size);
+
 		DynamicJsonBuffer jsonBuffer;
+
 		JsonObject & json = jsonBuffer.parseObject(buf.get());
+
 		if (!json.success())
 		{
 			return(false);
 		}
+
 		else
-		{
-			if (json["COOLActive"].success())
+		{	
+			//parsing userActive Key
+			if (json["userActive"].success())
 			{
-				this -> COOLActive = json["COOLActive"];
+				this -> userActive = json["userActive"];
+			}
+
+			else
+			{
+				this -> userActive = this -> userActive;
+			}
+			json["userActive"] = this -> userActive;
+
+			//parsing logInterval key
+			if (json["logInterval"].success())
+			{
+				this -> logInterval = json["logInterval"];
 			}
 			else
 			{
-				this -> COOLActive = this -> COOLActive;
+				this -> logInterval = this -> logInterval;
 			}
-			json["COOLActive"] = this -> COOLActive;
-			if (json["interval"].success())
-			{
-				this -> interval = json["interval"];
-			}
-			else
-			{
-				this -> interval = this -> interval;
-			}
-			json["interval"] = this -> interval;
+			json["logInterval"] = this -> logInterval;
+
+			//parsing sensorJsonSize key
 			if (json["sensorJsonSize"].success())
 			{
 				this -> sensorJsonSize = json["sensorJsonSize"];
@@ -194,6 +285,8 @@ bool CoolBoard::config()
 				this -> sensorJsonSize = this -> sensorJsonSize;
 			}
 			json["sensorJsonSize"] = this -> sensorJsonSize;
+			
+			//parsing answerJsonSize key			
 			if (json["answerJsonSize"].success())
 			{
 				this -> answerJsonSize = json["answerJsonSize"];
@@ -203,6 +296,8 @@ bool CoolBoard::config()
 				this -> answerJsonSize = this -> answerJsonSize;
 			}
 			json["answerJsonSize"] = this -> answerJsonSize;
+			
+			//parsing ireneActive key			
 			if (json["ireneActive"].success())
 			{
 				this -> ireneActive = json["ireneActive"];
@@ -212,6 +307,8 @@ bool CoolBoard::config()
 				this -> ireneActive = this -> ireneActive;
 			}
 			json["ireneActive"] = this -> ireneActive;
+			
+			//parsing jetpackActive key
 			if (json["jetpackActive"].success())
 			{
 				this -> jetpackActive = json["jetpackActive"];
@@ -221,6 +318,8 @@ bool CoolBoard::config()
 				this -> jetpackActive = this -> jetpackActive;
 			}
 			json["jetpackActive"] = this -> jetpackActive;
+
+			//parsing externalSensorsActive key
 			if (json["externalSensorsActive"].success())
 			{
 				this -> externalSensorsActive = json["externalSensorsActive"];
@@ -230,6 +329,8 @@ bool CoolBoard::config()
 				this -> externalSensorsActive = this -> externalSensorsActive;
 			}
 			json["externalSensorsActive"] = this -> externalSensorsActive;
+
+			//parsing serverTimeOut key
 			if (json["serverTimeOut"].success())
 			{
 				this -> serverTimeOut = json["serverTimeOut"];
@@ -239,15 +340,19 @@ bool CoolBoard::config()
 				this -> serverTimeOut = this -> serverTimeOut;
 			}
 			json["serverTimeOut"] = this -> serverTimeOut;
-			if (json["station"].success())
+			
+			//parsing sleepActive key
+			if (json["sleepActive"].success())
 			{
-				this -> station = json["station"];
+				this -> sleepActive = json["sleepActive"];
 			}
 			else
 			{
-				this -> station = this -> station;
+				this -> sleepActive = this -> sleepActive;
 			}
-			json["station"] = this -> station;
+			json["sleepActive"] = this -> sleepActive;
+
+			//saving the current/correct configuration
 			configFile.close();
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
 			if (!configFile)
@@ -271,14 +376,20 @@ bool CoolBoard::config()
 void CoolBoard::printConf()
 {
 	Serial.println("Cool Board Conf");
-	Serial.println(interval);
-	Serial.println(sensorJsonSize);
-	Serial.println(answerJsonSize);
-	Serial.println(ireneActive);
-	Serial.println(jetpackActive);
-	Serial.println(externalSensorsActive);
-	Serial.println(serverTimeOut);
+	Serial.println(this->logInterval);
+	Serial.println(this->sensorJsonSize);
+	Serial.println(this->answerJsonSize);
+	Serial.println(this->ireneActive);
+	Serial.println(this->jetpackActive);
+	Serial.println(this->externalSensorsActive);
+	Serial.println(this->serverTimeOut);
+	Serial.println(this->sleepActive);
+	Serial.println(this->userActive);
 	Serial.println(" ");
+
+
+
+
 }
 
 /**
@@ -296,110 +407,148 @@ void CoolBoard::update(const char * answer)
 		if (stateDesired["update"] == 1)
 		{
 			String answerDesired;
+
 			stateDesired.printTo(answerDesired);
+
 			Serial.println(answerDesired);
+			
 			bool result = fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
+
 			Serial.print("update : ");
+
 			Serial.println(result);
+			
 			this -> config();
+
 			coolBoardSensors.config();
+
 			rtc.config();
+
 			coolBoardLed.config();
+
 			mqtt.config();
+
 			if (jetpackActive)
 			{
 				jetPack.config();
 			}
+
 			if (ireneActive)
 			{
 				irene3000.config();
 			}
+
 			if (externalSensorsActive)
 			{
 				externalSensors.config();
 			}
+		
+			//answering the update msg:
+			//reported = received configuration
+			//desired=null
+			root["state"]["reported"]=stateDesired;
+			root["state"]["desired"]="null";
+			
+			String updateAnswer;
+			root.printTo(updateAnswer);
+			
+			mqtt.publish(updateAnswer.c_str());
+			
+			//restart the esp
+			ESP.restart();
+				
 		}
-	}
-}
-
-/**
-*	CoolBoard::getInterval():
-*	This method is provided to get
-*	the log interval
-*	\return interval value in ms
-*/
-uint16_t CoolBoard::getInterval()
-{
-	return(this -> interval);
-}
-
-/**
-*	CoolBoard::sendMessage():
-*	This method is provided to get
-*	the sensor values and push it
-*	over MQTT
-*
-*/
-void CoolBoard::sendMQTTMessage()
-{
-	rtc.update();
-	if (COOLActive)
-	{
-		String tempMAC = WiFi.macAddress();
-		tempMAC.replace(":", "");
-		data = "{\"user\":\"";
-		data += mqtt.getUser();
-		data += "\",";
-		data += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
-		data += ",\"mac\":\"";
-		data += tempMAC;
-		data += "\",";
-		data += coolBoardSensors.read(); // {..,..,..}
-		data.remove(data.lastIndexOf('{'), 1);
 	}
 	else
 	{
-		data = coolBoardSensors.read(); // {..,..,..}
-	}
+		Serial.println("Failed to parse update message ");	
+	}		
+}
+
+/**
+*	CoolBoard::getLogInterval():
+*	This method is provided to get
+*	the log interval
+*
+*	\return interval value in ms
+*/
+uint16_t CoolBoard::getLogInterval()
+{
+	return(this -> logInterval);
+}
+
+/**
+*	CoolBoard::readSensors():
+*	This method is provided to read and
+*	format all the sensors data in a
+*	single json.
+*	
+*	\return	json string of all the sensors read.
+*/
+String CoolBoard::readSensors()
+{
+	String sensorsData;
+
+	sensorsData = coolBoardSensors.read(); // {..,..,..}
+	
 	if (externalSensorsActive)
 	{
-		data += externalSensors.read(); // {..,..,..}{..,..}
-		data.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..}{..,..,
-		data.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..},..,..,
-		data.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,
-		data.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..}
+		sensorsData += externalSensors.read(); // {..,..,..}{..,..}
+		sensorsData.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..}{..,..,
+		sensorsData.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..},..,..,
+		sensorsData.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,
+		sensorsData.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..}
 	}
 	if (ireneActive)
 	{
-		data += irene3000.read(); // {..,..,..,..,..}{..,..,..}
-		data.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
-		data.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
-		data.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
-		data.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
+		sensorsData += irene3000.read(); // {..,..,..,..,..}{..,..,..}
+		sensorsData.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
+		sensorsData.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
+		sensorsData.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
+		sensorsData.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
 	}
-	if (jetpackActive)
-	{
-		jetPack.doAction(data.c_str(), sensorJsonSize);
-	}
-	String jsonData = "{\"state\":{\"reported\":";
-	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
-	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
-	mqtt.publish(jsonData.c_str());
+
+	return(sensorsData);
+
 }
 
 /**
-*	CoolBoard::sleep():
-*	This method is provided to either
-*	use delay or set esp to deep sleep
+*	CoolBoard::userData():
+*	This method is provided to
+*	return the user's data.
+*	
+*	\return json string of the user's data
 */
-void CoolBoard::sleep()
+String CoolBoard::userData()
 {
-	if (this -> station == 1)
-	{
-		ESP.deepSleep(((this -> getInterval()) * 1000), WAKE_RF_DEFAULT);
-	}
-	else
-	{
-		delay(this -> getInterval());
-	}
+	//String tempMAC = WiFi.macAddress();
+	String tempMAC="4561:489:45";
+	tempMAC.replace(":", "");
+
+	String userJson = "{\"user\":\"";
+
+	userJson += mqtt.getUser();
+
+	userJson += "\",";
+
+	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+
+	userJson += ",\"mac\":\"";
+
+	userJson += tempMAC;
+
+	userJson += "\"}";
+	
+}
+
+
+/**
+*	CoolBoard::sleep(int interval):
+*	This method is provided to allow the
+*	board to enter deepSleep mode for
+*	a period of time equal to interval in ms 
+*/
+void CoolBoard::sleep(int interval)
+{
+	ESP.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
 }
