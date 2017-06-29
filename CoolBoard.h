@@ -57,6 +57,8 @@ public:
 
 	void sleep();
 
+	void sendMQTTMessage();
+
 private:
 
 	CoolFileSystem fileSystem; 
