@@ -106,7 +106,10 @@ bool CoolMQTT::publish(const char* data)
 
 	Serial.println("data to publish");
 	Serial.println(data);
-	bool pub=client.publish( outTopic, data,sizeof(data) );
+	Serial.print("data size ");Serial.println(strlen(data));
+	bool pub=client.publish( outTopic, data,strlen(data) );
+
+
 	return( pub);
 
 }
@@ -264,7 +267,7 @@ bool CoolMQTT::config()
 				
 				if(json["user"].success() )
 				{				
-					const char* tempUser = json["user"]; // "espAshiroji"
+					const char* tempUser = json["user"]; 
 					for(int i =0;i<50;i++)
 					{
 						user[i]=tempUser[i];
@@ -349,5 +352,5 @@ void CoolMQTT::printConf()
 */
 String CoolMQTT::getUser()
 {
-	return user;
+	return String(user);
 }

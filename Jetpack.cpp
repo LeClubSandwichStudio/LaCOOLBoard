@@ -25,6 +25,29 @@ void Jetpack::begin()
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
 	pinMode(clockPin,OUTPUT);
+	
+	for(int i=0;i<8;i++)
+	{
+		if(this->actors[i].actif==1)
+		{
+			if(this->actors[i].temporal==1)
+			{
+				tickerSetHigh[i].attach( (this->actors[i].high), this->setBit ,i );
+
+
+				tickerSetLow[i].attach( (this->actors[i].low), this->resetBit ,i );
+			
+			}
+			else
+			{
+				tickerSetHigh[i].detach();
+
+
+				tickerSetLow[i].detach();
+
+			}		
+		}
+	}
 
 
 
@@ -68,6 +91,28 @@ void Jetpack::writeBit(byte pin,bool state)
 }
 
 /**
+*	Jetpack::setBit(pin):
+*	This method is provided to
+*	directly put to HIGH the pin
+*	passed as argument
+*/
+void Jetpack::setBit(byte pin)
+{
+	this->writeBit(pin,1); 
+}
+
+/**
+*	Jetpack::setBit(pin):
+*	This method is provided to
+*	directly put to LOW the pin
+*	passed as argument
+*/	
+void Jetpack::resetBit(byte pin)
+{
+	this->writeBit(pin,0); 
+}
+
+/**
 *	Jetpack::doAction(sensor data, sensor data size):
 *	This method is provided to automate the Jetpack.
 *	exemple:
@@ -97,12 +142,16 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	{
 		if(this->actors[i].actif==1)
 		{
-			if( ((root[this->actors[i].type])>(this->actors[i].high)) || ((root[ this->actors[i].type ])<(this->actors[i].low)) )	
-			{	
-			bitWrite(this->action , i , !(bitRead(this->action, i ) ) );	
+			if( this->actors[i].temporal==0 ) 
+			{
+				if( ( ( root[this->actors[i].type] ) > ( this->actors[i].high ) ) || ( ( root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
+				{	
+					bitWrite( this->action , i , !( bitRead(this->action, i ) ) );	
+				}
 			}
 		}
 	}
+
 	this->write(this->action);
 }
 
@@ -185,8 +234,17 @@ bool Jetpack::config()
 						{
 							this->actors[i].type=this->actors[i].type;
 						}
-						json[String("Act")+String(i)]["type"]=this->actors[i].type;	
+						json[String("Act")+String(i)]["type"]=this->actors[i].type;
 
+						if(json[String("Act")+String(i)["temporal"].success() )
+						{
+							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
+						}
+						else
+						{
+							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 
+						}	
+						json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal; 
 					}
 					else
 					{

@@ -106,16 +106,19 @@ void CoolBoard::onLineMode()
 	{
 		//reading user data
 		data=this->userData();//{"":"","":"","",""}
-		
+
 		//formatting json 
 		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
 		
+				
 		//read sensors data
 		data+=this->readSensors();//{"":"","":"","","",{.......}
 
+		
+
 		//formatting json correctly
 		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
-
+				
 	}	
 	else
 	{
@@ -185,7 +188,7 @@ void CoolBoard::offLineMode()
 		data=this->userData();//{"":"","":"","",""}
 		
 		//formatting json correctly
-		data.setCharAt(data.lastIndexOf('{'), ',');//{"":"","":"","","",
+		data.setCharAt(data.lastIndexOf('}'), ',');//{"":"","":"","","",
 	}	
 	
 	//read sensors data
@@ -414,10 +417,11 @@ void CoolBoard::update(const char * answer)
 			
 			bool result = fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
 
-			Serial.print("update : ");
+			Serial.println("update : ");
 
 			Serial.println(result);
-			
+
+			//applying the configuration	
 			this -> config();
 
 			coolBoardSensors.config();
@@ -442,8 +446,11 @@ void CoolBoard::update(const char * answer)
 			{
 				externalSensors.config();
 			}
-		
-			//answering the update msg:
+
+			delay(10);
+			mqtt.begin();
+
+		        //answering the update msg:
 			//reported = received configuration
 			//desired=null
 			root["state"]["reported"]=stateDesired;
@@ -451,8 +458,14 @@ void CoolBoard::update(const char * answer)
 			
 			String updateAnswer;
 			root.printTo(updateAnswer);
+
+			bool success=mqtt.publish(updateAnswer.c_str());
 			
-			mqtt.publish(updateAnswer.c_str());
+			mqtt.mqttLoop();
+
+			delay(10);
+
+			Serial.print("success: ");Serial.println(success);
 			
 			//restart the esp
 			ESP.restart();
@@ -494,19 +507,24 @@ String CoolBoard::readSensors()
 	if (externalSensorsActive)
 	{
 		sensorsData += externalSensors.read(); // {..,..,..}{..,..}
-		sensorsData.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..}{..,..,
-		sensorsData.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..},..,..,
-		sensorsData.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,
-		sensorsData.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..}
+
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..}{..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..},..,..,
+		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..}
+
 	}
 	if (ireneActive)
 	{
 		sensorsData += irene3000.read(); // {..,..,..,..,..}{..,..,..}
-		sensorsData.setCharAt(data.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
-		sensorsData.setCharAt(data.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
-		sensorsData.remove(data.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
-		sensorsData.setCharAt(data.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
+
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
+		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
+		
 	}
+
 
 	return(sensorsData);
 
@@ -522,6 +540,7 @@ String CoolBoard::readSensors()
 String CoolBoard::userData()
 {
 	//String tempMAC = WiFi.macAddress();
+
 	String tempMAC="4561:489:45";
 	tempMAC.replace(":", "");
 
@@ -537,7 +556,9 @@ String CoolBoard::userData()
 
 	userJson += tempMAC;
 
-	userJson += "\"}";
+	userJson += "\"}";	
+	
+	return(userJson);
 	
 }
 

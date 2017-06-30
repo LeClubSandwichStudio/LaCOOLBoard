@@ -68,24 +68,29 @@ String ExternalSensors::read()
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
+
 	if(!root.success() )
 	{
 
 	 return("00 ");
 	}
-	
 
-	for(int i=0;i<sensorsNumber;i++)
+	else
 	{
+		if(sensorsNumber!=0)
+		{
+			for(int i=0;i<sensorsNumber;i++)
+			{
 			
-			root[sensors[i].type]=sensors[i].exSensor->read();	 	
+				root[sensors[i].type]=sensors[i].exSensor->read();	 	
+			}
+		}	
+		
+		Serial.println(" ");
+		root.printTo(data);
+	
+		return(data);
 	}
-	
-
-	Serial.println(" ");
-	root.printTo(data);
-	
-	return(data);
 
 }
 
