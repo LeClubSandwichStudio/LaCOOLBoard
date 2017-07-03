@@ -11,7 +11,7 @@ CoolTime clock;
 int timeZone = 1;
 IPAddress timeServer(132,163,4,101);
 unsigned int localPort = 8888;
-int year,month,day,hour,minute,second;
+
 void setup()
 {
   Wire.begin(2,14);
@@ -32,11 +32,7 @@ void setup()
 }
 
 void loop()
-{
- 	clock.getTimeDate(year,month,day,hour,minute,second);
-	Serial.print(day);Serial.print("-");Serial.print(month);Serial.print("-");Serial.print(year);
-	Serial.print(" ");Serial.print(hour);Serial.print(":");Serial.print(minute);Serial.print(":");Serial.print(second);
-  
-  Serial.println();
+{  
+  Serial.println(clock.getESDate());
   delay(3000);
 }

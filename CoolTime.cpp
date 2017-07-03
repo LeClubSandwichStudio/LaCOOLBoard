@@ -9,41 +9,35 @@
 
 
 #include "FS.h"
+
 #include "Arduino.h"
-#include "DS1337.h"
+
 #include "CoolTime.h"
+
 #include "ArduinoJson.h"
+
 #include "TimeLib.h"
+
+
 
 /**
 *	CoolTime::begin():
 *	This method is provided to init the rtc,
-*	the udp connection and the Sync Provider
+*	the udp connection 
 *
 *	\return true if successful,false otherwise
 */
-bool CoolTime::begin()
+void CoolTime::begin()
 {
-	bool trust = true;
-
-	this->rtc.init();                                                          //initialise DS1337
-
-	if (!rtc.isRunning()) {                                                   //if ever the RTC is stopped
-		trust = false;                                                          //clock is not ok
-		this->rtc.start();
-
-	}
-
-	if (rtc.hasStopped()) {                                                   //if the clock has stoped one moment or another
-		trust = false;
-	}
 
 	Udp.begin(localPort);
+
+	time_t tm=getNtpTime();
+
+	breakTime(tm, this->tmSet);//get NTP time
+
+	this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
 	
-	setSyncProvider(std::bind(&CoolTime::getNtpTime,this));
-
-	return(trust);
-
 }
 
 /**
@@ -53,17 +47,13 @@ bool CoolTime::begin()
 */
 void CoolTime::update()
 {
-	if(!this->isTimeSync() )
+	if( !( this->isTimeSync() ) )
 	{
-		if(timeStatus() != timeNotSet )
-		{
-
-			rtc.setDateTime(this->getNtpTime());
-	        	this->timeSync=this->rtc.getTimestamp();
-			this->rtc.clearOSF();                         //since the sync worked fine we reset eventual error flags in the RTC
-		}
+		Serial.println("waiting for sync");
+		this->timeSync=this->getNtpTime();
+		breakTime(this->getNtpTime(), this->tmSet);
+		this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
 	}
-	
 	
 }
 
@@ -73,22 +63,31 @@ void CoolTime::update()
 *
 */
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, int seconds)
-{
-            this->rtc.setDateTime( year,  month,  day,  hour,  minutes,  seconds);                                   //set RTC to new time
+{ 
+	tmElements_t tm;
+	tm.Second=seconds; 
+	tm.Minute=minutes; 
+	tm.Hour=hour; 
+	tm.Day=day;
+	tm.Month=month; 
+	tm.Year=year;   
 
-
-
+	this->rtc.set(makeTime(tm),CLOCK_ADDRESS);
 }
 
 /**
-*	CoolTime::getTimeDate(year,month,day,hour,minute,seconds):
+*	CoolTime::getTimeDate():
 *	This method is provided to get the RTC Time
+*
+*	\returns a tmElements_t structre that has
+*	the time in it
 */
-void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second)
+tmElements_t CoolTime::getTimeDate()
 {	
- rtc.getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
-
-
+	tmElements_t tm;
+	time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
+	breakTime(timeDate,tm);
+	return(tm);
 }
 
 /**
@@ -101,22 +100,19 @@ void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minu
 */
 String CoolTime::getESDate()
 {
-	char yymmddhhmmss[] = "\"timestamp\":\"20yy-mm-ddT00:00:00Z\"";
-	int year,month,day,hour,minute,second;
-	this->getTimeDate(year,month,day,hour,minute,second);
-	yymmddhhmmss[30] =  second / 10 + 48;
-	yymmddhhmmss[31] = second % 10 + 48;
-	yymmddhhmmss[27] = minute / 10 + 48;
-	yymmddhhmmss[28] = minute % 10 + 48;
-	yymmddhhmmss[24] = hour / 10 + 48;
-	yymmddhhmmss[25] = hour % 10 + 48;
-	yymmddhhmmss[21] = day / 10 + 48;
-	yymmddhhmmss[22] = day % 10 + 48;
-	yymmddhhmmss[18] = month / 10 + 48;
-	yymmddhhmmss[19] = month % 10 + 48;
-	yymmddhhmmss[15] = year / 10 + 48;
-	yymmddhhmmss[16] = year % 10 + 48;
-	return yymmddhhmmss;
+	tmElements_t tm=this->getTimeDate();
+	tm.Second; 
+	tm.Minute; 
+	tm.Hour; 
+	tm.Day;
+	tm.Month; 
+	tm.Year; 
+  	
+	String elasticSearchString =String(tm.Year+1970)+"-"+String(tm.Month)+"-";//"20yy-mm-ddT00:00:00Z"
+
+	elasticSearchString +=String(tm.Day)+"T"+String(tm.Hour)+":"+String(tm.Minute)+":"+String(tm.Second)+"Z";
+	
+	return (elasticSearchString);
 }
 
 /**
@@ -145,12 +141,12 @@ unsigned long CoolTime::getLastSyncTime()
 bool CoolTime::isTimeSync(unsigned long seconds)
 {
 //default is once per week we try to get a time update
-	if (this->getLastSyncTime() + seconds < rtc.getTimestamp()) 
-	{           
-		return(false);
+	if( (this->getLastSyncTime()+seconds) > (RTC.get(CLOCK_ADDRESS)) ) 
+	{
+		return(false);	
 	}
 
-return(true);
+	return(true);
 }
 
 
@@ -165,27 +161,30 @@ return(true);
 time_t CoolTime::getNtpTime()
 {
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
+	
+	Serial.println("Transmit NTP Request");
 
-	this->sendNTPpacket(timeServer);
+	sendNTPpacket(timeServer);
+
 	uint32_t beginWait = millis();
+
 	while (millis() - beginWait < 1500) 
 	{
-		int size = this->Udp.parsePacket();
+		int size = Udp.parsePacket();
 		if (size >= NTP_PACKET_SIZE) 
 		{
-			this->Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+			Serial.println("Receive NTP Response");
+			Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
 			unsigned long secsSince1900;
 			// convert four bytes starting at location 40 to a long integer
 			secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
 			secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
 			secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
 			secsSince1900 |= (unsigned long)packetBuffer[43];
-      			return secsSince1900 - 2208988800UL;
-
-
+			return secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR;
 		}
 	}
-
+	Serial.println("No NTP Response :-(");
 	return 0; // return 0 if unable to get the time
 }
 
@@ -196,10 +195,9 @@ time_t CoolTime::getNtpTime()
 */ 
 void CoolTime::sendNTPpacket(IPAddress &address)
 {
-	// set all bytes in the buffer to 0
 	memset(packetBuffer, 0, NTP_PACKET_SIZE);
 	// Initialize values needed to form NTP request
-
+	// (see URL above for details on the packets)
 	packetBuffer[0] = 0b11100011;   // LI, Version, Mode
 	packetBuffer[1] = 0;     // Stratum, or type of clock
 	packetBuffer[2] = 6;     // Polling Interval
@@ -213,7 +211,7 @@ void CoolTime::sendNTPpacket(IPAddress &address)
 	// you can send a packet requesting a timestamp:                 
 	Udp.beginPacket(address, 123); //NTP requests are to port 123
 	Udp.write(packetBuffer, NTP_PACKET_SIZE);
-	Udp.endPacket();
+	Udp.endPacket();	
 }
 
 /**

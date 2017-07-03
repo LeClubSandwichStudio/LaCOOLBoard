@@ -12,8 +12,12 @@
 
 
 #include "Arduino.h"
-#include "DS1337.h"
+
+#include "TimeLib.h"
+
 #include <WiFiUdp.h>
+
+#include <DS1337RTC.h>
 
 #define NTP_PACKET_SIZE  48 // NTP time is in the first 48 bytes of message
 
@@ -28,17 +32,19 @@ class CoolTime
 {
 
 public:
-	bool begin();
+	void begin();
 	
 	void update();
 	
 	bool config();
+
 	void config(int timeZone,IPAddress timeServer,unsigned int localPort); 
+	
 	void printConf();
 
 	void setDateTime(int year, int month, int day, int hour, int minutes, int seconds);
 	
-	void getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second);
+	tmElements_t getTimeDate();
 
 	String getESDate();
 	
@@ -50,8 +56,6 @@ public:
 
 	void sendNTPpacket(IPAddress &address);
 private:
-
-	DS1337 rtc;
 	
 	unsigned long timeSync;
 	
@@ -64,7 +68,10 @@ private:
 	unsigned int localPort;  // local port to listen for UDP packets
 
 	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
-
+	
+	tmElements_t tmSet;
+	
+	DS1337RTC rtc;
 
 };
 
