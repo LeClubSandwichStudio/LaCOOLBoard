@@ -136,8 +136,15 @@ void CoolBoard::onLineMode()
 	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
 	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
 	
-	//publishing data
-	mqtt.publish(jsonData.c_str());
+	//publishing data	
+	if( this->sleepActive==0)	
+	{
+		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
+	}
+	else
+	{
+		mqtt.publish(jsonData.c_str());
+	}
 
 	//mqtt client loop to allow data handling
 	mqtt.mqttLoop();
@@ -168,6 +175,7 @@ void CoolBoard::onLineMode()
 	}
 		
 }
+
 
 /**
 *	CoolBoard::offlineMode():
@@ -539,9 +547,8 @@ String CoolBoard::readSensors()
 */
 String CoolBoard::userData()
 {
-	//String tempMAC = WiFi.macAddress();
+	String tempMAC = WiFi.macAddress();
 
-	String tempMAC="4561:489:45";
 	tempMAC.replace(":", "");
 
 	String userJson = "{\"user\":\"";

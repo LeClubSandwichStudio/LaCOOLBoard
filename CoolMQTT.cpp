@@ -115,6 +115,28 @@ bool CoolMQTT::publish(const char* data)
 }
 
 /**
+*	CoolMQTT::publish(data):
+*	This method is provided to publish data
+*	to the out topic every logInterval ms
+*
+*	\return true if publish successful,
+*	false otherwise
+*/
+bool CoolMQTT::publish(const char* data,int logInterval)
+{
+	if( (millis()-this->previousLogTime) >=( logInterval ) )
+	{
+		this->publish(data);
+
+		this->previousLogTime=millis();
+
+		return(true);
+	}
+	
+	return(false);
+}
+
+/**
 *	CoolMQTT::mqttLoop():
 *	This method is provided to allow the
 *	client to process the data

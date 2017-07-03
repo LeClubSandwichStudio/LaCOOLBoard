@@ -29,6 +29,8 @@ public:
 
 	bool publish(const char* data);
 
+	bool publish(const char* data,int logInterval);
+
 	String read();
 
 	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize);
@@ -55,6 +57,7 @@ private:
 	WiFiClient espClient;
 	PubSubClient client;
 	bool newMsg;
+	unsigned long previousLogTime=0;
 
 
 };

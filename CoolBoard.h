@@ -52,6 +52,8 @@ public:
 	int connect();
 
 	uint16_t getLogInterval();
+	
+
 
 	void printConf();
 
@@ -92,7 +94,7 @@ private:
 
 	bool sleepActive;	
 
-	uint16_t logInterval;
+	uint16_t logInterval;//ms
 
 	int answerJsonSize;
 	

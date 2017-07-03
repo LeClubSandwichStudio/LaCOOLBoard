@@ -231,8 +231,11 @@ bool ExternalSensors::config()
 						this->sensors[i]=this->sensors[i];					
 					}
 								        	
-					//json[name]=this->sensors[i];					
-
+					json[name]["reference"]=this->sensors[i].reference;
+					json[name]["type"]=this->sensors[i].type;
+					json[name]["connection"]=this->sensors[i].connection;
+					json[name]["dataSize"]=this->sensors[i].dataSize;
+					json[name]["address"]=this->sensors[i].address;
 				}
  
 			}

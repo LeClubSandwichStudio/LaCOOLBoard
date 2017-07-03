@@ -86,7 +86,7 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 */
 void CoolTime::getTimeDate(int &year, int &month, int &day, int &hour, int &minute, int &second)
 {	
- DS1337::getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
+ rtc.getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
 
 
 }

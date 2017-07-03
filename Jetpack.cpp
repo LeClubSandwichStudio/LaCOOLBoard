@@ -13,6 +13,8 @@
 
 #include "Jetpack.h"
 
+
+
 /**
 *	Jetpack::begin():
 *	This method is provided to
@@ -21,35 +23,11 @@
 */
 void Jetpack::begin()
  { 
-
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
 	pinMode(clockPin,OUTPUT);
 	
-	for(int i=0;i<8;i++)
-	{
-		if(this->actors[i].actif==1)
-		{
-			if(this->actors[i].temporal==1)
-			{
-				tickerSetHigh[i].attach( (this->actors[i].high), this->setBit ,i );
-
-
-				tickerSetLow[i].attach( (this->actors[i].low), this->resetBit ,i );
-			
-			}
-			else
-			{
-				tickerSetHigh[i].detach();
-
-
-				tickerSetLow[i].detach();
-
-			}		
-		}
-	}
-
-
+	
 
  }
 
@@ -98,8 +76,9 @@ void Jetpack::writeBit(byte pin,bool state)
 */
 void Jetpack::setBit(byte pin)
 {
-	this->writeBit(pin,1); 
-}
+//	
+//	wB(pin,0);
+}	
 
 /**
 *	Jetpack::setBit(pin):
@@ -109,7 +88,8 @@ void Jetpack::setBit(byte pin)
 */	
 void Jetpack::resetBit(byte pin)
 {
-	this->writeBit(pin,0); 
+	/*auto bound_member_fn=std::bind(&Jetpack::writeBit,std::placeholders::_2,std::placeholders::_2);
+ 	bound_member_fn(pin,0);*/
 }
 
 /**
@@ -140,14 +120,52 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	//if the value is outside the limits
 	for(int i=0;i<8;i++)
 	{
+		//check if the actor is actif 
 		if(this->actors[i].actif==1)
-		{
+		{	
+			//check if the actor is temporal or not
 			if( this->actors[i].temporal==0 ) 
 			{
 				if( ( ( root[this->actors[i].type] ) > ( this->actors[i].high ) ) || ( ( root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
 				{	
 					bitWrite( this->action , i , !( bitRead(this->action, i ) ) );	
 				}
+			}
+
+			else
+			{	//if the actor was actif for highTime or more :
+				if( ( millis()- this->actors[i].actifTime  ) >= ( this->actors[i].high  ) )
+				{
+					//stop the actor
+					bitWrite( this->action , i , 0) ;
+
+					//make the actor inactif:
+					this->actors[i].actif=0;
+
+					//start the low timer
+					this->actors[i].inactifTime=millis();				
+				}			
+							
+			}
+		}
+		//check if actor is inactif
+		else
+		{	//check if actor is temporal
+			if(this->actors[i].temporal==1)
+			{
+				//if the actor was inactif for lowTime or more :
+				if( ( millis() - this->actors[i].inactifTime ) >= ( this->actors[i].low  ) )
+				{
+					//start the actor
+					bitWrite( this->action , i , 1) ;
+
+					//make the actor actif:
+					this->actors[i].actif=1;
+
+					//start the low timer
+					this->actors[i].actifTime=millis();				
+				}			
+			
 			}
 		}
 	}
@@ -190,7 +208,7 @@ bool Jetpack::config()
 			{
 				this->actorsNumber = json["ActorsNumber"]; 
 			
-				for(int i=0;i<this->actorsNumber;i++)
+				for(int i=0;i<8;i++)
 				{	if(json[String("Act")+String(i)].success())
 					{
 						if(json[String("Act")+String(i)]["actif"].success() )
@@ -236,7 +254,7 @@ bool Jetpack::config()
 						}
 						json[String("Act")+String(i)]["type"]=this->actors[i].type;
 
-						if(json[String("Act")+String(i)["temporal"].success() )
+						if(json[String("Act")+String(i)]["temporal"].success() )
 						{
 							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
 						}
@@ -251,7 +269,11 @@ bool Jetpack::config()
 						this->actors[i]=this->actors[i];
 					}
 					
-					//json[String("Act")+String(i)]=this->actors[i];
+					json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
+					json[String("Act")+String(i)]["low"]=this->actors[i].low;
+					json[String("Act")+String(i)]["high"]=this->actors[i].high;
+					json[String("Act")+String(i)]["type"]=this->actors[i].type;
+					json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal; 
 				}
 			}
 			else
@@ -259,6 +281,16 @@ bool Jetpack::config()
 				this->actorsNumber=this->actorsNumber;
 			}
 			json["actorsNumber"]=this->actorsNumber;
+
+			jetPackConfig.close();			
+			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
+			if(!jetPackConfig)
+			{
+				return(false);			
+			}  
+
+			json.printTo(jetPackConfig);
+			jetPackConfig.close();		
 			
 			return(true); 
 		}
