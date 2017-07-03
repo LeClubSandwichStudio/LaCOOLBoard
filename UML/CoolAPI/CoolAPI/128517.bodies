@@ -1,37 +1,22 @@
 class CoolTime
-!!!133765.cpp!!!	begin() : bool
-	bool trust = true;
-
-	this->rtc.init();                                                          //initialise DS1337
-
-	if (!rtc.isRunning()) {                                                   //if ever the RTC is stopped
-		trust = false;                                                          //clock is not ok
-		this->rtc.start();
-
-	}
-
-	if (rtc.hasStopped()) {                                                   //if the clock has stoped one moment or another
-		trust = false;
-	}
+!!!133765.cpp!!!	begin() : void
 
 	Udp.begin(localPort);
+
+	time_t tm=getNtpTime();
+
+	breakTime(tm, this->tmSet);//get NTP time
+
+	this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
 	
-	setSyncProvider(std::bind(&CoolTime::getNtpTime,this));
-
-	return(trust);
-
 !!!133893.cpp!!!	update() : void
-	if(!this->isTimeSync() )
+	if( !( this->isTimeSync() ) )
 	{
-		if(timeStatus() != timeNotSet )
-		{
-
-			rtc.setDateTime(this->getNtpTime());
-	        	this->timeSync=this->rtc.getTimestamp();
-			this->rtc.clearOSF();                         //since the sync worked fine we reset eventual error flags in the RTC
-		}
+		Serial.println("waiting for sync");
+		this->timeSync=this->getNtpTime();
+		breakTime(this->getNtpTime(), this->tmSet);
+		this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
 	}
-	
 	
 !!!134021.cpp!!!	config() : bool
 	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
@@ -115,54 +100,77 @@ class CoolTime
 	Serial.println(timeServer);
 	Serial.println(localPort);
 !!!134405.cpp!!!	setDateTime(in year : int, in month : int, in day : int, in hour : int, in minutes : int, in seconds : int) : void
-            this->rtc.setDateTime( year,  month,  day,  hour,  minutes,  seconds);                                   //set RTC to new time
+ 
+	tmElements_t tm;
+	tm.Second=seconds; 
+	tm.Minute=minutes; 
+	tm.Hour=hour; 
+	tm.Day=day;
+	tm.Month=month; 
+	tm.Year=year;   
 
-
-
-!!!134533.cpp!!!	getTimeDate(inout year : int, inout month : int, inout day : int, inout hour : int, inout minute : int, inout second : int) : void
+	this->rtc.set(makeTime(tm),CLOCK_ADDRESS);
+!!!134533.cpp!!!	getTimeDate() : tmElements_t
 	
- DS1337::getTime(rtc.getTimestamp(),  year,  month,  day,  hour,  minute,  second);
-	
+	tmElements_t tm;
+	time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
+	breakTime(timeDate,tm);
+	return(tm);
+!!!153989.cpp!!!	getESDate() : String
+	tmElements_t tm=this->getTimeDate();
+	tm.Second; 
+	tm.Minute; 
+	tm.Hour; 
+	tm.Day;
+	tm.Month; 
+	tm.Year; 
+  	
+	String elasticSearchString =String(tm.Year+1970)+"-"+String(tm.Month)+"-";//"20yy-mm-ddT00:00:00Z"
 
+	elasticSearchString +=String(tm.Day)+"T"+String(tm.Hour)+":"+String(tm.Minute)+":"+String(tm.Second)+"Z";
+	
+	return (elasticSearchString);
 !!!134661.cpp!!!	getLastSyncTime() : ulong
 	return(this->timeSync);
 !!!134789.cpp!!!	isTimeSync(in seconds : ulong = 604800) : bool
 //default is once per week we try to get a time update
-	if (this->getLastSyncTime() + seconds < rtc.getTimestamp()) 
-	{           
-		return(false);
+	if( (this->getLastSyncTime()+seconds) > (RTC.get(CLOCK_ADDRESS)) ) 
+	{
+		return(false);	
 	}
 
-return(true);
+	return(true);
 !!!134917.cpp!!!	getNtpTime() : time_t
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
+	
+	Serial.println("Transmit NTP Request");
 
-	this->sendNTPpacket(timeServer);
+	sendNTPpacket(timeServer);
+
 	uint32_t beginWait = millis();
+
 	while (millis() - beginWait < 1500) 
 	{
-		int size = this->Udp.parsePacket();
+		int size = Udp.parsePacket();
 		if (size >= NTP_PACKET_SIZE) 
 		{
-			this->Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+			Serial.println("Receive NTP Response");
+			Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
 			unsigned long secsSince1900;
 			// convert four bytes starting at location 40 to a long integer
 			secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
 			secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
 			secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
 			secsSince1900 |= (unsigned long)packetBuffer[43];
-      			return secsSince1900 - 2208988800UL;
-
-
+			return secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR;
 		}
 	}
-
+	Serial.println("No NTP Response :-(");
 	return 0; // return 0 if unable to get the time
 !!!135045.cpp!!!	sendNTPpacket(inout address : IPAddress) : void
-	// set all bytes in the buffer to 0
 	memset(packetBuffer, 0, NTP_PACKET_SIZE);
 	// Initialize values needed to form NTP request
-
+	// (see URL above for details on the packets)
 	packetBuffer[0] = 0b11100011;   // LI, Version, Mode
 	packetBuffer[1] = 0;     // Stratum, or type of clock
 	packetBuffer[2] = 6;     // Polling Interval
@@ -176,4 +184,4 @@ return(true);
 	// you can send a packet requesting a timestamp:                 
 	Udp.beginPacket(address, 123); //NTP requests are to port 123
 	Udp.write(packetBuffer, NTP_PACKET_SIZE);
-	Udp.endPacket();
+	Udp.endPacket();	

@@ -7,5 +7,5 @@ var searchData=
   ['espclient',['espClient',['../classCoolMQTT.html#acc30a0200967374a524092a8a806502a',1,'CoolMQTT']]],
   ['exsensor',['exSensor',['../structExternalSensors_1_1sensor.html#a9bca150fd468b8d0e090e6d72c5c2b48',1,'ExternalSensors::sensor']]],
   ['externalsensors',['externalSensors',['../classCoolBoard.html#a09e26264839c65873eb56af476eff6b2',1,'CoolBoard']]],
-  ['externalsensorsactive',['externalSensorsActive',['../classCoolBoard.html#af29860cc422622dc33614f9eabb58c40',1,'CoolBoard']]]
+  ['externalsensorsactive',['externalSensorsActive',['../classCoolBoard.html#a638b00b76aeb819ecfd4c10b8cdd7bb7',1,'CoolBoard']]]
 ];

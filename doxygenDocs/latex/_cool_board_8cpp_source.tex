@@ -1,0 +1,493 @@
+\hypertarget{_cool_board_8cpp_source}{}\section{Cool\+Board.\+cpp}
+
+\begin{DoxyCode}
+00001 
+00010 \textcolor{preprocessor}{#include "FS.h"}
+00011 \textcolor{preprocessor}{#include "Arduino.h"}
+00012 \textcolor{preprocessor}{#include "\hyperlink{_cool_board_8h}{CoolBoard.h}"}
+00013 \textcolor{preprocessor}{#include "ArduinoJson.h"}
+\Hypertarget{_cool_board_8cpp_source_l00021}\hyperlink{class_cool_board_acba7c5aef7268b2c0044bdb54d3b9d76}{00021} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_acba7c5aef7268b2c0044bdb54d3b9d76}{CoolBoard::begin}()
+00022 \{
+00023     fileSystem.\hyperlink{class_cool_file_system_a6ba6f666ed4c530174f8569d2c636748}{begin}();
+00024     
+00025     coolBoardSensors.\hyperlink{class_cool_board_sensors_a9a218895c5423375c33c08f2c56fb23a}{config}();
+00026     coolBoardSensors.\hyperlink{class_cool_board_sensors_a97095823ef7c8f5290812f1405b966b3}{begin}();
+00027     coolBoardSensors.\hyperlink{class_cool_board_sensors_af6fd79505815b204c178617ecf54c873}{printConf}();
+00028 
+00029     rtc.\hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}();
+00030     rtc.\hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{begin}();
+00031     rtc.\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{printConf}();
+00032 
+00033     coolBoardLed.\hyperlink{class_cool_board_led_a1b60e5e30bea96c49ed62ed1bf1ffc8b}{config}();
+00034     coolBoardLed.\hyperlink{class_cool_board_led_ae3cbde8affcc6f011cbd698c8ef911f6}{begin}();
+00035     coolBoardLed.\hyperlink{class_cool_board_led_a8ed3053a36f0ed4a131f43b5b17efb61}{printConf}();
+00036 
+00037     mqtt.\hyperlink{class_cool_m_q_t_t_a9b703de4f1358f0ee7a5e8c44979c648}{config}();
+00038     mqtt.\hyperlink{class_cool_m_q_t_t_ac9248808641ebf3054ed0620ea9d0100}{begin}();
+00039     mqtt.\hyperlink{class_cool_m_q_t_t_a40553a0ad4b5ecf1cb4411ab54ca85fb}{printConf}();
+00040 
+00041     \textcolor{keywordflow}{if} (jetpackActive)
+00042     \{
+00043         jetPack.\hyperlink{class_jetpack_ab065ee83e244265a2223a22f3ee4a719}{config}();
+00044         jetPack.\hyperlink{class_jetpack_a5a53e1ebf7aaf3bf3e0d37ea64ca09a7}{begin}();
+00045         jetPack.\hyperlink{class_jetpack_ac54a7bb4f9166bee32052253d9b1d306}{printConf}();
+00046     \}
+00047 
+00048     \textcolor{keywordflow}{if} (ireneActive)
+00049     \{
+00050         irene3000.\hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{config}();
+00051         irene3000.\hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{begin}();
+00052         irene3000.\hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{printConf}();
+00053     \}
+00054 
+00055     \textcolor{keywordflow}{if} (externalSensorsActive)
+00056     \{
+00057         externalSensors.\hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{config}();
+00058         externalSensors.\hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{begin}();
+00059         externalSensors.\hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{printConf}();
+00060     \}
+00061 
+00062 \}
+00063 
+\Hypertarget{_cool_board_8cpp_source_l00071}\hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{00071} \textcolor{keywordtype}{int} \hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{CoolBoard::connect}()
+00072 \{
+00073     \textcolor{keywordflow}{if} (WiFi.status() != WL\_CONNECTED)
+00074     \{
+00075         wifiManager.setConfigPortalTimeout(\textcolor{keyword}{this} -> serverTimeOut);
+00076         wifiManager.autoConnect(\textcolor{stringliteral}{"CoolBoard"});
+00077     \}
+00078 
+00079     \textcolor{keywordflow}{if} (mqtt.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}() != 0)
+00080     \{
+00081         mqtt.\hyperlink{class_cool_m_q_t_t_a58b0b1f64b269c2681685208262fba1d}{connect}(\textcolor{keyword}{this} -> \hyperlink{class_cool_board_aaa24480b273fc095a1356a589c333781}{getLogInterval}());
+00082     \}
+00083 
+00084     \textcolor{keywordflow}{return}(mqtt.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());
+00085 \}
+00086 
+\Hypertarget{_cool_board_8cpp_source_l00097}\hyperlink{class_cool_board_aa0bbc4bc605e35618d18e68795c61363}{00097} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_aa0bbc4bc605e35618d18e68795c61363}{CoolBoard::onLineMode}()
+00098 \{
+00099     data=\textcolor{stringliteral}{""};
+00100 
+00101     \textcolor{comment}{//clock update}
+00102     rtc.\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
+00103 
+00104     \textcolor{comment}{//read user data if user is active}
+00105     \textcolor{keywordflow}{if}(userActive)
+00106     \{
+00107         \textcolor{comment}{//reading user data}
+00108         data=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
+00109 
+00110         \textcolor{comment}{//formatting json }
+00111         data.setCharAt( data.lastIndexOf(\textcolor{charliteral}{'\}'}) , \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
+00112         
+00113                 
+00114         \textcolor{comment}{//read sensors data}
+00115         data+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}}
+00116 
+00117         
+00118 
+00119         \textcolor{comment}{//formatting json correctly}
+00120         data.remove(data.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
+00121                 
+00122     \}   
+00123     \textcolor{keywordflow}{else}
+00124     \{
+00125         data=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{..,..,..\}}
+00126     \}
+00127     
+00128     \textcolor{comment}{//do action}
+00129     \textcolor{keywordflow}{if} (jetpackActive)
+00130     \{
+00131         jetPack.\hyperlink{class_jetpack_a86d2e83436ef4b85f4c3a6e85ac785b0}{doAction}(data.c\_str(), sensorJsonSize);
+00132     \}
+00133     
+00134     \textcolor{comment}{//formatting data:}
+00135     String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
+00136     jsonData += data; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
+00137     jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
+00138     
+00139     \textcolor{comment}{//publishing data   }
+00140     \textcolor{keywordflow}{if}( this->sleepActive==0)   
+00141     \{
+00142         mqtt.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( jsonData.c\_str(), this->\hyperlink{class_cool_board_aaa24480b273fc095a1356a589c333781}{getLogInterval}() );
+00143     \}
+00144     \textcolor{keywordflow}{else}
+00145     \{
+00146         mqtt.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(jsonData.c\_str());
+00147     \}
+00148 
+00149     \textcolor{comment}{//mqtt client loop to allow data handling}
+00150     mqtt.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+00151 
+00152     \textcolor{comment}{//read mqtt answer}
+00153     answer = mqtt.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+00154     
+00155     \textcolor{comment}{//mqtt client loop to allow data handling}
+00156     mqtt.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+00157 
+00158     \textcolor{comment}{//check if the configuration needs update }
+00159     \textcolor{comment}{//and update it if needed }
+00160     \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(answer.c\_str());
+00161     
+00162     \textcolor{comment}{//send saved data if any}
+00163     \textcolor{keywordflow}{if}(fileSystem.\hyperlink{class_cool_file_system_a5a7eaeea7a9fbf8aaef651d862fa3b5b}{isDataSaved}())
+00164     \{
+00165         mqtt.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(\textcolor{stringliteral}{"sending saved data"});
+00166         
+00167         data+=fileSystem.\hyperlink{class_cool_file_system_a5c58bca3735c0ed3efb268d70ef998ef}{getSensorSavedData}();\textcolor{comment}{//\{..,..,..\}}
+00168 
+00169         \textcolor{comment}{//formatting data:}
+00170         String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
+00171         jsonData += data; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
+00172         jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
+00173 
+00174         mqtt.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( data.c\_str() );
+00175     \}
+00176         
+00177 \}
+00178 
+00179 
+\Hypertarget{_cool_board_8cpp_source_l00187}\hyperlink{class_cool_board_ae6b5e1274d760462290192acea4adca8}{00187} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_ae6b5e1274d760462290192acea4adca8}{CoolBoard::offLineMode}()
+00188 \{
+00189     \textcolor{comment}{//clock update}
+00190     rtc.\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
+00191     
+00192     \textcolor{comment}{//read user data if user is active}
+00193     \textcolor{keywordflow}{if}(userActive)
+00194     \{
+00195         \textcolor{comment}{//reading user data}
+00196         data=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
+00197         
+00198         \textcolor{comment}{//formatting json correctly}
+00199         data.setCharAt(data.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
+00200     \}   
+00201     
+00202     \textcolor{comment}{//read sensors data}
+00203     data+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}}
+00204     
+00205     \textcolor{comment}{//formatting json correctly}
+00206     data.remove(data.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
+00207 
+00208     \textcolor{comment}{//do action}
+00209     \textcolor{keywordflow}{if} (jetpackActive)
+00210     \{
+00211         jetPack.\hyperlink{class_jetpack_a86d2e83436ef4b85f4c3a6e85ac785b0}{doAction}(data.c\_str(), sensorJsonSize);
+00212     \}
+00213     
+00214     \textcolor{comment}{//saving data in the file system}
+00215     fileSystem.\hyperlink{class_cool_file_system_a4c560c2ddd40b74b7758e6ceb2c58957}{saveSensorData}(data.c\_str(), sensorJsonSize);
+00216 \}
+00217 
+\Hypertarget{_cool_board_8cpp_source_l00232}\hyperlink{class_cool_board_a583a874c09c07e70a6eb9229fc4beddb}{00232} \textcolor{keywordtype}{bool} \hyperlink{class_cool_board_a583a874c09c07e70a6eb9229fc4beddb}{CoolBoard::config}()
+00233 \{
+00234     \textcolor{comment}{//open file system}
+00235     fileSystem.\hyperlink{class_cool_file_system_a6ba6f666ed4c530174f8569d2c636748}{begin}();
+00236     
+00237     \textcolor{comment}{//open configuration file}
+00238     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"r"});
+00239     
+00240     \textcolor{keywordflow}{if} (!configFile)
+00241 
+00242     \{
+00243         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00244     \}
+00245 
+00246     \textcolor{keywordflow}{else}
+00247     \{
+00248         \textcolor{keywordtype}{size\_t} size = configFile.size();
+00249 
+00250         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+00251         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+00252 
+00253         configFile.readBytes(buf.get(), size);
+00254 
+00255         DynamicJsonBuffer jsonBuffer;
+00256 
+00257         JsonObject & json = jsonBuffer.parseObject(buf.get());
+00258 
+00259         \textcolor{keywordflow}{if} (!json.success())
+00260         \{
+00261             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00262         \}
+00263 
+00264         \textcolor{keywordflow}{else}
+00265         \{   
+00266             \textcolor{comment}{//parsing userActive Key}
+00267             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"userActive"}].success())
+00268             \{
+00269                 \textcolor{keyword}{this} -> userActive = json[\textcolor{stringliteral}{"userActive"}];
+00270             \}
+00271 
+00272             \textcolor{keywordflow}{else}
+00273             \{
+00274                 \textcolor{keyword}{this} -> userActive = \textcolor{keyword}{this} -> userActive;
+00275             \}
+00276             json[\textcolor{stringliteral}{"userActive"}] = \textcolor{keyword}{this} -> userActive;
+00277 
+00278             \textcolor{comment}{//parsing logInterval key}
+00279             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"logInterval"}].success())
+00280             \{
+00281                 \textcolor{keyword}{this} -> logInterval = json[\textcolor{stringliteral}{"logInterval"}];
+00282             \}
+00283             \textcolor{keywordflow}{else}
+00284             \{
+00285                 \textcolor{keyword}{this} -> logInterval = \textcolor{keyword}{this} -> logInterval;
+00286             \}
+00287             json[\textcolor{stringliteral}{"logInterval"}] = \textcolor{keyword}{this} -> logInterval;
+00288 
+00289             \textcolor{comment}{//parsing sensorJsonSize key}
+00290             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"sensorJsonSize"}].success())
+00291             \{
+00292                 \textcolor{keyword}{this} -> sensorJsonSize = json[\textcolor{stringliteral}{"sensorJsonSize"}];
+00293             \}
+00294             \textcolor{keywordflow}{else}
+00295             \{
+00296                 \textcolor{keyword}{this} -> sensorJsonSize = \textcolor{keyword}{this} -> sensorJsonSize;
+00297             \}
+00298             json[\textcolor{stringliteral}{"sensorJsonSize"}] = \textcolor{keyword}{this} -> sensorJsonSize;
+00299             
+00300             \textcolor{comment}{//parsing answerJsonSize key            }
+00301             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"answerJsonSize"}].success())
+00302             \{
+00303                 \textcolor{keyword}{this} -> answerJsonSize = json[\textcolor{stringliteral}{"answerJsonSize"}];
+00304             \}
+00305             \textcolor{keywordflow}{else}
+00306             \{
+00307                 \textcolor{keyword}{this} -> answerJsonSize = \textcolor{keyword}{this} -> answerJsonSize;
+00308             \}
+00309             json[\textcolor{stringliteral}{"answerJsonSize"}] = \textcolor{keyword}{this} -> answerJsonSize;
+00310             
+00311             \textcolor{comment}{//parsing ireneActive key           }
+00312             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"ireneActive"}].success())
+00313             \{
+00314                 \textcolor{keyword}{this} -> ireneActive = json[\textcolor{stringliteral}{"ireneActive"}];
+00315             \}
+00316             \textcolor{keywordflow}{else}
+00317             \{
+00318                 \textcolor{keyword}{this} -> ireneActive = \textcolor{keyword}{this} -> ireneActive;
+00319             \}
+00320             json[\textcolor{stringliteral}{"ireneActive"}] = \textcolor{keyword}{this} -> ireneActive;
+00321             
+00322             \textcolor{comment}{//parsing jetpackActive key}
+00323             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"jetpackActive"}].success())
+00324             \{
+00325                 \textcolor{keyword}{this} -> jetpackActive = json[\textcolor{stringliteral}{"jetpackActive"}];
+00326             \}
+00327             \textcolor{keywordflow}{else}
+00328             \{
+00329                 \textcolor{keyword}{this} -> jetpackActive = \textcolor{keyword}{this} -> jetpackActive;
+00330             \}
+00331             json[\textcolor{stringliteral}{"jetpackActive"}] = \textcolor{keyword}{this} -> jetpackActive;
+00332 
+00333             \textcolor{comment}{//parsing externalSensorsActive key}
+00334             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"externalSensorsActive"}].success())
+00335             \{
+00336                 \textcolor{keyword}{this} -> externalSensorsActive = json[\textcolor{stringliteral}{"externalSensorsActive"}];
+00337             \}
+00338             \textcolor{keywordflow}{else}
+00339             \{
+00340                 \textcolor{keyword}{this} -> externalSensorsActive = \textcolor{keyword}{this} -> externalSensorsActive;
+00341             \}
+00342             json[\textcolor{stringliteral}{"externalSensorsActive"}] = \textcolor{keyword}{this} -> externalSensorsActive;
+00343 
+00344             \textcolor{comment}{//parsing serverTimeOut key}
+00345             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"serverTimeOut"}].success())
+00346             \{
+00347                 \textcolor{keyword}{this} -> serverTimeOut = json[\textcolor{stringliteral}{"serverTimeOut"}];
+00348             \}
+00349             \textcolor{keywordflow}{else}
+00350             \{
+00351                 \textcolor{keyword}{this} -> serverTimeOut = \textcolor{keyword}{this} -> serverTimeOut;
+00352             \}
+00353             json[\textcolor{stringliteral}{"serverTimeOut"}] = \textcolor{keyword}{this} -> serverTimeOut;
+00354             
+00355             \textcolor{comment}{//parsing sleepActive key}
+00356             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"sleepActive"}].success())
+00357             \{
+00358                 \textcolor{keyword}{this} -> sleepActive = json[\textcolor{stringliteral}{"sleepActive"}];
+00359             \}
+00360             \textcolor{keywordflow}{else}
+00361             \{
+00362                 \textcolor{keyword}{this} -> sleepActive = \textcolor{keyword}{this} -> sleepActive;
+00363             \}
+00364             json[\textcolor{stringliteral}{"sleepActive"}] = \textcolor{keyword}{this} -> sleepActive;
+00365 
+00366             \textcolor{comment}{//saving the current/correct configuration}
+00367             configFile.close();
+00368             configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w"});
+00369             \textcolor{keywordflow}{if} (!configFile)
+00370             \{
+00371                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00372             \}
+00373             json.printTo(configFile);
+00374             configFile.close();
+00375             \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+00376         \}
+00377     \}
+00378 \}
+00379 
+\Hypertarget{_cool_board_8cpp_source_l00387}\hyperlink{class_cool_board_a486507b8f0981d3cc671ed31c2145755}{00387} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_a486507b8f0981d3cc671ed31c2145755}{CoolBoard::printConf}()
+00388 \{
+00389     Serial.println(\textcolor{stringliteral}{"Cool Board Conf"});
+00390     Serial.println(this->logInterval);
+00391     Serial.println(this->sensorJsonSize);
+00392     Serial.println(this->answerJsonSize);
+00393     Serial.println(this->ireneActive);
+00394     Serial.println(this->jetpackActive);
+00395     Serial.println(this->externalSensorsActive);
+00396     Serial.println(this->serverTimeOut);
+00397     Serial.println(this->sleepActive);
+00398     Serial.println(this->userActive);
+00399     Serial.println(\textcolor{stringliteral}{" "});
+00400 
+00401 
+00402 
+00403 
+00404 \}
+00405 
+\Hypertarget{_cool_board_8cpp_source_l00411}\hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{00411} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{CoolBoard::update}(\textcolor{keyword}{const} \textcolor{keywordtype}{char} * answer)
+00412 \{
+00413     DynamicJsonBuffer jsonBuffer(answerJsonSize);
+00414     JsonObject & root = jsonBuffer.parseObject(answer);
+00415     JsonObject & stateDesired = root[\textcolor{stringliteral}{"state"}][\textcolor{stringliteral}{"desired"}];
+00416     \textcolor{keywordflow}{if} (stateDesired.success())
+00417     \{
+00418         \textcolor{keywordflow}{if} (stateDesired[\textcolor{stringliteral}{"update"}] == 1)
+00419         \{
+00420             String answerDesired;
+00421 
+00422             stateDesired.printTo(answerDesired);
+00423 
+00424             Serial.println(answerDesired);
+00425             
+00426             \textcolor{keywordtype}{bool} result = fileSystem.\hyperlink{class_cool_file_system_a32dad79ae80182a83e2e8f52286b7c7b}{updateConfigFiles}(answerDesired, answerJsonSize);
+00427 
+00428             Serial.println(\textcolor{stringliteral}{"update : "});
+00429 
+00430             Serial.println(result);
+00431 
+00432             \textcolor{comment}{//applying the configuration    }
+00433             \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a583a874c09c07e70a6eb9229fc4beddb}{config}();
+00434 
+00435             coolBoardSensors.\hyperlink{class_cool_board_sensors_a9a218895c5423375c33c08f2c56fb23a}{config}();
+00436 
+00437             rtc.\hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}();
+00438 
+00439             coolBoardLed.\hyperlink{class_cool_board_led_a1b60e5e30bea96c49ed62ed1bf1ffc8b}{config}();
+00440 
+00441             mqtt.\hyperlink{class_cool_m_q_t_t_a9b703de4f1358f0ee7a5e8c44979c648}{config}();
+00442 
+00443             \textcolor{keywordflow}{if} (jetpackActive)
+00444             \{
+00445                 jetPack.\hyperlink{class_jetpack_ab065ee83e244265a2223a22f3ee4a719}{config}();
+00446             \}
+00447 
+00448             \textcolor{keywordflow}{if} (ireneActive)
+00449             \{
+00450                 irene3000.\hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{config}();
+00451             \}
+00452 
+00453             \textcolor{keywordflow}{if} (externalSensorsActive)
+00454             \{
+00455                 externalSensors.\hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{config}();
+00456             \}
+00457 
+00458             delay(10);
+00459             mqtt.\hyperlink{class_cool_m_q_t_t_ac9248808641ebf3054ed0620ea9d0100}{begin}();
+00460 
+00461                 \textcolor{comment}{//answering the update msg:}
+00462             \textcolor{comment}{//reported = received configuration}
+00463             \textcolor{comment}{//desired=null}
+00464             root[\textcolor{stringliteral}{"state"}][\textcolor{stringliteral}{"reported"}]=stateDesired;
+00465             root[\textcolor{stringliteral}{"state"}][\textcolor{stringliteral}{"desired"}]=\textcolor{stringliteral}{"null"};
+00466             
+00467             String updateAnswer;
+00468             root.printTo(updateAnswer);
+00469 
+00470             \textcolor{keywordtype}{bool} success=mqtt.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(updateAnswer.c\_str());
+00471             
+00472             mqtt.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+00473 
+00474             delay(10);
+00475 
+00476             Serial.print(\textcolor{stringliteral}{"success: "});Serial.println(success);
+00477             
+00478             \textcolor{comment}{//restart the esp}
+00479             ESP.restart();
+00480                 
+00481         \}
+00482     \}
+00483     \textcolor{keywordflow}{else}
+00484     \{
+00485         Serial.println(\textcolor{stringliteral}{"Failed to parse update message "});  
+00486     \}       
+00487 \}
+00488 
+\Hypertarget{_cool_board_8cpp_source_l00496}\hyperlink{class_cool_board_aaa24480b273fc095a1356a589c333781}{00496} uint16\_t \hyperlink{class_cool_board_aaa24480b273fc095a1356a589c333781}{CoolBoard::getLogInterval}()
+00497 \{
+00498     \textcolor{keywordflow}{return}(\textcolor{keyword}{this} -> logInterval);
+00499 \}
+00500 
+\Hypertarget{_cool_board_8cpp_source_l00509}\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{00509} String \hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{CoolBoard::readSensors}()
+00510 \{
+00511     String sensorsData;
+00512 
+00513     sensorsData = coolBoardSensors.\hyperlink{class_cool_board_sensors_a91badb2539d91fda8679f2a597874c48}{read}(); \textcolor{comment}{// \{..,..,..\}}
+00514     
+00515     \textcolor{keywordflow}{if} (externalSensorsActive)
+00516     \{
+00517         sensorsData += externalSensors.\hyperlink{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}{read}(); \textcolor{comment}{// \{..,..,..\}\{..,..\}}
+00518 
+00519         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\}\{..,..,}
+00520         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\},..,..,}
+00521         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,}
+00522         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..\}}
+00523 
+00524     \}
+00525     \textcolor{keywordflow}{if} (ireneActive)
+00526     \{
+00527         sensorsData += irene3000.\hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{read}(); \textcolor{comment}{// \{..,..,..,..,..\}\{..,..,..\}}
+00528 
+00529         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\{..,..,..,}
+00530         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\},..,..,..,}
+00531         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,}
+00532         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..,..,..,..\}}
+00533         
+00534     \}
+00535 
+00536 
+00537     \textcolor{keywordflow}{return}(sensorsData);
+00538 
+00539 \}
+00540 
+\Hypertarget{_cool_board_8cpp_source_l00548}\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{00548} String \hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{CoolBoard::userData}()
+00549 \{
+00550     String tempMAC = WiFi.macAddress();
+00551 
+00552     tempMAC.replace(\textcolor{stringliteral}{":"}, \textcolor{stringliteral}{""});
+00553 
+00554     String userJson = \textcolor{stringliteral}{"\{\(\backslash\)"user\(\backslash\)":\(\backslash\)""};
+00555 
+00556     userJson += mqtt.\hyperlink{class_cool_m_q_t_t_a373cc92fca7760d886f02d8a6e5b3f63}{getUser}();
+00557 
+00558     userJson += \textcolor{stringliteral}{"\(\backslash\)","};
+00559 
+00560     userJson += rtc.\hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{getESDate}(); \textcolor{comment}{// "timestamp":"20yy-mm-ddThh:mm:ssZ"}
+00561 
+00562     userJson += \textcolor{stringliteral}{",\(\backslash\)"mac\(\backslash\)":\(\backslash\)""};
+00563 
+00564     userJson += tempMAC;
+00565 
+00566     userJson += \textcolor{stringliteral}{"\(\backslash\)"\}"};  
+00567     
+00568     \textcolor{keywordflow}{return}(userJson);
+00569     
+00570 \}
+00571 
+00572 
+\Hypertarget{_cool_board_8cpp_source_l00579}\hyperlink{class_cool_board_a5d0c8ff93b615efd676be432de9f164a}{00579} \textcolor{keywordtype}{void} \hyperlink{class_cool_board_a5d0c8ff93b615efd676be432de9f164a}{CoolBoard::sleep}(\textcolor{keywordtype}{int} interval)
+00580 \{
+00581     ESP.deepSleep ( ( interval * 1000 ), WAKE\_RF\_DEFAULT) ;
+00582 \}
+\end{DoxyCode}

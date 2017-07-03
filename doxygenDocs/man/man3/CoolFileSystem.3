@@ -1,4 +1,4 @@
-.TH "CoolFileSystem" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolFileSystem" 3 "Mon Jul 3 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,10 +16,23 @@ CoolFileSystem \- This class handles the file system\&.
 .RI "bool \fBbegin\fP ()"
 .br
 .ti -1c
+.RI "bool \fBupdateConfigFiles\fP (String answer, int JSON_SIZE)"
+.br
+.ti -1c
 .RI "bool \fBsaveSensorData\fP (const char *data, int Sensor_JSON_SIZE)"
 .br
 .ti -1c
-.RI "bool \fBupdateConfigFiles\fP (String answer, int JSON_SIZE)"
+.RI "bool \fBisDataSaved\fP ()"
+.br
+.ti -1c
+.RI "String \fBgetSensorSavedData\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "bool \fBsavedData\fP"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -49,8 +62,106 @@ Referenced by CoolBoard::begin(), and CoolBoard::config()\&.
 25 
 26 }
 .fi
+.SS "String CoolFileSystem::getSensorSavedData ()"
+CoolFileSystem::getSensorData(): This method is provided to return the sensor data saved in the File System
+.PP
+\fBReturns:\fP
+.RS 4
+string json of the saved sensor data file 
+.RE
+.PP
+
+.PP
+Definition at line 305 of file CoolFileSystem\&.cpp\&.
+.PP
+References savedData\&.
+.PP
+Referenced by CoolBoard::onLineMode()\&.
+.PP
+.nf
+306 {
+307     //open sensors data file
+308     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+309     
+310     if (!sensorsData)
+311 
+312     {
+313         return("failed to open file");
+314     }
+315     else
+316     {
+317         size_t size = sensorsData\&.size();
+318 
+319         // Allocate a buffer to store contents of the file\&.
+320         std::unique_ptr < char[] > buf(new char[size]);
+321 
+322         sensorsData\&.readBytes(buf\&.get(), size);
+323 
+324         DynamicJsonBuffer jsonBuffer;
+325 
+326         JsonObject & json = jsonBuffer\&.parseObject(buf\&.get());
+327         
+328         if (!json\&.success())
+329         {
+330             return("failed to parse json");
+331         }
+332         else
+333         {   
+334             //the return string
+335             String sensorDataString;
+336             
+337             //print the json to the string
+338             json\&.printTo(sensorDataString);
+339             
+340             //close the file
+341             sensorsData\&.close();
+342 
+343             //delete data in the file
+344             File sensorsData=SPIFFS\&.open("/sensorsData\&.json","w");
+345             if (!sensorsData)   
+346             {
+347                 return("failed to delete data in the file");
+348             }
+349 
+350             sensorsData\&.close();
+351             
+352             //position the saved data flag to false
+353             this->savedData=false;          
+354 
+355             //return the string
+356             return(sensorDataString);       
+357         }
+358         
+359         
+360     }
+361 
+362 }
+.fi
+.SS "bool CoolFileSystem::isDataSaved ()"
+\fBCoolFileSystem::isDataSaved()\fP: This method is provided to report wether there is sensor data saved in the File System\&.
+.PP
+\fBReturns:\fP
+.RS 4
+true if there is data saved, false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 292 of file CoolFileSystem\&.cpp\&.
+.PP
+References savedData\&.
+.PP
+Referenced by CoolBoard::onLineMode()\&.
+.PP
+.nf
+293 {
+294     return( this->savedData );
+295 }
+.fi
 .SS "bool CoolFileSystem::saveSensorData (const char * data, int Sensor_JSON_SIZE)"
 CoolFileSystem::saveSensorData( data, data size ): This method is provided to save the data on the local memory when there is no internet available
+.PP
+sets the saved data flag to TRUE when successful
 .PP
 \fBReturns:\fP
 .RS 4
@@ -59,26 +170,30 @@ true if the data was saved, false otherwise
 .PP
 
 .PP
-Definition at line 36 of file CoolFileSystem\&.cpp\&.
+Definition at line 38 of file CoolFileSystem\&.cpp\&.
+.PP
+References savedData\&.
 .PP
 Referenced by CoolBoard::offLineMode()\&.
 .PP
 .nf
-37 {
-38     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","a");
-39     if(!sensorsData)
-40     {
-41         return false;   
-42     }   
-43 
-44     DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
-45     JsonObject& root = jsonBuffer\&.parseObject(data);
-46     
-47     root\&.printTo(sensorsData);
-48     sensorsData\&.close();
+39 {
+40     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","a+");
+41     if(!sensorsData)
+42     {
+43         this->savedData=false;
+44         return (false); 
+45     }   
+46 
+47     DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+48     JsonObject& root = jsonBuffer\&.parseObject(data);
 49     
-50     return true;        
-51 }
+50     root\&.printTo(sensorsData);
+51     sensorsData\&.close();
+52     
+53     this->savedData=true;
+54     return (true);      
+55 }
 .fi
 .SS "bool CoolFileSystem::updateConfigFiles (String answer, int JSON_SIZE)"
 CoolFileSyste::updateConfigFiles( mqtt answer, answer size): This method is provided to update the configuration files when the appropriate mqtt answer is received: -update : 1
@@ -90,246 +205,238 @@ true if the files are updated correctly, false otherwise
 .PP
 
 .PP
-Definition at line 61 of file CoolFileSystem\&.cpp\&.
+Definition at line 65 of file CoolFileSystem\&.cpp\&.
 .PP
 References temp\&.
 .PP
 Referenced by CoolBoard::update()\&.
 .PP
 .nf
-62 {
-63     //String conversion to char*
-64 
-65     char *jsonRoot = new char[answer\&.length() + 1];
-66     strcpy(jsonRoot, answer\&.c_str());
-67     //total json object 
-68     DynamicJsonBuffer jsonBuffer(JSON_SIZE);
-69     JsonObject& root = jsonBuffer\&.parseObject(jsonRoot);
-70 
-71 
-72         
-73     //temp string
-74     String temp;
+66 {
+67     //String conversion to char*
+68 
+69     char *jsonRoot = new char[answer\&.length() + 1];
+70     strcpy(jsonRoot, answer\&.c_str());
+71     //total json object 
+72     DynamicJsonBuffer jsonBuffer(JSON_SIZE);
+73     JsonObject& root = jsonBuffer\&.parseObject(jsonRoot);
+74 
 75 
-76     //CoolBoard Configuration File
-77 
-78         JsonObject& jsonCoolBoard=root["CoolBoard"];
-79     if(jsonCoolBoard\&.success())
-80     {
-81         File coolBoardConfig = SPIFFS\&.open("/coolBoardConfig\&.json", "w+");    
-82         if(!coolBoardConfig)
-83         {   
-84             Serial\&.println("failed to open coolBoardConfig\&.json");
-85             return(false);
-86         }
-87         Serial\&.println("CoolBoard Config");
-88         jsonCoolBoard\&.printTo(Serial);
-89         
-90         jsonCoolBoard\&.printTo(coolBoardConfig);
-91         
-92         coolBoardConfig\&.close();
-93     }
-94     else
-95     {
-96         Serial\&.println("failed to pars coolBoard ");
-97     }       
-98 
-99     
-100     //Cool Board Sensors Configuration File
-101     DynamicJsonBuffer jsonSBoard;
-102         JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];  
-103     if(jsonSensorsBoard\&.success())
-104     {   
-105         File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w+");  
-106         if(!coolBoardSensorsConfig)
-107         {
-108             Serial\&.println("failed to open coolBoardSensors\&.json");
-109             return(false);
-110         }
-111         
-112         Serial\&.println("CoolBoardSensors Config");
-113         jsonSensorsBoard\&.printTo(coolBoardSensorsConfig);
-114         jsonSensorsBoard\&.printTo(Serial);
-115         coolBoardSensorsConfig\&.close();
-116     }
-117     else
-118     {
-119         Serial\&.println("failed to parse on board sensors "); 
+76         
+77     //temp string
+78     String temp;
+79 
+80     //CoolBoard Configuration File
+81 
+82         JsonObject& jsonCoolBoard=root["CoolBoard"];
+83     if(jsonCoolBoard\&.success())
+84     {
+85         File coolBoardConfig = SPIFFS\&.open("/coolBoardConfig\&.json", "w"); 
+86         if(!coolBoardConfig)
+87         {   
+88             Serial\&.println("failed to open coolBoardConfig\&.json");
+89             return(false);
+90         }
+91         Serial\&.println("CoolBoard Config");
+92         jsonCoolBoard\&.printTo(Serial);
+93         
+94         jsonCoolBoard\&.printTo(coolBoardConfig);
+95         
+96         coolBoardConfig\&.close();
+97     }
+98     else
+99     {
+100         Serial\&.println("failed to pars coolBoard ");
+101     }       
+102 
+103     
+104     //Cool Board Sensors Configuration File
+105     DynamicJsonBuffer jsonSBoard;
+106         JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];  
+107     if(jsonSensorsBoard\&.success())
+108     {   
+109         File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w");   
+110         if(!coolBoardSensorsConfig)
+111         {
+112             Serial\&.println("failed to open coolBoardSensors\&.json");
+113             return(false);
+114         }
+115         
+116         Serial\&.println("CoolBoardSensors Config");
+117         jsonSensorsBoard\&.printTo(coolBoardSensorsConfig);
+118         jsonSensorsBoard\&.printTo(Serial);
+119         coolBoardSensorsConfig\&.close();
 120     }
-121     
-122     
-123     
-124     //rtc configuration file
-125     DynamicJsonBuffer jsonR;
-126         JsonObject& jsonRTC=root["rtc"];
-127     Serial\&.println("before config rtc json");
-128     jsonRTC\&.printTo(Serial);
-129     if(jsonRTC\&.success() )
-130     {
-131         File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "w+");    
-132         if(!rtcConfig)
-133         {
-134             Serial\&.println("failed to open rtcConfig\&.json");
-135             return(false);
-136         }
-137         Serial\&.println("RTC Config");
-138         jsonRTC\&.printTo(rtcConfig);
-139         jsonRTC\&.printTo(Serial);
-140         rtcConfig\&.close();
-141     
-142     }
-143     else
-144     {
-145         Serial\&.println("failed to parse rtc ");
+121     else
+122     {
+123         Serial\&.println("failed to parse on board sensors "); 
+124     }
+125     
+126     
+127     
+128     //rtc configuration file
+129     DynamicJsonBuffer jsonR;
+130         JsonObject& jsonRTC=root["rtc"];
+131     Serial\&.println("before config rtc json");
+132     jsonRTC\&.printTo(Serial);
+133     if(jsonRTC\&.success() )
+134     {
+135         File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "w"); 
+136         if(!rtcConfig)
+137         {
+138             Serial\&.println("failed to open rtcConfig\&.json");
+139             return(false);
+140         }
+141         Serial\&.println("RTC Config");
+142         jsonRTC\&.printTo(rtcConfig);
+143         jsonRTC\&.printTo(Serial);
+144         rtcConfig\&.close();
+145     
 146     }
-147 
-148     
-149     
-150     
-151     
-152         //cool board led configuration
-153     DynamicJsonBuffer jsonLBoard;
-154         JsonObject& jsonLedBoard=root["led"];
-155     Serial\&.println("before config Led json");
-156     jsonLedBoard\&.printTo(Serial);
-157     if(jsonLedBoard\&.success())
-158     {   
-159         File coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w+");  
-160         if(!coolBoardLedConfig)
-161         {
-162             Serial\&.println("failed to open led config");
-163             return(false);
-164         }
-165         Serial\&.println("CoolBoardLed Config");
-166         jsonLedBoard\&.printTo(coolBoardLedConfig);
-167         jsonLedBoard\&.printTo(Serial);
-168         coolBoardLedConfig\&.close();
-169     
-170     }
-171     else
-172     {
-173         Serial\&.println("failed to parse led");
+147     else
+148     {
+149         Serial\&.println("failed to parse rtc ");
+150     }
+151 
+152     
+153     
+154     
+155     
+156         //cool board led configuration
+157     DynamicJsonBuffer jsonLBoard;
+158         JsonObject& jsonLedBoard=root["led"];
+159     Serial\&.println("before config Led json");
+160     jsonLedBoard\&.printTo(Serial);
+161     if(jsonLedBoard\&.success())
+162     {   
+163         File coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w");   
+164         if(!coolBoardLedConfig)
+165         {
+166             Serial\&.println("failed to open led config");
+167             return(false);
+168         }
+169         Serial\&.println("CoolBoardLed Config");
+170         jsonLedBoard\&.printTo(coolBoardLedConfig);
+171         jsonLedBoard\&.printTo(Serial);
+172         coolBoardLedConfig\&.close();
+173     
 174     }
-175         
-176 
-177     
-178 
-179     //jetpack configuration
-180     DynamicJsonBuffer jsonJBoard;
-181         JsonObject& jsonJetpack=root["jetPack"];
-182     Serial\&.println("before config jetpack json");
-183     jsonJetpack\&.printTo(Serial);
-184     if(jsonJetpack\&.success())
-185     {   
-186         File jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "w+");    
-187         if(!jetPackConfig)
-188         {
-189             Serial\&.println("failed to open jetpack file");
-190             return(false);
-191         }
-192         Serial\&.println("jetpack Config");    
-193         jsonJetpack\&.printTo(jetPackConfig);
-194         jsonJetpack\&.printTo(Serial);
-195         jetPackConfig\&.close();
-196     }
-197     else
-198     {
-199         Serial\&.println("failed to parse jetpack");   
+175     else
+176     {
+177         Serial\&.println("failed to parse led");
+178     }
+179         
+180 
+181     
+182 
+183     //jetpack configuration
+184     DynamicJsonBuffer jsonJBoard;
+185         JsonObject& jsonJetpack=root["jetPack"];
+186     Serial\&.println("before config jetpack json");
+187     jsonJetpack\&.printTo(Serial);
+188     if(jsonJetpack\&.success())
+189     {   
+190         File jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "w"); 
+191         if(!jetPackConfig)
+192         {
+193             Serial\&.println("failed to open jetpack file");
+194             return(false);
+195         }
+196         Serial\&.println("jetpack Config");    
+197         jsonJetpack\&.printTo(jetPackConfig);
+198         jsonJetpack\&.printTo(Serial);
+199         jetPackConfig\&.close();
 200     }
-201     
-202     //irene configuration   
-203     DynamicJsonBuffer jsonIBoard;
-204         JsonObject& jsonIrene=root["irene3000"];
-205     Serial\&.println("before config irene json");  
-206     jsonIrene\&.printTo(Serial);
-207     if(jsonIrene\&.success())
-208     {
-209         File irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "w+");    
-210         if(!irene3000Config)
-211         {
-212             Serial\&.println("failed to open irene file");
-213             return(false);
-214         }
-215         Serial\&.println("irene3000 Config");
-216         jsonIrene\&.printTo(irene3000Config);
-217         jsonIrene\&.printTo(Serial);
-218         irene3000Config\&.close();
-219     
-220     }
-221     else
-222     {
-223         Serial\&.println("failed to parse irene"); 
+201     else
+202     {
+203         Serial\&.println("failed to parse jetpack");   
+204     }
+205     
+206     //irene configuration   
+207     DynamicJsonBuffer jsonIBoard;
+208         JsonObject& jsonIrene=root["irene3000"];
+209     Serial\&.println("before config irene json");  
+210     jsonIrene\&.printTo(Serial);
+211     if(jsonIrene\&.success())
+212     {
+213         File irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "w"); 
+214         if(!irene3000Config)
+215         {
+216             Serial\&.println("failed to open irene file");
+217             return(false);
+218         }
+219         Serial\&.println("irene3000 Config");
+220         jsonIrene\&.printTo(irene3000Config);
+221         jsonIrene\&.printTo(Serial);
+222         irene3000Config\&.close();
+223     
 224     }
-225     
-226     //external sensors
-227     DynamicJsonBuffer jsonESBoard;
-228         JsonObject& jsonExternalSensors=root["externalSensors"];
-229     Serial\&.println("before config external Sensors json");
-230     jsonExternalSensors\&.printTo(Serial);
-231     if(jsonExternalSensors\&.success())
-232     {
-233         File externalSensorsConfig = SPIFFS\&.open("/externalSensorsConfig\&.json", "w+");    
-234         if(!externalSensorsConfig)
-235         {
-236             Serial\&.println("failed to open external sensors file ");
-237             return(false);
-238         }
-239         Serial\&.println("externalSensors Config");
-240         jsonExternalSensors\&.printTo(externalSensorsConfig);
-241         jsonExternalSensors\&.printTo(Serial);
-242 /*      for(int i=0;i<root["externalSensors"]["sensorsNumber"];i++)
-243         {   
-244             String path="/"+String(i)+"\&.json"; 
-245                 File temp=SPIFFS\&.open(path,"w+");
-246             if(!temp)
-247             {
-248                 Serial\&.print("failed to open  external sensor file n°");Serial\&.println(i);
-249                 return(false);
-250             }
-251                 
-252             Serial\&.print(" external sensor ");Serial\&.print(i);Serial\&.println(" Config");
-253             jsonExternalSensors[String(i)]\&.printTo(temp);
-254             jsonExternalSensors[String(i)]\&.printTo(Serial);
-255             temp\&.close();
-256         }
-257 */          
-258         externalSensorsConfig\&.close();
-259 
-260     }
-261     else
+225     else
+226     {
+227         Serial\&.println("failed to parse irene"); 
+228     }
+229     
+230     //external sensors
+231     DynamicJsonBuffer jsonESBoard;
+232         JsonObject& jsonExternalSensors=root["externalSensors"];
+233     Serial\&.println("before config external Sensors json");
+234     jsonExternalSensors\&.printTo(Serial);
+235     if(jsonExternalSensors\&.success())
+236     {
+237         File externalSensorsConfig = SPIFFS\&.open("/externalSensorsConfig\&.json", "w"); 
+238         if(!externalSensorsConfig)
+239         {
+240             Serial\&.println("failed to open external sensors file ");
+241             return(false);
+242         }
+243         Serial\&.println("externalSensors Config");
+244         jsonExternalSensors\&.printTo(externalSensorsConfig);
+245         jsonExternalSensors\&.printTo(Serial);
+246     
+247         externalSensorsConfig\&.close();
+248 
+249     }
+250     else
+251     {
+252         Serial\&.println("failed to parse external sensors");  
+253     }
+254 
+255     
+256     //mqtt config
+257     DynamicJsonBuffer jsonMQ;
+258         JsonObject& jsonMQTT=root["mqtt"];
+259     Serial\&.println("before config mqtt json");
+260     jsonMQTT\&.printTo(Serial);
+261     if(jsonMQTT\&.success())
 262     {
-263         Serial\&.println("failed to parse external sensors");  
-264     }
-265 
-266     
-267     //mqtt config
-268     DynamicJsonBuffer jsonMQ;
-269         JsonObject& jsonMQTT=root["mqtt"];
-270     Serial\&.println("before config mqtt json");
-271     jsonMQTT\&.printTo(Serial);
-272     if(jsonMQTT\&.success())
-273     {
-274         File mqttConfig = SPIFFS\&.open("/mqttConfig\&.json", "w+");  
-275         if(!mqttConfig)
-276         {
-277             Serial\&.println("failed to open mqtt file ");     
-278             return(false);
-279         }
-280         Serial\&.println("mqtt config");
-281         jsonMQTT\&.printTo(mqttConfig);
-282         jsonMQTT\&.printTo(Serial);
-283         mqttConfig\&.close();
-284     }
-285     else
-286     {
-287         Serial\&.println("failed to parse mqtt");  
-288     }   
-289         
-290     return true;
-291 
-292 }   
+263         File mqttConfig = SPIFFS\&.open("/mqttConfig\&.json", "w");   
+264         if(!mqttConfig)
+265         {
+266             Serial\&.println("failed to open mqtt file ");     
+267             return(false);
+268         }
+269         Serial\&.println("mqtt config");
+270         jsonMQTT\&.printTo(mqttConfig);
+271         jsonMQTT\&.printTo(Serial);
+272         mqttConfig\&.close();
+273     }
+274     else
+275     {
+276         Serial\&.println("failed to parse mqtt");  
+277     }   
+278         
+279     return true;
+280 
+281 }   
 .fi
+.SH "Member Data Documentation"
+.PP 
+.SS "bool CoolFileSystem::savedData\fC [private]\fP"
 
+.PP
+Definition at line 38 of file CoolFileSystem\&.h\&.
+.PP
+Referenced by getSensorSavedData(), isDataSaved(), and saveSensorData()\&.
 
 .SH "Author"
 .PP 

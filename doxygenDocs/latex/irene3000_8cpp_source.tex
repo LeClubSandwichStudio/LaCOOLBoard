@@ -1,0 +1,311 @@
+\hypertarget{irene3000_8cpp_source}{}\section{irene3000.\+cpp}
+
+\begin{DoxyCode}
+00001 
+00011 \textcolor{preprocessor}{#include "FS.h"}
+00012 \textcolor{preprocessor}{#include <Adafruit\_ADS1015.h>}                                                                              
+00013 \textcolor{preprocessor}{#include <Arduino.h>}
+00014 \textcolor{preprocessor}{#include <\hyperlink{_irene3000_8h}{Irene3000.h}>}
+00015 \textcolor{preprocessor}{#include "ArduinoJson.h"}
+00016 
+\Hypertarget{irene3000_8cpp_source_l00022}\hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{00022} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{Irene3000::begin}()
+00023 \{
+00024     this->ads.begin();
+00025 \}
+00026 
+\Hypertarget{irene3000_8cpp_source_l00035}\hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{00035} String \hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{Irene3000::read}()
+00036 \{   
+00037     String data;
+00038     DynamicJsonBuffer jsonBuffer(ireneJsonSize);
+00039     JsonObject& root = jsonBuffer.createObject();
+00040 
+00041 
+00042         
+00043     \textcolor{keywordflow}{if}(waterTemp.active)
+00044     \{
+00045         root[\textcolor{stringliteral}{"waterTemp"}] = this->\hyperlink{class_irene3000_a94ad40f281d83ad1be20bf1edd6fe802}{readTemp}(waterTemp.gain);
+00046 
+00047         \textcolor{keywordflow}{if}(phProbe.active)
+00048         \{
+00049             root[\textcolor{stringliteral}{"ph"}] =this->\hyperlink{class_irene3000_abf3db725fabb0634ec889b32068a5eec}{readPh}(phProbe.gain) ;
+00050         \}
+00051 
+00052     \}
+00053 
+00054     \textcolor{keywordflow}{if}(adc2.active)
+00055     \{
+00056         root[adc2.type] =this->\hyperlink{class_irene3000_ae73bd2ed14a199a7e83f4d6458476a7c}{readADSChannel2}(adc2.gain);
+00057     \}
+00058     
+00059     root.printTo(data);
+00060     
+00061     \textcolor{keywordflow}{return}(data);
+00062     
+00063     
+00064 
+00065 \}
+00066 
+\Hypertarget{irene3000_8cpp_source_l00074}\hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{00074} \textcolor{keywordtype}{bool} \hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{Irene3000::config}()
+00075 \{
+00076 
+00077     File irene3000Config = SPIFFS.open(\textcolor{stringliteral}{"/irene3000Config.json"}, \textcolor{stringliteral}{"r"});
+00078 
+00079     \textcolor{keywordflow}{if} (!irene3000Config) 
+00080     \{
+00081         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00082     \}
+00083     \textcolor{keywordflow}{else}
+00084     \{
+00085         \textcolor{keywordtype}{size\_t} size = irene3000Config.size();
+00086         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+00087         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+00088             uint16\_t tempGain;
+00089         irene3000Config.readBytes(buf.get(), size);
+00090         DynamicJsonBuffer jsonBuffer;
+00091         JsonObject& json = jsonBuffer.parseObject(buf.get());
+00092         \textcolor{keywordflow}{if} (!json.success()) 
+00093         \{
+00094               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00095         \} 
+00096         \textcolor{keywordflow}{else}
+00097         \{   
+00098             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ireneJsonSize"}].success() )
+00099             \{
+00100                 this->ireneJsonSize=json[\textcolor{stringliteral}{"ireneJsonSize"}];
+00101             \}
+00102             \textcolor{keywordflow}{else}
+00103             \{
+00104                 this->ireneJsonSize=this->ireneJsonSize;
+00105             \}
+00106             json[\textcolor{stringliteral}{"ireneJsonSize"}]=this->ireneJsonSize;
+00107 
+00108             
+00109             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"active"}].success() )
+00110             \{           
+00111                 this->waterTemp.active = json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"active"}]; 
+00112             \}
+00113             \textcolor{keywordflow}{else}
+00114             \{
+00115                 this->waterTemp.active=this->waterTemp.active;
+00116             \}
+00117             json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"active"}]=this->waterTemp.active;
+00118 
+00119             
+00120             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"gain"}].success() )
+00121             \{           
+00122                 tempGain = json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"gain"}]; 
+00123                 this->waterTemp.gain=this->\hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{gainConvert}(tempGain);
+00124             \}
+00125             \textcolor{keywordflow}{else}
+00126             \{
+00127                 this->waterTemp.gain=this->waterTemp.gain;
+00128             \}
+00129             json[\textcolor{stringliteral}{"waterTemp"}][\textcolor{stringliteral}{"gain"}]=this->waterTemp.gain;
+00130 
+00131             
+00132             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"active"}].success())
+00133             \{
+00134                 this->phProbe.active=json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"active"}];
+00135             \}
+00136             \textcolor{keywordflow}{else}
+00137             \{
+00138                 this->phProbe.active=this->phProbe.active;
+00139             \}
+00140             json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"active"}]=this->phProbe.active;
+00141     
+00142             
+00143             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"gain"}].success() )
+00144             \{       
+00145                 tempGain=json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"gain"}];
+00146                 this->phProbe.gain=this->\hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{gainConvert}(tempGain);          
+00147             \}
+00148             \textcolor{keywordflow}{else}
+00149             \{
+00150                 this->phProbe.gain=this->phProbe.gain;
+00151             \}
+00152             json[\textcolor{stringliteral}{"phProbe"}][\textcolor{stringliteral}{"gain"}]=this->phProbe.gain;
+00153 
+00154             
+00155             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"active"}].success() )
+00156             \{
+00157                 this->adc2.active=json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"active"}];
+00158             \}
+00159             \textcolor{keywordflow}{else}
+00160             \{
+00161                 this->adc2.active=this->adc2.active;
+00162             \}
+00163             json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"active"}]=this->adc2.active;
+00164 
+00165             
+00166             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"gain"}].success() )
+00167             \{           
+00168                 tempGain=json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"gain"}];
+00169                 this->adc2.gain=this->\hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{gainConvert}(tempGain);
+00170             \}
+00171             \textcolor{keywordflow}{else}
+00172             \{
+00173                 this->adc2.gain=this->adc2.gain;
+00174             \}
+00175             json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"gain"}]=this->adc2.gain;
+00176 
+00177             
+00178             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"type"}].success() )
+00179             \{
+00180                 this->adc2.type=json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"type"}].as<String>(); 
+00181             \}
+00182             \textcolor{keywordflow}{else}
+00183             \{
+00184                 this->adc2.type=this->adc2.type;
+00185             \}
+00186             json[\textcolor{stringliteral}{"adc2"}][\textcolor{stringliteral}{"type"}]=this->adc2.type;
+00187 
+00188             irene3000Config.close();
+00189             irene3000Config = SPIFFS.open(\textcolor{stringliteral}{"/irene3000Config.json"}, \textcolor{stringliteral}{"w"});
+00190 
+00191             \textcolor{keywordflow}{if}(!irene3000Config)
+00192             \{
+00193                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00194             \}
+00195 
+00196             json.printTo(irene3000Config);
+00197             irene3000Config.close();
+00198 
+00199             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+00200         \}
+00201     \}   
+00202 
+00203 \}
+00204 
+\Hypertarget{irene3000_8cpp_source_l00210}\hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{00210} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{Irene3000::printConf}()
+00211 \{
+00212     Serial.println(\textcolor{stringliteral}{"Irene Config "});
+00213     Serial.println(waterTemp.active);
+00214     Serial.println(waterTemp.gain); 
+00215     Serial.println(phProbe.active);
+00216     Serial.println(phProbe.gain);
+00217     Serial.println(adc2.active);
+00218     Serial.println(adc2.gain);
+00219     Serial.println(adc2.type);
+00220     Serial.println(\textcolor{stringliteral}{" "});
+00221 \}
+00222 
+\Hypertarget{irene3000_8cpp_source_l00230}\hyperlink{class_irene3000_ae0e0a5b773c3625b44c1d113c76a1540}{00230} \textcolor{keywordtype}{int} \hyperlink{class_irene3000_ae0e0a5b773c3625b44c1d113c76a1540}{Irene3000::readButton}(adsGain\_t gain)
+00231 \{
+00232     this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00233     \textcolor{keywordflow}{return}( this->ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_a37976ee6fe1fb8546bfd6153b83ffa6c}{button}) );
+00234     
+00235 \}
+00236 
+\Hypertarget{irene3000_8cpp_source_l00242}\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{00242} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{Irene3000::setGain}(adsGain\_t gain)
+00243 \{
+00244     this->ads.setGain(gain);
+00245 \}
+00246 
+\Hypertarget{irene3000_8cpp_source_l00256}\hyperlink{class_irene3000_ae73bd2ed14a199a7e83f4d6458476a7c}{00256} \textcolor{keywordtype}{int} \hyperlink{class_irene3000_ae73bd2ed14a199a7e83f4d6458476a7c}{Irene3000::readADSChannel2}(adsGain\_t gain)
+00257 \{   
+00258     this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00259     \textcolor{keywordflow}{return}( this->ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_a55497513af255250e464ed76543d46d7}{freeAdc}) ) ;
+00260 \}
+00261 
+\Hypertarget{irene3000_8cpp_source_l00270}\hyperlink{class_irene3000_abf3db725fabb0634ec889b32068a5eec}{00270} \textcolor{keywordtype}{float} \hyperlink{class_irene3000_abf3db725fabb0634ec889b32068a5eec}{Irene3000::readPh}(adsGain\_t gain)
+00271 \{
+00272   this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00273 
+00274   \textcolor{keywordtype}{double} Voltage =  gain * ( ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_af771ceafe0e6524dd8497d4305dfe778}{ph}) ) / \hyperlink{_irene3000_8h_ae04444a85a37b5dce09107f2ce2b2c80}{ADC\_MAXIMUM\_VALUE};
+00275 
+00276   \textcolor{keywordtype}{float} miliVolts = Voltage * 1000;
+00277   \textcolor{keywordtype}{float} temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
+00278 
+00279 
+00280  \textcolor{keywordflow}{return}( 7 - (temporary / params.pHStep) );
+00281 
+00282 \}
+00283 
+\Hypertarget{irene3000_8cpp_source_l00291}\hyperlink{class_irene3000_a94ad40f281d83ad1be20bf1edd6fe802}{00291} \textcolor{keywordtype}{double} \hyperlink{class_irene3000_a94ad40f281d83ad1be20bf1edd6fe802}{Irene3000::readTemp}(adsGain\_t gain)
+00292 \{
+00293   \textcolor{keyword}{const} \textcolor{keywordtype}{double} A = 3.9083E-3;
+00294   \textcolor{keyword}{const} \textcolor{keywordtype}{double} B = -5.775E-7;
+00295   \textcolor{keywordtype}{double} T;
+00296   
+00297   this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00298   \textcolor{keywordtype}{int} adc0 = ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp});
+00299  
+00300 
+00301   \textcolor{keywordtype}{double} R = ((adc0 * \hyperlink{_irene3000_8h_ab7ab16df599d3f0ce29e12791a504891}{V\_GAIN\_8}) / 0.095) / 1000;
+00302 
+00303   T = 0.0 - A;
+00304   T += sqrt((A * A) - 4.0 * B * (1.0 - R));
+00305   T /= (2.0 * B);
+00306   \textcolor{keywordflow}{if} (T > 0 && T < 200) \{
+00307     \textcolor{keywordflow}{return} T;
+00308   \}
+00309   \textcolor{keywordflow}{else} \{
+00310   
+00311     T = 0.0 - A;
+00312     T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
+00313     T /= (2.0 * B);
+00314     \textcolor{keywordflow}{return} T;
+00315   \}
+00316 
+00317 \}
+00318 
+00319 
+\Hypertarget{irene3000_8cpp_source_l00325}\hyperlink{class_irene3000_a2e810ddfa8b95eaa2446a408761c6bdc}{00325} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a2e810ddfa8b95eaa2446a408761c6bdc}{Irene3000::calibratepH7}(adsGain\_t gain)
+00326 \{
+00327     this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00328         
+00329     this->params.pH7Cal = ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_af771ceafe0e6524dd8497d4305dfe778}{ph});
+00330  
+00331     this->\hyperlink{class_irene3000_a81f6a79e546679692053f7ac1af49613}{calcpHSlope}();
+00332 
+00333 
+00334 \}
+00335 
+\Hypertarget{irene3000_8cpp_source_l00341}\hyperlink{class_irene3000_a9772eeea2305fad6236a82e33e93892e}{00341} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a9772eeea2305fad6236a82e33e93892e}{Irene3000::calibratepH4}(adsGain\_t gain)
+00342 \{
+00343 
+00344   this->\hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(gain);
+00345         
+00346   this->params.pH4Cal =  ads.readADC\_SingleEnded(\hyperlink{_irene3000_8h_af771ceafe0e6524dd8497d4305dfe778}{ph});
+00347  
+00348   this->\hyperlink{class_irene3000_a81f6a79e546679692053f7ac1af49613}{calcpHSlope}();
+00349 
+00350 
+00351 
+00352 \}
+00353 
+\Hypertarget{irene3000_8cpp_source_l00359}\hyperlink{class_irene3000_a81f6a79e546679692053f7ac1af49613}{00359} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a81f6a79e546679692053f7ac1af49613}{Irene3000::calcpHSlope} ()
+00360 \{
+00361 
+00362   params.pHStep = ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
+00363 
+00364  
+00365 \}
+00366 
+\Hypertarget{irene3000_8cpp_source_l00373}\hyperlink{class_irene3000_a0fba280e8b7c881307efa31281aa691d}{00373} \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a0fba280e8b7c881307efa31281aa691d}{Irene3000::resetParams}(\textcolor{keywordtype}{void})
+00374 \{
+00375   \textcolor{comment}{//Restore to default set of parameters!}
+00376   params.WriteCheck = \hyperlink{_irene3000_8h_a9fa3b8fd890fde289060ee254cd273d5}{Write\_Check};
+00377   params.pH7Cal = 16384; \textcolor{comment}{//assume ideal probe and amp conditions 1/2 of 4096}
+00378   params.pH4Cal = 8192; \textcolor{comment}{//using ideal probe slope we end up this many 12bit units away on the 4 scale}
+00379   params.pHStep = 59.16;\textcolor{comment}{//ideal probe slope}
+00380 
+00381   
+00382 \}
+00383 
+\Hypertarget{irene3000_8cpp_source_l00391}\hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{00391} adsGain\_t \hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{Irene3000::gainConvert}(uint16\_t tempGain)
+00392 \{
+00393     \textcolor{keywordflow}{switch}(tempGain)
+00394     \{
+00395         \textcolor{keywordflow}{case}(2/3): \textcolor{keywordflow}{return}(GAIN\_TWOTHIRDS);
+00396         \textcolor{keywordflow}{case}(1): \textcolor{keywordflow}{return} (GAIN\_ONE);
+00397         \textcolor{keywordflow}{case}(2) : \textcolor{keywordflow}{return}(GAIN\_TWO);
+00398         \textcolor{keywordflow}{case}(4): \textcolor{keywordflow}{return}(GAIN\_FOUR) ;   
+00399         \textcolor{keywordflow}{case}(8):\textcolor{keywordflow}{return}(GAIN\_EIGHT)  ;  
+00400         \textcolor{keywordflow}{case}(16):\textcolor{keywordflow}{return}(GAIN\_SIXTEEN);  
+00401     \}
+00402 
+00403 
+00404 
+00405 \}
+\end{DoxyCode}

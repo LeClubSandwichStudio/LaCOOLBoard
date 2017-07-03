@@ -1,4 +1,4 @@
-.TH "CoolBoardSensors" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolBoardSensors" 3 "Mon Jul 3 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -26,81 +26,81 @@ CoolBoardSensors \- This class handles the On-Board Sensors\&.
 .RI "\fBCoolBoardSensors\fP ()"
 .br
 .ti -1c
-.RI "void \fBallActive\fP ()"
-.br
-.ti -1c
 .RI "void \fBbegin\fP ()"
-.br
-.ti -1c
-.RI "bool \fBconfig\fP ()"
-.br
-.ti -1c
-.RI "void \fBend\fP ()"
-.br
-.ti -1c
-.RI "int \fBgetJsonSize\fP ()"
-.br
-.ti -1c
-.RI "void \fBinitReadI2C\fP ()"
-.br
-.ti -1c
-.RI "void \fBprintConf\fP ()"
 .br
 .ti -1c
 .RI "String \fBread\fP ()"
 .br
 .ti -1c
-.RI "float \fBreadMoisture\fP ()"
-.br
-.ti -1c
-.RI "float \fBreadVBat\fP ()"
-.br
-.ti -1c
-.RI "void \fBsetEnvSensorSettings\fP (uint8_t commInterface=I2C_MODE, uint8_t I2CAddress=0x76, uint8_t runMode=3, uint8_t tStandby=0, uint8_t filter=0, uint8_t tempOverSample=1, uint8_t pressOverSample=1, uint8_t humidOverSample=1)"
+.RI "int \fBgetJsonSize\fP ()"
 .br
 .ti -1c
 .RI "void \fBsetJsonSize\fP (int \fBjsonSize\fP)"
 .br
 .ti -1c
+.RI "void \fBallActive\fP ()"
+.br
+.ti -1c
+.RI "void \fBinitReadI2C\fP ()"
+.br
+.ti -1c
 .RI "void \fBstopReadI2C\fP ()"
+.br
+.ti -1c
+.RI "void \fBend\fP ()"
+.br
+.ti -1c
+.RI "bool \fBconfig\fP ()"
+.br
+.ti -1c
+.RI "void \fBprintConf\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetEnvSensorSettings\fP (uint8_t commInterface=I2C_MODE, uint8_t I2CAddress=0x76, uint8_t runMode=3, uint8_t tStandby=0, uint8_t filter=0, uint8_t tempOverSample=1, uint8_t pressOverSample=1, uint8_t humidOverSample=1)"
+.br
+.ti -1c
+.RI "float \fBreadVBat\fP ()"
+.br
+.ti -1c
+.RI "float \fBreadMoisture\fP ()"
 .br
 .in -1c
 .SS "Public Attributes"
 
 .in +1c
 .ti -1c
-.RI "BME280 \fBenvSensor\fP"
+.RI "SI114X \fBlightSensor\fP = SI114X()"
 .br
 .ti -1c
-.RI "SI114X \fBlightSensor\fP = SI114X()"
+.RI "BME280 \fBenvSensor\fP"
 .br
 .in -1c
 .SS "Private Attributes"
 
 .in +1c
 .ti -1c
+.RI "struct \fBCoolBoardSensors::lightActive\fP \fBlightDataActive\fP"
+.br
+.ti -1c
 .RI "struct \fBCoolBoardSensors::airActive\fP \fBairDataActive\fP"
-.br
-.ti -1c
-.RI "const int \fBAnMplex\fP = 12"
-.br
-.ti -1c
-.RI "byte \fBearthMoistureActive\fP"
-.br
-.ti -1c
-.RI "const int \fBEnI2C\fP = 5"
 .br
 .ti -1c
 .RI "const int \fBEnMoisture\fP = 13"
 .br
 .ti -1c
-.RI "int \fBjsonSize\fP"
+.RI "const int \fBAnMplex\fP = 12"
 .br
 .ti -1c
-.RI "struct \fBCoolBoardSensors::lightActive\fP \fBlightDataActive\fP"
+.RI "const int \fBEnI2C\fP = 5"
 .br
 .ti -1c
 .RI "byte \fBvbatActive\fP"
+.br
+.ti -1c
+.RI "byte \fBearthMoistureActive\fP"
+.br
+.ti -1c
+.RI "int \fBjsonSize\fP"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -191,151 +191,151 @@ true if configuration is successful, false otherwise
 .PP
 
 .PP
-Definition at line 221 of file CoolBoardSensors\&.cpp\&.
+Definition at line 222 of file CoolBoardSensors\&.cpp\&.
 .PP
 References airDataActive, earthMoistureActive, CoolBoardSensors::airActive::humidity, CoolBoardSensors::lightActive::ir, jsonSize, lightDataActive, CoolBoardSensors::airActive::pressure, CoolBoardSensors::airActive::temperature, CoolBoardSensors::lightActive::uv, vbatActive, and CoolBoardSensors::lightActive::visible\&.
 .PP
 Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
 .PP
 .nf
-222 {
-223     //read config file
-224     //update data
-225     File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "r");
-226 
-227     if (!coolBoardSensorsConfig) 
-228     {
-229         return(false);
-230     }
-231     else
-232     {
-233         size_t size = coolBoardSensorsConfig\&.size();
-234         // Allocate a buffer to store contents of the file\&.
-235         std::unique_ptr<char[]> buf(new char[size]);
-236 
-237         coolBoardSensorsConfig\&.readBytes(buf\&.get(), size);
-238         DynamicJsonBuffer jsonBuffer;
-239         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-240         if (!json\&.success()) 
-241         {
-242               return(false);
-243         } 
-244         else
-245         {     
-246             if(json["jsonSize"]\&.success() )
-247             {
-248                 this->jsonSize = json["jsonSize"]; 
-249             }
-250             else
-251             {
-252                 this->jsonSize=this->jsonSize;          
-253             }
-254             json["jsonSize"]=this->jsonSize;
-255 
-256             
-257             if(json["BME280"]["temperature"]\&.success() )
-258             {           
-259                 this->airDataActive\&.temperature=json["BME280"]["temperature"];
-260             }
-261             else
-262             {
-263                 this->airDataActive\&.temperature=this->airDataActive\&.temperature;          
-264             }
-265             json["BME280"]["temperature"]=this->airDataActive\&.temperature;
-266             
+223 {
+224     //read config file
+225     //update data
+226     File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "r");
+227 
+228     if (!coolBoardSensorsConfig) 
+229     {
+230         return(false);
+231     }
+232     else
+233     {
+234         size_t size = coolBoardSensorsConfig\&.size();
+235         // Allocate a buffer to store contents of the file\&.
+236         std::unique_ptr<char[]> buf(new char[size]);
+237 
+238         coolBoardSensorsConfig\&.readBytes(buf\&.get(), size);
+239         DynamicJsonBuffer jsonBuffer;
+240         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+241         if (!json\&.success()) 
+242         {
+243               return(false);
+244         } 
+245         else
+246         {     
+247             if(json["jsonSize"]\&.success() )
+248             {
+249                 this->jsonSize = json["jsonSize"]; 
+250             }
+251             else
+252             {
+253                 this->jsonSize=this->jsonSize;          
+254             }
+255             json["jsonSize"]=this->jsonSize;
+256 
+257             
+258             if(json["BME280"]["temperature"]\&.success() )
+259             {           
+260                 this->airDataActive\&.temperature=json["BME280"]["temperature"];
+261             }
+262             else
+263             {
+264                 this->airDataActive\&.temperature=this->airDataActive\&.temperature;          
+265             }
+266             json["BME280"]["temperature"]=this->airDataActive\&.temperature;
 267             
-268             if(json["BME280"]["humidity"]\&.success() )
-269             {           
-270             
-271                 this->airDataActive\&.humidity=json["BME280"]["humidity"];
-272             }
-273             else
-274             {
-275                 this->airDataActive\&.humidity=this->airDataActive\&.humidity;
-276             }
-277             json["BME280"]["humidity"]=this->airDataActive\&.humidity;
-278             
+268             
+269             if(json["BME280"]["humidity"]\&.success() )
+270             {           
+271             
+272                 this->airDataActive\&.humidity=json["BME280"]["humidity"];
+273             }
+274             else
+275             {
+276                 this->airDataActive\&.humidity=this->airDataActive\&.humidity;
+277             }
+278             json["BME280"]["humidity"]=this->airDataActive\&.humidity;
 279             
-280             if(json["BME280"]["pressure"]\&.success() )
-281             {
-282                 this->airDataActive\&.pressure=json["BME280"]["pressure"];
-283             }
-284             else
-285             {
-286                 this->airDataActive\&.pressure=this->airDataActive\&.pressure;
-287             }
-288             json["BME280"]["pressure"]=this->airDataActive\&.pressure;
-289 
-290             
-291             if(json["SI114X"]["visible"]\&.success() )
-292             {
-293                 this->lightDataActive\&.visible=json["SI114X"]["visible"];
-294             }
-295             else
-296             {
-297                 this->lightDataActive\&.visible=this->lightDataActive\&.visible;
-298             }
-299             json["SI114X"]["visible"]=this->lightDataActive\&.visible;
-300             
+280             
+281             if(json["BME280"]["pressure"]\&.success() )
+282             {
+283                 this->airDataActive\&.pressure=json["BME280"]["pressure"];
+284             }
+285             else
+286             {
+287                 this->airDataActive\&.pressure=this->airDataActive\&.pressure;
+288             }
+289             json["BME280"]["pressure"]=this->airDataActive\&.pressure;
+290 
+291             
+292             if(json["SI114X"]["visible"]\&.success() )
+293             {
+294                 this->lightDataActive\&.visible=json["SI114X"]["visible"];
+295             }
+296             else
+297             {
+298                 this->lightDataActive\&.visible=this->lightDataActive\&.visible;
+299             }
+300             json["SI114X"]["visible"]=this->lightDataActive\&.visible;
 301             
-302             if(json["SI114X"]["ir"]\&.success() )
-303             {           
-304                 this->lightDataActive\&.ir=json["SI114X"]["ir"];
-305             }
-306             else
-307             {
-308                 this->lightDataActive\&.ir=this->lightDataActive\&.ir;
-309             }
-310             json["SI114X"]["ir"]=this->lightDataActive\&.ir;
-311 
-312             
-313             if(json["SI114X"]["uv"]\&.success() )          
-314             {           
-315                 this->lightDataActive\&.uv=json["SI114X"]["uv"];
-316             }
-317             else
-318             {
-319                 this->lightDataActive\&.uv=this->lightDataActive\&.uv;
-320             }
-321             json["SI114X"]["uv"]=this->lightDataActive\&.uv;
-322 
+302             
+303             if(json["SI114X"]["ir"]\&.success() )
+304             {           
+305                 this->lightDataActive\&.ir=json["SI114X"]["ir"];
+306             }
+307             else
+308             {
+309                 this->lightDataActive\&.ir=this->lightDataActive\&.ir;
+310             }
+311             json["SI114X"]["ir"]=this->lightDataActive\&.ir;
+312 
+313             
+314             if(json["SI114X"]["uv"]\&.success() )          
+315             {           
+316                 this->lightDataActive\&.uv=json["SI114X"]["uv"];
+317             }
+318             else
+319             {
+320                 this->lightDataActive\&.uv=this->lightDataActive\&.uv;
+321             }
+322             json["SI114X"]["uv"]=this->lightDataActive\&.uv;
 323 
-324             if(json["vbat"]\&.success() )
-325             {
-326                 this->vbatActive=json["vbat"];
-327             }
-328             else
-329             {
-330                 this->vbatActive=this->vbatActive;
-331             }
-332             json["vbat"]=this->vbatActive;
-333 
-334             
-335             if(json["soilMoisture"]\&.success() )
-336             {           
-337                 this->earthMoistureActive= json["soilMoisture"];
-338             }
-339             else
-340             {
-341                 this->earthMoistureActive=this->earthMoistureActive;
-342             }
-343             json["soilMoisture"]=this->earthMoistureActive;
-344 
-345             coolBoardSensorsConfig\&.close();          
-346             coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w");            
-347             if(!coolBoardSensorsConfig)
-348             {
-349                 return(false);          
-350             }  
-351 
-352             json\&.printTo(coolBoardSensorsConfig);
-353             coolBoardSensorsConfig\&.close();          
-354             
-355               return(true); 
-356         }
-357     }   
-358 
-359 }
+324 
+325             if(json["vbat"]\&.success() )
+326             {
+327                 this->vbatActive=json["vbat"];
+328             }
+329             else
+330             {
+331                 this->vbatActive=this->vbatActive;
+332             }
+333             json["vbat"]=this->vbatActive;
+334 
+335             
+336             if(json["soilMoisture"]\&.success() )
+337             {           
+338                 this->earthMoistureActive= json["soilMoisture"];
+339             }
+340             else
+341             {
+342                 this->earthMoistureActive=this->earthMoistureActive;
+343             }
+344             json["soilMoisture"]=this->earthMoistureActive;
+345 
+346             coolBoardSensorsConfig\&.close();          
+347             coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w");            
+348             if(!coolBoardSensorsConfig)
+349             {
+350                 return(false);          
+351             }  
+352 
+353             json\&.printTo(coolBoardSensorsConfig);
+354             coolBoardSensorsConfig\&.close();          
+355             
+356               return(true); 
+357         }
+358     }   
+359 
+360 }
 .fi
 .SS "void CoolBoardSensors::end ()"
 \fBCoolBoardSensors::end()\fP: This method is provided to end the sensors on the sensor board 
@@ -373,43 +373,43 @@ References jsonSize\&.
 .SS "void CoolBoardSensors::initReadI2C ()"
 \fBCoolBoardSensors::initReadI2C()\fP: This method is provided to enable the I2C Interface on the sensor board\&. 
 .PP
-Definition at line 192 of file CoolBoardSensors\&.cpp\&.
+Definition at line 193 of file CoolBoardSensors\&.cpp\&.
 .PP
 References EnI2C\&.
 .PP
 Referenced by begin(), and read()\&.
 .PP
 .nf
-193 {
-194   
-195     digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
-196 
-197 }
+194 {
+195   
+196     digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
+197 
+198 }
 .fi
 .SS "void CoolBoardSensors::printConf ()"
 \fBCoolBoardSensors::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
-Definition at line 367 of file CoolBoardSensors\&.cpp\&.
+Definition at line 368 of file CoolBoardSensors\&.cpp\&.
 .PP
 References airDataActive, earthMoistureActive, CoolBoardSensors::airActive::humidity, CoolBoardSensors::lightActive::ir, jsonSize, lightDataActive, CoolBoardSensors::airActive::pressure, CoolBoardSensors::airActive::temperature, CoolBoardSensors::lightActive::uv, vbatActive, and CoolBoardSensors::lightActive::visible\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-368 {
-369     Serial\&.println("Sensors Conf ");
-370     Serial\&.println(jsonSize);
-371     Serial\&.println(airDataActive\&.temperature);
-372     Serial\&.println(airDataActive\&.humidity);
-373     Serial\&.println(airDataActive\&.pressure);
-374 
-375     Serial\&.println(lightDataActive\&.visible);
-376     Serial\&.println(lightDataActive\&.ir);
-377     Serial\&.println(lightDataActive\&.uv);
-378     Serial\&.println(vbatActive);
-379     Serial\&.println(earthMoistureActive);
-380     Serial\&.println(" ");
-381 }
+369 {
+370     Serial\&.println("Sensors Conf ");
+371     Serial\&.println(jsonSize);
+372     Serial\&.println(airDataActive\&.temperature);
+373     Serial\&.println(airDataActive\&.humidity);
+374     Serial\&.println(airDataActive\&.pressure);
+375 
+376     Serial\&.println(lightDataActive\&.visible);
+377     Serial\&.println(lightDataActive\&.ir);
+378     Serial\&.println(lightDataActive\&.uv);
+379     Serial\&.println(vbatActive);
+380     Serial\&.println(earthMoistureActive);
+381     Serial\&.println(" ");
+382 }
 .fi
 .SS "String CoolBoardSensors::read ()"
 \fBCoolBoardSensors::read()\fP: This method is provided to return the data read by the sensor board
@@ -425,7 +425,7 @@ Definition at line 123 of file CoolBoardSensors\&.cpp\&.
 .PP
 References airDataActive, earthMoistureActive, envSensor, CoolBoardSensors::airActive::humidity, initReadI2C(), CoolBoardSensors::lightActive::ir, jsonSize, lightDataActive, lightSensor, CoolBoardSensors::airActive::pressure, readMoisture(), readVBat(), CoolBoardSensors::airActive::temperature, CoolBoardSensors::lightActive::uv, vbatActive, and CoolBoardSensors::lightActive::visible\&.
 .PP
-Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
+Referenced by CoolBoard::readSensors()\&.
 .PP
 .nf
 124 {
@@ -449,47 +449,48 @@ Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
 142 
 143     if(lightDataActive\&.uv)
 144     {
-145         root["ultraViolet"] =lightSensor\&.ReadUV()/100 ;
-146     }
-147     
-148     //BME280 data
-149     if(airDataActive\&.pressure)   
-150     {
-151         root["Pressure"] =envSensor\&.readFloatPressure();
-152     }
-153     
-154         
-155     if(airDataActive\&.humidity)   
-156     {   
-157         root["Humidity"] =envSensor\&.readFloatHumidity() ;
-158     }   
-159     
-160     if(airDataActive\&.temperature)
-161     {
-162         root["Temperature"]=envSensor\&.readTempC();
-163     }
-164     
-165     //Vbat
-166     if(vbatActive)  
-167     {   
-168         root["Vbat"]=this->readVBat();
-169     }
-170     
-171     //earth Moisture
-172     if(earthMoistureActive)
-173     {   
-174         root["soilMoisture"]=this->readMoisture();
-175     }
-176     
+145         float tempUV = (float)lightSensor\&.ReadUV()/100 ;
+146         root["ultraViolet"] = tempUV;
+147     }
+148     
+149     //BME280 data
+150     if(airDataActive\&.pressure)   
+151     {
+152         root["Pressure"] =envSensor\&.readFloatPressure();
+153     }
+154     
+155         
+156     if(airDataActive\&.humidity)   
+157     {   
+158         root["Humidity"] =envSensor\&.readFloatHumidity() ;
+159     }   
+160     
+161     if(airDataActive\&.temperature)
+162     {
+163         root["Temperature"]=envSensor\&.readTempC();
+164     }
+165     
+166     //Vbat
+167     if(vbatActive)  
+168     {   
+169         root["Vbat"]=this->readVBat();
+170     }
+171     
+172     //earth Moisture
+173     if(earthMoistureActive)
+174     {   
+175         root["soilMoisture"]=this->readMoisture();
+176     }
 177     
-178     root\&.printTo(data);
-179     
-180 
+178     
+179     root\&.printTo(data);
+180     
 181 
-182     return(data);
-183     
-184 
-185 }
+182 
+183     return(data);
+184     
+185 
+186 }
 .fi
 .SS "float CoolBoardSensors::readMoisture ()"
 \fBCoolBoardSensors::readMoisture()\fP: This method is provided to red the Soil Moisture
@@ -501,28 +502,28 @@ a float represnting the soil moisture
 .PP
 
 .PP
-Definition at line 443 of file CoolBoardSensors\&.cpp\&.
+Definition at line 444 of file CoolBoardSensors\&.cpp\&.
 .PP
 References AnMplex, and EnMoisture\&.
 .PP
 Referenced by read()\&.
 .PP
 .nf
-444 {
-445       digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
-446       
-447       digitalWrite(AnMplex, HIGH);          //enable analog Switch to get the moisture
-448       
-449       delay(2000);
-450       
-451       int val = analogRead(A0);                       //read the value form the moisture sensor
-452       
-453       float result = (float)map(val, 0, 890, 0, 100);   
-454 
-455       digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
-456       
-457       return (result);
-458 }
+445 {
+446       digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
+447       
+448       digitalWrite(AnMplex, HIGH);          //enable analog Switch to get the moisture
+449       
+450       delay(2000);
+451       
+452       int val = analogRead(A0);                       //read the value form the moisture sensor
+453       
+454       float result = (float)map(val, 0, 890, 0, 100);   
+455 
+456       digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
+457       
+458       return (result);
+459 }
 .fi
 .SS "float CoolBoardSensors::readVBat ()"
 \fBCoolBoardSensors::readVBat()\fP: This method is provided to read the Battery Voltage\&.
@@ -534,53 +535,53 @@ a float representing the battery voltage
 .PP
 
 .PP
-Definition at line 422 of file CoolBoardSensors\&.cpp\&.
+Definition at line 423 of file CoolBoardSensors\&.cpp\&.
 .PP
 References AnMplex\&.
 .PP
 Referenced by read()\&.
 .PP
 .nf
-423 {
-424     digitalWrite(AnMplex, LOW);                                  //Enable Analog Switch to get the batterie tension
-425     
-426     delay(200);
-427     
-428     int raw = analogRead(A0);                                    //read in batterie tension
-429     
-430     float val = 6\&.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
-431 
-432     return (val);   
-433 }
+424 {
+425     digitalWrite(AnMplex, LOW);                                  //Enable Analog Switch to get the batterie tension
+426     
+427     delay(200);
+428     
+429     int raw = analogRead(A0);                                    //read in batterie tension
+430     
+431     float val = 6\&.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
+432 
+433     return (val);   
+434 }
 .fi
 .SS "void CoolBoardSensors::setEnvSensorSettings (uint8_t commInterface = \fCI2C_MODE\fP, uint8_t I2CAddress = \fC0x76\fP, uint8_t runMode = \fC3\fP, uint8_t tStandby = \fC0\fP, uint8_t filter = \fC0\fP, uint8_t tempOverSample = \fC1\fP, uint8_t pressOverSample = \fC1\fP, uint8_t humidOverSample = \fC1\fP)"
 CoolBoardSensors::setEnvSensorSetting(): This method is provided to set the enviornment sensor settings , if argument is ommitted , default value will be assigned 
 .PP
-Definition at line 390 of file CoolBoardSensors\&.cpp\&.
+Definition at line 391 of file CoolBoardSensors\&.cpp\&.
 .PP
 References envSensor\&.
 .PP
 Referenced by begin()\&.
 .PP
 .nf
-395 {
-396   envSensor\&.settings\&.commInterface = commInterface;      
-397   
-398   envSensor\&.settings\&.I2CAddress = I2CAddress;
-399   
-400   envSensor\&.settings\&.runMode = runMode; 
-401   
-402   envSensor\&.settings\&.tStandby = tStandby; 
-403   
-404   envSensor\&.settings\&.filter = filter; 
-405   
-406   envSensor\&.settings\&.tempOverSample = tempOverSample;
-407   
-408   envSensor\&.settings\&.pressOverSample = pressOverSample;
-409   
-410   envSensor\&.settings\&.humidOverSample = humidOverSample;
-411 
-412 }
+396 {
+397   envSensor\&.settings\&.commInterface = commInterface;      
+398   
+399   envSensor\&.settings\&.I2CAddress = I2CAddress;
+400   
+401   envSensor\&.settings\&.runMode = runMode; 
+402   
+403   envSensor\&.settings\&.tStandby = tStandby; 
+404   
+405   envSensor\&.settings\&.filter = filter; 
+406   
+407   envSensor\&.settings\&.tempOverSample = tempOverSample;
+408   
+409   envSensor\&.settings\&.pressOverSample = pressOverSample;
+410   
+411   envSensor\&.settings\&.humidOverSample = humidOverSample;
+412 
+413 }
 .fi
 .SS "void CoolBoardSensors::setJsonSize (int jsonSize)"
 CoolBoardSensors::setJsonSize( JSON size): This method is provided to set the sensor board answer size 
@@ -597,16 +598,16 @@ References jsonSize\&.
 .SS "void CoolBoardSensors::stopReadI2C ()"
 \fBCoolBoardSensors::stopReadI2C()\fP: This method is provided to disable the I2C Interface on the sensor board 
 .PP
-Definition at line 204 of file CoolBoardSensors\&.cpp\&.
+Definition at line 205 of file CoolBoardSensors\&.cpp\&.
 .PP
 References EnI2C\&.
 .PP
 .nf
-205 {
-206 
-207     digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
-208 
-209 }
+206 {
+207 
+208     digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
+209 
+210 }
 .fi
 .SH "Member Data Documentation"
 .PP 

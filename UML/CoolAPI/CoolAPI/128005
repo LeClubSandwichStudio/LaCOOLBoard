@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 3
+  revision 4
   modified_by 5 "ashiroji"
   // class settings
   
@@ -68,7 +68,7 @@ ${inlines}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoard::begin():
-//	This method is provided to configure, 
+//	This method is provided to configure,
 //	begin the used CoolKit Parts.
 //	If Serial is enabled,it prints the configuration
 //	of the used parts.
@@ -98,7 +98,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //			-external Sensors activated/deactivated
 //			-mqtt server timeout
 //
-//	\\return true if configuration is done, 
+//	\\return true if configuration is done,
 //	false otherwise
 //
 
@@ -119,7 +119,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 "
 	cpp_def "//	CoolBoard::update(mqtt answer):
 //	This method is provided to handle the
-//	configuration update of the different parts 
+//	configuration update of the different parts
 //
 
 ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}${throw}${staticnl}{
@@ -160,7 +160,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_def "//	CoolBoard::onLineMode():
 //	This method is provided to manage the online
 //	mode:	-update clock
-//		-read sensors
+//		-read sensor
 //		-do actions
 //		-publish data
 //		-read answer
@@ -184,8 +184,8 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_def "//	CoolBoard::connect():
 //	This method is provided to manage the network
 //	connection and the mqtt connection.
-//	
-//	 \\return mqtt client state		
+//
+//	 \\return mqtt client state
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
@@ -197,14 +197,15 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	
       end
 
-      operation 146309 "getInterval"
+      operation 152965 "getLogInterval"
 	preserve_cpp_body_indent public explicit_return_type "uint16_t"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolBoard::getInterval():
+	cpp_def "//	CoolBoard::getLogInterval():
 //	This method is provided to get
 //	the log interval
+//
 //	\\return interval value in ms
 //
 
@@ -240,12 +241,57 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 
       operation 146437 "sleep"
 	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 1
+	  param in name "interval" explicit_type "int"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::sleep(int interval):
+//	This method is provided to allow the
+//	board to enter deepSleep mode for
+//	a period of time equal to interval in ms 
+//
+
+${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 153093 "readSensors"
+	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolBoard::sleep():
-//	This method is provided to either
-//	use delay or set esp to deep sleep
+	cpp_def "//	CoolBoard::readSensors():
+//	This method is provided to read and
+//	format all the sensors data in a
+//	single json.
+//	
+//	\\return	json string of all the sensors read.
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 153221 "userData"
+	preserve_cpp_body_indent public explicit_return_type "String"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::userData():
+//	This method is provided to
+//	return the user's data.
+//	
+//	\\return json string of the user's data
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
@@ -341,8 +387,20 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	  b parent class_ref 129029 // ExternalSensors
       end
 
+      attribute 150533 "userActive"
+	private explicit_type "bool"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
       attribute 128133 "ireneActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
 	java_decl ""
@@ -354,7 +412,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       end
 
       attribute 128261 "jetpackActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
 	java_decl ""
@@ -366,7 +424,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       end
 
       attribute 128389 "externalSensorsActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
 	java_decl ""
@@ -377,7 +435,19 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	MysqlColumn
       end
 
-      attribute 143877 "interval"
+      attribute 150661 "sleepActive"
+	private explicit_type "bool"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
+      attribute 150789 "logInterval"
 	private explicit_type "uint16_t"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
@@ -387,6 +457,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	idl_decl ""
 	mysql_decl ""
 	MysqlColumn
+	comment "ms"
       end
 
       attribute 128645 "answerJsonSize"
@@ -439,30 +510,6 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 
       attribute 129157 "answer"
 	private explicit_type "String"
-	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-	mysql_decl ""
-	MysqlColumn
-      end
-
-      attribute 129285 "cnxStatus"
-	private explicit_type "byte"
-	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-	mysql_decl ""
-	MysqlColumn
-      end
-
-      attribute 144005 "station"
-	private explicit_type "byte"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
 	java_decl ""
@@ -550,6 +597,8 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${vola
 //	This method is provided to save the data on the local
 //	memory when there is no internet available
 //
+//	sets the saved data flag to TRUE when successful
+//
 //	\\return true if the data was saved,
 //	false otherwise
 //
@@ -561,6 +610,63 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}, ${t1} ${p1}${)}${cons
 	
 	
 	
+      end
+
+      operation 153349 "isDataSaved"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolFileSystem::isDataSaved():
+//	This method is provided to report
+//	wether there is sensor data saved in the
+//	File System.
+//
+//	\\return true if there is data saved, false
+//	otherwise
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 153477 "getSensorSavedData"
+	preserve_cpp_body_indent public explicit_return_type "String"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolFileSystem::getSensorData():
+//	This method is provided to return the 
+//	sensor data saved in the File System
+//
+//	\\return string json of the saved sensor 
+//	data file
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      attribute 150917 "savedData"
+	private explicit_type "bool"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
       end
     end
 
@@ -1380,13 +1486,13 @@ ${inlines}
  
 "
       operation 133765 "begin"
-	preserve_cpp_body_indent public explicit_return_type "bool"
+	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolTime::begin():
 //	This method is provided to init the rtc,
-//	the udp connection and the Sync Provider
+//	the udp connection 
 //
 //	\\return true if successful,false otherwise
 //
@@ -1509,21 +1615,40 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
       end
 
       operation 134533 "getTimeDate"
-	preserve_cpp_body_indent public explicit_return_type "void"
-	nparams 6
-	  param inout name "year" explicit_type "int"
-	  param inout name "month" explicit_type "int"
-	  param inout name "day" explicit_type "int"
-	  param inout name "hour" explicit_type "int"
-	  param inout name "minute" explicit_type "int"
-	  param inout name "second" explicit_type "int"
-	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}, ${t1} & ${p1}${v1}, ${t2} & ${p2}${v2}, ${t3} & ${p3}${v3}, ${t4} & ${p4}${v4}, ${t5} & ${p5}${v5}${)}${const}${volatile}${throw}${abstract};
+	preserve_cpp_body_indent public explicit_return_type "tmElements_t"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolTime::getTimeDate(year,month,day,hour,minute,seconds):
+	cpp_def "//	CoolTime::getTimeDate():
 //	This method is provided to get the RTC Time
 //
+//	\\returns a tmElements_t structre that has
+//	the time in it
+//
 
-${inline}${type} ${class}::${name}${(}${t0} & ${p0}, ${t1} & ${p1}, ${t2} & ${p2}, ${t3} & ${p3}, ${t4} & ${p4}, ${t5} & ${p5}${)}${const}${throw}${staticnl}{
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 153989 "getESDate"
+	preserve_cpp_body_indent public explicit_return_type "String"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolTime::getESD():
+//	This method is provided to return an
+//	Elastic Search compatible date Format
+//	
+//	\\return date String in Elastic Search
+//	format
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -1621,18 +1746,6 @@ ${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${thro
 	
       end
 
-      attribute 132613 "rtc"
-	private explicit_type "DS1337"
-	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-	mysql_decl ""
-	MysqlColumn
-      end
-
       attribute 132741 "timeSync"
 	private explicit_type "ulong"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
@@ -1707,6 +1820,30 @@ ${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${thro
 	mysql_decl ""
 	MysqlColumn
 	comment "buffer to hold incoming & outgoing packets"
+      end
+
+      attribute 151301 "tmSet"
+	private explicit_type "tmElements_t"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
+      attribute 132613 "rtc"
+	private explicit_type "DS1337RTC"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
       end
     end
 
@@ -1794,6 +1931,30 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}
 	
       end
 
+      operation 153605 "publish"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 2
+	  param in name "data" explicit_type "char"
+	  param in name "logInterval" explicit_type "int"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} * ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolMQTT::publish(data):
+//	This method is provided to publish data
+//	to the out topic every logInterval ms
+//
+//	\\return true if publish successful,
+//	false otherwise
+//
+
+${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}, ${t1} ${p1}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
       operation 132869 "read"
 	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 0
@@ -1813,17 +1974,17 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	
       end
 
-      operation 132997 "config"
+      operation 153733 "config"
 	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 5
 	  param in name "mqttServer" explicit_type "char"
 	  param in name "inTopic" explicit_type "char"
 	  param in name "outTopic" explicit_type "char"
-	  param in name "clientId" explicit_type "char"
+	  param in name "user" explicit_type "char"
 	  param in name "bufferSize" explicit_type "int"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} ${p0}[]${v0}, const ${t1} ${p1}[]${v1}, const ${t2} ${p2}[]${v2}, const ${t3} ${p3}[]${v3}, ${t4} ${p4}${v4}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolMQTT::config(server,in topic, out topic , client id , buffer size):
+	cpp_def "//	CoolMQTT::config(server,in topic, out topic , user Id, buffer size):
 //	This method is provided to manually configure the mqtt client	
 //
 //
@@ -1957,6 +2118,24 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	
       end
 
+      operation 153861 "getUser"
+	preserve_cpp_body_indent public explicit_return_type "String"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolMQTT::getUser():
+//	This method is provided to get the user name
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
       attribute 131461 "mqttServer"
 	private explicit_type "char"
 	multiplicity "[50]"
@@ -2008,7 +2187,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	MysqlColumn
       end
 
-      attribute 131973 "clientId"
+      attribute 151045 "user"
 	private explicit_type "char"
 	multiplicity "[50]"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${multiplicity}${value};
@@ -2068,6 +2247,20 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	mysql_decl ""
 	MysqlColumn
       end
+
+      attribute 151173 "previousLogTime"
+	private explicit_type "ulong"
+	init_value "= 0"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
     end
 
     class 128773 "Jetpack"
@@ -2155,6 +2348,49 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${vola
 	comment "writes to the Jetpack"
       end
 
+      operation 154117 "setBit"
+	class_operation preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 1
+	  param in name "pin" explicit_type "byte"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	Jetpack::setBit(pin):
+//	This method is provided to
+//	directly put to HIGH the pin
+//	passed as argument
+//
+
+${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+	comment "writes to a single pin of the Jetpack"
+      end
+
+      operation 154245 "resetBit"
+	class_operation preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 1
+	  param in name "pin" explicit_type "byte"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	Jetpack::setBit(pin):
+//	This method is provided to
+//	directly put to LOW the pin
+//	passed as argument
+//
+
+${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
       operation 139525 "doAction"
 	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 2
@@ -2188,7 +2424,6 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}, ${t1} ${p1}${)}${cons
 	
 	
 	
-	comment "writes to a single pin of the Jetpack"
       end
 
       operation 139653 "config"
@@ -2243,8 +2478,6 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	idl_decl ""
 	mysql_decl ""
 	MysqlColumn
-	comment " byte actors; //pin for the actor 
-"
       end
 
       attribute 136453 "actorsNumber"
@@ -2285,7 +2518,7 @@ ${inlines}
 	end
 
 	attribute 136709 "actif"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
 "
 	  java_decl ""
@@ -2306,11 +2539,51 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "if temporal == 1 this is the time spent inactif in ms"
 	end
 
 	attribute 136965 "high"
 	  public explicit_type "int"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "if temporal==1 this is the time spent actif in ms"
+	end
+
+	attribute 151429 "temporal"
+	  public explicit_type "bool"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 151557 "actifTime"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 151685 "inactifTime"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
 	  java_decl ""
 	  php_decl ""

@@ -36,7 +36,7 @@ void \hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{print\
 \subsection{Detailed Description}
 This class handles the external sensors run time defintion , configuartion and actions. 
 
-Definition at line 26 of file External\+Sensors.\+h.
+Definition at line \hyperlink{_external_sensors_8h_source_l00026}{26} of file \hyperlink{_external_sensors_8h_source}{External\+Sensors.\+h}.
 
 
 
@@ -49,8 +49,42 @@ Definition at line 26 of file External\+Sensors.\+h.
 
 \hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{External\+Sensors\+::begin()}\+: This method is provided to initialise the external sensors. 
 
-Definition at line 30 of file External\+Sensors.\+cpp.
+Definition at line \hyperlink{_external_sensors_8cpp_source_l00030}{30} of file \hyperlink{_external_sensors_8cpp_source}{External\+Sensors.\+cpp}.
 
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}.
+
+
+\begin{DoxyCode}
+00031 \{
+00032     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i< this->sensorsNumber ; i++)
+00033     \{
+00034         \textcolor{keywordflow}{if}( (sensors[i].reference) == \textcolor{stringliteral}{"NDIR\_I2C"} )
+00035         \{   
+00036             std::unique\_ptr< ExternalSensor<NDIR\_I2C> > sensorCO2(\textcolor{keyword}{new} 
+      \hyperlink{class_external_sensor_3_01_n_d_i_r___i2_c_01_4}{ExternalSensor<NDIR\_I2C>} (77));
+00037 
+00038 
+00039             sensors[i].exSensor= sensorCO2.release();                       \textcolor{comment}{// using std::move;}
+00040             sensors[i].exSensor->begin();
+00041 
+00042         \}
+00043         \textcolor{keywordflow}{if}( (sensors[i].reference) == \textcolor{stringliteral}{"DallasTemperature"})
+00044         \{
+00045             OneWire oneWire(0);
+00046             std::unique\_ptr< ExternalSensor<DallasTemperature> > dallasTemp(\textcolor{keyword}{new} 
+      \hyperlink{class_external_sensor_3_01_dallas_temperature_01_4}{ExternalSensor<DallasTemperature>} ());
+00047              ;
+00048             sensors[i].exSensor=dallasTemp.release();
+00049             sensors[i].exSensor->begin();
+00050             
+00051         \}
+00052         
+00053         
+00054     \}
+00055 \}
+\end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -71,8 +105,163 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 113 of file External\+Sensors.\+cpp.
+Definition at line \hyperlink{_external_sensors_8cpp_source_l00118}{118} of file \hyperlink{_external_sensors_8cpp_source}{External\+Sensors.\+cpp}.
 
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}, and \hyperlink{_cool_board_8cpp_source_l00411}{Cool\+Board\+::update()}.
+
+
+\begin{DoxyCode}
+00119 \{
+00120     \textcolor{comment}{//read config file}
+00121     \textcolor{comment}{//update data}
+00122     File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
+00123 
+00124     \textcolor{keywordflow}{if} (!externalSensorsConfig) 
+00125     \{
+00126         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00127     \}
+00128     \textcolor{keywordflow}{else}
+00129     \{
+00130         \textcolor{keywordtype}{size\_t} size = externalSensorsConfig.size();
+00131         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+00132         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+00133 
+00134         externalSensorsConfig.readBytes(buf.get(), size);
+00135         DynamicJsonBuffer jsonBuffer;
+00136         JsonObject& json = jsonBuffer.parseObject(buf.get());
+00137 
+00138         \textcolor{keywordflow}{if} (!json.success()) 
+00139         \{
+00140               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00141         \} 
+00142         \textcolor{keywordflow}{else}
+00143         \{   
+00144             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"jsonSize"}]!=NULL )
+00145             \{           
+00146                 this->jsonSize=json[\textcolor{stringliteral}{"jsonSize"}];
+00147             \}
+00148             \textcolor{keywordflow}{else}
+00149             \{
+00150                 this->jsonSize=this->jsonSize;
+00151             \}
+00152             json[\textcolor{stringliteral}{"jsonSize"}]=this->jsonSize;            
+00153 
+00154             
+00155             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"sensorsNumber"}]!=NULL)
+00156             \{
+00157                 this->sensorsNumber = json[\textcolor{stringliteral}{"sensorsNumber"}];
+00158                 
+00159                 
+00160 
+00161                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<sensorsNumber;i++)
+00162                 \{   String name=\textcolor{stringliteral}{"sensor"}+String(i);
+00163                     
+00164                     \textcolor{keywordflow}{if}(json[name].success())
+00165                     \{  
+00166                         JsonObject& sensorJson=json[name];
+00167                         
+00168                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"reference"}].success() )
+00169                         \{  
+00170                             this->sensors[i].reference =sensorJson[\textcolor{stringliteral}{"reference"}].as<String>();
+00171                         \}
+00172                         \textcolor{keywordflow}{else}
+00173                         \{
+00174                             this->sensors[i].reference=this->sensors[i].reference;                          
+00175                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} );     
+00176                         \}
+00177                         sensorJson[\textcolor{stringliteral}{"reference"}]=this->sensors[i].reference;
+00178 
+00179                     
+00180                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"type"}].success() )
+00181                         \{                   
+00182                             this->sensors[i].type=sensorJson[\textcolor{stringliteral}{"type"}].as<String>();
+00183                         \}
+00184                         \textcolor{keywordflow}{else}
+00185                         \{
+00186                             this->sensors[i].type=this->sensors[i].type;
+00187                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+00188                         \}
+00189                         sensorJson[\textcolor{stringliteral}{"type"}]=this->sensors[i].type;
+00190                     
+00191                     
+00192                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"connection"}].success() )
+00193                         \{
+00194                             this->sensors[i].connection=sensorJson[\textcolor{stringliteral}{"connection"}].as<String>();
+00195                         \}
+00196                         \textcolor{keywordflow}{else}
+00197                         \{
+00198                             this->sensors[i].connection=this->sensors[i].connection;
+00199                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+00200                         \}
+00201                         sensorJson[\textcolor{stringliteral}{"connection"}]=this->sensors[i].connection;
+00202 
+00203                     
+00204                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"dataSize"}].success() )
+00205                         \{               
+00206                             this->sensors[i].dataSize=sensorJson[\textcolor{stringliteral}{"dataSize"}];
+00207                         \}
+00208                         \textcolor{keywordflow}{else}
+00209                         \{
+00210                             this->sensors[i].dataSize=this->sensors[i].dataSize;
+00211                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+00212                         \}
+00213                         sensorJson[\textcolor{stringliteral}{"dataSize"}]=this->sensors[i].dataSize;
+00214 
+00215                     
+00216                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"address"}].success() )
+00217                         \{                   
+00218                             this->sensors[i].address=sensorJson[\textcolor{stringliteral}{"address"}];
+00219                         \}
+00220                         \textcolor{keywordflow}{else}
+00221                         \{   
+00222                             this->sensors[i].address=this->sensors[i].address;
+00223                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+00224                         \}
+00225                         sensorJson[\textcolor{stringliteral}{"address"}]=this->sensors[i].address;
+00226                     
+00227     
+00228                     \}
+00229                     \textcolor{keywordflow}{else}
+00230                     \{
+00231                         this->sensors[i]=this->sensors[i];                  
+00232                     \}
+00233                                             
+00234                     json[name][\textcolor{stringliteral}{"reference"}]=this->sensors[i].reference;
+00235                     json[name][\textcolor{stringliteral}{"type"}]=this->sensors[i].type;
+00236                     json[name][\textcolor{stringliteral}{"connection"}]=this->sensors[i].connection;
+00237                     json[name][\textcolor{stringliteral}{"dataSize"}]=this->sensors[i].dataSize;
+00238                     json[name][\textcolor{stringliteral}{"address"}]=this->sensors[i].address;
+00239                 \}
+00240  
+00241             \}
+00242             \textcolor{keywordflow}{else}
+00243             \{
+00244                 this->sensorsNumber=this->sensorsNumber;
+00245             \}
+00246             json[\textcolor{stringliteral}{"sensorsNumber"}]=this->sensorsNumber;
+00247 
+00248             externalSensorsConfig.close();
+00249             externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});
+00250 
+00251             \textcolor{keywordflow}{if}(!externalSensorsConfig)
+00252             \{
+00253                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00254             \}
+00255             
+00256             json.printTo(externalSensorsConfig);
+00257             externalSensorsConfig.close();
+00258             
+00259             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+00260         \}
+00261     \}   
+00262     
+00263 
+00264 
+00265 
+00266 \}
+\end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -93,8 +282,14 @@ the json data size
 \end{DoxyReturn}
 
 
-Definition at line 100 of file External\+Sensors.\+cpp.
+Definition at line \hyperlink{_external_sensors_8cpp_source_l00105}{105} of file \hyperlink{_external_sensors_8cpp_source}{External\+Sensors.\+cpp}.
 
+
+\begin{DoxyCode}
+00106 \{
+00107     \textcolor{keywordflow}{return}(this->jsonSize );
+00108 \}
+\end{DoxyCode}
 \mbox{\Hypertarget{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}\label{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}} 
 \index{External\+Sensors@{External\+Sensors}!print\+Conf@{print\+Conf}}
 \index{print\+Conf@{print\+Conf}!External\+Sensors@{External\+Sensors}}
@@ -103,8 +298,29 @@ Definition at line 100 of file External\+Sensors.\+cpp.
 
 \hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{External\+Sensors\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 265 of file External\+Sensors.\+cpp.
+Definition at line \hyperlink{_external_sensors_8cpp_source_l00273}{273} of file \hyperlink{_external_sensors_8cpp_source}{External\+Sensors.\+cpp}.
 
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}.
+
+
+\begin{DoxyCode}
+00274 \{
+00275     Serial.println(\textcolor{stringliteral}{"External Sensors config "});
+00276     Serial.println(sensorsNumber);
+00277     Serial.println(jsonSize);
+00278     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<sensorsNumber;i++)
+00279     \{
+00280         Serial.println(this->sensors[i].reference);
+00281         Serial.println(this->sensors[i].type);
+00282         Serial.println(this->sensors[i].connection);
+00283         Serial.println(this->sensors[i].dataSize);
+00284         Serial.println(this->sensors[i].address);
+00285     
+00286     \}
+00287 \}
+\end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -125,9 +341,47 @@ json string that contains the sensors data
 \end{DoxyReturn}
 
 
-Definition at line 65 of file External\+Sensors.\+cpp.
+Definition at line \hyperlink{_external_sensors_8cpp_source_l00065}{65} of file \hyperlink{_external_sensors_8cpp_source}{External\+Sensors.\+cpp}.
 
-Here is the caller graph for this function\+:\nopagebreak
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00509}{Cool\+Board\+::read\+Sensors()}.
+
+
+\begin{DoxyCode}
+00066 \{
+00067 
+00068     String data;
+00069     DynamicJsonBuffer  jsonBuffer(jsonSize) ;
+00070     JsonObject& root = jsonBuffer.createObject();
+00071 
+00072     \textcolor{keywordflow}{if}(!root.success() )
+00073     \{
+00074 
+00075      \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"00 "});
+00076     \}
+00077 
+00078     \textcolor{keywordflow}{else}
+00079     \{
+00080         \textcolor{keywordflow}{if}(sensorsNumber!=0)
+00081         \{
+00082             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<sensorsNumber;i++)
+00083             \{
+00084             
+00085                 root[sensors[i].type]=sensors[i].exSensor->read();      
+00086             \}
+00087         \}   
+00088         
+00089         Serial.println(\textcolor{stringliteral}{" "});
+00090         root.printTo(data);
+00091     
+00092         \textcolor{keywordflow}{return}(data);
+00093     \}
+00094 
+00095 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode

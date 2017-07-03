@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['actif',['actif',['../structJetpack_1_1state.html#a3d62ba1ec895f03ee171efa7cdecf17f',1,'Jetpack::state']]],
+  ['actif',['actif',['../structJetpack_1_1state.html#aa177541689bbaea21a4650a083b0df77',1,'Jetpack::state']]],
+  ['actiftime',['actifTime',['../structJetpack_1_1state.html#af2e1cc323ef9ffcc3cf4d203f85d726b',1,'Jetpack::state']]],
   ['action',['action',['../classJetpack.html#aca3142925a7b0834b34ae91d26af7765',1,'Jetpack']]],
   ['active',['active',['../structIrene3000_1_1state.html#af7ff649f20b9a2fb6ca0f949ee9a25ce',1,'Irene3000::state']]],
   ['actors',['actors',['../classJetpack.html#a7e16d2f97837f9712a2e6de1c50d99db',1,'Jetpack']]],

@@ -1,4 +1,4 @@
-.TH "Irene3000" 3 "Wed Jun 28 2017" "CoolAPI" \" -*- nroff -*-
+.TH "Irene3000" 3 "Mon Jul 3 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -26,19 +26,7 @@ Irene3000 \- This class is provided to manage the \fBIrene3000\fP Ph/Temperature
 .RI "void \fBbegin\fP ()"
 .br
 .ti -1c
-.RI "void \fBcalcpHSlope\fP ()"
-.br
-.ti -1c
-.RI "void \fBcalibratepH4\fP (adsGain_t gain)"
-.br
-.ti -1c
-.RI "void \fBcalibratepH7\fP (adsGain_t gain)"
-.br
-.ti -1c
 .RI "bool \fBconfig\fP ()"
-.br
-.ti -1c
-.RI "adsGain_t \fBgainConvert\fP (uint16_t tempGain)"
 .br
 .ti -1c
 .RI "void \fBprintConf\fP ()"
@@ -47,10 +35,13 @@ Irene3000 \- This class is provided to manage the \fBIrene3000\fP Ph/Temperature
 .RI "String \fBread\fP ()"
 .br
 .ti -1c
-.RI "int \fBreadADSChannel2\fP (adsGain_t gain)"
+.RI "int \fBreadButton\fP (adsGain_t gain)"
 .br
 .ti -1c
-.RI "int \fBreadButton\fP (adsGain_t gain)"
+.RI "void \fBsetGain\fP (adsGain_t gain)"
+.br
+.ti -1c
+.RI "int \fBreadADSChannel2\fP (adsGain_t gain)"
 .br
 .ti -1c
 .RI "float \fBreadPh\fP (adsGain_t gain)"
@@ -62,35 +53,44 @@ Irene3000 \- This class is provided to manage the \fBIrene3000\fP Ph/Temperature
 .RI "void \fBresetParams\fP (void)"
 .br
 .ti -1c
-.RI "void \fBsetGain\fP (adsGain_t gain)"
+.RI "void \fBcalibratepH7\fP (adsGain_t gain)"
+.br
+.ti -1c
+.RI "void \fBcalibratepH4\fP (adsGain_t gain)"
+.br
+.ti -1c
+.RI "void \fBcalcpHSlope\fP ()"
+.br
+.ti -1c
+.RI "adsGain_t \fBgainConvert\fP (uint16_t tempGain)"
 .br
 .in -1c
 .SS "Private Attributes"
 
 .in +1c
 .ti -1c
-.RI "struct \fBIrene3000::state\fP \fBadc2\fP"
-.br
-.ti -1c
 .RI "Adafruit_ADS1115 \fBads\fP"
-.br
-.ti -1c
-.RI "int \fBireneJsonSize\fP"
-.br
-.ti -1c
-.RI "const float \fBopampGain\fP = 5\&.25"
 .br
 .ti -1c
 .RI "struct \fBIrene3000::parameters_T\fP \fBparams\fP"
 .br
 .ti -1c
+.RI "struct \fBIrene3000::state\fP \fBwaterTemp\fP"
+.br
+.ti -1c
 .RI "struct \fBIrene3000::state\fP \fBphProbe\fP"
+.br
+.ti -1c
+.RI "struct \fBIrene3000::state\fP \fBadc2\fP"
+.br
+.ti -1c
+.RI "int \fBireneJsonSize\fP"
 .br
 .ti -1c
 .RI "const float \fBvRef\fP = 1\&.024"
 .br
 .ti -1c
-.RI "struct \fBIrene3000::state\fP \fBwaterTemp\fP"
+.RI "const float \fBopampGain\fP = 5\&.25"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -382,10 +382,10 @@ Definition at line 35 of file irene3000\&.cpp\&.
 .PP
 References Irene3000::state::active, adc2, Irene3000::state::gain, ireneJsonSize, phProbe, readADSChannel2(), readPh(), readTemp(), Irene3000::state::type, and waterTemp\&.
 .PP
-Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
+Referenced by CoolBoard::readSensors()\&.
 .PP
 .nf
-36 {   
+36 {  
 37     String data;
 38     DynamicJsonBuffer jsonBuffer(ireneJsonSize);
 39     JsonObject& root = jsonBuffer\&.createObject();

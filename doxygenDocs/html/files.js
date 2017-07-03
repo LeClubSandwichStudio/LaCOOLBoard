@@ -11,8 +11,8 @@ var files =
     [ "CoolBoardSensors.cpp", "CoolBoardSensors_8cpp.html", null ],
     [ "CoolBoardSensors.h", "CoolBoardSensors_8h.html", [
       [ "CoolBoardSensors", "classCoolBoardSensors.html", "classCoolBoardSensors" ],
-      [ "airActive", "structCoolBoardSensors_1_1airActive.html", "structCoolBoardSensors_1_1airActive" ],
-      [ "lightActive", "structCoolBoardSensors_1_1lightActive.html", "structCoolBoardSensors_1_1lightActive" ]
+      [ "lightActive", "structCoolBoardSensors_1_1lightActive.html", "structCoolBoardSensors_1_1lightActive" ],
+      [ "airActive", "structCoolBoardSensors_1_1airActive.html", "structCoolBoardSensors_1_1airActive" ]
     ] ],
     [ "CoolFileSystem.cpp", "CoolFileSystem_8cpp.html", null ],
     [ "CoolFileSystem.h", "CoolFileSystem_8h.html", [
@@ -27,8 +27,8 @@ var files =
     [ "ExternalSensor.h", "ExternalSensor_8h.html", [
       [ "BaseExternalSensor", "classBaseExternalSensor.html", "classBaseExternalSensor" ],
       [ "ExternalSensor", "classExternalSensor.html", "classExternalSensor" ],
-      [ "ExternalSensor< DallasTemperature >", "classExternalSensor_3_01DallasTemperature_01_4.html", "classExternalSensor_3_01DallasTemperature_01_4" ],
-      [ "ExternalSensor< NDIR_I2C >", "classExternalSensor_3_01NDIR__I2C_01_4.html", "classExternalSensor_3_01NDIR__I2C_01_4" ]
+      [ "ExternalSensor< NDIR_I2C >", "classExternalSensor_3_01NDIR__I2C_01_4.html", "classExternalSensor_3_01NDIR__I2C_01_4" ],
+      [ "ExternalSensor< DallasTemperature >", "classExternalSensor_3_01DallasTemperature_01_4.html", "classExternalSensor_3_01DallasTemperature_01_4" ]
     ] ],
     [ "ExternalSensors.cpp", "ExternalSensors_8cpp.html", null ],
     [ "ExternalSensors.h", "ExternalSensors_8h.html", [

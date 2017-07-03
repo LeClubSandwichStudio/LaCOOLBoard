@@ -29,22 +29,22 @@ struct \hyperlink{structExternalSensors_1_1sensor}{sensor}
 \item 
 void \hyperlink{classExternalSensors_a58ede0d786a86417254708870f04a21e}{begin} ()
 \item 
+String \hyperlink{classExternalSensors_a53177b81eca3be89508b5511ddcd00fc}{read} ()
+\item 
 bool \hyperlink{classExternalSensors_a862a4bd11346b37270d0244c2adabe5a}{config} ()
 \item 
 int \hyperlink{classExternalSensors_a8e3a93efa8f5a0477f300e26084b6625}{get\+Json\+Size} ()
 \item 
 void \hyperlink{classExternalSensors_a78c2bf55084435dd51d3c559b2d3c6f3}{print\+Conf} ()
-\item 
-String \hyperlink{classExternalSensors_a53177b81eca3be89508b5511ddcd00fc}{read} ()
 \end{DoxyCompactItemize}
 \subsection*{Private Attributes}
 \begin{DoxyCompactItemize}
 \item 
-int \hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{json\+Size}
-\item 
 struct \hyperlink{structExternalSensors_1_1sensor}{External\+Sensors\+::sensor} \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors} \mbox{[}50\mbox{]}
 \item 
 int \hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensors\+Number}
+\item 
+int \hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{json\+Size}
 \end{DoxyCompactItemize}
 
 
@@ -105,16 +105,14 @@ Referenced by Cool\+Board\+::begin().
 54     \}
 55 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=340pt]{classExternalSensors_a58ede0d786a86417254708870f04a21e_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -134,7 +132,7 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 113 of file External\+Sensors.\+cpp.
+Definition at line 118 of file External\+Sensors.\+cpp.
 
 
 
@@ -146,163 +144,165 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-114 \{
-115     \textcolor{comment}{//read config file}
-116     \textcolor{comment}{//update data}
-117     File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
-118 
-119     \textcolor{keywordflow}{if} (!externalSensorsConfig) 
-120     \{
-121         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-122     \}
-123     \textcolor{keywordflow}{else}
-124     \{
-125         \textcolor{keywordtype}{size\_t} size = externalSensorsConfig.size();
-126         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-127         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-128 
-129         externalSensorsConfig.readBytes(buf.get(), size);
-130         DynamicJsonBuffer jsonBuffer;
-131         JsonObject& json = jsonBuffer.parseObject(buf.get());
-132 
-133         \textcolor{keywordflow}{if} (!json.success()) 
-134         \{
-135               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-136         \} 
-137         \textcolor{keywordflow}{else}
-138         \{   
-139             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"jsonSize"}]!=NULL )
-140             \{           
-141                 this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize}=json[\textcolor{stringliteral}{"jsonSize"}];
-142             \}
-143             \textcolor{keywordflow}{else}
-144             \{
-145                 this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize}=this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize};
-146             \}
-147             json[\textcolor{stringliteral}{"jsonSize"}]=this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize};            
-148 
-149             
-150             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"sensorsNumber"}]!=NULL)
-151             \{
-152                 this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber} = json[\textcolor{stringliteral}{"sensorsNumber"}];
-153                 
-154                 
-155 
-156                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
-157                 \{   String name=\textcolor{stringliteral}{"sensor"}+String(i);
-158                     
-159                     \textcolor{keywordflow}{if}(json[name].success())
-160                     \{  
-161                         JsonObject& sensorJson=json[name];
-162                         
-163                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"reference"}].success() )
-164                         \{  
-165                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference} =sensorJson[\textcolor{stringliteral}{"reference"}].as<String>(
+119 \{
+120     \textcolor{comment}{//read config file}
+121     \textcolor{comment}{//update data}
+122     File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
+123 
+124     \textcolor{keywordflow}{if} (!externalSensorsConfig) 
+125     \{
+126         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+127     \}
+128     \textcolor{keywordflow}{else}
+129     \{
+130         \textcolor{keywordtype}{size\_t} size = externalSensorsConfig.size();
+131         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+132         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+133 
+134         externalSensorsConfig.readBytes(buf.get(), size);
+135         DynamicJsonBuffer jsonBuffer;
+136         JsonObject& json = jsonBuffer.parseObject(buf.get());
+137 
+138         \textcolor{keywordflow}{if} (!json.success()) 
+139         \{
+140               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+141         \} 
+142         \textcolor{keywordflow}{else}
+143         \{   
+144             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"jsonSize"}]!=NULL )
+145             \{           
+146                 this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize}=json[\textcolor{stringliteral}{"jsonSize"}];
+147             \}
+148             \textcolor{keywordflow}{else}
+149             \{
+150                 this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize}=this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize};
+151             \}
+152             json[\textcolor{stringliteral}{"jsonSize"}]=this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize};            
+153 
+154             
+155             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"sensorsNumber"}]!=NULL)
+156             \{
+157                 this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber} = json[\textcolor{stringliteral}{"sensorsNumber"}];
+158                 
+159                 
+160 
+161                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+162                 \{   String name=\textcolor{stringliteral}{"sensor"}+String(i);
+163                     
+164                     \textcolor{keywordflow}{if}(json[name].success())
+165                     \{  
+166                         JsonObject& sensorJson=json[name];
+167                         
+168                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"reference"}].success() )
+169                         \{  
+170                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference} =sensorJson[\textcolor{stringliteral}{"reference"}].as<String>(
       );
-166                         \}
-167                         \textcolor{keywordflow}{else}
-168                         \{
-169                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference}=this->
-      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};                           
-170                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} );     
 171                         \}
-172                         sensorJson[\textcolor{stringliteral}{"reference"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+172                         \textcolor{keywordflow}{else}
+173                         \{
+174                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference}=this->
+      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};                           
+175                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} );     
+176                         \}
+177                         sensorJson[\textcolor{stringliteral}{"reference"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
       \hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};
-173 
-174                     
-175                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"type"}].success() )
-176                         \{                   
-177                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=sensorJson[\textcolor{stringliteral}{"type"}].as<String>();
-178                         \}
-179                         \textcolor{keywordflow}{else}
-180                         \{
-181                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
-      \hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
-182                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+178 
+179                     
+180                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"type"}].success() )
+181                         \{                   
+182                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=sensorJson[\textcolor{stringliteral}{"type"}].as<String>();
 183                         \}
-184                         sensorJson[\textcolor{stringliteral}{"type"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
-185                     
-186                     
-187                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"connection"}].success() )
-188                         \{
-189                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection}=sensorJson[\textcolor{stringliteral}{"connection"}].as<String
+184                         \textcolor{keywordflow}{else}
+185                         \{
+186                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+      \hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+187                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+188                         \}
+189                         sensorJson[\textcolor{stringliteral}{"type"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+190                     
+191                     
+192                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"connection"}].success() )
+193                         \{
+194                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection}=sensorJson[\textcolor{stringliteral}{"connection"}].as<String
       >();
-190                         \}
-191                         \textcolor{keywordflow}{else}
-192                         \{
-193                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection}=this->
-      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection};
-194                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
 195                         \}
-196                         sensorJson[\textcolor{stringliteral}{"connection"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+196                         \textcolor{keywordflow}{else}
+197                         \{
+198                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection}=this->
+      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection};
+199                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+200                         \}
+201                         sensorJson[\textcolor{stringliteral}{"connection"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
       \hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection};
-197 
-198                     
-199                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"dataSize"}].success() )
-200                         \{               
-201                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize}=sensorJson[\textcolor{stringliteral}{"dataSize"}];
-202                         \}
-203                         \textcolor{keywordflow}{else}
-204                         \{
-205                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize}=this->
-      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize};
-206                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+202 
+203                     
+204                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"dataSize"}].success() )
+205                         \{               
+206                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize}=sensorJson[\textcolor{stringliteral}{"dataSize"}];
 207                         \}
-208                         sensorJson[\textcolor{stringliteral}{"dataSize"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize};
-209 
-210                     
-211                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"address"}].success() )
-212                         \{                   
-213                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=sensorJson[\textcolor{stringliteral}{"address"}];
-214                         \}
-215                         \textcolor{keywordflow}{else}
-216                         \{   
-217                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
-      \hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
-218                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+208                         \textcolor{keywordflow}{else}
+209                         \{
+210                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize}=this->
+      \hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize};
+211                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+212                         \}
+213                         sensorJson[\textcolor{stringliteral}{"dataSize"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize};
+214 
+215                     
+216                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"address"}].success() )
+217                         \{                   
+218                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=sensorJson[\textcolor{stringliteral}{"address"}];
 219                         \}
-220                         sensorJson[\textcolor{stringliteral}{"address"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
-221                     
-222     
-223                     \}
-224                     \textcolor{keywordflow}{else}
-225                     \{
-226                         this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i];                    
-227                     \}
-228                                             
-229                     \textcolor{comment}{//json[name]=this->sensors[i];                  }
-230 
-231                 \}
-232  
-233             \}
-234             \textcolor{keywordflow}{else}
-235             \{
-236                 this->sensorsNumber=this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
-237             \}
-238             json[\textcolor{stringliteral}{"sensorsNumber"}]=this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
-239 
-240             externalSensorsConfig.close();
-241             externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});
-242 
-243             \textcolor{keywordflow}{if}(!externalSensorsConfig)
-244             \{
-245                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-246             \}
-247             
-248             json.printTo(externalSensorsConfig);
-249             externalSensorsConfig.close();
-250             
-251             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-252         \}
-253     \}   
-254     
-255 
-256 
-257 
-258 \}
+220                         \textcolor{keywordflow}{else}
+221                         \{   
+222                             this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+      \hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+223                             Serial.println(\textcolor{stringliteral}{"Not Found Name "} ) ;                        
+224                         \}
+225                         sensorJson[\textcolor{stringliteral}{"address"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+226                     
+227     
+228                     \}
+229                     \textcolor{keywordflow}{else}
+230                     \{
+231                         this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i];                    
+232                     \}
+233                                             
+234                     json[name][\textcolor{stringliteral}{"reference"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};
+235                     json[name][\textcolor{stringliteral}{"type"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+236                     json[name][\textcolor{stringliteral}{"connection"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae3c8c1da809f2238bc9abde37a6c6022}{connection};
+237                     json[name][\textcolor{stringliteral}{"dataSize"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_ae9c669bb93befbe4b333920e7f357b80}{dataSize};
+238                     json[name][\textcolor{stringliteral}{"address"}]=this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+239                 \}
+240  
+241             \}
+242             \textcolor{keywordflow}{else}
+243             \{
+244                 this->sensorsNumber=this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
+245             \}
+246             json[\textcolor{stringliteral}{"sensorsNumber"}]=this->\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
+247 
+248             externalSensorsConfig.close();
+249             externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});
+250 
+251             \textcolor{keywordflow}{if}(!externalSensorsConfig)
+252             \{
+253                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+254             \}
+255             
+256             json.printTo(externalSensorsConfig);
+257             externalSensorsConfig.close();
+258             
+259             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+260         \}
+261     \}   
+262     
+263 
+264 
+265 
+266 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -322,7 +322,7 @@ the json data size
 \end{DoxyReturn}
 
 
-Definition at line 100 of file External\+Sensors.\+cpp.
+Definition at line 105 of file External\+Sensors.\+cpp.
 
 
 
@@ -330,9 +330,9 @@ References json\+Size.
 
 
 \begin{DoxyCode}
-101 \{
-102     \textcolor{keywordflow}{return}(this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize} );
-103 \}
+106 \{
+107     \textcolor{keywordflow}{return}(this->\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize} );
+108 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classExternalSensors_a78c2bf55084435dd51d3c559b2d3c6f3}\label{classExternalSensors_a78c2bf55084435dd51d3c559b2d3c6f3}} 
 \index{External\+Sensors@{External\+Sensors}!print\+Conf@{print\+Conf}}
@@ -342,7 +342,7 @@ References json\+Size.
 
 \hyperlink{classExternalSensors_a78c2bf55084435dd51d3c559b2d3c6f3}{External\+Sensors\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 265 of file External\+Sensors.\+cpp.
+Definition at line 273 of file External\+Sensors.\+cpp.
 
 
 
@@ -354,23 +354,22 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-266 \{
-267     Serial.println(\textcolor{stringliteral}{"External Sensors config "});
-268     Serial.println(\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber});
-269     Serial.println(\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize});
-270     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
-271     \{
-272         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].reference);
-273         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].type);
-274         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].connection);
-275         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].dataSize);
-276         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].address);
-277     
-278     \}
-279 \}
+274 \{
+275     Serial.println(\textcolor{stringliteral}{"External Sensors config "});
+276     Serial.println(\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber});
+277     Serial.println(\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize});
+278     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+279     \{
+280         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].reference);
+281         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].type);
+282         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].connection);
+283         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].dataSize);
+284         Serial.println(this->\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].address);
+285     
+286     \}
+287 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -398,7 +397,7 @@ References json\+Size, sensors, sensors\+Number, and External\+Sensors\+::sensor
 
 
 
-Referenced by Cool\+Board\+::off\+Line\+Mode(), and Cool\+Board\+::on\+Line\+Mode().
+Referenced by Cool\+Board\+::read\+Sensors().
 
 
 \begin{DoxyCode}
@@ -407,26 +406,31 @@ Referenced by Cool\+Board\+::off\+Line\+Mode(), and Cool\+Board\+::on\+Line\+Mod
 68     String data;
 69     DynamicJsonBuffer  jsonBuffer(\hyperlink{classExternalSensors_acacea86d74d967b57fcff282d26cff57}{jsonSize}) ;
 70     JsonObject& root = jsonBuffer.createObject();
-71     \textcolor{keywordflow}{if}(!root.success() )
-72     \{
-73 
-74      \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"00 "});
-75     \}
-76     
+71 
+72     \textcolor{keywordflow}{if}(!root.success() )
+73     \{
+74 
+75      \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"00 "});
+76     \}
 77 
-78     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+78     \textcolor{keywordflow}{else}
 79     \{
-80             
-81             root[\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}]=sensors[i].exSensor->read();       
-82     \}
-83     
-84 
-85     Serial.println(\textcolor{stringliteral}{" "});
-86     root.printTo(data);
-87     
-88     \textcolor{keywordflow}{return}(data);
-89 
-90 \}
+80         \textcolor{keywordflow}{if}(\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber}!=0)
+81         \{
+82             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{classExternalSensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+83             \{
+84             
+85                 root[\hyperlink{classExternalSensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{structExternalSensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}]=sensors[i].exSensor->read();       
+86             \}
+87         \}   
+88         
+89         Serial.println(\textcolor{stringliteral}{" "});
+90         root.printTo(data);
+91     
+92         \textcolor{keywordflow}{return}(data);
+93     \}
+94 
+95 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak

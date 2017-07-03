@@ -25,6 +25,12 @@ class Jetpack
 
 	digitalWrite(EnI2C, HIGH);
 
+!!!154117.cpp!!!	setBit(in pin : byte) : void
+//	
+//	wB(pin,0);
+!!!154245.cpp!!!	resetBit(in pin : byte) : void
+	/*auto bound_member_fn=std::bind(&Jetpack::writeBit,std::placeholders::_2,std::placeholders::_2);
+ 	bound_member_fn(pin,0);*/
 !!!139525.cpp!!!	doAction(in data : char, in JSON_SIZE : int) : void
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(data);
@@ -33,14 +39,56 @@ class Jetpack
 	//if the value is outside the limits
 	for(int i=0;i<8;i++)
 	{
+		//check if the actor is actif 
 		if(this->actors[i].actif==1)
-		{
-			if( ((root[this->actors[i].type])>(this->actors[i].high)) || ((root[ this->actors[i].type ])<(this->actors[i].low)) )	
-			{	
-			bitWrite(this->action , i , !(bitRead(this->action, i ) ) );	
+		{	
+			//check if the actor is temporal or not
+			if( this->actors[i].temporal==0 ) 
+			{
+				if( ( ( root[this->actors[i].type] ) > ( this->actors[i].high ) ) || ( ( root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
+				{	
+					bitWrite( this->action , i , !( bitRead(this->action, i ) ) );	
+				}
+			}
+
+			else
+			{	//if the actor was actif for highTime or more :
+				if( ( millis()- this->actors[i].actifTime  ) >= ( this->actors[i].high  ) )
+				{
+					//stop the actor
+					bitWrite( this->action , i , 0) ;
+
+					//make the actor inactif:
+					this->actors[i].actif=0;
+
+					//start the low timer
+					this->actors[i].inactifTime=millis();				
+				}			
+							
+			}
+		}
+		//check if actor is inactif
+		else
+		{	//check if actor is temporal
+			if(this->actors[i].temporal==1)
+			{
+				//if the actor was inactif for lowTime or more :
+				if( ( millis() - this->actors[i].inactifTime ) >= ( this->actors[i].low  ) )
+				{
+					//start the actor
+					bitWrite( this->action , i , 1) ;
+
+					//make the actor actif:
+					this->actors[i].actif=1;
+
+					//start the low timer
+					this->actors[i].actifTime=millis();				
+				}			
+			
 			}
 		}
 	}
+
 	this->write(this->action);
 !!!139653.cpp!!!	config() : bool
 
@@ -69,7 +117,7 @@ class Jetpack
 			{
 				this->actorsNumber = json["ActorsNumber"]; 
 			
-				for(int i=0;i<this->actorsNumber;i++)
+				for(int i=0;i<8;i++)
 				{	if(json[String("Act")+String(i)].success())
 					{
 						if(json[String("Act")+String(i)]["actif"].success() )
@@ -113,15 +161,28 @@ class Jetpack
 						{
 							this->actors[i].type=this->actors[i].type;
 						}
-						json[String("Act")+String(i)]["type"]=this->actors[i].type;	
+						json[String("Act")+String(i)]["type"]=this->actors[i].type;
 
+						if(json[String("Act")+String(i)]["temporal"].success() )
+						{
+							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
+						}
+						else
+						{
+							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 
+						}	
+						json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal; 
 					}
 					else
 					{
 						this->actors[i]=this->actors[i];
 					}
 					
-					//json[String("Act")+String(i)]=this->actors[i];
+					json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
+					json[String("Act")+String(i)]["low"]=this->actors[i].low;
+					json[String("Act")+String(i)]["high"]=this->actors[i].high;
+					json[String("Act")+String(i)]["type"]=this->actors[i].type;
+					json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal; 
 				}
 			}
 			else
@@ -129,6 +190,16 @@ class Jetpack
 				this->actorsNumber=this->actorsNumber;
 			}
 			json["actorsNumber"]=this->actorsNumber;
+
+			jetPackConfig.close();			
+			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
+			if(!jetPackConfig)
+			{
+				return(false);			
+			}  
+
+			json.printTo(jetPackConfig);
+			jetPackConfig.close();		
 			
 			return(true); 
 		}

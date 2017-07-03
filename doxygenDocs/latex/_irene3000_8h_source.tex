@@ -1,0 +1,86 @@
+\hypertarget{_irene3000_8h_source}{}\section{Irene3000.\+h}
+
+\begin{DoxyCode}
+00001 
+00011 \textcolor{preprocessor}{#ifndef IRENE3000\_H}
+00012 \textcolor{preprocessor}{#define IRENE3000\_H}
+00013 
+00014 \textcolor{preprocessor}{#include <Adafruit\_ADS1015.h>}    
+00015 \textcolor{preprocessor}{#include<Arduino.h>}
+00016 
+00017 
+\Hypertarget{_irene3000_8h_source_l00018}\hyperlink{_irene3000_8h_ae04444a85a37b5dce09107f2ce2b2c80}{00018} \textcolor{preprocessor}{#define ADC\_MAXIMUM\_VALUE     32767}
+\Hypertarget{_irene3000_8h_source_l00019}\hyperlink{_irene3000_8h_a905a3e9dbe2e4aef45dda002f2f6993d}{00019} \textcolor{preprocessor}{#define V\_GAIN\_2 0.0625}
+\Hypertarget{_irene3000_8h_source_l00020}\hyperlink{_irene3000_8h_a9a0ac774ada946f154982546852e8fb6}{00020} \textcolor{preprocessor}{#define V\_GAIN\_4 0.03125}
+\Hypertarget{_irene3000_8h_source_l00021}\hyperlink{_irene3000_8h_ab7ab16df599d3f0ce29e12791a504891}{00021} \textcolor{preprocessor}{#define V\_GAIN\_8 0.015625}
+\Hypertarget{_irene3000_8h_source_l00022}\hyperlink{_irene3000_8h_a9fa3b8fd890fde289060ee254cd273d5}{00022} \textcolor{preprocessor}{#define Write\_Check      0x1234}
+00023 
+\Hypertarget{_irene3000_8h_source_l00024}\hyperlink{_irene3000_8h_a37976ee6fe1fb8546bfd6153b83ffa6c}{00024} \textcolor{preprocessor}{#define button 0}
+\Hypertarget{_irene3000_8h_source_l00025}\hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{00025} \textcolor{preprocessor}{#define temp 1}
+\Hypertarget{_irene3000_8h_source_l00026}\hyperlink{_irene3000_8h_a55497513af255250e464ed76543d46d7}{00026} \textcolor{preprocessor}{#define freeAdc 2}
+\Hypertarget{_irene3000_8h_source_l00027}\hyperlink{_irene3000_8h_af771ceafe0e6524dd8497d4305dfe778}{00027} \textcolor{preprocessor}{#define ph 3}
+00028 
+\Hypertarget{_irene3000_8h_source_l00035}\hyperlink{class_irene3000}{00035} \textcolor{keyword}{class }\hyperlink{class_irene3000}{Irene3000}
+00036 \{
+00037 \textcolor{keyword}{public}:
+00038 
+00039     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{begin}();
+00040 
+00041     \textcolor{keywordtype}{bool} \hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{config}();
+00042     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{printConf}();
+00043 
+00044     String \hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{read}();
+00045 
+00046     \textcolor{keywordtype}{int} \hyperlink{class_irene3000_ae0e0a5b773c3625b44c1d113c76a1540}{readButton}(adsGain\_t gain);
+00047 
+00048     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_aff7c5da186b388e7272e63ff88a20c34}{setGain}(adsGain\_t gain);
+00049 
+00050     \textcolor{keywordtype}{int} \hyperlink{class_irene3000_ae73bd2ed14a199a7e83f4d6458476a7c}{readADSChannel2}(adsGain\_t gain);
+00051 
+00052     \textcolor{keywordtype}{float} \hyperlink{class_irene3000_abf3db725fabb0634ec889b32068a5eec}{readPh}(adsGain\_t gain);
+00053 
+00054     \textcolor{keywordtype}{double} \hyperlink{class_irene3000_a94ad40f281d83ad1be20bf1edd6fe802}{readTemp}(adsGain\_t gain);
+00055 
+00056     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a0fba280e8b7c881307efa31281aa691d}{resetParams}(\textcolor{keywordtype}{void});
+00057 
+00058     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a2e810ddfa8b95eaa2446a408761c6bdc}{calibratepH7}(adsGain\_t gain);
+00059 
+00060     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a9772eeea2305fad6236a82e33e93892e}{calibratepH4}(adsGain\_t gain);
+00061 
+00062     \textcolor{keywordtype}{void} \hyperlink{class_irene3000_a81f6a79e546679692053f7ac1af49613}{calcpHSlope} ();
+00063 
+00064     adsGain\_t \hyperlink{class_irene3000_abcad62d1201a59f8dd3ba87048002728}{gainConvert}(uint16\_t tempGain);
+00065 
+00066 
+00067 \textcolor{keyword}{private}:
+00068 
+00069     Adafruit\_ADS1115 ads;                                                                                  
+               \textcolor{comment}{// ADC Object}
+00070 
+00071 
+00072     \textcolor{keyword}{struct }parameters\_T
+00073     \{
+00074         \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} WriteCheck;
+00075         \textcolor{keywordtype}{int} pH7Cal, pH4Cal;
+00076         \textcolor{keywordtype}{float} pHStep;
+00077     \}params;
+00078 
+00079     \textcolor{keyword}{struct }state
+00080     \{
+00081         byte active;
+00082         adsGain\_t gain;
+00083         String type;
+00084     \} waterTemp, phProbe,adc2;
+00085 
+00086     \textcolor{keywordtype}{int} ireneJsonSize;
+00087 
+00088     \textcolor{keyword}{const} \textcolor{keywordtype}{float} vRef = 1.024;                                                            \textcolor{comment}{//Our vRef into
+       the ADC wont be exa}
+00089 
+00090     \textcolor{keyword}{const} \textcolor{keywordtype}{float} opampGain = 5.25;                                 \textcolor{comment}{//what is our Op-Amps gain (stage 1)}
+00091 
+00092 \};
+00093 
+00094 
+00095 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

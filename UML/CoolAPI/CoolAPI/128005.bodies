@@ -1,17 +1,16 @@
 class CoolBoard
 !!!128005.cpp!!!	begin() : void
-       
-	fileSystem.begin(); 
+	fileSystem.begin();
 	
-	coolBoardSensors.config(); 
+	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	coolBoardSensors.printConf();
-	
+
 	rtc.config();
 	rtc.begin();
 	rtc.printConf();
-	
-	coolBoardLed.config();	
+
+	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.printConf();
 
@@ -19,297 +18,434 @@ class CoolBoard
 	mqtt.begin();
 	mqtt.printConf();
 
-	if(jetpackActive)	
-	{	
+	if (jetpackActive)
+	{
 		jetPack.config();
 		jetPack.begin();
 		jetPack.printConf();
-
 	}
 
-	if(ireneActive)
+	if (ireneActive)
 	{
 		irene3000.config();
 		irene3000.begin();
 		irene3000.printConf();
-
 	}
 
-	if(externalSensorsActive)
+	if (externalSensorsActive)
 	{
 		externalSensors.config();
-		externalSensors.begin();	
+		externalSensors.begin();
 		externalSensors.printConf();
 	}
 
 !!!128133.cpp!!!	config() : bool
-	fileSystem.begin(); 
-	//read config file
-	//update data
+	//open file system
+	fileSystem.begin();
+	
+	//open configuration file
 	File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
+	
+	if (!configFile)
 
-	if (!configFile) 
 	{
 		return(false);
 	}
+
 	else
 	{
 		size_t size = configFile.size();
+
 		// Allocate a buffer to store contents of the file.
-		std::unique_ptr<char[]> buf(new char[size]);
+		std::unique_ptr < char[] > buf(new char[size]);
 
 		configFile.readBytes(buf.get(), size);
+
 		DynamicJsonBuffer jsonBuffer;
-		JsonObject& json = jsonBuffer.parseObject(buf.get());
-		if (!json.success()) 
+
+		JsonObject & json = jsonBuffer.parseObject(buf.get());
+
+		if (!json.success())
 		{
-			  return(false);
-		} 
+			return(false);
+		}
+
 		else
-		{  	  
-			if( json["interval"].success() )
+		{	
+			//parsing userActive Key
+			if (json["userActive"].success())
 			{
-				this->interval = json["interval"]; 
+				this -> userActive = json["userActive"];
 			}
-			else
-			{
-				this->interval=this->interval;
-				
-			}
-			json["interval"]=this->interval;
 
-			if(json["sensorJsonSize"].success())
-			{
-				this->sensorJsonSize = json["sensorJsonSize"];
-			}
 			else
 			{
-				this->sensorJsonSize=this->sensorJsonSize;
+				this -> userActive = this -> userActive;
 			}
-			json["sensorJsonSize"]=this->sensorJsonSize;
+			json["userActive"] = this -> userActive;
 
-			if(json["answerJsonSize"].success())
+			//parsing logInterval key
+			if (json["logInterval"].success())
 			{
-				this->answerJsonSize = json["answerJsonSize"];
+				this -> logInterval = json["logInterval"];
 			}
 			else
 			{
-				this->answerJsonSize=this->answerJsonSize;
+				this -> logInterval = this -> logInterval;
 			}
-			json["answerJsonSize"]=this->answerJsonSize;
-			
-			if(json["ireneActive"].success() )
-			{
-				this->ireneActive=json["ireneActive"];
-			}
-			else
-			{
-				this->ireneActive=this->ireneActive;
-			}
-			json["ireneActive"]=this->ireneActive;	
+			json["logInterval"] = this -> logInterval;
 
-			if(json["jetpackActive"].success() )
-			{		
-				this->jetpackActive=json["jetpackActive"];
+			//parsing sensorJsonSize key
+			if (json["sensorJsonSize"].success())
+			{
+				this -> sensorJsonSize = json["sensorJsonSize"];
 			}
 			else
 			{
-				this->jetpackActive=this->jetpackActive;
+				this -> sensorJsonSize = this -> sensorJsonSize;
 			}
-			json["jetpackActive"]=this->jetpackActive;
+			json["sensorJsonSize"] = this -> sensorJsonSize;
 			
-			if(json["externalSensorsActive"].success() )
-			{			
-			
-				this->externalSensorsActive=json["externalSensorsActive"];
+			//parsing answerJsonSize key			
+			if (json["answerJsonSize"].success())
+			{
+				this -> answerJsonSize = json["answerJsonSize"];
 			}
 			else
 			{
-				this->externalSensorsActive=this->externalSensorsActive;
+				this -> answerJsonSize = this -> answerJsonSize;
 			}
-			json["externalSensorsActive"]=this->externalSensorsActive;
+			json["answerJsonSize"] = this -> answerJsonSize;
 			
-			if(json["serverTimeOut"].success() )
-			{			
-				this->serverTimeOut=json["serverTimeOut"];
+			//parsing ireneActive key			
+			if (json["ireneActive"].success())
+			{
+				this -> ireneActive = json["ireneActive"];
 			}
 			else
 			{
-				this->serverTimeOut=this->serverTimeOut;
+				this -> ireneActive = this -> ireneActive;
 			}
-			json["serverTimeOut"]=this->serverTimeOut;
+			json["ireneActive"] = this -> ireneActive;
 			
-			if( json["station"].success() )
+			//parsing jetpackActive key
+			if (json["jetpackActive"].success())
 			{
-				this->station=json["station"];			
+				this -> jetpackActive = json["jetpackActive"];
 			}
 			else
 			{
-				this->station=this->station;			
+				this -> jetpackActive = this -> jetpackActive;
 			}
-			json["station"]=this->station;			
+			json["jetpackActive"] = this -> jetpackActive;
+
+			//parsing externalSensorsActive key
+			if (json["externalSensorsActive"].success())
+			{
+				this -> externalSensorsActive = json["externalSensorsActive"];
+			}
+			else
+			{
+				this -> externalSensorsActive = this -> externalSensorsActive;
+			}
+			json["externalSensorsActive"] = this -> externalSensorsActive;
+
+			//parsing serverTimeOut key
+			if (json["serverTimeOut"].success())
+			{
+				this -> serverTimeOut = json["serverTimeOut"];
+			}
+			else
+			{
+				this -> serverTimeOut = this -> serverTimeOut;
+			}
+			json["serverTimeOut"] = this -> serverTimeOut;
 			
-			
+			//parsing sleepActive key
+			if (json["sleepActive"].success())
+			{
+				this -> sleepActive = json["sleepActive"];
+			}
+			else
+			{
+				this -> sleepActive = this -> sleepActive;
+			}
+			json["sleepActive"] = this -> sleepActive;
+
+			//saving the current/correct configuration
 			configFile.close();
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
-		
-			if(!configFile)
+			if (!configFile)
 			{
 				return(false);
 			}
-
 			json.printTo(configFile);
 			configFile.close();
-	
-			return(true); 
+			return(true);
 		}
-	}	
-	
-
+	}
 !!!128261.cpp!!!	update(in answer : char) : void
-	
-	DynamicJsonBuffer  jsonBuffer(answerJsonSize) ;
-	JsonObject& root = jsonBuffer.parseObject(answer);
-	JsonObject& stateDesired = root["state"]["desired"];
-	if(stateDesired.success() )
+	DynamicJsonBuffer jsonBuffer(answerJsonSize);
+	JsonObject & root = jsonBuffer.parseObject(answer);
+	JsonObject & stateDesired = root["state"]["desired"];
+	if (stateDesired.success())
 	{
-		if(stateDesired["update"]==1) 
-			{	
-				String answerDesired;
-				stateDesired.printTo(answerDesired);
-				Serial.println(answerDesired);
-				
-				bool result=fileSystem.updateConfigFiles(answerDesired,answerJsonSize); 
-				Serial.print("update : ");Serial.println(result);
-				
-				this->config();	
-		
-				coolBoardSensors.config();
+		if (stateDesired["update"] == 1)
+		{
+			String answerDesired;
 
-				rtc.config(); 
+			stateDesired.printTo(answerDesired);
 
-				coolBoardLed.config();
+			Serial.println(answerDesired);
 			
-				mqtt.config();			
-						
-				if(jetpackActive)
-				{
-					jetPack.config(); 
-				}
+			bool result = fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
 
-				if(ireneActive)
-				{
-					irene3000.config();	
-				}
-			
-				if(externalSensorsActive)
-				{
-					externalSensors.config();			
-				}
+			Serial.println("update : ");
 
+			Serial.println(result);
+
+			//applying the configuration	
+			this -> config();
+
+			coolBoardSensors.config();
+
+			rtc.config();
+
+			coolBoardLed.config();
+
+			mqtt.config();
+
+			if (jetpackActive)
+			{
+				jetPack.config();
 			}
-	}
-!!!128389.cpp!!!	offLineMode() : void
 
-	data=coolBoardSensors.read();
-	
-	if(externalSensorsActive)
-	{
-		data+=externalSensors.read();	
-	}		
-	if(ireneActive)
-	{
-		data+=irene3000.read(); 
-	}
-	
-	if(jetpackActive)
-	{
-		jetPack.doAction(data.c_str(),sensorJsonSize); 
-	}	
+			if (ireneActive)
+			{
+				irene3000.config();
+			}
 
-	fileSystem.saveSensorData(data.c_str(), sensorJsonSize ); 
-!!!128517.cpp!!!	onLineMode() : void
-	
-	
-	
-	
+			if (externalSensorsActive)
+			{
+				externalSensors.config();
+			}
 
-	rtc.update();	
+			delay(10);
+			mqtt.begin();
 
-	data=coolBoardSensors.read(); //{..,..,..}
+		        //answering the update msg:
+			//reported = received configuration
+			//desired=null
+			root["state"]["reported"]=stateDesired;
+			root["state"]["desired"]="null";
+			
+			String updateAnswer;
+			root.printTo(updateAnswer);
 
+			bool success=mqtt.publish(updateAnswer.c_str());
+			
+			mqtt.mqttLoop();
 
-	if(externalSensorsActive)
-	{	
+			delay(10);
 
-		data+=externalSensors.read();//{..,..,..}{..,..}	
-		data.setCharAt(data.lastIndexOf('}'),',');//{..,..,..}{..,..,
-		data.setCharAt(data.lastIndexOf('{'),',');//{..,..,..},..,..,
-		data.remove(data.lastIndexOf('}'),1);//{..,..,..,..,..,
-		data.setCharAt(data.lastIndexOf(','),'}');//{..,..,..,..,..}		
-	}		
-	if(ireneActive)
-	{
-		data+=irene3000.read();//{..,..,..,..,..}{..,..,..}
-		data.setCharAt(data.lastIndexOf('}'),',');//{..,..,..,..,..{..,..,.., 
-		data.setCharAt(data.lastIndexOf('{'),',');//{..,..,..,..,..},..,..,..,
-		data.remove(data.lastIndexOf('}'),1);//{..,..,..,..,..,..,..,..,	
-		data.setCharAt(data.lastIndexOf(','),'}');//{..,..,..,..,..,..,..,..}
-	}
-
-	
-	if(jetpackActive)
-	{
-		jetPack.doAction(data.c_str(), sensorJsonSize);
-		
-
-	}
-	
-	String jsonData="{\"state\":{\"reported\":";	
-	jsonData+=data;//{"state":{"reported":{..,..,..,..,..,..,..,..}
-	jsonData+=",\"desired\":null} }";//{"state":{"reported":{..,..,..,..,..,..,..,..},"desired" :null }  }
-	
-	mqtt.publish(jsonData.c_str());
-	mqtt.mqttLoop();
-	answer=mqtt.read();
-	this->update(answer.c_str());	
+			Serial.print("success: ");Serial.println(success);
+			
+			//restart the esp
+			ESP.restart();
 				
-!!!128645.cpp!!!	connect() : int
-	if(WiFi.status() != WL_CONNECTED)
-	{
-
-		wifiManager.setConfigPortalTimeout(this->serverTimeOut);
-		wifiManager.autoConnect("CoolBoard");
-
-	}
-	if(mqtt.state()!=0)
-	{	
-
-		mqtt.connect(this->getInterval()) ;
-
-	}
-	
-	return(mqtt.state()); 
-		
-!!!146309.cpp!!!	getInterval() : uint16_t
-	return(this->interval);
-!!!128901.cpp!!!	printConf() : void
-	Serial.println("Cool Board Conf");
-	Serial.println(interval);
-	Serial.println(sensorJsonSize);
-	Serial.println(answerJsonSize);
-	Serial.println(ireneActive);
-	Serial.println(jetpackActive);
-	Serial.println(externalSensorsActive);
-	Serial.println(serverTimeOut);
-	Serial.println(" ");
-
-!!!146437.cpp!!!	sleep() : void
-	if(this->station == 1)
-	{
-		ESP.deepSleep( ( (this->getInterval() )*1000 ) , WAKE_RF_DEFAULT );	
+		}
 	}
 	else
 	{
-		delay( this->getInterval() );	
+		Serial.println("Failed to parse update message ");	
+	}		
+!!!128389.cpp!!!	offLineMode() : void
+	//clock update
+	rtc.update();
+	
+	//read user data if user is active
+	if(userActive)
+	{
+		//reading user data
+		data=this->userData();//{"":"","":"","",""}
+		
+		//formatting json correctly
+		data.setCharAt(data.lastIndexOf('}'), ',');//{"":"","":"","","",
+	}	
+	
+	//read sensors data
+	data+=this->readSensors();//{"":"","":"","","",{.......}
+	
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+
+	//do action
+	if (jetpackActive)
+	{
+		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
+	
+	//saving data in the file system
+	fileSystem.saveSensorData(data.c_str(), sensorJsonSize);
+!!!128517.cpp!!!	onLineMode() : void
+	data="";
+
+	//clock update
+	rtc.update();
+
+	//read user data if user is active
+	if(userActive)
+	{
+		//reading user data
+		data=this->userData();//{"":"","":"","",""}
+
+		//formatting json 
+		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+		
+				
+		//read sensors data
+		data+=this->readSensors();//{"":"","":"","","",{.......}
+
+		
+
+		//formatting json correctly
+		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+				
+	}	
+	else
+	{
+		data=this->readSensors();//{..,..,..}
+	}
+	
+	//do action
+	if (jetpackActive)
+	{
+		jetPack.doAction(data.c_str(), sensorJsonSize);
+	}
+	
+	//formatting data:
+	String jsonData = "{\"state\":{\"reported\":";
+	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+	
+	//publishing data	
+	if( this->sleepActive==0)	
+	{
+		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
+	}
+	else
+	{
+		mqtt.publish(jsonData.c_str());
+	}
+
+	//mqtt client loop to allow data handling
+	mqtt.mqttLoop();
+
+	//read mqtt answer
+	answer = mqtt.read();
+	
+	//mqtt client loop to allow data handling
+	mqtt.mqttLoop();
+
+	//check if the configuration needs update 
+	//and update it if needed 
+	this -> update(answer.c_str());
+	
+	//send saved data if any
+	if(fileSystem.isDataSaved())
+	{
+		mqtt.publish("sending saved data");
+		
+		data+=fileSystem.getSensorSavedData();//{..,..,..}
+
+		//formatting data:
+		String jsonData = "{\"state\":{\"reported\":";
+		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+
+		mqtt.publish( data.c_str() );
+	}
+		
+!!!128645.cpp!!!	connect() : int
+	if (WiFi.status() != WL_CONNECTED)
+	{
+		wifiManager.setConfigPortalTimeout(this -> serverTimeOut);
+		wifiManager.autoConnect("CoolBoard");
+	}
+
+	if (mqtt.state() != 0)
+	{
+		mqtt.connect(this -> getLogInterval());
+	}
+
+	return(mqtt.state());
+!!!152965.cpp!!!	getLogInterval() : uint16_t
+	return(this -> logInterval);
+!!!128901.cpp!!!	printConf() : void
+	Serial.println("Cool Board Conf");
+	Serial.println(this->logInterval);
+	Serial.println(this->sensorJsonSize);
+	Serial.println(this->answerJsonSize);
+	Serial.println(this->ireneActive);
+	Serial.println(this->jetpackActive);
+	Serial.println(this->externalSensorsActive);
+	Serial.println(this->serverTimeOut);
+	Serial.println(this->sleepActive);
+	Serial.println(this->userActive);
+	Serial.println(" ");
+
+
+
+
+!!!146437.cpp!!!	sleep(in interval : int) : void
+	ESP.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
+!!!153093.cpp!!!	readSensors() : String
+	String sensorsData;
+
+	sensorsData = coolBoardSensors.read(); // {..,..,..}
+	
+	if (externalSensorsActive)
+	{
+		sensorsData += externalSensors.read(); // {..,..,..}{..,..}
+
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..}{..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..},..,..,
+		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..}
+
+	}
+	if (ireneActive)
+	{
+		sensorsData += irene3000.read(); // {..,..,..,..,..}{..,..,..}
+
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
+		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
+		
+	}
+
+
+	return(sensorsData);
+
+!!!153221.cpp!!!	userData() : String
+	String tempMAC = WiFi.macAddress();
+
+	tempMAC.replace(":", "");
+
+	String userJson = "{\"user\":\"";
+
+	userJson += mqtt.getUser();
+
+	userJson += "\",";
+
+	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+
+	userJson += ",\"mac\":\"";
+
+	userJson += tempMAC;
+
+	userJson += "\"}";	
+	
+	return(userJson);
+	

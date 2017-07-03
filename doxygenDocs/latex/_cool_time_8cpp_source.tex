@@ -1,0 +1,240 @@
+\hypertarget{_cool_time_8cpp_source}{}\section{Cool\+Time.\+cpp}
+
+\begin{DoxyCode}
+00001 
+00011 \textcolor{preprocessor}{#include "FS.h"}
+00012 
+00013 \textcolor{preprocessor}{#include "Arduino.h"}
+00014 
+00015 \textcolor{preprocessor}{#include "\hyperlink{_cool_time_8h}{CoolTime.h}"}
+00016 
+00017 \textcolor{preprocessor}{#include "ArduinoJson.h"}
+00018 
+00019 \textcolor{preprocessor}{#include "TimeLib.h"}
+00020 
+00021 
+00022 
+\Hypertarget{_cool_time_8cpp_source_l00030}\hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{00030} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{CoolTime::begin}()
+00031 \{
+00032 
+00033     Udp.begin(localPort);
+00034 
+00035     time\_t tm=\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
+00036 
+00037     breakTime(tm, this->tmSet);\textcolor{comment}{//get NTP time}
+00038 
+00039     this->rtc.set(makeTime(this->tmSet), CLOCK\_ADDRESS); \textcolor{comment}{// set the clock}
+00040     
+00041 \}
+00042 
+\Hypertarget{_cool_time_8cpp_source_l00048}\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{00048} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{CoolTime::update}()
+00049 \{
+00050     \textcolor{keywordflow}{if}( !( this->\hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{isTimeSync}() ) )
+00051     \{
+00052         Serial.println(\textcolor{stringliteral}{"waiting for sync"});
+00053         this->timeSync=this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
+00054         breakTime(this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}(), this->tmSet);
+00055         this->rtc.set(makeTime(this->tmSet), CLOCK\_ADDRESS); \textcolor{comment}{// set the clock}
+00056     \}
+00057     
+00058 \}
+00059 
+\Hypertarget{_cool_time_8cpp_source_l00065}\hyperlink{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}{00065} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}{CoolTime::setDateTime}(\textcolor{keywordtype}{int} year, \textcolor{keywordtype}{int} month, \textcolor{keywordtype}{int} day, \textcolor{keywordtype}{int} hour, \textcolor{keywordtype}{int} minutes, \textcolor{keywordtype}{int} 
+      seconds)
+00066 \{ 
+00067     tmElements\_t tm;
+00068     tm.Second=seconds; 
+00069     tm.Minute=minutes; 
+00070     tm.Hour=hour; 
+00071     tm.Day=day;
+00072     tm.Month=month; 
+00073     tm.Year=year;   
+00074 
+00075     this->rtc.set(makeTime(tm),CLOCK\_ADDRESS);
+00076 \}
+00077 
+\Hypertarget{_cool_time_8cpp_source_l00085}\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{00085} tmElements\_t \hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{CoolTime::getTimeDate}()
+00086 \{   
+00087     tmElements\_t tm;
+00088     time\_t timeDate = this->rtc.get(CLOCK\_ADDRESS);
+00089     breakTime(timeDate,tm);
+00090     \textcolor{keywordflow}{return}(tm);
+00091 \}
+00092 
+\Hypertarget{_cool_time_8cpp_source_l00101}\hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{00101} String \hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{CoolTime::getESDate}()
+00102 \{
+00103     tmElements\_t tm=this->\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
+00104     tm.Second; 
+00105     tm.Minute; 
+00106     tm.Hour; 
+00107     tm.Day;
+00108     tm.Month; 
+00109     tm.Year; 
+00110     
+00111     String elasticSearchString =String(tm.Year+1970)+\textcolor{stringliteral}{"-"}+String(tm.Month)+\textcolor{stringliteral}{"-"};\textcolor{comment}{//"20yy-mm-ddT00:00:00Z"}
+00112 
+00113     elasticSearchString +=String(tm.Day)+\textcolor{stringliteral}{"T"}+String(tm.Hour)+\textcolor{stringliteral}{":"}+String(tm.Minute)+\textcolor{stringliteral}{":"}+String(tm.Second)+\textcolor{stringliteral}{"Z
+      "};
+00114     
+00115     \textcolor{keywordflow}{return} (elasticSearchString);
+00116 \}
+00117 
+\Hypertarget{_cool_time_8cpp_source_l00126}\hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{00126} \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{CoolTime::getLastSyncTime}()
+00127 \{
+00128     \textcolor{keywordflow}{return}(this->timeSync);
+00129 \}
+00130 
+00131 
+\Hypertarget{_cool_time_8cpp_source_l00141}\hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{00141} \textcolor{keywordtype}{bool} \hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{CoolTime::isTimeSync}(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} seconds)
+00142 \{
+00143 \textcolor{comment}{//default is once per week we try to get a time update}
+00144     \textcolor{keywordflow}{if}( (this->\hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{getLastSyncTime}()+seconds) > (RTC.get(CLOCK\_ADDRESS)) ) 
+00145     \{
+00146         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
+00147     \}
+00148 
+00149     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+00150 \}
+00151 
+00152 
+\Hypertarget{_cool_time_8cpp_source_l00161}\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{00161} time\_t \hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{CoolTime::getNtpTime}()
+00162 \{
+00163     \textcolor{keywordflow}{while} (Udp.parsePacket() > 0) ; \textcolor{comment}{// discard any previously received packets}
+00164     
+00165     Serial.println(\textcolor{stringliteral}{"Transmit NTP Request"});
+00166 
+00167     \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{sendNTPpacket}(timeServer);
+00168 
+00169     uint32\_t beginWait = millis();
+00170 
+00171     \textcolor{keywordflow}{while} (millis() - beginWait < 1500) 
+00172     \{
+00173         \textcolor{keywordtype}{int} size = Udp.parsePacket();
+00174         \textcolor{keywordflow}{if} (size >= \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE}) 
+00175         \{
+00176             Serial.println(\textcolor{stringliteral}{"Receive NTP Response"});
+00177             Udp.read(packetBuffer, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});  \textcolor{comment}{// read packet into the buffer}
+00178             \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} secsSince1900;
+00179             \textcolor{comment}{// convert four bytes starting at location 40 to a long integer}
+00180             secsSince1900 =  (\textcolor{keywordtype}{unsigned} long)packetBuffer[40] << 24;
+00181             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[41] << 16;
+00182             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[42] << 8;
+00183             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[43];
+00184             \textcolor{keywordflow}{return} secsSince1900 - 2208988800UL + this->timeZone * SECS\_PER\_HOUR;
+00185         \}
+00186     \}
+00187     Serial.println(\textcolor{stringliteral}{"No NTP Response :-("});
+00188     \textcolor{keywordflow}{return} 0; \textcolor{comment}{// return 0 if unable to get the time}
+00189 \}
+00190 
+\Hypertarget{_cool_time_8cpp_source_l00196}\hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{00196} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{CoolTime::sendNTPpacket}(IPAddress &address)
+00197 \{
+00198     memset(packetBuffer, 0, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
+00199     \textcolor{comment}{// Initialize values needed to form NTP request}
+00200     \textcolor{comment}{// (see URL above for details on the packets)}
+00201     packetBuffer[0] = 0b11100011;   \textcolor{comment}{// LI, Version, Mode}
+00202     packetBuffer[1] = 0;     \textcolor{comment}{// Stratum, or type of clock}
+00203     packetBuffer[2] = 6;     \textcolor{comment}{// Polling Interval}
+00204     packetBuffer[3] = 0xEC;  \textcolor{comment}{// Peer Clock Precision}
+00205     \textcolor{comment}{// 8 bytes of zero for Root Delay & Root Dispersion}
+00206     packetBuffer[12]  = 49;
+00207     packetBuffer[13]  = 0x4E;
+00208     packetBuffer[14]  = 49;
+00209     packetBuffer[15]  = 52;
+00210     \textcolor{comment}{// all NTP fields have been given values, now}
+00211     \textcolor{comment}{// you can send a packet requesting a timestamp:                 }
+00212     Udp.beginPacket(address, 123); \textcolor{comment}{//NTP requests are to port 123}
+00213     Udp.write(packetBuffer, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
+00214     Udp.endPacket();    
+00215 \}
+00216 
+\Hypertarget{_cool_time_8cpp_source_l00222}\hyperlink{class_cool_time_ae5528ed0ba9e78c711084968054950e0}{00222} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{CoolTime::config}(\textcolor{keywordtype}{int} timeZone,IPAddress timeServer,\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} localPort)
+00223 \{
+00224     this->timeZone=timeZone;
+00225     this->timeServer=timeServer;
+00226     this->localPort=localPort;
+00227 \} 
+00228 
+\Hypertarget{_cool_time_8cpp_source_l00237}\hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{00237} \textcolor{keywordtype}{bool} \hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{CoolTime::config}()
+00238 \{
+00239     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
+00240 
+00241     \textcolor{keywordflow}{if} (!rtcConfig) 
+00242     \{
+00243         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00244     \}
+00245     \textcolor{keywordflow}{else}
+00246     \{
+00247         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
+00248         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+00249         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+00250 
+00251         rtcConfig.readBytes(buf.get(), size);
+00252         DynamicJsonBuffer jsonBuffer;
+00253         JsonObject& json = jsonBuffer.parseObject(buf.get());
+00254         \textcolor{keywordflow}{if} (!json.success()) 
+00255         \{
+00256               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00257         \} 
+00258         \textcolor{keywordflow}{else}
+00259         \{   String ip;
+00260             
+00261             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeZone"}].success() )
+00262             \{
+00263                 this->timeZone=json[\textcolor{stringliteral}{"timeZone"}] ;
+00264             \}
+00265             \textcolor{keywordflow}{else}
+00266             \{
+00267                 this->timeZone=this->timeZone;          
+00268             \}
+00269             json[\textcolor{stringliteral}{"timeZone"}]=this->timeZone;
+00270             
+00271             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
+00272             \{           
+00273                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
+00274                 this->timeServer.fromString(ip);
+00275                 
+00276             \}
+00277             \textcolor{keywordflow}{else}
+00278             \{
+00279                 this->timeServer=this->timeServer;
+00280             \}
+00281             json[\textcolor{stringliteral}{"timeServer"}]=ip;
+00282             
+00283             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
+00284             \{                       
+00285                 this->localPort=json[\textcolor{stringliteral}{"localPort"}];
+00286             \}
+00287             \textcolor{keywordflow}{else}
+00288             \{
+00289                 this->localPort=this->localPort;
+00290             \}
+00291             json[\textcolor{stringliteral}{"localPort"}]=this->localPort;
+00292 
+00293             rtcConfig.close();
+00294             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
+00295             
+00296             \textcolor{keywordflow}{if}(!rtcConfig)
+00297             \{
+00298                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00299             \}
+00300             
+00301             json.printTo(rtcConfig);
+00302             rtcConfig.close();
+00303                         
+00304             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+00305         \}
+00306     \}   
+00307 
+00308 
+00309 
+00310 \}
+00311 
+\Hypertarget{_cool_time_8cpp_source_l00318}\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{00318} \textcolor{keywordtype}{void} \hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{CoolTime::printConf}()
+00319 \{
+00320     Serial.println(\textcolor{stringliteral}{"RTC Config"}) ;
+00321     Serial.println(timeZone);
+00322     Serial.println(timeServer);
+00323     Serial.println(localPort);
+00324 \}
+\end{DoxyCode}

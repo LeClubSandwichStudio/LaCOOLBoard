@@ -1,0 +1,67 @@
+\hypertarget{_cool_time_8h_source}{}\section{Cool\+Time.\+h}
+
+\begin{DoxyCode}
+00001 
+00010 \textcolor{preprocessor}{#ifndef CoolTime\_H}
+00011 \textcolor{preprocessor}{#define CoolTime\_H}
+00012 
+00013 
+00014 \textcolor{preprocessor}{#include "Arduino.h"}
+00015 
+00016 \textcolor{preprocessor}{#include "TimeLib.h"}
+00017 
+00018 \textcolor{preprocessor}{#include <WiFiUdp.h>}
+00019 
+00020 \textcolor{preprocessor}{#include <DS1337RTC.h>}
+00021 
+\Hypertarget{_cool_time_8h_source_l00022}\hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{00022} \textcolor{preprocessor}{#define NTP\_PACKET\_SIZE  48 // NTP time is in the first 48 bytes of message}
+00023 
+\Hypertarget{_cool_time_8h_source_l00031}\hyperlink{class_cool_time}{00031} \textcolor{keyword}{class }\hyperlink{class_cool_time}{CoolTime}
+00032 \{
+00033 
+00034 \textcolor{keyword}{public}:
+00035     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{begin}();
+00036     
+00037     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
+00038     
+00039     \textcolor{keywordtype}{bool} \hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}();
+00040 
+00041     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}(\textcolor{keywordtype}{int} timeZone,IPAddress timeServer,\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} localPort); 
+00042     
+00043     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{printConf}();
+00044 
+00045     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}{setDateTime}(\textcolor{keywordtype}{int} year, \textcolor{keywordtype}{int} month, \textcolor{keywordtype}{int} day, \textcolor{keywordtype}{int} hour, \textcolor{keywordtype}{int} minutes, \textcolor{keywordtype}{int} seconds);
+00046     
+00047     tmElements\_t \hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
+00048 
+00049     String \hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{getESDate}();
+00050     
+00051     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} \hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{getLastSyncTime}();
+00052     
+00053     \textcolor{keywordtype}{bool} \hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{isTimeSync}(\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} seconds=604800);
+00054 
+00055     time\_t \hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
+00056 
+00057     \textcolor{keywordtype}{void} \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{sendNTPpacket}(IPAddress &address);
+00058 \textcolor{keyword}{private}:
+00059     
+00060     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} timeSync;
+00061     
+00062     \textcolor{keywordtype}{int} timeZone;
+00063     
+00064     IPAddress timeServer; \textcolor{comment}{// time-a.timefreq.bldrdoc.gov}
+00065     
+00066     WiFiUDP Udp;
+00067     
+00068     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} localPort;  \textcolor{comment}{// local port to listen for UDP packets}
+00069 
+00070     byte packetBuffer[\hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE}]; \textcolor{comment}{//buffer to hold incoming & outgoing packets}
+00071     
+00072     tmElements\_t tmSet;
+00073     
+00074     DS1337RTC rtc;
+00075 
+00076 \};
+00077 
+00078 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

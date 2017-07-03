@@ -14,5 +14,5 @@ var searchData=
   ['externalsensors',['ExternalSensors',['../classExternalSensors.html',1,'ExternalSensors'],['../classCoolBoard.html#a09e26264839c65873eb56af476eff6b2',1,'CoolBoard::externalSensors()']]],
   ['externalsensors_2ecpp',['ExternalSensors.cpp',['../ExternalSensors_8cpp.html',1,'']]],
   ['externalsensors_2eh',['ExternalSensors.h',['../ExternalSensors_8h.html',1,'']]],
-  ['externalsensorsactive',['externalSensorsActive',['../classCoolBoard.html#af29860cc422622dc33614f9eabb58c40',1,'CoolBoard']]]
+  ['externalsensorsactive',['externalSensorsActive',['../classCoolBoard.html#a638b00b76aeb819ecfd4c10b8cdd7bb7',1,'CoolBoard']]]
 ];

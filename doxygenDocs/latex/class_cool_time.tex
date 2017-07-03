@@ -11,7 +11,8 @@ This class manages the D\+S1337 R\+TC .
 
 
 
-Collaboration diagram for Cool\+Time\+:\nopagebreak
+Collaboration diagram for Cool\+Time\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -21,7 +22,7 @@ Collaboration diagram for Cool\+Time\+:\nopagebreak
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-bool \hyperlink{class_cool_time_a2b36c4009f083ece2d407fec077c4938}{begin} ()
+void \hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{begin} ()
 \item 
 void \hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update} ()
 \item 
@@ -33,7 +34,9 @@ void \hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{print\+Conf} 
 \item 
 void \hyperlink{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}{set\+Date\+Time} (int year, int month, int day, int hour, int minutes, int seconds)
 \item 
-void \hyperlink{class_cool_time_a52a1503ad5cb540c71c44cfeceaead8a}{get\+Time\+Date} (int \&year, int \&month, int \&day, int \&hour, int \&minute, int \&second)
+tm\+Elements\+\_\+t \hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{get\+Time\+Date} ()
+\item 
+String \hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{get\+E\+S\+Date} ()
 \item 
 unsigned long \hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{get\+Last\+Sync\+Time} ()
 \item 
@@ -48,38 +51,62 @@ void \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{send\+N\+T\+P
 \subsection{Detailed Description}
 This class manages the D\+S1337 R\+TC . 
 
-Definition at line 27 of file Cool\+Time.\+h.
+Definition at line \hyperlink{_cool_time_8h_source_l00031}{31} of file \hyperlink{_cool_time_8h_source}{Cool\+Time.\+h}.
 
 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{class_cool_time_a2b36c4009f083ece2d407fec077c4938}\label{class_cool_time_a2b36c4009f083ece2d407fec077c4938}} 
+\mbox{\Hypertarget{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}\label{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}} 
 \index{Cool\+Time@{Cool\+Time}!begin@{begin}}
 \index{begin@{begin}!Cool\+Time@{Cool\+Time}}
 \subsubsection{\texorpdfstring{begin()}{begin()}}
-{\footnotesize\ttfamily bool Cool\+Time\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void Cool\+Time\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
-\hyperlink{class_cool_time_a2b36c4009f083ece2d407fec077c4938}{Cool\+Time\+::begin()}\+: This method is provided to init the rtc, the udp connection and the Sync Provider
+\hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{Cool\+Time\+::begin()}\+: This method is provided to init the rtc, the udp connection
 
 \begin{DoxyReturn}{Returns}
 true if successful,false otherwise 
 \end{DoxyReturn}
 
 
-Definition at line 25 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00030}{30} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the call graph for this function\+:\nopagebreak
+
+
+References \hyperlink{_cool_time_8cpp_source_l00161}{get\+Ntp\+Time()}.
+
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}.
+
+
+\begin{DoxyCode}
+00031 \{
+00032 
+00033     Udp.begin(localPort);
+00034 
+00035     time\_t tm=\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
+00036 
+00037     breakTime(tm, this->tmSet);\textcolor{comment}{//get NTP time}
+00038 
+00039     this->rtc.set(makeTime(this->tmSet), CLOCK\_ADDRESS); \textcolor{comment}{// set the clock}
+00040     
+00041 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{class_cool_time_a2b36c4009f083ece2d407fec077c4938_cgraph}
+\includegraphics[width=350pt]{class_cool_time_ab1976cf718b950bc31e003c3323b8adb_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=296pt]{class_cool_time_a2b36c4009f083ece2d407fec077c4938_icgraph}
+\includegraphics[width=296pt]{class_cool_time_ab1976cf718b950bc31e003c3323b8adb_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}\label{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}} 
@@ -95,8 +122,88 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 211 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00237}{237} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}, and \hyperlink{_cool_board_8cpp_source_l00411}{Cool\+Board\+::update()}.
+
+
+\begin{DoxyCode}
+00238 \{
+00239     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
+00240 
+00241     \textcolor{keywordflow}{if} (!rtcConfig) 
+00242     \{
+00243         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00244     \}
+00245     \textcolor{keywordflow}{else}
+00246     \{
+00247         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
+00248         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+00249         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+00250 
+00251         rtcConfig.readBytes(buf.get(), size);
+00252         DynamicJsonBuffer jsonBuffer;
+00253         JsonObject& json = jsonBuffer.parseObject(buf.get());
+00254         \textcolor{keywordflow}{if} (!json.success()) 
+00255         \{
+00256               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00257         \} 
+00258         \textcolor{keywordflow}{else}
+00259         \{   String ip;
+00260             
+00261             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeZone"}].success() )
+00262             \{
+00263                 this->timeZone=json[\textcolor{stringliteral}{"timeZone"}] ;
+00264             \}
+00265             \textcolor{keywordflow}{else}
+00266             \{
+00267                 this->timeZone=this->timeZone;          
+00268             \}
+00269             json[\textcolor{stringliteral}{"timeZone"}]=this->timeZone;
+00270             
+00271             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
+00272             \{           
+00273                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
+00274                 this->timeServer.fromString(ip);
+00275                 
+00276             \}
+00277             \textcolor{keywordflow}{else}
+00278             \{
+00279                 this->timeServer=this->timeServer;
+00280             \}
+00281             json[\textcolor{stringliteral}{"timeServer"}]=ip;
+00282             
+00283             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
+00284             \{                       
+00285                 this->localPort=json[\textcolor{stringliteral}{"localPort"}];
+00286             \}
+00287             \textcolor{keywordflow}{else}
+00288             \{
+00289                 this->localPort=this->localPort;
+00290             \}
+00291             json[\textcolor{stringliteral}{"localPort"}]=this->localPort;
+00292 
+00293             rtcConfig.close();
+00294             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
+00295             
+00296             \textcolor{keywordflow}{if}(!rtcConfig)
+00297             \{
+00298                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+00299             \}
+00300             
+00301             json.printTo(rtcConfig);
+00302             rtcConfig.close();
+00303                         
+00304             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+00305         \}
+00306     \}   
+00307 
+00308 
+00309 
+00310 \}
+\end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -112,8 +219,74 @@ Here is the caller graph for this function\+:\nopagebreak
 
 Cool\+Time\+::config(time Zone, Time server I\+P , udp Port)\+: This method is provided to do manual configuration. 
 
-Definition at line 196 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00222}{222} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
+
+\begin{DoxyCode}
+00223 \{
+00224     this->timeZone=timeZone;
+00225     this->timeServer=timeServer;
+00226     this->localPort=localPort;
+00227 \} 
+\end{DoxyCode}
+\mbox{\Hypertarget{class_cool_time_ac4f32ee513c1328d984306645e8785a4}\label{class_cool_time_ac4f32ee513c1328d984306645e8785a4}} 
+\index{Cool\+Time@{Cool\+Time}!get\+E\+S\+Date@{get\+E\+S\+Date}}
+\index{get\+E\+S\+Date@{get\+E\+S\+Date}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{get\+E\+S\+Date()}{getESDate()}}
+{\footnotesize\ttfamily String Cool\+Time\+::get\+E\+S\+Date (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Cool\+Time\+::get\+E\+S\+D()\+: This method is provided to return an Elastic Search compatible date Format
+
+\begin{DoxyReturn}{Returns}
+date String in Elastic Search format 
+\end{DoxyReturn}
+
+
+Definition at line \hyperlink{_cool_time_8cpp_source_l00101}{101} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
+
+
+
+References \hyperlink{_cool_time_8cpp_source_l00085}{get\+Time\+Date()}.
+
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00548}{Cool\+Board\+::user\+Data()}.
+
+
+\begin{DoxyCode}
+00102 \{
+00103     tmElements\_t tm=this->\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
+00104     tm.Second; 
+00105     tm.Minute; 
+00106     tm.Hour; 
+00107     tm.Day;
+00108     tm.Month; 
+00109     tm.Year; 
+00110     
+00111     String elasticSearchString =String(tm.Year+1970)+\textcolor{stringliteral}{"-"}+String(tm.Month)+\textcolor{stringliteral}{"-"};\textcolor{comment}{//"20yy-mm-ddT00:00:00Z"}
+00112 
+00113     elasticSearchString +=String(tm.Day)+\textcolor{stringliteral}{"T"}+String(tm.Hour)+\textcolor{stringliteral}{":"}+String(tm.Minute)+\textcolor{stringliteral}{":"}+String(tm.Second)+\textcolor{stringliteral}{"Z
+      "};
+00114     
+00115     \textcolor{keywordflow}{return} (elasticSearchString);
+00116 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_cool_time_ac4f32ee513c1328d984306645e8785a4_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_cool_time_ac4f32ee513c1328d984306645e8785a4_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}\label{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}} 
 \index{Cool\+Time@{Cool\+Time}!get\+Last\+Sync\+Time@{get\+Last\+Sync\+Time}}
 \index{get\+Last\+Sync\+Time@{get\+Last\+Sync\+Time}!Cool\+Time@{Cool\+Time}}
@@ -127,9 +300,20 @@ unsigned long representation of last syncronisation time in seconds
 \end{DoxyReturn}
 
 
-Definition at line 102 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00126}{126} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the caller graph for this function\+:\nopagebreak
+
+
+Referenced by \hyperlink{_cool_time_8cpp_source_l00141}{is\+Time\+Sync()}.
+
+
+\begin{DoxyCode}
+00127 \{
+00128     \textcolor{keywordflow}{return}(this->timeSync);
+00129 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -149,32 +333,99 @@ a time\+\_\+t (unsigned long ) timestamp in seconds
 \end{DoxyReturn}
 
 
-Definition at line 137 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00161}{161} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the call graph for this function\+:\nopagebreak
+
+
+References \hyperlink{_cool_time_8h_source_l00022}{N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE}, and \hyperlink{_cool_time_8cpp_source_l00196}{send\+N\+T\+Ppacket()}.
+
+
+
+Referenced by \hyperlink{_cool_time_8cpp_source_l00030}{begin()}, and \hyperlink{_cool_time_8cpp_source_l00048}{update()}.
+
+
+\begin{DoxyCode}
+00162 \{
+00163     \textcolor{keywordflow}{while} (Udp.parsePacket() > 0) ; \textcolor{comment}{// discard any previously received packets}
+00164     
+00165     Serial.println(\textcolor{stringliteral}{"Transmit NTP Request"});
+00166 
+00167     \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{sendNTPpacket}(timeServer);
+00168 
+00169     uint32\_t beginWait = millis();
+00170 
+00171     \textcolor{keywordflow}{while} (millis() - beginWait < 1500) 
+00172     \{
+00173         \textcolor{keywordtype}{int} size = Udp.parsePacket();
+00174         \textcolor{keywordflow}{if} (size >= \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE}) 
+00175         \{
+00176             Serial.println(\textcolor{stringliteral}{"Receive NTP Response"});
+00177             Udp.read(packetBuffer, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});  \textcolor{comment}{// read packet into the buffer}
+00178             \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} secsSince1900;
+00179             \textcolor{comment}{// convert four bytes starting at location 40 to a long integer}
+00180             secsSince1900 =  (\textcolor{keywordtype}{unsigned} long)packetBuffer[40] << 24;
+00181             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[41] << 16;
+00182             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[42] << 8;
+00183             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)packetBuffer[43];
+00184             \textcolor{keywordflow}{return} secsSince1900 - 2208988800UL + this->timeZone * SECS\_PER\_HOUR;
+00185         \}
+00186     \}
+00187     Serial.println(\textcolor{stringliteral}{"No NTP Response :-("});
+00188     \textcolor{keywordflow}{return} 0; \textcolor{comment}{// return 0 if unable to get the time}
+00189 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{class_cool_time_a52a1503ad5cb540c71c44cfeceaead8a}\label{class_cool_time_a52a1503ad5cb540c71c44cfeceaead8a}} 
+\mbox{\Hypertarget{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}\label{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}} 
 \index{Cool\+Time@{Cool\+Time}!get\+Time\+Date@{get\+Time\+Date}}
 \index{get\+Time\+Date@{get\+Time\+Date}!Cool\+Time@{Cool\+Time}}
 \subsubsection{\texorpdfstring{get\+Time\+Date()}{getTimeDate()}}
-{\footnotesize\ttfamily void Cool\+Time\+::get\+Time\+Date (\begin{DoxyParamCaption}\item[{int \&}]{year,  }\item[{int \&}]{month,  }\item[{int \&}]{day,  }\item[{int \&}]{hour,  }\item[{int \&}]{minute,  }\item[{int \&}]{second }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily tm\+Elements\+\_\+t Cool\+Time\+::get\+Time\+Date (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
-Cool\+Time\+::get\+Time\+Date(year,month,day,hour,minute,seconds)\+: This method is provided to get the R\+TC Time 
+\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{Cool\+Time\+::get\+Time\+Date()}\+: This method is provided to get the R\+TC Time
 
-Definition at line 87 of file Cool\+Time.\+cpp.
+\begin{DoxyReturn}{Returns}
+a tm\+Elements\+\_\+t structre that has the time in it 
+\end{DoxyReturn}
 
+
+Definition at line \hyperlink{_cool_time_8cpp_source_l00085}{85} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
+
+
+
+Referenced by \hyperlink{_cool_time_8cpp_source_l00101}{get\+E\+S\+Date()}.
+
+
+\begin{DoxyCode}
+00086 \{   
+00087     tmElements\_t tm;
+00088     time\_t timeDate = this->rtc.get(CLOCK\_ADDRESS);
+00089     breakTime(timeDate,tm);
+00090     \textcolor{keywordflow}{return}(tm);
+00091 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}\label{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}} 
 \index{Cool\+Time@{Cool\+Time}!is\+Time\+Sync@{is\+Time\+Sync}}
 \index{is\+Time\+Sync@{is\+Time\+Sync}!Cool\+Time@{Cool\+Time}}
@@ -188,16 +439,38 @@ true if time is syncronised,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 117 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00141}{141} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the call graph for this function\+:\nopagebreak
+
+
+References \hyperlink{_cool_time_8cpp_source_l00126}{get\+Last\+Sync\+Time()}.
+
+
+
+Referenced by \hyperlink{_cool_time_8cpp_source_l00048}{update()}.
+
+
+\begin{DoxyCode}
+00142 \{
+00143 \textcolor{comment}{//default is once per week we try to get a time update}
+00144     \textcolor{keywordflow}{if}( (this->\hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{getLastSyncTime}()+seconds) > (RTC.get(CLOCK\_ADDRESS)) ) 
+00145     \{
+00146         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
+00147     \}
+00148 
+00149     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+00150 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{class_cool_time_a5ae038a4498602b189f76a10bf02adf8_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -212,9 +485,23 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{Cool\+Time\+::print\+Conf()}\+: This method is provided to print the \hyperlink{class_cool_time}{Cool\+Time} configuration to the Serial Monitor 
 
-Definition at line 292 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00318}{318} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the caller graph for this function\+:\nopagebreak
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00021}{Cool\+Board\+::begin()}.
+
+
+\begin{DoxyCode}
+00319 \{
+00320     Serial.println(\textcolor{stringliteral}{"RTC Config"}) ;
+00321     Serial.println(timeZone);
+00322     Serial.println(timeServer);
+00323     Serial.println(localPort);
+00324 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -229,9 +516,40 @@ Here is the caller graph for this function\+:\nopagebreak
 
 Cool\+Time\+::send\+N\+T\+Ppacket( Time Server I\+P address)\+: This method is provided to send an N\+TP request to the time server at the given address 
 
-Definition at line 169 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00196}{196} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the caller graph for this function\+:\nopagebreak
+
+
+References \hyperlink{_cool_time_8h_source_l00022}{N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE}.
+
+
+
+Referenced by \hyperlink{_cool_time_8cpp_source_l00161}{get\+Ntp\+Time()}.
+
+
+\begin{DoxyCode}
+00197 \{
+00198     memset(packetBuffer, 0, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
+00199     \textcolor{comment}{// Initialize values needed to form NTP request}
+00200     \textcolor{comment}{// (see URL above for details on the packets)}
+00201     packetBuffer[0] = 0b11100011;   \textcolor{comment}{// LI, Version, Mode}
+00202     packetBuffer[1] = 0;     \textcolor{comment}{// Stratum, or type of clock}
+00203     packetBuffer[2] = 6;     \textcolor{comment}{// Polling Interval}
+00204     packetBuffer[3] = 0xEC;  \textcolor{comment}{// Peer Clock Precision}
+00205     \textcolor{comment}{// 8 bytes of zero for Root Delay & Root Dispersion}
+00206     packetBuffer[12]  = 49;
+00207     packetBuffer[13]  = 0x4E;
+00208     packetBuffer[14]  = 49;
+00209     packetBuffer[15]  = 52;
+00210     \textcolor{comment}{// all NTP fields have been given values, now}
+00211     \textcolor{comment}{// you can send a packet requesting a timestamp:                 }
+00212     Udp.beginPacket(address, 123); \textcolor{comment}{//NTP requests are to port 123}
+00213     Udp.write(packetBuffer, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
+00214     Udp.endPacket();    
+00215 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -246,8 +564,22 @@ Here is the caller graph for this function\+:\nopagebreak
 
 Cool\+Time\+::set\+Date\+Time(year,month,dat,hour,minutes,seconds)\+: This method is provided to manually set the R\+Tc Time 
 
-Definition at line 75 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00065}{65} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
+
+\begin{DoxyCode}
+00066 \{ 
+00067     tmElements\_t tm;
+00068     tm.Second=seconds; 
+00069     tm.Minute=minutes; 
+00070     tm.Hour=hour; 
+00071     tm.Day=day;
+00072     tm.Month=month; 
+00073     tm.Year=year;   
+00074 
+00075     this->rtc.set(makeTime(tm),CLOCK\_ADDRESS);
+00076 \}
+\end{DoxyCode}
 \mbox{\Hypertarget{class_cool_time_aae601f795452cfa48d9fb337aed483a8}\label{class_cool_time_aae601f795452cfa48d9fb337aed483a8}} 
 \index{Cool\+Time@{Cool\+Time}!update@{update}}
 \index{update@{update}!Cool\+Time@{Cool\+Time}}
@@ -256,20 +588,43 @@ Definition at line 75 of file Cool\+Time.\+cpp.
 
 \hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{Cool\+Time\+::update()}\+: This method is provided to correct the rtc Time when it drifts,once every week. 
 
-Definition at line 54 of file Cool\+Time.\+cpp.
+Definition at line \hyperlink{_cool_time_8cpp_source_l00048}{48} of file \hyperlink{_cool_time_8cpp_source}{Cool\+Time.\+cpp}.
 
-Here is the call graph for this function\+:\nopagebreak
+
+
+References \hyperlink{_cool_time_8cpp_source_l00161}{get\+Ntp\+Time()}, and \hyperlink{_cool_time_8cpp_source_l00141}{is\+Time\+Sync()}.
+
+
+
+Referenced by \hyperlink{_cool_board_8cpp_source_l00187}{Cool\+Board\+::off\+Line\+Mode()}, and \hyperlink{_cool_board_8cpp_source_l00097}{Cool\+Board\+::on\+Line\+Mode()}.
+
+
+\begin{DoxyCode}
+00049 \{
+00050     \textcolor{keywordflow}{if}( !( this->\hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{isTimeSync}() ) )
+00051     \{
+00052         Serial.println(\textcolor{stringliteral}{"waiting for sync"});
+00053         this->timeSync=this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
+00054         breakTime(this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}(), this->tmSet);
+00055         this->rtc.set(makeTime(this->tmSet), CLOCK\_ADDRESS); \textcolor{comment}{// set the clock}
+00056     \}
+00057     
+00058 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{class_cool_time_aae601f795452cfa48d9fb337aed483a8_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=331pt]{class_cool_time_aae601f795452cfa48d9fb337aed483a8_icgraph}
+\includegraphics[width=332pt]{class_cool_time_aae601f795452cfa48d9fb337aed483a8_icgraph}
 \end{center}
 \end{figure}
 

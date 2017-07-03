@@ -13,10 +13,10 @@ class CoolMQTT
 	while ((!client.connected())&&(i<100)) 
 	{
 		// Attempt to connect
-		if (client.connect(clientId,keepAlive)) {
+		if (client.connect(user,keepAlive)) {
 			Serial.println("connected");
 			// Once connected, publish an announcement...
-			client.publish(outTopic, "hello world by Ash");
+			//client.publish(outTopic, "hello world by Ash");
 			// ... and resubscribe
 			client.subscribe(inTopic);
 			Serial.println("published and subscribed , leavin ") ;
@@ -37,11 +37,26 @@ class CoolMQTT
 !!!132741.cpp!!!	publish(in data : char) : bool
 
 	//data is in JSON, publish it directly
+
 	Serial.println("data to publish");
 	Serial.println(data);
-	bool pub=client.publish( outTopic, data,sizeof(data) );
+	Serial.print("data size ");Serial.println(strlen(data));
+	bool pub=client.publish( outTopic, data,strlen(data) );
+
+
 	return( pub);
 
+!!!153605.cpp!!!	publish(in data : char, in logInterval : int) : bool
+	if( (millis()-this->previousLogTime) >=( logInterval ) )
+	{
+		this->publish(data);
+
+		this->previousLogTime=millis();
+
+		return(true);
+	}
+	
+	return(false);
 !!!132869.cpp!!!	read() : String
 	
 	if(this->newMsg==true)
@@ -51,13 +66,13 @@ class CoolMQTT
 	}
 	return(" ");
 
-!!!132997.cpp!!!	config(in mqttServer : char, in inTopic : char, in outTopic : char, in clientId : char, in bufferSize : int) : void
+!!!153733.cpp!!!	config(in mqttServer : char, in inTopic : char, in outTopic : char, in user : char, in bufferSize : int) : void
 	for(int i =0;i< 50 ;i++)
 	{
 		this->mqttServer[i]=mqttServer[i];
 		this->inTopic[i]=inTopic[i];
 		this->outTopic[i]=outTopic[i];
-		this->clientId[i]=clientId[i];
+		this->user[i]=user[i];
 	}
 	this->bufferSize=bufferSize;
 
@@ -114,10 +129,11 @@ class CoolMQTT
 				}
 				else
 				{
-					for(int i=0;i<50;i++)
-					{
-						this->inTopic[i]=this->inTopic[i];
-					}				
+					String tempMAC = WiFi.macAddress();
+					tempMAC.replace(":","");
+					snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC.c_str());	
+					Serial.print("Set Incomming MQTT Channel to : ");
+					Serial.println(inTopic);	
 				}
 				json["inTopic"]=this->inTopic;
 				
@@ -132,30 +148,31 @@ class CoolMQTT
 				}
 				else
 				{
-					for(int i=0;i<50;i++)
-					{
-						this->outTopic[i]=this->outTopic[i];
-					}
+					String tempMAC = WiFi.macAddress();
+					tempMAC.replace(":","");
+					snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
+					Serial.print("Set Outgoing MQTT Channel to : ");
+					Serial.println(outTopic);
 				}
 				json["outTopic"]=this->outTopic;
 			
 				
-				if(json["clientId"].success() )
+				if(json["user"].success() )
 				{				
-					const char* tempClientId = json["clientId"]; // "espAshiroji"
+					const char* tempUser = json["user"]; 
 					for(int i =0;i<50;i++)
 					{
-						clientId[i]=tempClientId[i];
+						user[i]=tempUser[i];
 					}
 				}
 				else
 				{
 					for(int i=0;i<50;i++)
 					{
-						this->clientId[i]=this->clientId[i];
+						this->user[i]=this->user[i];
 					}				
 				}
-				json["clientId"]=this->clientId;
+				json["user"]=this->user;
 				
 				if(json["bufferSize"].success() )
 				{
@@ -206,7 +223,7 @@ class CoolMQTT
 	Serial.println(mqttServer);
 	Serial.println(inTopic);
 	Serial.println(outTopic);
-	Serial.println(clientId);
+	Serial.println(user);
 	Serial.println(bufferSize);
 	Serial.println(" ");
 
@@ -216,3 +233,5 @@ class CoolMQTT
 !!!133637.cpp!!!	mqttLoop() : bool
 	this->client.loop();
 	return(client.loop());
+!!!153861.cpp!!!	getUser() : String
+	return String(user);

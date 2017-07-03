@@ -5,9 +5,11 @@ var searchData=
   ['readbutton',['readButton',['../classIrene3000.html#ae0e0a5b773c3625b44c1d113c76a1540',1,'Irene3000']]],
   ['readmoisture',['readMoisture',['../classCoolBoardSensors.html#a8761bff50373c485f4465c8db47d0633',1,'CoolBoardSensors']]],
   ['readph',['readPh',['../classIrene3000.html#abf3db725fabb0634ec889b32068a5eec',1,'Irene3000']]],
+  ['readsensors',['readSensors',['../classCoolBoard.html#ad03abdce2e65f520bbf2cff0f2d083cf',1,'CoolBoard']]],
   ['readtemp',['readTemp',['../classIrene3000.html#a94ad40f281d83ad1be20bf1edd6fe802',1,'Irene3000']]],
   ['readvbat',['readVBat',['../classCoolBoardSensors.html#a6944b6ea7bce8e2fce1b434acfd9d5f3',1,'CoolBoardSensors']]],
   ['reference',['reference',['../structExternalSensors_1_1sensor.html#afed5bdfd49732202a368b600cb8396fe',1,'ExternalSensors::sensor']]],
+  ['resetbit',['resetBit',['../classJetpack.html#ad1142aa8d4d8d0528566a5dc1fe85d54',1,'Jetpack']]],
   ['resetparams',['resetParams',['../classIrene3000.html#a0fba280e8b7c881307efa31281aa691d',1,'Irene3000']]],
-  ['rtc',['rtc',['../classCoolBoard.html#a50d2a6716879d64a85f3c6b44ad63275',1,'CoolBoard::rtc()'],['../classCoolTime.html#afa77d58c0c21cfe8b7c27e34d82f07b9',1,'CoolTime::rtc()']]]
+  ['rtc',['rtc',['../classCoolBoard.html#a50d2a6716879d64a85f3c6b44ad63275',1,'CoolBoard::rtc()'],['../classCoolTime.html#abd38f2384ff90692b1568d9db869412e',1,'CoolTime::rtc()']]]
 ];
