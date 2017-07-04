@@ -555,11 +555,11 @@ String CoolBoard::userData()
 
 	userJson += mqtt.getUser();
 
-	userJson += "\",";
+	userJson += "\",\"timestamp\":\"";
 
 	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
 
-	userJson += ",\"mac\":\"";
+	userJson += "\",\"mac\":\"";
 
 	userJson += tempMAC;
 
