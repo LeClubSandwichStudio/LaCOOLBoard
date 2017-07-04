@@ -160,21 +160,29 @@ bool CoolMQTT::mqttLoop()
 void CoolMQTT::callback(char* topic, byte* payload, unsigned int length) 
 {
 	char temp[length+1];
-
+	Serial.println("temp msg : ");
 	for (int i = 0; i < length; i++) 
 	{
-		temp[i]=(char)payload[i]; 
+		temp[i]=(char)payload[i];
+		Serial.print( (char)payload[i] );
 
 	}
+	Serial.println();
+	if(this->newMsg==false)
+	{	
+		this->newMsg=true;
 
-	this->newMsg=true;
+		temp[length+1]='\0';
 
-	temp[length+1]='\0';
-
-	msg=String(temp);
-	msg.remove(length,1);
-	Serial.println("received");
-	Serial.println(msg);
+		this->msg=String(temp);
+		this->msg.remove(length,1);
+		Serial.println("received");
+		Serial.println(this->msg);
+	}
+	else
+	{
+		this->msg=" ";	
+	}
 
 }
 
@@ -187,8 +195,9 @@ String CoolMQTT::read()
 {	
 	if(this->newMsg==true)
 	{
+		this->newMsg=false;		
 		return(this->msg);
-		this->newMsg=false;
+		
 	}
 	return(" ");
 

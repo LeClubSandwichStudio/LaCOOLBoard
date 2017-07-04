@@ -27,7 +27,6 @@ void CoolBoard::begin()
 	coolBoardSensors.printConf();
 
 	rtc.config();
-
 	rtc.printConf();
 
 	coolBoardLed.config();
@@ -99,6 +98,20 @@ int CoolBoard::connect()
 void CoolBoard::onLineMode()
 {
 	data="";
+	//send saved data if any
+	if(fileSystem.isDataSaved())
+	{
+		mqtt.publish("sending saved data");
+		
+		data+=fileSystem.getSensorSavedData();//{..,..,..}
+
+		//formatting data:
+		String jsonData = "{\"state\":{\"reported\":";
+		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+
+		mqtt.publish( data.c_str() );
+	}
 
 	//clock update
 	rtc.update();
@@ -137,44 +150,31 @@ void CoolBoard::onLineMode()
 	String jsonData = "{\"state\":{\"reported\":";
 	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
 	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
-	bool res;
-	//publishing data	
-	if( this->sleepActive==0)	
-	{
-		 res=mqtt.publish( jsonData.c_str(), this->getLogInterval() );
-	}
-	else
-	{
-		 res=mqtt.publish(jsonData.c_str());
-	}
-	Serial.print("publish : ");Serial.println(res);
+	
 	//mqtt client loop to allow data handling
 	mqtt.mqttLoop();
 
 	//read mqtt answer
 	answer = mqtt.read();
-	
-	//mqtt client loop to allow data handling
-	mqtt.mqttLoop();
 
 	//check if the configuration needs update 
 	//and update it if needed 
 	this -> update(answer.c_str());
 	
-	//send saved data if any
-	if(fileSystem.isDataSaved())
+	bool res;
+	//publishing data	
+	if( this->sleepActive==0)	
 	{
-		mqtt.publish("sending saved data");
-		
-		data+=fileSystem.getSensorSavedData();//{..,..,..}
-
-		//formatting data:
-		String jsonData = "{\"state\":{\"reported\":";
-		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
-		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
-
-		mqtt.publish( data.c_str() );
+		res=mqtt.publish( jsonData.c_str(), this->getLogInterval() );
+		Serial.print("publish : ");Serial.println(res);
 	}
+	else
+	{
+		res=mqtt.publish(jsonData.c_str());
+		Serial.print("publish : ");Serial.println(res);
+		this->sleep( this->getLogInterval() ) ;
+	}
+	
 		
 }
 
