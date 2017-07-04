@@ -27,7 +27,7 @@ void CoolBoard::begin()
 	coolBoardSensors.printConf();
 
 	rtc.config();
-	rtc.begin();
+
 	rtc.printConf();
 
 	coolBoardLed.config();
@@ -76,11 +76,13 @@ int CoolBoard::connect()
 		wifiManager.autoConnect("CoolBoard");
 	}
 
+	rtc.begin();
+	
 	if (mqtt.state() != 0)
 	{
 		mqtt.connect(this -> getLogInterval());
 	}
-
+	
 	return(mqtt.state());
 }
 
@@ -135,17 +137,17 @@ void CoolBoard::onLineMode()
 	String jsonData = "{\"state\":{\"reported\":";
 	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
 	jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
-	
+	bool res;
 	//publishing data	
 	if( this->sleepActive==0)	
 	{
-		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
+		 res=mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 	}
 	else
 	{
-		mqtt.publish(jsonData.c_str());
+		 res=mqtt.publish(jsonData.c_str());
 	}
-
+	Serial.print("publish : ");Serial.println(res);
 	//mqtt client loop to allow data handling
 	mqtt.mqttLoop();
 
@@ -412,7 +414,7 @@ void CoolBoard::update(const char * answer)
 {
 	DynamicJsonBuffer jsonBuffer(answerJsonSize);
 	JsonObject & root = jsonBuffer.parseObject(answer);
-	JsonObject & stateDesired = root["state"]["desired"];
+	JsonObject & stateDesired = root["state"];
 	if (stateDesired.success())
 	{
 		if (stateDesired["update"] == 1)

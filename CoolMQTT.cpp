@@ -232,7 +232,7 @@ bool CoolMQTT::config()
 		{				
 				if(json["mqttServer"].success() )
 				{			
-					const char* tempmqttServer = json["mqttServer"]; // "inTopic"
+					const char* tempmqttServer = json["mqttServer"]; 
 					for(int i =0;i< 50 ;i++)
 					{
 						mqttServer[i]=tempmqttServer[i];
@@ -251,7 +251,7 @@ bool CoolMQTT::config()
 				
 				if(json["inTopic"].success() )
 				{
-					const char* tempInTopic = json["inTopic"]; // "inTopic"
+					const char* tempInTopic = json["inTopic"]; 
 					for(int i =0;i< 50;i++)
 					{
 						inTopic[i]=tempInTopic[i];
@@ -270,7 +270,7 @@ bool CoolMQTT::config()
 				
 				if(json["outTopic"].success() )
 				{
-					const char* tempOutTopic = json["outTopic"]; // "outTopic"
+					const char* tempOutTopic = json["outTopic"]; 
 					for(int i =0;i<50;i++)
 					{
 						outTopic[i]=tempOutTopic[i];
@@ -306,7 +306,7 @@ bool CoolMQTT::config()
 				
 				if(json["bufferSize"].success() )
 				{
-					int tempBufferSize = json["bufferSize"]; // 512
+					int tempBufferSize = json["bufferSize"]; 
 					bufferSize=tempBufferSize;
 				}
 				else

@@ -55,6 +55,9 @@ public:
 	time_t getNtpTime();
 
 	void sendNTPpacket(IPAddress &address);
+	
+	String formatDigits(int digits);
+
 private:
 	
 	unsigned long timeSync;

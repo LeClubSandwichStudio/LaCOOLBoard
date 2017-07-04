@@ -101,16 +101,13 @@ tmElements_t CoolTime::getTimeDate()
 String CoolTime::getESDate()
 {
 	tmElements_t tm=this->getTimeDate();
-	tm.Second; 
-	tm.Minute; 
-	tm.Hour; 
-	tm.Day;
-	tm.Month; 
-	tm.Year; 
-  	
-	String elasticSearchString =String(tm.Year+1970)+"-"+String(tm.Month)+"-";//"20yy-mm-ddT00:00:00Z"
 
-	elasticSearchString +=String(tm.Day)+"T"+String(tm.Hour)+":"+String(tm.Minute)+":"+String(tm.Second)+"Z";
+  	//"20yy-mm-ddT00:00:00Z"
+	String elasticSearchString =String(tm.Year+1970)+"-"+this->formatDigits(tm.Month)+"-";
+
+	elasticSearchString +=this->formatDigits(tm.Day)+"T"+this->formatDigits(tm.Hour)+":";
+	
+	elasticSearchString +=this->formatDigits(tm.Minute)+":"+this->formatDigits(tm.Second)+"Z";
 	
 	return (elasticSearchString);
 }
@@ -321,4 +318,21 @@ void CoolTime::printConf()
 	Serial.println(timeZone);
 	Serial.println(timeServer);
 	Serial.println(localPort);
+}
+
+/**
+*	CoolTime::printDigits(digit)
+*
+*	utility function for digital clock display
+*	adds leading 0
+*	
+*	\return formatted string of the input digit
+*/
+String CoolTime::formatDigits(int digits)
+{ 
+	if(digits < 10)
+	{
+		return( String("0") + String(digits) );
+	}
+	return( String(digits) );
 }
