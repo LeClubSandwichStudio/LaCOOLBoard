@@ -77,11 +77,11 @@ const int \hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{An
 \item 
 const int \hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{En\+I2C} = 5
 \item 
-byte \hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbat\+Active}
+byte \hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbat\+Active} =0
 \item 
-byte \hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earth\+Moisture\+Active}
+byte \hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soil\+Moisture\+Active} =0
 \item 
-int \hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{json\+Size}
+int \hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{json\+Size} =500
 \end{DoxyCompactItemize}
 
 
@@ -110,14 +110,17 @@ References An\+Mplex, En\+I2C, and En\+Moisture.
 
 \begin{DoxyCode}
 24 \{
-25     Wire.begin(2, 14);                       \textcolor{comment}{//I2C init Maybe change this to the CoolBoard?}
-26 
-27     pinMode(\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, OUTPUT);                \textcolor{comment}{//Declare Analog Multiplexer OUTPUT}
-28     pinMode(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, OUTPUT);             \textcolor{comment}{//Declare Moisture enable Pin}
-29     pinMode(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C}, OUTPUT);           \textcolor{comment}{//Declare I2C Enable pin }
-30 
-31 
-32 \}
+25     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors Constructor"});
+26     Serial.println();
+27     
+28     Wire.begin(2, 14);                       \textcolor{comment}{//I2C init Maybe change this to the CoolBoard?}
+29 
+30     pinMode(\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, OUTPUT);                \textcolor{comment}{//Declare Analog Multiplexer OUTPUT}
+31     pinMode(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, OUTPUT);             \textcolor{comment}{//Declare Moisture enable Pin}
+32     pinMode(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C}, OUTPUT);           \textcolor{comment}{//Declare I2C Enable pin }
+33 
+34 
+35 \}
 \end{DoxyCode}
 
 
@@ -130,29 +133,34 @@ References An\+Mplex, En\+I2C, and En\+Moisture.
 
 \hyperlink{classCoolBoardSensors_aa432c5aac88f89c31a10766390f23e0b}{Cool\+Board\+Sensors\+::all\+Active()}\+: This method is provided to allow activation of all the sensor board sensors without passing by the configuration file/method 
 
-Definition at line 62 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 82 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
-References air\+Data\+Active, earth\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
+References air\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, soil\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
 
 
 \begin{DoxyCode}
-63 \{
-64     \hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=1;
-65     \hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=1;
-66     \hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=1;  
-67 
-68     \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=1;
-69     \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=1;
-70     \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=1;
-71 
-72 
-73     \hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=1;
-74     \hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive}=1;
-75 
-76 
-77 \}
+83 \{
+84     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.allActive()"});
+85     Serial.println();
+86     
+87     this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=1;
+88     this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=1;
+89     this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=1;    
+90 
+91     this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=1;
+92     this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=1;
+93     this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=1;
+94 
+95 
+96     this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=1;
+97 
+98     this->\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive}=1;
+99     
+100 
+101 
+102 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classCoolBoardSensors_a97095823ef7c8f5290812f1405b966b3}\label{classCoolBoardSensors_a97095823ef7c8f5290812f1405b966b3}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!begin@{begin}}
@@ -162,7 +170,7 @@ References air\+Data\+Active, earth\+Moisture\+Active, Cool\+Board\+Sensors\+::a
 
 \hyperlink{classCoolBoardSensors_a97095823ef7c8f5290812f1405b966b3}{Cool\+Board\+Sensors\+::begin()}\+: This method is provided to start the sensors that are on the sensor board 
 
-Definition at line 85 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 110 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -174,22 +182,28 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-86 \{       
-87     \hyperlink{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}{initReadI2C}();
-88 
-89     \textcolor{keywordflow}{while} (!\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.Begin()) \{
-90       Serial.println(\textcolor{stringliteral}{"Si1145 is not ready!  1 second"});
-91       delay(1000);
-92     \}
-93      
-94     this->\hyperlink{classCoolBoardSensors_a406307ffd70272282d91479c7ed8d66f}{setEnvSensorSettings}();
-95     delay(10);  \textcolor{comment}{//Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.}
-96     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.begin();
-97     delay(10);  \textcolor{comment}{//Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.}
-98     Serial.println(\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.begin(), HEX);
-99 
-100 
-101 \}
+111 \{       
+112     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.begin()"});
+113     Serial.println();
+114 
+115     \hyperlink{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}{initReadI2C}();
+116 
+117     \textcolor{keywordflow}{while} (!\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.Begin()) \{
+118       Serial.println(\textcolor{stringliteral}{"Si1145 is not ready!  1 second"});
+119       delay(1000);
+120     \}
+121      
+122     this->\hyperlink{classCoolBoardSensors_a406307ffd70272282d91479c7ed8d66f}{setEnvSensorSettings}();
+123     delay(10);  \textcolor{comment}{//Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.}
+124     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.begin();
+125     delay(10);  \textcolor{comment}{//Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.}
+126     
+127     Serial.print(\textcolor{stringliteral}{"BME280 begin answer is :"});
+128     Serial.println(\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.begin(), HEX);
+129     Serial.println();
+130 
+131 
+132 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -218,11 +232,11 @@ true if configuration is successful, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 222 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 263 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
-References air\+Data\+Active, earth\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
+References air\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, soil\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
 
 
 
@@ -230,153 +244,172 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-223 \{
-224     \textcolor{comment}{//read config file}
-225     \textcolor{comment}{//update data}
-226     File coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
-227 
-228     \textcolor{keywordflow}{if} (!coolBoardSensorsConfig) 
-229     \{
-230         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-231     \}
-232     \textcolor{keywordflow}{else}
-233     \{
-234         \textcolor{keywordtype}{size\_t} size = coolBoardSensorsConfig.size();
-235         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-236         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-237 
-238         coolBoardSensorsConfig.readBytes(buf.get(), size);
-239         DynamicJsonBuffer jsonBuffer;
-240         JsonObject& json = jsonBuffer.parseObject(buf.get());
-241         \textcolor{keywordflow}{if} (!json.success()) 
-242         \{
-243               \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-244         \} 
-245         \textcolor{keywordflow}{else}
-246         \{     
-247             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"jsonSize"}].success() )
-248             \{
-249                 this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize} = json[\textcolor{stringliteral}{"jsonSize"}]; 
-250             \}
-251             \textcolor{keywordflow}{else}
-252             \{
-253                 this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}=this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};          
-254             \}
-255             json[\textcolor{stringliteral}{"jsonSize"}]=this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};
-256 
-257             
-258             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}].success() )
-259             \{           
-260                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}];
-261             \}
-262             \textcolor{keywordflow}{else}
-263             \{
-264                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=this->
+264 \{
+265     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.config()"});
+266     Serial.println();
+267 
+268     \textcolor{comment}{//read config file}
+269     \textcolor{comment}{//update data}
+270     File coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
+271 
+272     \textcolor{keywordflow}{if} (!coolBoardSensorsConfig) 
+273     \{
+274         Serial.println(\textcolor{stringliteral}{"failed to read /coolBoardSensorsConfig.json"});
+275         Serial.println();
+276 
+277         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+278     \}
+279     \textcolor{keywordflow}{else}
+280     \{
+281         \textcolor{keywordtype}{size\_t} size = coolBoardSensorsConfig.size();
+282         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+283         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+284 
+285         coolBoardSensorsConfig.readBytes(buf.get(), size);
+286         DynamicJsonBuffer jsonBuffer;
+287         JsonObject& json = jsonBuffer.parseObject(buf.get());
+288         \textcolor{keywordflow}{if} (!json.success()) 
+289         \{
+290             Serial.println(\textcolor{stringliteral}{"failed to parse coolBoardSensorsConfig json"});
+291             Serial.println();
+292     
+293             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+294         \} 
+295         \textcolor{keywordflow}{else}
+296         \{
+297             Serial.println(\textcolor{stringliteral}{"Configuration Json is :"});
+298             json.printTo(Serial);
+299             Serial.println();
+300       
+301             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"jsonSize"}].success() )
+302             \{
+303                 this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize} = json[\textcolor{stringliteral}{"jsonSize"}]; 
+304             \}
+305             \textcolor{keywordflow}{else}
+306             \{
+307                 this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}=this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};          
+308             \}
+309             json[\textcolor{stringliteral}{"jsonSize"}]=this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};
+310 
+311             
+312             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}].success() )
+313             \{           
+314                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}];
+315             \}
+316             \textcolor{keywordflow}{else}
+317             \{
+318                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature}=this->
       \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature};          
-265             \}
-266             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.
+319             \}
+320             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"temperature"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.
       \hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature};
-267             
-268             
-269             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}].success() )
-270             \{           
-271             
-272                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}];
-273             \}
-274             \textcolor{keywordflow}{else}
-275             \{
-276                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=this->
+321             
+322             
+323             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}].success() )
+324             \{           
+325             
+326                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}];
+327             \}
+328             \textcolor{keywordflow}{else}
+329             \{
+330                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}=this->
       \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity};
-277             \}
-278             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity};
-279             
-280             
-281             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}].success() )
-282             \{
-283                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}];
-284             \}
-285             \textcolor{keywordflow}{else}
-286             \{
-287                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=this->
+331             \}
+332             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"humidity"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity};
+333             
+334             
+335             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}].success() )
+336             \{
+337                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}];
+338             \}
+339             \textcolor{keywordflow}{else}
+340             \{
+341                 this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}=this->
       \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure};
-288             \}
-289             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure};
-290 
-291             
-292             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}].success() )
-293             \{
-294                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}];
-295             \}
-296             \textcolor{keywordflow}{else}
-297             \{
-298                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=this->
+342             \}
+343             json[\textcolor{stringliteral}{"BME280"}][\textcolor{stringliteral}{"pressure"}]=this->\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure};
+344 
+345             
+346             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}].success() )
+347             \{
+348                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}];
+349             \}
+350             \textcolor{keywordflow}{else}
+351             \{
+352                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible}=this->
       \hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible};
-299             \}
-300             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+353             \}
+354             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"visible"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
       \hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible};
-301             
-302             
-303             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}].success() )
-304             \{           
-305                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}];
-306             \}
-307             \textcolor{keywordflow}{else}
-308             \{
-309                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
-      \hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir};
-310             \}
-311             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir};
-312 
-313             
-314             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}].success() )         
-315             \{           
-316                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}];
-317             \}
-318             \textcolor{keywordflow}{else}
-319             \{
-320                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
-      \hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv};
-321             \}
-322             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv};
-323 
-324 
-325             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"vbat"}].success() )
-326             \{
-327                 this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=json[\textcolor{stringliteral}{"vbat"}];
-328             \}
-329             \textcolor{keywordflow}{else}
-330             \{
-331                 this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive};
-332             \}
-333             json[\textcolor{stringliteral}{"vbat"}]=this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive};
-334 
-335             
-336             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"soilMoisture"}].success() )
-337             \{           
-338                 this->\hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive}= json[\textcolor{stringliteral}{"soilMoisture"}];
-339             \}
-340             \textcolor{keywordflow}{else}
-341             \{
-342                 this->\hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive}=this->
-      \hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive};
-343             \}
-344             json[\textcolor{stringliteral}{"soilMoisture"}]=this->\hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive};
-345 
-346             coolBoardSensorsConfig.close();         
-347             coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"w"});          
-348             \textcolor{keywordflow}{if}(!coolBoardSensorsConfig)
-349             \{
-350                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
-351             \}  
-352 
-353             json.printTo(coolBoardSensorsConfig);
-354             coolBoardSensorsConfig.close();         
 355             
-356               \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-357         \}
-358     \}   
-359 
-360 \}
+356             
+357             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}].success() )
+358             \{           
+359                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}];
+360             \}
+361             \textcolor{keywordflow}{else}
+362             \{
+363                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir}=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir};
+364             \}
+365             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"ir"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir};
+366 
+367             
+368             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}].success() )         
+369             \{           
+370                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}];
+371             \}
+372             \textcolor{keywordflow}{else}
+373             \{
+374                 this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv}=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv};
+375             \}
+376             json[\textcolor{stringliteral}{"SI114X"}][\textcolor{stringliteral}{"uv"}]=this->\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv};
+377 
+378 
+379             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"vbat"}].success() )
+380             \{
+381                 this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=json[\textcolor{stringliteral}{"vbat"}];
+382             \}
+383             \textcolor{keywordflow}{else}
+384             \{
+385                 this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive}=this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive};
+386             \}
+387             json[\textcolor{stringliteral}{"vbat"}]=this->\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive};
+388 
+389             
+390             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"soilMoisture"}].success() )
+391             \{           
+392                 this->\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive}= json[\textcolor{stringliteral}{"soilMoisture"}];
+393             \}
+394             \textcolor{keywordflow}{else}
+395             \{
+396                 this->\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive}=this->
+      \hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive};
+397             \}
+398             json[\textcolor{stringliteral}{"soilMoisture"}]=this->\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive};
+399 
+400             coolBoardSensorsConfig.close();         
+401             coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"w"});          
+402             \textcolor{keywordflow}{if}(!coolBoardSensorsConfig)
+403             \{
+404                 Serial.println(\textcolor{stringliteral}{"failed to write to /coolBoardSensorsConfig.json"});
+405                 Serial.println();
+406 
+407                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
+408             \}  
+409 
+410             json.printTo(coolBoardSensorsConfig);
+411             coolBoardSensorsConfig.close();         
+412             
+413             Serial.println(\textcolor{stringliteral}{"Saved Configuration Json is : "});
+414             json.printTo(Serial);
+415             Serial.println();
+416             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+417         \}
+418     \}   
+419 
+420 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -393,7 +426,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{classCoolBoardSensors_a4902b69f6e628bd6557193758fdd2bae}{Cool\+Board\+Sensors\+::end()}\+: This method is provided to end the sensors on the sensor board 
 
-Definition at line 108 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 139 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -401,11 +434,13 @@ References light\+Sensor.
 
 
 \begin{DoxyCode}
-109 \{
-110 
-111     \hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.DeInit();
-112 
-113 \}
+140 \{
+141     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.end()"});
+142     Serial.println();
+143 
+144     \hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.DeInit();
+145 
+146 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classCoolBoardSensors_ab82c2a1633768ccd12a589320fa31a14}\label{classCoolBoardSensors_ab82c2a1633768ccd12a589320fa31a14}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!get\+Json\+Size@{get\+Json\+Size}}
@@ -420,7 +455,7 @@ json data size
 \end{DoxyReturn}
 
 
-Definition at line 41 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 44 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -428,9 +463,16 @@ References json\+Size.
 
 
 \begin{DoxyCode}
-42 \{
-43     \textcolor{keywordflow}{return}(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize} );
-44 \}
+45 \{
+46     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.getJsonSize()"});
+47     Serial.println();
+48 
+49     Serial.print(\textcolor{stringliteral}{"json size is : "});
+50     Serial.println(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize});
+51     Serial.println();
+52 
+53     \textcolor{keywordflow}{return}(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize} );
+54 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}\label{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!init\+Read\+I2C@{init\+Read\+I2C}}
@@ -440,7 +482,7 @@ References json\+Size.
 
 \hyperlink{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}{Cool\+Board\+Sensors\+::init\+Read\+I2\+C()}\+: This method is provided to enable the I2C Interface on the sensor board. 
 
-Definition at line 193 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 230 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -452,14 +494,15 @@ Referenced by begin(), and read().
 
 
 \begin{DoxyCode}
-194 \{
-195   
-196     digitalWrite(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C},HIGH);\textcolor{comment}{//HIGH= I2C Enable}
-197 
-198 \}
+231 \{
+232     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.initReadI2C()"});
+233     Serial.println();
+234  
+235     digitalWrite(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C},HIGH);\textcolor{comment}{//HIGH= I2C Enable}
+236 
+237 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -474,11 +517,11 @@ Here is the caller graph for this function\+:
 
 \hyperlink{classCoolBoardSensors_af6fd79505815b204c178617ecf54c873}{Cool\+Board\+Sensors\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 368 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 428 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
-References air\+Data\+Active, earth\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
+References air\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::humidity, Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, Cool\+Board\+Sensors\+::air\+Active\+::pressure, soil\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
 
 
 
@@ -486,23 +529,35 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-369 \{
-370     Serial.println(\textcolor{stringliteral}{"Sensors Conf "});
-371     Serial.println(\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize});
-372     Serial.println(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature});
-373     Serial.println(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity});
-374     Serial.println(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure});
-375 
-376     Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible});
-377     Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir});
-378     Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv});
-379     Serial.println(\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive});
-380     Serial.println(\hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive});
-381     Serial.println(\textcolor{stringliteral}{" "});
-382 \}
+429 \{
+430     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.printConf()"});
+431     Serial.println();
+432 
+433     Serial.println(\textcolor{stringliteral}{"Sensors Configuration : "});
+434     
+435     Serial.print(\textcolor{stringliteral}{"json size : "});Serial.println(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize});
+436     Serial.print(\textcolor{stringliteral}{"airDataActive.temperature : "});Serial.println(this->
+      \hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature});
+437     Serial.print(\textcolor{stringliteral}{"airDataActive.humidity : "});Serial.println(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity});
+438     Serial.print(\textcolor{stringliteral}{"airDataActive.pressure : "});Serial.println(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure});
+439 
+440     Serial.print(\textcolor{stringliteral}{"lightDataActive.visible : "});Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible});
+441     Serial.print(\textcolor{stringliteral}{"lightDataActive.ir : "});Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir});
+442     Serial.print(\textcolor{stringliteral}{"lightDataActive.uv : "});Serial.println(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.
+      \hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv});
+443     
+444     Serial.print(\textcolor{stringliteral}{"vbatActive : "});Serial.println(\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive});
+445 
+446     Serial.print(\textcolor{stringliteral}{"soilMoitureActive : "});Serial.println(\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive});
+447 
+448     Serial.println();
+449 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -522,11 +577,11 @@ a json string containing the sensors data
 \end{DoxyReturn}
 
 
-Definition at line 123 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 156 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
-References air\+Data\+Active, earth\+Moisture\+Active, env\+Sensor, Cool\+Board\+Sensors\+::air\+Active\+::humidity, init\+Read\+I2\+C(), Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, light\+Sensor, Cool\+Board\+Sensors\+::air\+Active\+::pressure, read\+Moisture(), read\+V\+Bat(), Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
+References air\+Data\+Active, env\+Sensor, Cool\+Board\+Sensors\+::air\+Active\+::humidity, init\+Read\+I2\+C(), Cool\+Board\+Sensors\+::light\+Active\+::ir, json\+Size, light\+Data\+Active, light\+Sensor, Cool\+Board\+Sensors\+::air\+Active\+::pressure, read\+Moisture(), read\+V\+Bat(), soil\+Moisture\+Active, Cool\+Board\+Sensors\+::air\+Active\+::temperature, Cool\+Board\+Sensors\+::light\+Active\+::uv, vbat\+Active, and Cool\+Board\+Sensors\+::light\+Active\+::visible.
 
 
 
@@ -534,80 +589,82 @@ Referenced by Cool\+Board\+::read\+Sensors().
 
 
 \begin{DoxyCode}
-124 \{
-125     String data;
-126     DynamicJsonBuffer  jsonBuffer(\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}) ;
-127     JsonObject& root = jsonBuffer.createObject();
-128     
-129     \hyperlink{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}{initReadI2C}();
-130     delay(100);
-131     \textcolor{comment}{//light data}
-132     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible})
-133     \{
-134 
-135         root[\textcolor{stringliteral}{"visibleLight"}] =\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadVisible() ;
-136     \}
-137     
-138     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir})
-139     \{
-140         root[\textcolor{stringliteral}{"infraRed"}] = \hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadIR();
-141     \}
-142 
-143     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv})
-144     \{
-145         \textcolor{keywordtype}{float} tempUV = (float)\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadUV()/100 ;
-146         root[\textcolor{stringliteral}{"ultraViolet"}] = tempUV;
-147     \}
-148     
-149     \textcolor{comment}{//BME280 data}
-150     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}) 
-151     \{
-152         root[\textcolor{stringliteral}{"Pressure"}] =\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readFloatPressure();
-153     \}
-154     
-155         
-156     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}) 
-157     \{   
-158         root[\textcolor{stringliteral}{"Humidity"}] =\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readFloatHumidity() ;
-159     \}   
-160     
-161     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature})
-162     \{
-163         root[\textcolor{stringliteral}{"Temperature"}]=\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readTempC();
-164     \}
-165     
-166     \textcolor{comment}{//Vbat}
-167     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive})    
-168     \{   
-169         root[\textcolor{stringliteral}{"Vbat"}]=this->\hyperlink{classCoolBoardSensors_a6944b6ea7bce8e2fce1b434acfd9d5f3}{readVBat}();
-170     \}
-171     
-172     \textcolor{comment}{//earth Moisture}
-173     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}{earthMoistureActive})
-174     \{   
-175         root[\textcolor{stringliteral}{"soilMoisture"}]=this->\hyperlink{classCoolBoardSensors_a8761bff50373c485f4465c8db47d0633}{readMoisture}();
+157 \{
+158     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.read()"});
+159     Serial.println();
+160 
+161     String data;
+162     DynamicJsonBuffer  jsonBuffer(\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}) ;
+163     JsonObject& root = jsonBuffer.createObject();
+164     
+165     \hyperlink{classCoolBoardSensors_acad6a8418c66d36868caca23c844ecb6}{initReadI2C}();
+166     delay(100);
+167     \textcolor{comment}{//light data}
+168     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_abcbba296b6a95e67c0cd2555d9dd50c7}{visible})
+169     \{
+170         root[\textcolor{stringliteral}{"visibleLight"}] =\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadVisible() ;
+171     \}
+172     
+173     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a67700895349b95ceb263f1a6da756315}{ir})
+174     \{
+175         root[\textcolor{stringliteral}{"infraRed"}] = \hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadIR();
 176     \}
-177     
-178     
-179     root.printTo(data);
-180     
-181 
-182 
-183     \textcolor{keywordflow}{return}(data);
-184     
-185 
-186 \}
+177 
+178     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_ac4deb1cf41bac8b91c780c92fab00ba4}{lightDataActive}.\hyperlink{structCoolBoardSensors_1_1lightActive_a949a7aaf5166d981de8fe0fd93da20d6}{uv})
+179     \{
+180         \textcolor{keywordtype}{float} tempUV = (float)\hyperlink{classCoolBoardSensors_a3e397300fb707dd193e909a757bf6102}{lightSensor}.ReadUV()/100 ;
+181         root[\textcolor{stringliteral}{"ultraViolet"}] = tempUV;
+182     \}
+183     
+184     \textcolor{comment}{//BME280 data}
+185     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ab200826a70d1dc9945f5efb6b9c732ed}{pressure}) 
+186     \{
+187         root[\textcolor{stringliteral}{"Pressure"}] =\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readFloatPressure();
+188     \}
+189     
+190         
+191     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_ae5740445054b27415e22f450576accb7}{humidity}) 
+192     \{   
+193         root[\textcolor{stringliteral}{"Humidity"}] =\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readFloatHumidity() ;
+194     \}   
+195     
+196     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_abff8dfeccb2f7689847bb64d5f1cd31e}{airDataActive}.\hyperlink{structCoolBoardSensors_1_1airActive_a9a6633c426b0508e30ebc1832ec6d745}{temperature})
+197     \{
+198         root[\textcolor{stringliteral}{"Temperature"}]=\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.readTempC();
+199     \}
+200     
+201     \textcolor{comment}{//Vbat}
+202     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}{vbatActive})    
+203     \{   
+204         root[\textcolor{stringliteral}{"Vbat"}]=this->\hyperlink{classCoolBoardSensors_a6944b6ea7bce8e2fce1b434acfd9d5f3}{readVBat}();
+205     \}
+206     
+207     \textcolor{comment}{//earth Moisture}
+208     \textcolor{keywordflow}{if}(\hyperlink{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}{soilMoistureActive})
+209     \{   
+210         root[\textcolor{stringliteral}{"soilMoisture"}]=this->\hyperlink{classCoolBoardSensors_a8761bff50373c485f4465c8db47d0633}{readMoisture}();
+211     \}
+212     
+213     
+214     root.printTo(data);
+215 
+216     Serial.println(\textcolor{stringliteral}{"CoolBoardSensors data is :"});
+217     root.printTo(Serial);
+218     Serial.println();
+219 
+220     \textcolor{keywordflow}{return}(data);   
+221     
+222 
+223 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolBoardSensors_a91badb2539d91fda8679f2a597874c48_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -627,7 +684,7 @@ a float represnting the soil moisture
 \end{DoxyReturn}
 
 
-Definition at line 444 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 522 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -639,24 +696,30 @@ Referenced by read().
 
 
 \begin{DoxyCode}
-445 \{
-446       digitalWrite(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, LOW);                 \textcolor{comment}{//enable moisture sensor and waith a bit}
-447       
-448       digitalWrite(\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, HIGH);           \textcolor{comment}{//enable analog Switch to get the moisture}
-449       
-450       delay(2000);
-451       
-452       \textcolor{keywordtype}{int} val = analogRead(A0);                       \textcolor{comment}{//read the value form the moisture sensor}
-453       
-454       \textcolor{keywordtype}{float} result = (float)map(val, 0, 890, 0, 100);   
-455 
-456       digitalWrite(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, HIGH);                  \textcolor{comment}{//disable moisture sensor for minimum wear}
-457       
-458       \textcolor{keywordflow}{return} (result);
-459 \}
+523 \{
+524     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.readMoisture()"});
+525     Serial.println();
+526 
+527     digitalWrite(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, LOW);                 \textcolor{comment}{//enable moisture sensor and waith a bit}
+528 
+529     digitalWrite(\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, HIGH);         \textcolor{comment}{//enable analog Switch to get the moisture}
+530 
+531     delay(2000);
+532 
+533     \textcolor{keywordtype}{int} val = analogRead(A0);                       \textcolor{comment}{//read the value form the moisture sensor}
+534 
+535     \textcolor{keywordtype}{float} result = (float)map(val, 0, 890, 0, 100); 
+536 
+537     digitalWrite(\hyperlink{classCoolBoardSensors_a6177d02e14a057a2f171a2e930b5038d}{EnMoisture}, HIGH);                  \textcolor{comment}{//disable moisture sensor for minimum wear}
+538     
+539     Serial.println(\textcolor{stringliteral}{"Soil Moisture is : "});
+540     Serial.println(result);
+541     Serial.println();
+542 
+543     \textcolor{keywordflow}{return} (result);
+544 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -676,7 +739,7 @@ a float representing the battery voltage
 \end{DoxyReturn}
 
 
-Definition at line 423 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 493 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -688,22 +751,29 @@ Referenced by read().
 
 
 \begin{DoxyCode}
-424 \{
-425     digitalWrite(\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, LOW);                                  \textcolor{comment}{//Enable Analog Switch to get the
+494 \{
+495     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.readVBat()"});
+496     Serial.println();
+497 
+498     digitalWrite(this->\hyperlink{classCoolBoardSensors_a12ef28b1046219e0aee10bf64e28c4a5}{AnMplex}, LOW);                            \textcolor{comment}{//Enable Analog Switch to get the
        batterie tension}
-426     
-427     delay(200);
-428     
-429     \textcolor{keywordtype}{int} raw = analogRead(A0);                                    \textcolor{comment}{//read in batterie tension}
-430     
-431     \textcolor{keywordtype}{float} val = 6.04 / 1024 * raw;                               \textcolor{comment}{//convert it apprimatly right tension in
+499     
+500     delay(200);
+501     
+502     \textcolor{keywordtype}{int} raw = analogRead(A0);                                    \textcolor{comment}{//read in batterie tension}
+503     
+504     \textcolor{keywordtype}{float} val = 6.04 / 1024 * raw;                               \textcolor{comment}{//convert it apprimatly right tension in
        volts}
-432 
-433     \textcolor{keywordflow}{return} (val);   
-434 \}
+505     
+506     Serial.println(\textcolor{stringliteral}{"Vbat is : "});
+507     Serial.println(val);
+508     Serial.println();
+509 
+510 
+511     \textcolor{keywordflow}{return} (val);   
+512 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -718,7 +788,7 @@ Here is the caller graph for this function\+:
 
 Cool\+Board\+Sensors\+::set\+Env\+Sensor\+Setting()\+: This method is provided to set the enviornment sensor settings , if argument is ommitted , default value will be assigned 
 
-Definition at line 391 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 458 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -730,27 +800,29 @@ Referenced by begin().
 
 
 \begin{DoxyCode}
-396 \{
-397   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.commInterface = commInterface;      
-398   
-399   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.I2CAddress = I2CAddress;
-400   
-401   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.runMode = runMode; 
-402   
-403   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.tStandby = tStandby; 
-404   
-405   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.filter = filter; 
-406   
-407   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.tempOverSample = tempOverSample;
-408   
-409   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.pressOverSample = pressOverSample;
-410   
-411   \hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.humidOverSample = humidOverSample;
-412 
-413 \}
+463 \{
+464     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.setEnvSensorSettings()"});
+465     Serial.println();
+466   
+467     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.commInterface = commInterface;      
+468 
+469     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.I2CAddress = I2CAddress;
+470 
+471     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.runMode = runMode; 
+472 
+473     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.tStandby = tStandby; 
+474 
+475     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.filter = filter; 
+476 
+477     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.tempOverSample = tempOverSample;
+478 
+479     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.pressOverSample = pressOverSample;
+480 
+481     this->\hyperlink{classCoolBoardSensors_a868e38985e9a2412829fa2790ca13e2e}{envSensor}.settings.humidOverSample = humidOverSample;
+482 
+483 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -765,7 +837,7 @@ Here is the caller graph for this function\+:
 
 Cool\+Board\+Sensors\+::set\+Json\+Size( J\+S\+O\+N size)\+: This method is provided to set the sensor board answer size 
 
-Definition at line 51 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 61 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -773,9 +845,19 @@ References json\+Size.
 
 
 \begin{DoxyCode}
-52 \{
-53     this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}=\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};
-54 \}
+62 \{
+63     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.setJsonSize()"});
+64     Serial.println();
+65     
+66     Serial.print(\textcolor{stringliteral}{"old json Size is : "});
+67     Serial.println(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize});
+68         
+69     this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize}=\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize};
+70     
+71     Serial.print(\textcolor{stringliteral}{"new json Size is : "});
+72     Serial.println(this->\hyperlink{classCoolBoardSensors_a05a40dc80bfff14ffb830f549b876f8d}{jsonSize});
+73     
+74 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classCoolBoardSensors_ab67b900b9e5e7c18d52d2d9107ba171b}\label{classCoolBoardSensors_ab67b900b9e5e7c18d52d2d9107ba171b}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!stop\+Read\+I2C@{stop\+Read\+I2C}}
@@ -785,7 +867,7 @@ References json\+Size.
 
 \hyperlink{classCoolBoardSensors_ab67b900b9e5e7c18d52d2d9107ba171b}{Cool\+Board\+Sensors\+::stop\+Read\+I2\+C()}\+: This method is provided to disable the I2C Interface on the sensor board 
 
-Definition at line 205 of file Cool\+Board\+Sensors.\+cpp.
+Definition at line 244 of file Cool\+Board\+Sensors.\+cpp.
 
 
 
@@ -793,11 +875,13 @@ References En\+I2C.
 
 
 \begin{DoxyCode}
-206 \{
-207 
-208     digitalWrite(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C},LOW);\textcolor{comment}{//HIGH= I2C Enable}
-209 
-210 \}
+245 \{
+246     Serial.println(\textcolor{stringliteral}{"Entering CoolBoardSensors.stopReadI2C()"});
+247     Serial.println();
+248 
+249     digitalWrite(\hyperlink{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}{EnI2C},LOW);\textcolor{comment}{//HIGH= I2C Enable}
+250 
+251 \}
 \end{DoxyCode}
 
 
@@ -820,25 +904,11 @@ Referenced by all\+Active(), config(), print\+Conf(), and read().
 
 
 
-Definition at line 101 of file Cool\+Board\+Sensors.\+h.
+Definition at line 98 of file Cool\+Board\+Sensors.\+h.
 
 
 
 Referenced by Cool\+Board\+Sensors(), read\+Moisture(), and read\+V\+Bat().
-
-\mbox{\Hypertarget{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}\label{classCoolBoardSensors_a46dfddb8a12720e92cd2825ef09023c8}} 
-\index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!earth\+Moisture\+Active@{earth\+Moisture\+Active}}
-\index{earth\+Moisture\+Active@{earth\+Moisture\+Active}!Cool\+Board\+Sensors@{Cool\+Board\+Sensors}}
-\subsubsection{\texorpdfstring{earth\+Moisture\+Active}{earthMoistureActive}}
-{\footnotesize\ttfamily byte Cool\+Board\+Sensors\+::earth\+Moisture\+Active\hspace{0.3cm}{\ttfamily [private]}}
-
-
-
-Definition at line 105 of file Cool\+Board\+Sensors.\+h.
-
-
-
-Referenced by all\+Active(), config(), print\+Conf(), and read().
 
 \mbox{\Hypertarget{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}\label{classCoolBoardSensors_aaa6b5dbf3a6633bffd9d204d961096dc}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!En\+I2C@{En\+I2C}}
@@ -848,7 +918,7 @@ Referenced by all\+Active(), config(), print\+Conf(), and read().
 
 
 
-Definition at line 102 of file Cool\+Board\+Sensors.\+h.
+Definition at line 99 of file Cool\+Board\+Sensors.\+h.
 
 
 
@@ -862,7 +932,7 @@ Referenced by Cool\+Board\+Sensors(), init\+Read\+I2\+C(), and stop\+Read\+I2\+C
 
 
 
-Definition at line 100 of file Cool\+Board\+Sensors.\+h.
+Definition at line 97 of file Cool\+Board\+Sensors.\+h.
 
 
 
@@ -886,11 +956,11 @@ Referenced by begin(), read(), and set\+Env\+Sensor\+Settings().
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!json\+Size@{json\+Size}}
 \index{json\+Size@{json\+Size}!Cool\+Board\+Sensors@{Cool\+Board\+Sensors}}
 \subsubsection{\texorpdfstring{json\+Size}{jsonSize}}
-{\footnotesize\ttfamily int Cool\+Board\+Sensors\+::json\+Size\hspace{0.3cm}{\ttfamily [private]}}
+{\footnotesize\ttfamily int Cool\+Board\+Sensors\+::json\+Size =500\hspace{0.3cm}{\ttfamily [private]}}
 
 
 
-Definition at line 107 of file Cool\+Board\+Sensors.\+h.
+Definition at line 104 of file Cool\+Board\+Sensors.\+h.
 
 
 
@@ -920,15 +990,29 @@ Definition at line 75 of file Cool\+Board\+Sensors.\+h.
 
 Referenced by begin(), end(), and read().
 
+\mbox{\Hypertarget{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}\label{classCoolBoardSensors_a31983eecc0f9cd000e1f912206ea4dc8}} 
+\index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!soil\+Moisture\+Active@{soil\+Moisture\+Active}}
+\index{soil\+Moisture\+Active@{soil\+Moisture\+Active}!Cool\+Board\+Sensors@{Cool\+Board\+Sensors}}
+\subsubsection{\texorpdfstring{soil\+Moisture\+Active}{soilMoistureActive}}
+{\footnotesize\ttfamily byte Cool\+Board\+Sensors\+::soil\+Moisture\+Active =0\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 102 of file Cool\+Board\+Sensors.\+h.
+
+
+
+Referenced by all\+Active(), config(), print\+Conf(), and read().
+
 \mbox{\Hypertarget{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}\label{classCoolBoardSensors_af5039ad760b0ff0aa7eee16c55e81702}} 
 \index{Cool\+Board\+Sensors@{Cool\+Board\+Sensors}!vbat\+Active@{vbat\+Active}}
 \index{vbat\+Active@{vbat\+Active}!Cool\+Board\+Sensors@{Cool\+Board\+Sensors}}
 \subsubsection{\texorpdfstring{vbat\+Active}{vbatActive}}
-{\footnotesize\ttfamily byte Cool\+Board\+Sensors\+::vbat\+Active\hspace{0.3cm}{\ttfamily [private]}}
+{\footnotesize\ttfamily byte Cool\+Board\+Sensors\+::vbat\+Active =0\hspace{0.3cm}{\ttfamily [private]}}
 
 
 
-Definition at line 104 of file Cool\+Board\+Sensors.\+h.
+Definition at line 101 of file Cool\+Board\+Sensors.\+h.
 
 
 
@@ -938,5 +1022,5 @@ Referenced by all\+Active(), config(), print\+Conf(), and read().
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-\hyperlink{CoolBoardSensors_8h}{Cool\+Board\+Sensors.\+h}\item 
-\hyperlink{CoolBoardSensors_8cpp}{Cool\+Board\+Sensors.\+cpp}\end{DoxyCompactItemize}
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/\hyperlink{CoolBoardSensors_8h}{Cool\+Board\+Sensors.\+h}\item 
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/\hyperlink{CoolBoardSensors_8cpp}{Cool\+Board\+Sensors.\+cpp}\end{DoxyCompactItemize}

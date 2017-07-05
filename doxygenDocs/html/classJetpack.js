@@ -5,8 +5,6 @@ var classJetpack =
     [ "config", "classJetpack.html#ab065ee83e244265a2223a22f3ee4a719", null ],
     [ "doAction", "classJetpack.html#a86d2e83436ef4b85f4c3a6e85ac785b0", null ],
     [ "printConf", "classJetpack.html#ac54a7bb4f9166bee32052253d9b1d306", null ],
-    [ "resetBit", "classJetpack.html#ad1142aa8d4d8d0528566a5dc1fe85d54", null ],
-    [ "setBit", "classJetpack.html#a910c9023313d3896fd71a8a55dceeaa2", null ],
     [ "write", "classJetpack.html#a338f1af8cbc6504ac69b47c7328569b5", null ],
     [ "writeBit", "classJetpack.html#a79ae7bc3c1828a0551a7c005c4f8bd00", null ],
     [ "action", "classJetpack.html#aca3142925a7b0834b34ae91d26af7765", null ],

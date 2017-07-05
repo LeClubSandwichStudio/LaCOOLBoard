@@ -18,12 +18,12 @@ var classCoolBoardSensors =
     [ "stopReadI2C", "classCoolBoardSensors.html#ab67b900b9e5e7c18d52d2d9107ba171b", null ],
     [ "airDataActive", "classCoolBoardSensors.html#abff8dfeccb2f7689847bb64d5f1cd31e", null ],
     [ "AnMplex", "classCoolBoardSensors.html#a12ef28b1046219e0aee10bf64e28c4a5", null ],
-    [ "earthMoistureActive", "classCoolBoardSensors.html#a46dfddb8a12720e92cd2825ef09023c8", null ],
     [ "EnI2C", "classCoolBoardSensors.html#aaa6b5dbf3a6633bffd9d204d961096dc", null ],
     [ "EnMoisture", "classCoolBoardSensors.html#a6177d02e14a057a2f171a2e930b5038d", null ],
     [ "envSensor", "classCoolBoardSensors.html#a868e38985e9a2412829fa2790ca13e2e", null ],
     [ "jsonSize", "classCoolBoardSensors.html#a05a40dc80bfff14ffb830f549b876f8d", null ],
     [ "lightDataActive", "classCoolBoardSensors.html#ac4deb1cf41bac8b91c780c92fab00ba4", null ],
     [ "lightSensor", "classCoolBoardSensors.html#a3e397300fb707dd193e909a757bf6102", null ],
+    [ "soilMoistureActive", "classCoolBoardSensors.html#a31983eecc0f9cd000e1f912206ea4dc8", null ],
     [ "vbatActive", "classCoolBoardSensors.html#af5039ad760b0ff0aa7eee16c55e81702", null ]
 ];

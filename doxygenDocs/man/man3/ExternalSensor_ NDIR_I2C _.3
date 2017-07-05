@@ -1,4 +1,4 @@
-.TH "ExternalSensor< NDIR_I2C >" 3 "Mon Jul 3 2017" "CoolAPI" \" -*- nroff -*-
+.TH "ExternalSensor< NDIR_I2C >" 3 "Wed Jul 5 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -21,7 +21,7 @@ Inherits \fBBaseExternalSensor\fP\&.
 .RI "virtual uint8_t \fBbegin\fP ()"
 .br
 .ti -1c
-.RI "virtual int \fBread\fP ()"
+.RI "virtual float \fBread\fP ()"
 .br
 .in -1c
 .SS "Private Attributes"
@@ -39,20 +39,23 @@ Inherits \fBBaseExternalSensor\fP\&.
 class ExternalSensor< NDIR_I2C >"
 NDIR_I2C Specialization Class This is the template specialization for the NDIR_I2C CO2 sensor\&. 
 .PP
-Definition at line 133 of file ExternalSensor\&.h\&.
+Definition at line 146 of file ExternalSensor\&.h\&.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "\fBExternalSensor\fP< NDIR_I2C >::\fBExternalSensor\fP (uint8_t i2c_addr)\fC [inline]\fP"
 \fBExternalSensor(I2C address)\fP: NDIR_I2C specific constructor 
 .PP
-Definition at line 141 of file ExternalSensor\&.h\&.
+Definition at line 154 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-142     {
-143         sensor=NDIR_I2C(i2c_addr);
-144     }
+155     {
+156         Serial\&.println("ExternalSensor <NDIR_I2C> constructor");
+157         Serial\&.println();
+158 
+159         sensor=NDIR_I2C(i2c_addr);
+160     }
 .fi
 .SH "Member Function Documentation"
 .PP 
@@ -68,26 +71,33 @@ true if successful, false otherwise
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 153 of file ExternalSensor\&.h\&.
+Definition at line 169 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-154     {
-155 
-156          if (sensor\&.begin()) 
-157         {
-158 
-159             delay(10000);
-160             return(true);
-161             }
-162          else 
-163         {
-164             return(false);
-165         }   
-166     }
+170     {
+171         Serial\&.println("ExternalSensor <NDIR_I2C> begin()");
+172         Serial\&.println();
+173 
+174          if (sensor\&.begin()) 
+175         {
+176             Serial\&.println("NDIR_I2C init : wait 10 seconds");
+177             Serial\&.println();
+178 
+179             delay(10000);
+180             return(true);
+181             }
+182          else 
+183         {
+184             Serial\&.println("NDIR_I2C init : fail ");
+185             Serial\&.println();
+186 
+187             return(false);
+188         }   
+189     }
 .fi
-.SS "virtual int \fBExternalSensor\fP< NDIR_I2C >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
+.SS "virtual float \fBExternalSensor\fP< NDIR_I2C >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
 \fBread()\fP: NDIR_I2C specific read method
 .PP
 \fBReturns:\fP
@@ -99,34 +109,41 @@ the ppm value if successful, else return -42
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 175 of file ExternalSensor\&.h\&.
+Definition at line 198 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-176     {
-177 
-178         if (sensor\&.measure())
-179         {
-180 
-181 
-182             return(sensor\&.ppm);
-183             
-184         }
-185         
-186         else
-187         {
-188 
-189             return(-42);
-190         }
-191     }
+199     {
+200         Serial\&.println("ExternalSensor <NDIR_I2C> read()");
+201         Serial\&.println();
+202 
+203         if (sensor\&.measure())
+204         {
+205             Serial\&.print("NDIR_I2C ppm :");
+206             Serial\&.println( (float) sensor\&.ppm);
+207             
+208             Serial\&.println();            
+209 
+210             return( (float) sensor\&.ppm);
+211             
+212         }
+213         
+214         else
+215         {
+216             Serial\&.println("NDIR_I2C read fail ");
+217             Serial\&.println();
+218 
+219             return(-42);
+220         }
+221     }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "NDIR_I2C \fBExternalSensor\fP< NDIR_I2C >::sensor =NULL\fC [private]\fP"
 
 .PP
-Definition at line 195 of file ExternalSensor\&.h\&.
+Definition at line 225 of file ExternalSensor\&.h\&.
 
 .SH "Author"
 .PP 

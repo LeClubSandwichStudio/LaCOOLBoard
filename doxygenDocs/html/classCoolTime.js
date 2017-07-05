@@ -3,6 +3,7 @@ var classCoolTime =
     [ "begin", "classCoolTime.html#ab1976cf718b950bc31e003c3323b8adb", null ],
     [ "config", "classCoolTime.html#a87c28260c1bc77091162cbcf1ee2e129", null ],
     [ "config", "classCoolTime.html#ae5528ed0ba9e78c711084968054950e0", null ],
+    [ "formatDigits", "classCoolTime.html#acd537cd4210d7bde4e1f5c47d2ac0456", null ],
     [ "getESDate", "classCoolTime.html#ac4f32ee513c1328d984306645e8785a4", null ],
     [ "getLastSyncTime", "classCoolTime.html#a5d17f707a9d337720493b2bce9d41c21", null ],
     [ "getNtpTime", "classCoolTime.html#a41fbbbfd651c2079f54d4b2911e4c705", null ],

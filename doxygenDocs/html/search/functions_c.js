@@ -2,7 +2,6 @@ var searchData=
 [
   ['savesensordata',['saveSensorData',['../classCoolFileSystem.html#a4c560c2ddd40b74b7758e6ceb2c58957',1,'CoolFileSystem']]],
   ['sendntppacket',['sendNTPpacket',['../classCoolTime.html#a236a38d120dc53bc67456d763838c5a1',1,'CoolTime']]],
-  ['setbit',['setBit',['../classJetpack.html#a910c9023313d3896fd71a8a55dceeaa2',1,'Jetpack']]],
   ['setdatetime',['setDateTime',['../classCoolTime.html#ab81ea7fdaace111aa01cc1ec84c6d297',1,'CoolTime']]],
   ['setenvsensorsettings',['setEnvSensorSettings',['../classCoolBoardSensors.html#a406307ffd70272282d91479c7ed8d66f',1,'CoolBoardSensors']]],
   ['setgain',['setGain',['../classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34',1,'Irene3000']]],

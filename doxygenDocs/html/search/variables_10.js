@@ -6,5 +6,6 @@ var searchData=
   ['sensors',['sensors',['../classExternalSensors.html#a284233f884fcf00154a44740cf1d9e1e',1,'ExternalSensors']]],
   ['sensorsnumber',['sensorsNumber',['../classExternalSensors.html#a58e4fbf9adeae787d92be5fa33043b5d',1,'ExternalSensors']]],
   ['servertimeout',['serverTimeOut',['../classCoolBoard.html#a7a8d8d3d316220cdd049cd63c1aa8fe6',1,'CoolBoard']]],
-  ['sleepactive',['sleepActive',['../classCoolBoard.html#a0a51b2287139f66c738101fb53139230',1,'CoolBoard']]]
+  ['sleepactive',['sleepActive',['../classCoolBoard.html#a0a51b2287139f66c738101fb53139230',1,'CoolBoard']]],
+  ['soilmoistureactive',['soilMoistureActive',['../classCoolBoardSensors.html#a31983eecc0f9cd000e1f912206ea4dc8',1,'CoolBoardSensors']]]
 ];

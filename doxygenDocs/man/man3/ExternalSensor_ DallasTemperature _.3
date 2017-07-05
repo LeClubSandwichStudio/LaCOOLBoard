@@ -1,4 +1,4 @@
-.TH "ExternalSensor< DallasTemperature >" 3 "Mon Jul 3 2017" "CoolAPI" \" -*- nroff -*-
+.TH "ExternalSensor< DallasTemperature >" 3 "Wed Jul 5 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -21,7 +21,7 @@ Inherits \fBBaseExternalSensor\fP\&.
 .RI "virtual uint8_t \fBbegin\fP ()"
 .br
 .ti -1c
-.RI "virtual int \fBread\fP ()"
+.RI "virtual float \fBread\fP ()"
 .br
 .in -1c
 .SS "Private Attributes"
@@ -42,22 +42,25 @@ Inherits \fBBaseExternalSensor\fP\&.
 class ExternalSensor< DallasTemperature >"
 DallasTemperature Specialization Class This is the template specialization for the Dallas Temperature sensor\&. 
 .PP
-Definition at line 205 of file ExternalSensor\&.h\&.
+Definition at line 235 of file ExternalSensor\&.h\&.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "\fBExternalSensor\fP< DallasTemperature >::\fBExternalSensor\fP ()\fC [inline]\fP"
 \fBExternalSensor()\fP: DallasTemperature specific constructor 
 .PP
-Definition at line 212 of file ExternalSensor\&.h\&.
+Definition at line 242 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-213     {
-214         OneWire oneWire(0);
-215         
-216         sensor=DallasTemperature(&oneWire);
-217     }
+243     {
+244         Serial\&.println("ExternalSensor <DallasTemperature> constructor");
+245         Serial\&.println();
+246 
+247         OneWire oneWire(0);
+248         
+249         sensor=DallasTemperature(&oneWire);
+250     }
 .fi
 .SH "Member Function Documentation"
 .PP 
@@ -73,20 +76,22 @@ true if successful
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 225 of file ExternalSensor\&.h\&.
+Definition at line 258 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-226     {
-227         
-228         sensor\&.begin(); 
-229         delay(5);
-230         sensor\&.getAddress(this->dallasAddress, 1);   
-231         return(true);
-232     }
+259     {
+260         Serial\&.println("ExternalSensor <DallasTemperature> begin()");
+261         Serial\&.println();
+262         
+263         sensor\&.begin(); 
+264         delay(5);
+265         sensor\&.getAddress(this->dallasAddress, 1);   
+266         return(true);
+267     }
 .fi
-.SS "virtual int \fBExternalSensor\fP< DallasTemperature >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
+.SS "virtual float \fBExternalSensor\fP< DallasTemperature >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
 \fBread()\fP: DallasTemperature specific read method
 .PP
 \fBReturns:\fP
@@ -98,25 +103,33 @@ the temperature in °C
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 239 of file ExternalSensor\&.h\&.
+Definition at line 274 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-240     {
-241          return( (int) sensor\&.getTempC(this->dallasAddress) );
-242     }
+275     {
+276         Serial\&.println("ExternalSensor <DallasTemperature> read()");
+277         Serial\&.println();
+278 
+279         Serial\&.print("temperature : ");
+280         Serial\&.print( (float) sensor\&.getTempC(this->dallasAddress) );
+281         Serial\&.print("°C");
+282         Serial\&.println();
+283         
+284         return( (float) sensor\&.getTempC(this->dallasAddress) );
+285     }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "DeviceAddress \fBExternalSensor\fP< DallasTemperature >::dallasAddress\fC [private]\fP"
 
 .PP
-Definition at line 247 of file ExternalSensor\&.h\&.
+Definition at line 290 of file ExternalSensor\&.h\&.
 .SS "DallasTemperature \fBExternalSensor\fP< DallasTemperature >::sensor =NULL\fC [private]\fP"
 
 .PP
-Definition at line 246 of file ExternalSensor\&.h\&.
+Definition at line 289 of file ExternalSensor\&.h\&.
 
 .SH "Author"
 .PP 
