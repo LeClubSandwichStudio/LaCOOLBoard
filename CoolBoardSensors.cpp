@@ -22,6 +22,9 @@
 */
 CoolBoardSensors::CoolBoardSensors()
 {
+	Serial.println("Entering CoolBoardSensors Constructor");
+	Serial.println();
+	
 	Wire.begin(2, 14);                       //I2C init Maybe change this to the CoolBoard?
 
 	pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
@@ -40,6 +43,13 @@ CoolBoardSensors::CoolBoardSensors()
 */
 int CoolBoardSensors::getJsonSize()
 {
+	Serial.println("Entering CoolBoardSensors.getJsonSize()");
+	Serial.println();
+
+	Serial.print("json size is : ");
+	Serial.println(this->jsonSize);
+	Serial.println();
+
 	return(this->jsonSize );
 }
 
@@ -50,7 +60,17 @@ int CoolBoardSensors::getJsonSize()
 */
 void CoolBoardSensors::setJsonSize(int jsonSize)
 {
+	Serial.println("Entering CoolBoardSensors.setJsonSize()");
+	Serial.println();
+	
+	Serial.print("old json Size is : ");
+	Serial.println(this->jsonSize);
+		
 	this->jsonSize=jsonSize;
+	
+	Serial.print("new json Size is : ");
+	Serial.println(this->jsonSize);
+	
 }
 
 /**
@@ -61,17 +81,22 @@ void CoolBoardSensors::setJsonSize(int jsonSize)
 */
 void CoolBoardSensors::allActive()
 {
-	lightDataActive.visible=1;
-	lightDataActive.ir=1;
-	lightDataActive.uv=1;	
+	Serial.println("Entering CoolBoardSensors.allActive()");
+	Serial.println();
+	
+	this->lightDataActive.visible=1;
+	this->lightDataActive.ir=1;
+	this->lightDataActive.uv=1;	
 
-	airDataActive.temperature=1;
-	airDataActive.humidity=1;
-	airDataActive.pressure=1;
+	this->airDataActive.temperature=1;
+	this->airDataActive.humidity=1;
+	this->airDataActive.pressure=1;
 
 
-	vbatActive=1;
-	earthMoistureActive=1;
+	this->vbatActive=1;
+
+	this->soilMoistureActive=1;
+	
 
 
 }
@@ -84,6 +109,9 @@ void CoolBoardSensors::allActive()
 */
 void CoolBoardSensors::begin()
 {       
+	Serial.println("Entering CoolBoardSensors.begin()");
+	Serial.println();
+
 	initReadI2C();
 
 	while (!lightSensor.Begin()) {
@@ -95,7 +123,10 @@ void CoolBoardSensors::begin()
 	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
 	this->envSensor.begin();
 	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
+	
+	Serial.print("BME280 begin answer is :");
 	Serial.println(envSensor.begin(), HEX);
+	Serial.println();
 
 
 }
@@ -107,6 +138,8 @@ void CoolBoardSensors::begin()
 */
 void CoolBoardSensors::end()
 {
+	Serial.println("Entering CoolBoardSensors.end()");
+	Serial.println();
 
 	lightSensor.DeInit();
 
@@ -122,6 +155,9 @@ void CoolBoardSensors::end()
 **/
 String CoolBoardSensors::read()
 {
+	Serial.println("Entering CoolBoardSensors.read()");
+	Serial.println();
+
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
@@ -131,7 +167,6 @@ String CoolBoardSensors::read()
 	//light data
 	if(lightDataActive.visible)
 	{
-
 		root["visibleLight"] =lightSensor.ReadVisible() ;
 	}
 	
@@ -170,17 +205,19 @@ String CoolBoardSensors::read()
 	}
 	
 	//earth Moisture
-	if(earthMoistureActive)
+	if(soilMoistureActive)
 	{	
 		root["soilMoisture"]=this->readMoisture();
 	}
 	
 	
 	root.printTo(data);
-	
 
+	Serial.println("CoolBoardSensors data is :");
+	root.printTo(Serial);
+	Serial.println();
 
-	return(data);
+	return(data);	
 	
 
 }
@@ -192,7 +229,9 @@ String CoolBoardSensors::read()
 */
 void CoolBoardSensors::initReadI2C()
 {
-  
+ 	Serial.println("Entering CoolBoardSensors.initReadI2C()");
+	Serial.println();
+ 
 	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
 
 }
@@ -204,6 +243,8 @@ void CoolBoardSensors::initReadI2C()
 */
 void CoolBoardSensors::stopReadI2C()
 {
+	Serial.println("Entering CoolBoardSensors.stopReadI2C()");
+	Serial.println();
 
 	digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
 
@@ -221,12 +262,18 @@ void CoolBoardSensors::stopReadI2C()
 */
 bool CoolBoardSensors::config()
 {
+	Serial.println("Entering CoolBoardSensors.config()");
+	Serial.println();
+
 	//read config file
 	//update data
 	File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "r");
 
 	if (!coolBoardSensorsConfig) 
 	{
+		Serial.println("failed to read /coolBoardSensorsConfig.json");
+		Serial.println();
+
 		return(false);
 	}
 	else
@@ -240,10 +287,17 @@ bool CoolBoardSensors::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse coolBoardSensorsConfig json");
+			Serial.println();
+	
+			return(false);
 		} 
 		else
-		{  	  
+		{
+			Serial.println("Configuration Json is :");
+			json.printTo(Serial);
+			Serial.println();
+  	  
 			if(json["jsonSize"].success() )
 			{
 				this->jsonSize = json["jsonSize"]; 
@@ -335,25 +389,31 @@ bool CoolBoardSensors::config()
 			
 			if(json["soilMoisture"].success() )
 			{			
-				this->earthMoistureActive= json["soilMoisture"];
+				this->soilMoistureActive= json["soilMoisture"];
 			}
 			else
 			{
-				this->earthMoistureActive=this->earthMoistureActive;
+				this->soilMoistureActive=this->soilMoistureActive;
 			}
-			json["soilMoisture"]=this->earthMoistureActive;
+			json["soilMoisture"]=this->soilMoistureActive;
 
 			coolBoardSensorsConfig.close();			
 			coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");			
 			if(!coolBoardSensorsConfig)
 			{
+				Serial.println("failed to write to /coolBoardSensorsConfig.json");
+				Serial.println();
+
 				return(false);			
 			}  
 
 			json.printTo(coolBoardSensorsConfig);
 			coolBoardSensorsConfig.close();			
 			
-			  return(true); 
+			Serial.println("Saved Configuration Json is : ");
+			json.printTo(Serial);
+			Serial.println();
+			return(true); 
 		}
 	}	
 
@@ -367,18 +427,25 @@ bool CoolBoardSensors::config()
 */
 void CoolBoardSensors::printConf()
 {
-	Serial.println("Sensors Conf ");
-	Serial.println(jsonSize);
-	Serial.println(airDataActive.temperature);
-	Serial.println(airDataActive.humidity);
-	Serial.println(airDataActive.pressure);
+	Serial.println("Entering CoolBoardSensors.printConf()");
+	Serial.println();
 
-	Serial.println(lightDataActive.visible);
-	Serial.println(lightDataActive.ir);
-	Serial.println(lightDataActive.uv);
-	Serial.println(vbatActive);
-	Serial.println(earthMoistureActive);
-	Serial.println(" ");
+	Serial.println("Sensors Configuration : ");
+	
+	Serial.print("json size : ");Serial.println(this->jsonSize);
+	Serial.print("airDataActive.temperature : ");Serial.println(this->airDataActive.temperature);
+	Serial.print("airDataActive.humidity : ");Serial.println(airDataActive.humidity);
+	Serial.print("airDataActive.pressure : ");Serial.println(airDataActive.pressure);
+
+	Serial.print("lightDataActive.visible : ");Serial.println(lightDataActive.visible);
+	Serial.print("lightDataActive.ir : ");Serial.println(lightDataActive.ir);
+	Serial.print("lightDataActive.uv : ");Serial.println(lightDataActive.uv);
+	
+	Serial.print("vbatActive : ");Serial.println(vbatActive);
+
+	Serial.print("soilMoitureActive : ");Serial.println(soilMoistureActive);
+
+	Serial.println();
 }
 
 
@@ -394,21 +461,24 @@ void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CA
 						   uint8_t tempOverSample,  uint8_t pressOverSample,    							   
 						   uint8_t humidOverSample)
 {
-  envSensor.settings.commInterface = commInterface;      
+	Serial.println("Entering CoolBoardSensors.setEnvSensorSettings()");
+	Serial.println();
   
-  envSensor.settings.I2CAddress = I2CAddress;
-  
-  envSensor.settings.runMode = runMode; 
-  
-  envSensor.settings.tStandby = tStandby; 
-  
-  envSensor.settings.filter = filter; 
-  
-  envSensor.settings.tempOverSample = tempOverSample;
-  
-  envSensor.settings.pressOverSample = pressOverSample;
-  
-  envSensor.settings.humidOverSample = humidOverSample;
+	this->envSensor.settings.commInterface = commInterface;      
+
+	this->envSensor.settings.I2CAddress = I2CAddress;
+
+	this->envSensor.settings.runMode = runMode; 
+
+	this->envSensor.settings.tStandby = tStandby; 
+
+	this->envSensor.settings.filter = filter; 
+
+	this->envSensor.settings.tempOverSample = tempOverSample;
+
+	this->envSensor.settings.pressOverSample = pressOverSample;
+
+	this->envSensor.settings.humidOverSample = humidOverSample;
 
 }
 
@@ -422,13 +492,21 @@ void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CA
 */	
 float CoolBoardSensors::readVBat()
 {
-	digitalWrite(AnMplex, LOW);                                  //Enable Analog Switch to get the batterie tension
+	Serial.println("Entering CoolBoardSensors.readVBat()");
+	Serial.println();
+
+	digitalWrite(this->AnMplex, LOW);                            //Enable Analog Switch to get the batterie tension
   	
 	delay(200);
   	
 	int raw = analogRead(A0);                                    //read in batterie tension
  	
 	float val = 6.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
+	
+	Serial.println("Vbat is : ");
+	Serial.println(val);
+	Serial.println();
+
 
 	return (val);	
 }
@@ -443,18 +521,25 @@ float CoolBoardSensors::readVBat()
 */
 float CoolBoardSensors::readMoisture()
 {
-	  digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
-  	  
-	  digitalWrite(AnMplex, HIGH);			//enable analog Switch to get the moisture
-  	  
-	  delay(2000);
-  	  
-	  int val = analogRead(A0);                       //read the value form the moisture sensor
-  	  
-	  float result = (float)map(val, 0, 890, 0, 100);	
+	Serial.println("Entering CoolBoardSensors.readMoisture()");
+	Serial.println();
 
-	  digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
-  	  
-	  return (result);
+	digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
+
+	digitalWrite(AnMplex, HIGH);			//enable analog Switch to get the moisture
+
+	delay(2000);
+
+	int val = analogRead(A0);                       //read the value form the moisture sensor
+
+	float result = (float)map(val, 0, 890, 0, 100);	
+
+	digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
+	
+	Serial.println("Soil Moisture is : ");
+	Serial.println(result);
+	Serial.println();
+
+	return (result);
 }
 

@@ -23,6 +23,9 @@
 */
 void Jetpack::begin()
  { 
+	Serial.println("Entering Jetpack.begin() ");
+	Serial.println();
+
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
 	pinMode(clockPin,OUTPUT);
@@ -42,13 +45,22 @@ void Jetpack::begin()
 */
 void Jetpack::write(byte action)
 {
+	Serial.println("Entering Jetpack.write()");
+	Serial.println();
+
+	Serial.println("writing this action : ");
+	Serial.println(action,HEX);
+	Serial.println();
+
 	this->action=action;
 
+	
 	digitalWrite(EnI2C, LOW);
 	
 	shiftOut(dataPin, clockPin, MSBFIRST, this->action);
 
 	digitalWrite(EnI2C, HIGH);
+
 }	
 
 /**
@@ -58,6 +70,9 @@ void Jetpack::write(byte action)
 */
 void Jetpack::writeBit(byte pin,bool state) 
 {
+	Serial.println("Entering Jetpack.writeBit() ");
+	Serial.print("Writing ");Serial.print(state);Serial.print("to pin N°");Serial.print(pin);
+	Serial.println();
 
 	bitWrite(this->action, pin, state);
 	digitalWrite(EnI2C, LOW);
@@ -66,30 +81,6 @@ void Jetpack::writeBit(byte pin,bool state)
 
 	digitalWrite(EnI2C, HIGH);
 
-}
-
-/**
-*	Jetpack::setBit(pin):
-*	This method is provided to
-*	directly put to HIGH the pin
-*	passed as argument
-*/
-void Jetpack::setBit(byte pin)
-{
-//	
-//	wB(pin,0);
-}	
-
-/**
-*	Jetpack::setBit(pin):
-*	This method is provided to
-*	directly put to LOW the pin
-*	passed as argument
-*/	
-void Jetpack::resetBit(byte pin)
-{
-	/*auto bound_member_fn=std::bind(&Jetpack::writeBit,std::placeholders::_2,std::placeholders::_2);
- 	bound_member_fn(pin,0);*/
 }
 
 /**
@@ -113,64 +104,92 @@ void Jetpack::resetBit(byte pin)
 */
 void Jetpack::doAction(const char* data,int JSON_SIZE)
 {
+	Serial.println("Entering Jetpack.doAction()");
+	Serial.println();
+
+	Serial.println("input data is :");
+	Serial.println(data);
+	Serial.println();
+
+	Serial.println("input size is :");	
+	Serial.println(JSON_SIZE);
+	Serial.println();
+
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(data);
 	
-	//invert the current action state for each actor
-	//if the value is outside the limits
-	for(int i=0;i<8;i++)
+	if (!root.success()) 
 	{
-		//check if the actor is actif 
-		if(this->actors[i].actif==1)
-		{	
-			//check if the actor is temporal or not
-			if( this->actors[i].temporal==0 ) 
-			{
-				if( ( ( root[this->actors[i].type] ) > ( this->actors[i].high ) ) || ( ( root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
-				{	
-					bitWrite( this->action , i , !( bitRead(this->action, i ) ) );	
+		Serial.println("failed to parse json object ");
+		Serial.println();
+	}
+	else
+	{
+		Serial.println("created Json object :");
+		root.printTo(Serial);
+		Serial.println();
+
+		//invert the current action state for each actor
+		//if the value is outside the limits
+		for(int i=0;i<8;i++)
+		{
+			//check if the actor is actif 
+			if(this->actors[i].actif==1)
+			{	
+				//if the actor is not temporal
+				if( this->actors[i].temporal==0 ) 
+				{
+					if( ( ( root[this->actors[i].type] ) > ( this->actors[i].high ) ) || ( ( root[ this->actors[i].type ] ) < ( this->actors[i].low ) ) )	
+					{	
+						bitWrite( this->action , i , !( bitRead(this->action, i ) ) );	
+					}
+				}
+				//if the actor is temporal
+				else
+				{	//if the actor was actif for highTime or more :
+					if( ( millis()- this->actors[i].actifTime  ) >= ( this->actors[i].high  ) )
+					{
+						//stop the actor
+						bitWrite( this->action , i , 0) ;
+
+						//make the actor inactif:
+						this->actors[i].actif=0;
+
+						//start the low timer
+						this->actors[i].inactifTime=millis();				
+					}			
+							
 				}
 			}
-
+			//check if actor is inactif
 			else
-			{	//if the actor was actif for highTime or more :
-				if( ( millis()- this->actors[i].actifTime  ) >= ( this->actors[i].high  ) )
+			{	//check if actor is temporal
+				if(this->actors[i].temporal==1)
 				{
-					//stop the actor
-					bitWrite( this->action , i , 0) ;
+					//if the actor was inactif for lowTime or more :
+					if( ( millis() - this->actors[i].inactifTime ) >= ( this->actors[i].low  ) )
+					{
+						//start the actor
+						bitWrite( this->action , i , 1) ;
 
-					//make the actor inactif:
-					this->actors[i].actif=0;
+						//make the actor actif:
+						this->actors[i].actif=1;
 
-					//start the low timer
-					this->actors[i].inactifTime=millis();				
-				}			
-							
-			}
-		}
-		//check if actor is inactif
-		else
-		{	//check if actor is temporal
-			if(this->actors[i].temporal==1)
-			{
-				//if the actor was inactif for lowTime or more :
-				if( ( millis() - this->actors[i].inactifTime ) >= ( this->actors[i].low  ) )
-				{
-					//start the actor
-					bitWrite( this->action , i , 1) ;
-
-					//make the actor actif:
-					this->actors[i].actif=1;
-
-					//start the low timer
-					this->actors[i].actifTime=millis();				
-				}			
+						//start the low timer
+						this->actors[i].actifTime=millis();				
+					}			
 			
+				}
 			}
 		}
-	}
 
-	this->write(this->action);
+		Serial.println("new action is : ");
+		Serial.println(this->action);
+		Serial.println();
+
+		this->write(this->action);
+
+	} 
 }
 
 /**
@@ -182,11 +201,16 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 */ 
 bool Jetpack::config()
 {
+	Serial.println("Entering Jetpack.config() ");
+	Serial.println();
 
 	File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "r");
 
 	if (!jetPackConfig) 
 	{
+		Serial.println("failed to read /jetPackConfig.json ");
+		Serial.println();
+
 		return(false);
 	}
 	else
@@ -200,10 +224,17 @@ bool Jetpack::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse jetpack config json from file ");
+			Serial.println();
+
+			return(false);
 		} 
 		else
-		{  	  
+		{  	
+			Serial.println("read configuration file : ");
+			json.printTo(Serial);
+			Serial.println();
+  
 			if(json["ActorsNumber"].success() )
 			{
 				this->actorsNumber = json["ActorsNumber"]; 
@@ -286,11 +317,18 @@ bool Jetpack::config()
 			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
 			if(!jetPackConfig)
 			{
+				Serial.println("failed to write to /jetPackConfig.json ");
+				Serial.println();
+				
 				return(false);			
 			}  
 
 			json.printTo(jetPackConfig);
-			jetPackConfig.close();		
+			jetPackConfig.close();
+			
+			Serial.println("saved configuration : ");
+			json.printTo(Serial );
+			Serial.println();		
 			
 			return(true); 
 		}
@@ -307,14 +345,40 @@ bool Jetpack::config()
 */
 void Jetpack::printConf()
 {
-	Serial.println("Jetpack Config ");
-	Serial.println(this->actorsNumber); 
+	Serial.println("Enter Jetpack.printConf() ");
+	Serial.println();
+	
+	Serial.print("actorsNumber : ");
+	Serial.println(this->actorsNumber);
+ 
         for(int i=0;i<this->actorsNumber;i++)
-	{
-	Serial.println(this->actors[0].actif);
-	Serial.println(this->actors[0].low);
-	Serial.println(this->actors[0].high);
-	Serial.println(this->actors[0].type); 
+	{	
+		Serial.print("actor N°");
+		Serial.print(i);
+		Serial.print(" actif :");
+		Serial.println(this->actors[0].actif);
+
+		Serial.print("actor N°");
+		Serial.print(i);
+		Serial.print(" low :");
+		Serial.println(this->actors[0].low);
+
+		Serial.print("actor N°");
+		Serial.print(i);
+		Serial.print(" high :");
+		Serial.println(this->actors[0].high);
+
+		Serial.print("actor N°");
+		Serial.print(i);
+		Serial.print(" type :");
+		Serial.println(this->actors[0].type);
+		
+		Serial.print("actor N°");
+		Serial.print(i);
+		Serial.print(" temporal :");
+		Serial.println(this->actors[0].temporal);
+ 
+
 	}
 }
  

@@ -21,6 +21,13 @@
 */
 bool CoolFileSystem::begin()
 {
+	Serial.println("Entering CoolFileSystem.begin()");
+	Serial.println();
+	
+	Serial.print("SPIFFS success ? ");
+	Serial.println(SPIFFS.begin());
+	Serial.println();
+	
 	return( SPIFFS.begin() );                                   //Initialize Filesystem
 
 }
@@ -37,21 +44,43 @@ bool CoolFileSystem::begin()
 */
 bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 {
+	Serial.println("Entering CoolFileSystem.saveSensorData()");
+	Serial.println();
+
+	
 	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
 	if(!sensorsData)
 	{
+		Serial.println("failed to append to /sensorsData.json");
+		Serial.println();
+
 		this->savedData=false;
 		return (false);	
 	}	
 
 	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(data);
+
+	if( root.success() )
+	{
+		root.printTo(sensorsData);
+		sensorsData.close();
+
+		Serial.println("saved data is : ");
+		root.printTo(Serial);
+		Serial.println();
+
+		this->savedData=true;
+		return (true);		
+	}
+	else
+	{
+		Serial.println("failed to parse json");
+		this->savedData=false;
+		return(false);
+	}
 	
-	root.printTo(sensorsData);
-	sensorsData.close();
-	
-	this->savedData=true;
-	return (true);		
+
 }
 
 /**
@@ -64,16 +93,32 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 */
 bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 {
-	//String conversion to char*
+	Serial.println("Entering CoolFileSystem.updateConfigFiles");
+	Serial.println();
 
-	char *jsonRoot = new char[answer.length() + 1];
-	strcpy(jsonRoot, answer.c_str());
+	//String conversion to char*
+	//char jsonRoot = new char(answer.length() + 1);
+	//strcpy(jsonRoot, answer.c_str());
 	//total json object	
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
-	JsonObject& root = jsonBuffer.parseObject(jsonRoot);
+	JsonObject& root = jsonBuffer.parseObject( answer.c_str() );
+	
+	if(! ( root.success() ))
+	{
+		Serial.println("failed to parse root ");
+		Serial.println();
+		return(false);
+	}
+	else
+	{
+		Serial.println("success to parse root ");
+		Serial.println();	
+	}
+	
+	Serial.println("input message is : ");
+	root.printTo(Serial);
+	Serial.println();
 
-
-		
 	//temp string
 	String temp;
 
@@ -85,7 +130,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w");	
 		if(!coolBoardConfig)
 		{	
-			Serial.println("failed to open coolBoardConfig.json");
+			Serial.println("failed to write to coolBoardConfig.json");
 			return(false);
 		}
 		Serial.println("CoolBoard Config");
@@ -97,7 +142,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	}
 	else
 	{
-		Serial.println("failed to pars coolBoard ");
+		Serial.println("failed to parse CoolBoard ");
 	}		
 
 	
@@ -109,7 +154,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");	
 		if(!coolBoardSensorsConfig)
 		{
-			Serial.println("failed to open coolBoardSensors.json");
+			Serial.println("failed to write coolBoardSensors.json");
 			return(false);
 		}
 		
@@ -120,7 +165,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	}
 	else
 	{
-		Serial.println("failed to parse on board sensors ");	
+		Serial.println("failed to parse CoolSensorsBoard sensors ");	
 	}
 	
 	
@@ -135,7 +180,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File rtcConfig = SPIFFS.open("/rtcConfig.json", "w");	
 		if(!rtcConfig)
 		{
-			Serial.println("failed to open rtcConfig.json");
+			Serial.println("failed to write rtcConfig.json");
 			return(false);
 		}
 		Serial.println("RTC Config");
@@ -163,7 +208,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");	
 		if(!coolBoardLedConfig)
 		{
-			Serial.println("failed to open led config");
+			Serial.println("failed to write led config");
 			return(false);
 		}
 		Serial.println("CoolBoardLed Config");
@@ -190,7 +235,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");	
 		if(!jetPackConfig)
 		{
-			Serial.println("failed to open jetpack file");
+			Serial.println("failed to write jetpack file");
 			return(false);
 		}
 		Serial.println("jetpack Config");	
@@ -213,7 +258,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		File irene3000Config = SPIFFS.open("/irene3000Config.json", "w");	
 		if(!irene3000Config)
 		{
-			Serial.println("failed to open irene file");
+			Serial.println("failed to write irene file");
 			return(false);
 		}
 		Serial.println("irene3000 Config");
@@ -291,6 +336,12 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 */
 bool CoolFileSystem::isDataSaved()
 {
+	Serial.println("Entering CoolFileSystem.isDataSaved()");
+	Serial.println();
+	
+	Serial.print("savedData : ");
+	Serial.println(this->savedData);
+
 	return( this->savedData );
 }
 
@@ -304,12 +355,15 @@ bool CoolFileSystem::isDataSaved()
 */
 String CoolFileSystem::getSensorSavedData()
 {
+	Serial.println("Entering CoolFileSystem.getSensorSavedData()");
+	Serial.println();
+
 	//open sensors data file
 	File sensorsData=SPIFFS.open("/sensorsData.json","r");
 	
 	if (!sensorsData)
-
 	{
+		Serial.println("Failed to read /sensorsData.json"); 
 		return("failed to open file");
 	}
 	else
@@ -350,7 +404,11 @@ String CoolFileSystem::getSensorSavedData()
 			sensorsData.close();
 			
 			//position the saved data flag to false
-			this->savedData=false;			
+			this->savedData=false;	
+		
+			Serial.println("saved data : ");
+			Serial.println(sensorDataString);
+			Serial.println();
 
 			//return the string
 			return(sensorDataString);		

@@ -27,10 +27,6 @@ public:
  	void write(byte action);			//writes to the Jetpack
  
 	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
-	
-	static void setBit(byte pin);
-	
-	static void resetBit(byte pin);
  
 	void doAction(const char* data, int JSON_SIZE);
        
@@ -42,19 +38,19 @@ private:
 
 	byte action= B00000000; 
 	
-	byte actorsNumber;
+	byte actorsNumber=0;
 
 	struct state{
 	
-	const char* type;
+	const char* type="0";
 
-	bool actif; 
+	bool actif=0; 
 
-	int low;	//if temporal == 1 this is the time spent inactif in ms
+	int low=0;	//if temporal == 1 this is the time spent inactif in ms
 
-	int high;	//if temporal==1 this is the time spent actif in ms
+	int high=0;	//if temporal==1 this is the time spent actif in ms
 
-	bool temporal;
+	bool temporal=0;
 	
 	unsigned long actifTime=0;
 	

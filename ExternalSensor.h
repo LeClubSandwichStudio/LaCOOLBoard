@@ -29,7 +29,8 @@ public:
 	*/
 	BaseExternalSensor()
 	{
-	
+		Serial.println("BaseExternalSensor Constructor");
+		Serial.println();
 	}
 	/**
 	*	begin():
@@ -41,6 +42,8 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+		Serial.println("BaseExternalSensor.begin()");
+		Serial.println();
 
 		return(-2);
 	}
@@ -54,10 +57,12 @@ public:
 	*	as it is not supposed 
 	*	to be used	
 	*/
-	virtual int read()
+	virtual float read()
 	{
-
-		return(-1);
+		Serial.println("BaseExternalSensor.read()");
+		Serial.println();		
+		
+		return(-2);
 	}
 	
 };
@@ -92,6 +97,9 @@ public :
 	*/ 
 	ExternalSensor()
 	{
+		Serial.println("ExternalSensor <Generic> Constructor");
+		Serial.println();
+
 		sensor();
 	}
 
@@ -102,6 +110,8 @@ public :
 	*/
 	virtual uint8_t begin()
 	{
+		Serial.println("ExternalSensor <Generic> begin()");
+		Serial.println();
 
 		return(sensor.begin() );	
 	}
@@ -109,10 +119,13 @@ public :
 	/**
 	*	Generic read method
 	*/
-	virtual int read()
+	virtual float read()
 	{
 
-		return(0);
+		Serial.println("ExternalSensor <Generic> read() ");
+		Serial.println();
+		
+		return(sensor.read());
 	}
 
 
@@ -140,6 +153,9 @@ public:
 	*/
 	ExternalSensor(uint8_t i2c_addr)
 	{
+		Serial.println("ExternalSensor <NDIR_I2C> constructor");
+		Serial.println();
+
 		sensor=NDIR_I2C(i2c_addr);
 	}
 	
@@ -152,15 +168,22 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+		Serial.println("ExternalSensor <NDIR_I2C> begin()");
+		Serial.println();
 
 		 if (sensor.begin()) 
 		{
+			Serial.println("NDIR_I2C init : wait 10 seconds");
+			Serial.println();
 
 			delay(10000);
 			return(true);
     		}
 		 else 
 		{
+			Serial.println("NDIR_I2C init : fail ");
+			Serial.println();
+
 			return(false);
 		}	
 	}
@@ -172,19 +195,26 @@ public:
 	*	\return the ppm value if successful,
 	*	else return -42
 	*/
-	virtual int read()
+	virtual float read()
 	{
+		Serial.println("ExternalSensor <NDIR_I2C> read()");
+		Serial.println();
 
 		if (sensor.measure())
 		{
+			Serial.print("NDIR_I2C ppm :");
+			Serial.println( (float) sensor.ppm);
+			
+			Serial.println();			
 
-
-			return(sensor.ppm);
+			return( (float) sensor.ppm);
 			
 		}
 		
 		else
 		{
+			Serial.println("NDIR_I2C read fail ");
+			Serial.println();
 
 			return(-42);
 		}
@@ -211,6 +241,9 @@ public:
 	*/
 	ExternalSensor()
 	{
+		Serial.println("ExternalSensor <DallasTemperature> constructor");
+		Serial.println();
+
 		OneWire oneWire(0);
 		
 		sensor=DallasTemperature(&oneWire);
@@ -224,6 +257,8 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+		Serial.println("ExternalSensor <DallasTemperature> begin()");
+		Serial.println();
 		
 		sensor.begin(); 
 		delay(5);
@@ -236,9 +271,17 @@ public:
 	*
 	*	\return the temperature in °C
 	*/
-	virtual int read()
+	virtual float read()
 	{
-		 return( (int) sensor.getTempC(this->dallasAddress) );
+		Serial.println("ExternalSensor <DallasTemperature> read()");
+		Serial.println();
+
+		Serial.print("temperature : ");
+		Serial.print( (float) sensor.getTempC(this->dallasAddress) );
+		Serial.print("°C");
+		Serial.println();
+		
+		return( (float) sensor.getTempC(this->dallasAddress) );
 	}
 
 private:

@@ -25,6 +25,9 @@
 */
 void CoolMQTT::begin()
 { 
+	Serial.println("Entering CoolMQTT.begin()");
+	Serial.println();
+
 	client.setClient(espClient);
 	client.setServer(mqttServer, 1883);	
 	client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
@@ -50,7 +53,13 @@ void CoolMQTT::begin()
 */
 int CoolMQTT::state()
 {
-	return(client.state());
+	Serial.println("Entering CoolMQTT.state()");
+	Serial.println();
+	
+	Serial.print("state : ");
+	Serial.println( this->client.state() );
+	
+	return( this->client.state() );
 }
 
 /**
@@ -63,31 +72,33 @@ int CoolMQTT::state()
 */
 int CoolMQTT::connect(uint16_t keepAlive)
 {       
+	Serial.println("Entering CoolMQTT.connect()");
+
 	int i=0;
 	Serial.println("MQTT connecting...");
-	while ((!client.connected())&&(i<100)) 
+	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if (client.connect(user,keepAlive)) {
-			Serial.println("connected");
+		if( this->client.connect( this->user , keepAlive ) ) 
+		{
+			Serial.println("MQTT connected");
 			// Once connected, publish an announcement...
 			//client.publish(outTopic, "hello world by Ash");
 			// ... and resubscribe
-			client.subscribe(inTopic);
-			Serial.println("published and subscribed , leavin ") ;
-			return(client.state());
+			client.subscribe( this->inTopic );
+			Serial.println(" subscribed , leavin ") ;
+			return( this->state() );
 		}
 		else
 		{
-			Serial.println("not connected , leaving");
-			return(client.state());
+			Serial.println("not connected , retrying");
 			
 		}
 	delay(5);
 	i++;
 	}
 	
-	return(1);
+	return( this->state() );
 
 }
 
@@ -102,15 +113,20 @@ int CoolMQTT::connect(uint16_t keepAlive)
 bool CoolMQTT::publish(const char* data)
 {
 
+	Serial.println("Entering CoolMQTT.publish()");
+	Serial.println();
 	//data is in JSON, publish it directly
 
 	Serial.println("data to publish");
 	Serial.println(data);
 	Serial.print("data size ");Serial.println(strlen(data));
-	bool pub=client.publish( outTopic, data,strlen(data) );
+	Serial.println();
+	
+	bool pub=client.publish( this->outTopic, data,strlen(data) );
+	
+	Serial.print("success : ");Serial.println(pub);	
 
-
-	return( pub);
+	return(pub);
 
 }
 
@@ -124,15 +140,27 @@ bool CoolMQTT::publish(const char* data)
 */
 bool CoolMQTT::publish(const char* data,int logInterval)
 {
-	if( (millis()-this->previousLogTime) >=( logInterval ) )
+	Serial.println("Entering CoolMQTT.publish() every logInterval ");
+	Serial.println();
+	
+	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval ) )
 	{
+		Serial.println("log Interval has passed ");
+		Serial.println();
+
 		this->publish(data);
 
 		this->previousLogTime=millis();
 
+		Serial.print("last log time : ");
+		Serial.println(this->previousLogTime);
+
 		return(true);
 	}
-	
+
+	Serial.println("log Interval still didn't pass ");	
+	Serial.println();
+
 	return(false);
 }
 
@@ -146,8 +174,23 @@ bool CoolMQTT::publish(const char* data,int logInterval)
 */	
 bool CoolMQTT::mqttLoop()
 {
-	this->client.loop();
-	return(client.loop());
+	unsigned long lastTime=millis();
+
+	Serial.println("Entering CoolMQTT.mqttLoop()");
+	Serial.println();
+
+	
+
+	while( ( millis() - lastTime ) < 5000)
+	{
+		this->client.loop();	
+	}
+	
+	Serial.print("loop result : ");
+	Serial.println( this->client.loop() );
+	Serial.println();
+
+	return( this->client.loop() );
 }
 
 /**
@@ -159,29 +202,39 @@ bool CoolMQTT::mqttLoop()
 */
 void CoolMQTT::callback(char* topic, byte* payload, unsigned int length) 
 {
-	char temp[length+1];
-	Serial.println("temp msg : ");
-	for (int i = 0; i < length; i++) 
-	{
-		temp[i]=(char)payload[i];
-		Serial.print( (char)payload[i] );
-
-	}
+	Serial.println("Entering CoolMQTT.callback() ");
 	Serial.println();
+
 	if(this->newMsg==false)
-	{	
+	{
+		char temp[length+1];
+		Serial.println("received temp msg : ");
+		
+		for (int i = 0; i < length; i++) 
+		{
+			temp[i]=(char)payload[i];
+			Serial.print( (char)payload[i] );
+
+		}
+
+		Serial.println();
+	
+		Serial.println("storing new message : ");
+		Serial.println();
+
 		this->newMsg=true;
 
 		temp[length+1]='\0';
 
 		this->msg=String(temp);
 		this->msg.remove(length,1);
-		Serial.println("received");
+		Serial.println("stored message : ");
 		Serial.println(this->msg);
 	}
 	else
 	{
-		this->msg=" ";	
+		Serial.println("did not read last message");
+		
 	}
 
 }
@@ -193,13 +246,22 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 */
 String CoolMQTT::read()
 {	
+	Serial.println("Entering CoolMQTT.read()");
+	Serial.println();
 	if(this->newMsg==true)
 	{
-		this->newMsg=false;		
+		
+		this->newMsg=false;
+
+		Serial.println("received new message");
+		Serial.println("message : ");
+		Serial.println(this->msg);
+		Serial.println();
+				
 		return(this->msg);
 		
 	}
-	return(" ");
+	return("");
 
 }
 
@@ -216,12 +278,17 @@ String CoolMQTT::read()
 */
 bool CoolMQTT::config()
 {
+	Serial.println("Entering CoolMQTT.config()");
+	Serial.println();
+
 	//read config file
 	//update data
 	File configFile = SPIFFS.open("/mqttConfig.json", "r");
 
 	if (!configFile) 
 	{
+		Serial.println("failed to read /mqttConfig.json");
+		Serial.println();
 		return(false);
 	}
 	else
@@ -235,106 +302,119 @@ bool CoolMQTT::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse json ");
+			Serial.println();
+			
+			return(false);
 		} 
 		else
-		{				
-				if(json["mqttServer"].success() )
-				{			
-					const char* tempmqttServer = json["mqttServer"]; 
-					for(int i =0;i< 50 ;i++)
-					{
-						mqttServer[i]=tempmqttServer[i];
-					}
-				}
-				else
+		{		
+			Serial.println("configuration json is ");
+			json.printTo(Serial);
+			Serial.println();
+	
+			if(json["mqttServer"].success() )
+			{			
+				const char* tempmqttServer = json["mqttServer"]; 
+				for(int i =0;i< 50 ;i++)
 				{
-					for(int i =0;i< 50 ;i++)
-					{
-						this->mqttServer[i]=this->mqttServer[i];
-					}
+					mqttServer[i]=tempmqttServer[i];
+				}
+			}
+			else
+			{
+				for(int i =0;i< 50 ;i++)
+				{
+					this->mqttServer[i]=this->mqttServer[i];
+				}
 
-				}
-				json["mqttServer"]=this->mqttServer;
+			}
+			json["mqttServer"]=this->mqttServer;
 
-				
-				if(json["inTopic"].success() )
-				{
-					const char* tempInTopic = json["inTopic"]; 
-					for(int i =0;i< 50;i++)
-					{
-						inTopic[i]=tempInTopic[i];
-					}
-				}
-				else
-				{
-					String tempMAC = WiFi.macAddress();
-					tempMAC.replace(":","");
-					snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC.c_str());	
-					Serial.print("Set Incomming MQTT Channel to : ");
-					Serial.println(inTopic);	
-				}
-				json["inTopic"]=this->inTopic;
-				
-				
-				if(json["outTopic"].success() )
-				{
-					const char* tempOutTopic = json["outTopic"]; 
-					for(int i =0;i<50;i++)
-					{
-						outTopic[i]=tempOutTopic[i];
-					}
-				}
-				else
-				{
-					String tempMAC = WiFi.macAddress();
-					tempMAC.replace(":","");
-					snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
-					Serial.print("Set Outgoing MQTT Channel to : ");
-					Serial.println(outTopic);
-				}
-				json["outTopic"]=this->outTopic;
 			
-				
-				if(json["user"].success() )
-				{				
-					const char* tempUser = json["user"]; 
-					for(int i =0;i<50;i++)
-					{
-						user[i]=tempUser[i];
-					}
-				}
-				else
+			if(json["inTopic"].success() )
+			{
+				const char* tempInTopic = json["inTopic"]; 
+				for(int i =0;i< 50;i++)
 				{
-					for(int i=0;i<50;i++)
-					{
-						this->user[i]=this->user[i];
-					}				
+					inTopic[i]=tempInTopic[i];
 				}
-				json["user"]=this->user;
-				
-				if(json["bufferSize"].success() )
+			}
+			else
+			{
+				String tempMAC = WiFi.macAddress();
+				tempMAC.replace(":","");
+				snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC.c_str());	
+				Serial.print("Set Incomming MQTT Channel to : ");
+				Serial.println(inTopic);	
+			}
+			json["inTopic"]=this->inTopic;
+			
+			
+			if(json["outTopic"].success() )
+			{
+				const char* tempOutTopic = json["outTopic"]; 
+				for(int i =0;i<50;i++)
 				{
-					int tempBufferSize = json["bufferSize"]; 
-					bufferSize=tempBufferSize;
+					outTopic[i]=tempOutTopic[i];
 				}
-				else
+			}
+			else
+			{
+				String tempMAC = WiFi.macAddress();
+				tempMAC.replace(":","");
+				snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
+				Serial.print("Set Outgoing MQTT Channel to : ");
+				Serial.println(outTopic);
+			}
+			json["outTopic"]=this->outTopic;
+		
+			
+			if(json["user"].success() )
+			{				
+				const char* tempUser = json["user"]; 
+				for(int i =0;i<50;i++)
 				{
-					this->bufferSize=this->bufferSize;
+					user[i]=tempUser[i];
 				}
-				json["bufferSize"]=this->bufferSize;
+			}
+			else
+			{
+				for(int i=0;i<50;i++)
+				{
+					this->user[i]=this->user[i];
+				}				
+			}
+			json["user"]=this->user;
+			
+			if(json["bufferSize"].success() )
+			{
+				int tempBufferSize = json["bufferSize"]; 
+				bufferSize=tempBufferSize;
+			}
+			else
+			{
+				this->bufferSize=this->bufferSize;
+			}
+			json["bufferSize"]=this->bufferSize;
 
-				configFile.close();
-				configFile = SPIFFS.open("/mqttConfig.json", "w");
-				if(!configFile)
-				{
-					return(false);				
-				}
-				
-				json.printTo(configFile);
-				configFile.close();
-			  
-			  return(true); 
+			configFile.close();
+			configFile = SPIFFS.open("/mqttConfig.json", "w");
+			if(!configFile)
+			{
+				Serial.println("failed to write to /mqttConfig.json");
+				return(false);				
+			}
+			
+			json.printTo(configFile);
+
+			Serial.println("saved configuration is :");
+			json.printTo(Serial);
+			Serial.println();
+
+			configFile.close();
+		  
+		  	return(true); 
 		}
 	}	
 	
@@ -348,6 +428,9 @@ bool CoolMQTT::config()
 */
 void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize)
 {
+	Serial.println("Entering CoolMQTT.config() , no SPIFFS variant");
+	Serial.println();
+
 	for(int i =0;i< 50 ;i++)
 	{
 		this->mqttServer[i]=mqttServer[i];
@@ -356,6 +439,7 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 		this->user[i]=user[i];
 	}
 	this->bufferSize=bufferSize;
+	
 
 }
 
@@ -366,13 +450,27 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 */
 void CoolMQTT::printConf()
 {
-	Serial.println("MQTT conf ");
-	Serial.println(mqttServer);
-	Serial.println(inTopic);
-	Serial.println(outTopic);
-	Serial.println(user);
-	Serial.println(bufferSize);
-	Serial.println(" ");
+	Serial.println("Entering CoolMQTT.printConf()");
+	Serial.println();	
+	
+	Serial.println("MQTT configuration ");
+
+	Serial.print("mqttServer : ");
+	Serial.println(this->mqttServer);
+
+	Serial.print("inTopic : ");
+	Serial.println(this->inTopic);
+
+	Serial.print("outTopic : ");
+	Serial.println(this->outTopic);
+
+	Serial.print("user : ");
+	Serial.println(this->user);
+
+	Serial.print("bufferSize : ");
+	Serial.println(this->bufferSize);
+
+	Serial.println();
 
 
 }
@@ -383,5 +481,11 @@ void CoolMQTT::printConf()
 */
 String CoolMQTT::getUser()
 {
-	return String(user);
+	Serial.println("Entering CoolMQTT.getUser()");
+	Serial.println();
+	
+	Serial.print("user : ");
+	Serial.println(this->user);
+
+	return String(this->user);
 }

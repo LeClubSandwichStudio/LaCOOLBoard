@@ -21,6 +21,15 @@
 */
 void CoolBoardLed::colorFade(int R, int G, int B, int T) 
 {
+	Serial.println("Entering CoolBoardLed.colorFade()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.print("Time :");Serial.println(T);
+	Serial.println();	
+
 	for (int k = 0; k < 1000; k++) 
 	{
 		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
@@ -42,6 +51,15 @@ void CoolBoardLed::colorFade(int R, int G, int B, int T)
 */
 void CoolBoardLed::blink(int R, int G, int B, int T) 
 {
+	Serial.println("Entering CoolBoardLed.blink()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.print("Time :");Serial.println(T);
+	Serial.println();	
+
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 	neoPixelLed->Show();
 	delay(T);
@@ -55,6 +73,15 @@ void CoolBoardLed::blink(int R, int G, int B, int T)
 */
 void CoolBoardLed::fadeIn(int R, int G, int B, int T) 
 {
+	Serial.println("Entering CoolBoardLed.fadeIn()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.print("Time :");Serial.println(T);
+	Serial.println();	
+
 	for (int k = 0; k < 1000; k++) 
 	{
 		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
@@ -69,6 +96,16 @@ void CoolBoardLed::fadeIn(int R, int G, int B, int T)
 */
 void CoolBoardLed::fadeOut(int R, int G, int B, int T) 
 {
+	Serial.println("Entering CoolBoardLed.fadeOut()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.print("Time :");Serial.println(T);
+	Serial.println();	
+
+
 	for (int k = 1000; k >= 0; k--) 
 	{
 		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
@@ -83,6 +120,16 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T)
 */
 void CoolBoardLed::strobe(int R, int G, int B, int T) 
 {
+	Serial.println("Entering CoolBoardLed.strobe()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.print("Time :");Serial.println(T);
+	Serial.println();	
+
+	
 	for (int k = 1000; k >= 0; k--) 
 	{
 		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
@@ -100,6 +147,8 @@ void CoolBoardLed::strobe(int R, int G, int B, int T)
 */
 void CoolBoardLed::end()
 {
+	Serial.println("Entering CoolBoardLed.end()");
+
 	delete neoPixelLed;
 }
 
@@ -112,6 +161,8 @@ void CoolBoardLed::end()
 */
 void CoolBoardLed::begin( )
 {
+	Serial.println("Entering CoolBoardLed.begin() ");
+
 	pinMode(5,OUTPUT);
 	digitalWrite(5,HIGH);
 	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
@@ -126,6 +177,15 @@ void CoolBoardLed::begin( )
 */
 void CoolBoardLed::write(int R, int G, int B)
 {
+	Serial.println("Entering CoolBoardLed.write()");
+	Serial.println();
+
+	Serial.print("R : ");Serial.println(R);
+	Serial.print("G	: ");Serial.println(G);
+	Serial.print("B	: ");Serial.println(B);
+	Serial.println();	
+
+
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 	neoPixelLed->Show();
 }
@@ -140,10 +200,15 @@ void CoolBoardLed::write(int R, int G, int B)
 */
 bool CoolBoardLed::config()
 {
+	Serial.println("Entering CoolBoardLed.config()");
+	Serial.println();
+	
 	File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "r");
 
 	if (!coolBoardLedConfig) 
 	{
+		Serial.println("failed to read /coolBoardLedConfig.json");
+		Serial.println();
 		return(false);
 	}
 	else
@@ -157,10 +222,16 @@ bool CoolBoardLed::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse json");
+			Serial.println();
+			return(false);
 		} 
 		else
-		{  	  
+		{  	
+			Serial.println("read configuration file : ");
+			json.printTo(Serial);
+			Serial.println();
+  
 			if(json["ledActive"].success() )
 			{
 				this->ledActive = json["ledActive"]; 
@@ -176,13 +247,19 @@ bool CoolBoardLed::config()
 			coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");
 			if(!coolBoardLedConfig)
 			{
+				Serial.println("failed to write to /coolBoardLedConfig.json");
+				Serial.println();
 				return(false);			
 			}
 
 			json.printTo(coolBoardLedConfig);
 			coolBoardLedConfig.close();
 
-			  return(true); 
+			Serial.println("saved Led Config is : ");
+			json.printTo(Serial);
+			Serial.println();
+
+			return(true); 
 		}
 	}	
 
@@ -196,7 +273,13 @@ bool CoolBoardLed::config()
 */
 void CoolBoardLed::printConf()
 {
+	Serial.println("Entering CoolBoardLed.printConf()");
+	Serial.println();
+
 	Serial.println("Led Conf");
+
+	Serial.print("ledActive : ");
 	Serial.println(ledActive);
-	Serial.println(" ");	
+
+	Serial.println();	
 }

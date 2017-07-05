@@ -35,7 +35,7 @@ public:
 		
 private:
 	
-	bool savedData;	
+	bool savedData=0;	
 
 };
 

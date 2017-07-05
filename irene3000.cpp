@@ -21,6 +21,9 @@
 */
 void Irene3000::begin()
 {
+	Serial.println("Entering Irene3000.begin()");
+	Serial.println();
+
 	this->ads.begin();
 }
 
@@ -34,10 +37,17 @@ void Irene3000::begin()
 */
 String Irene3000::read()
 {	
+	Serial.println("Entering Irene3000.read()");
+	Serial.println();
+
 	String data;
 	DynamicJsonBuffer jsonBuffer(ireneJsonSize);
 	JsonObject& root = jsonBuffer.createObject();
-
+	if( !( root.success()) )
+	{
+		Serial.println("failed to create json");
+		return("");
+	}
 
 		
 	if(waterTemp.active)
@@ -57,6 +67,10 @@ String Irene3000::read()
 	}
 	
 	root.printTo(data);
+
+	Serial.println("Irene data : ");
+	Serial.println(data);
+	Serial.println();
 	
 	return(data);
 	
@@ -74,10 +88,16 @@ String Irene3000::read()
 bool Irene3000::config()
 {
 
+	Serial.println("Entering Irene3000.config()");
+	Serial.println();
+
 	File irene3000Config = SPIFFS.open("/irene3000Config.json", "r");
 
 	if (!irene3000Config) 
 	{
+		Serial.println("failed to read /irene3000Config.json");
+		Serial.println();
+
 		return(false);
 	}
 	else
@@ -91,10 +111,17 @@ bool Irene3000::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse json ");
+			Serial.println();
+			
+			return(false);
 		} 
 		else
 		{  	
+			Serial.println("read configuration file ");
+			json.printTo(Serial);
+			Serial.println();
+			
 			if(json["ireneJsonSize"].success() )
 			{
 				this->ireneJsonSize=json["ireneJsonSize"];
@@ -190,11 +217,18 @@ bool Irene3000::config()
 
 			if(!irene3000Config)
 			{
+				Serial.println("failed to write to /irene3000Config.json");
+				Serial.println();
+
 				return(false);
 			}
 
 			json.printTo(irene3000Config);
 			irene3000Config.close();
+			
+			Serial.println("saved configuration file :" );
+			json.printTo(Serial);
+			Serial.println();
 
 			return(true); 
 		}
@@ -209,15 +243,33 @@ bool Irene3000::config()
 */
 void Irene3000::printConf()
 {
-	Serial.println("Irene Config ");
+	Serial.println("Entering Irene3000.printConf()");
+	Serial.println();
+
+	Serial.println("Irene Configuration ");
+
+	Serial.print("waterTemp.active : ");
 	Serial.println(waterTemp.active);
-	Serial.println(waterTemp.gain);	
+
+	Serial.print("waterTemp.gain : ");
+	Serial.println(waterTemp.gain,HEX);	
+
+	Serial.print("phProbe.active : ");
 	Serial.println(phProbe.active);
-	Serial.println(phProbe.gain);
+
+	Serial.print("phProbe.gain : ");
+	Serial.println(phProbe.gain,HEX);
+	
+	Serial.print("adc2.active : ");
 	Serial.println(adc2.active);
-	Serial.println(adc2.gain);
+
+	Serial.print("adc2.gain : ");
+	Serial.println(adc2.gain,HEX);
+
+	Serial.print("adc2.type : ");
 	Serial.println(adc2.type);
-	Serial.println(" ");
+
+	Serial.println();
 }
 
 /**
@@ -229,7 +281,14 @@ void Irene3000::printConf()
 */
 int Irene3000::readButton(adsGain_t gain)
 {
+	Serial.println("Entering Irene3000.readButton()");
+	Serial.println();
+
 	this->setGain(gain);
+	
+	Serial.println("button value : ");
+	Serial.println(this->ads.readADC_SingleEnded(button) );
+
 	return( this->ads.readADC_SingleEnded(button) );
 	
 }
@@ -241,6 +300,9 @@ int Irene3000::readButton(adsGain_t gain)
 */
 void Irene3000::setGain(adsGain_t gain)
 {
+	Serial.println("Entering Irene3000.setGain()");
+	Serial.println();
+
 	this->ads.setGain(gain);
 }
 
@@ -255,7 +317,15 @@ void Irene3000::setGain(adsGain_t gain)
 */
 int Irene3000::readADSChannel2(adsGain_t gain)
 {	
+	Serial.println("Entering Irene3000.readADSChannel2()");
+	Serial.println();
+
 	this->setGain(gain);
+	
+	Serial.println("adc2 value : ");
+	Serial.println(this->ads.readADC_SingleEnded(freeAdc) );
+	Serial.println();
+
 	return( this->ads.readADC_SingleEnded(freeAdc) ) ;
 }
 
@@ -269,15 +339,20 @@ int Irene3000::readADSChannel2(adsGain_t gain)
 */
 float Irene3000::readPh(adsGain_t gain)
 {
-  this->setGain(gain);
+	Serial.println("Entering Irene3000.readPh()");
+	Serial.println();
 
-  double Voltage =  gain * ( ads.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
+	this->setGain(gain);
 
-  float miliVolts = Voltage * 1000;
-  float temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
+	double Voltage =  gain * ( ads.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
 
+	float miliVolts = Voltage * 1000;
+	float temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
 
- return( 7 - (temporary / params.pHStep) );
+	Serial.println("ph is : ");
+	Serial.println( 7 - (temporary / params.pHStep) ) ;
+
+	return( 7 - (temporary / params.pHStep) );
 
 }
 
@@ -290,29 +365,44 @@ float Irene3000::readPh(adsGain_t gain)
 */
 double Irene3000::readTemp(adsGain_t gain)
 {
-  const double A = 3.9083E-3;
-  const double B = -5.775E-7;
-  double T;
-  
-  this->setGain(gain);
-  int adc0 = ads.readADC_SingleEnded(temp);
- 
 
-  double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
+	Serial.println("Entering Irene3000.readTemp()");
+	Serial.println();
 
-  T = 0.0 - A;
-  T += sqrt((A * A) - 4.0 * B * (1.0 - R));
-  T /= (2.0 * B);
-  if (T > 0 && T < 200) {
-    return T;
-  }
-  else {
-  
-    T = 0.0 - A;
-    T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
-    T /= (2.0 * B);
-    return T;
-  }
+	const double A = 3.9083E-3;
+	const double B = -5.775E-7;
+	double T;
+
+	this->setGain(gain);
+	int adc0 = ads.readADC_SingleEnded(temp);
+
+
+	double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
+
+	T = 0.0 - A;
+	T += sqrt((A * A) - 4.0 * B * (1.0 - R));
+	T /= (2.0 * B);
+
+	if (T > 0 && T < 200) 
+	{
+		Serial.print("temperature : ");
+		Serial.println(T);
+		Serial.println();
+
+		return T;
+	}
+	else 
+	{
+		T = 0.0 - A;
+		T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
+		T /= (2.0 * B);
+		
+		Serial.println("temperature : ");
+		Serial.println(T);
+		Serial.println();
+
+		return T;
+	}
 
 }
 
@@ -324,6 +414,9 @@ double Irene3000::readTemp(adsGain_t gain)
 */
 void Irene3000::calibratepH7(adsGain_t gain)
 {
+	Serial.println("Entering Irene3000.calibratepH7() ");
+	Serial.println();
+
   	this->setGain(gain);
         
 	this->params.pH7Cal = ads.readADC_SingleEnded(ph);
@@ -340,12 +433,14 @@ void Irene3000::calibratepH7(adsGain_t gain)
 */
 void Irene3000::calibratepH4(adsGain_t gain)
 {
+	Serial.println("Entering Irene3000.calibraph4()");
+	Serial.println();
+	
+	this->setGain(gain);
 
-  this->setGain(gain);
-        
-  this->params.pH4Cal =  ads.readADC_SingleEnded(ph);
- 
-  this->calcpHSlope();
+	this->params.pH4Cal =  ads.readADC_SingleEnded(ph);
+
+	this->calcpHSlope();
 
 
 
@@ -358,8 +453,10 @@ void Irene3000::calibratepH4(adsGain_t gain)
 */
 void Irene3000::calcpHSlope ()
 {
+	Serial.println("Entering Irene3000.calcpHSlope()");
+	Serial.println();
 
-  params.pHStep = ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
+	params.pHStep = ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
 
  
 }
@@ -372,13 +469,16 @@ void Irene3000::calcpHSlope ()
 */
 void Irene3000::resetParams(void)
 {
-  //Restore to default set of parameters!
-  params.WriteCheck = Write_Check;
-  params.pH7Cal = 16384; //assume ideal probe and amp conditions 1/2 of 4096
-  params.pH4Cal = 8192; //using ideal probe slope we end up this many 12bit units away on the 4 scale
-  params.pHStep = 59.16;//ideal probe slope
+	Serial.println("Entering Irene3000.resetParams()");
+	Serial.println();
 
-  
+	//Restore to default set of parameters!
+	params.WriteCheck = Write_Check;
+	params.pH7Cal = 16384; //assume ideal probe and amp conditions 1/2 of 4096
+	params.pH4Cal = 8192; //using ideal probe slope we end up this many 12bit units away on the 4 scale
+	params.pHStep = 59.16;//ideal probe slope
+
+
 }
 
 /**
@@ -390,6 +490,9 @@ void Irene3000::resetParams(void)
 */
 adsGain_t Irene3000::gainConvert(uint16_t tempGain)
 {
+	Serial.println("Entering Irene3000.gainConvert()");
+	Serial.println();
+	
 	switch(tempGain)
 	{
 		case(2/3): return(GAIN_TWOTHIRDS);

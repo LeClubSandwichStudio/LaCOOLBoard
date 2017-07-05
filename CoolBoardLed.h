@@ -51,7 +51,7 @@ private:
 
 	NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* neoPixelLed = NULL; //template instance must be dynamic
 
-	byte ledActive;
+	byte ledActive=0;
 
 };
 

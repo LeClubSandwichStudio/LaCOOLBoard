@@ -48,15 +48,15 @@ public:
 
 private:
 	
-	char mqttServer[50];
-	String msg;
-	char inTopic[50];
-	char outTopic[50];
-	char user[50];
-	int bufferSize;	
+	char mqttServer[50]={'0'};
+	String msg="";
+	char inTopic[50]={'0'};
+	char outTopic[50]={'0'};
+	char user[50]={'0'};
+	int bufferSize=3000;	
 	WiFiClient espClient;
 	PubSubClient client;
-	bool newMsg;
+	bool newMsg=0;
 	unsigned long previousLogTime=0;
 
 

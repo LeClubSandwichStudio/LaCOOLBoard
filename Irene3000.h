@@ -71,19 +71,19 @@ private:
 
 	struct parameters_T
 	{
-		unsigned int WriteCheck;
-		int pH7Cal, pH4Cal;
-		float pHStep;
+		unsigned int WriteCheck=0;
+		int pH7Cal, pH4Cal=0;
+		float pHStep=0;
 	}params;
 
 	struct state
 	{
-		byte active;
-		adsGain_t gain;
-		String type;
+		byte active=0;
+		adsGain_t gain=GAIN_ONE;
+		String type="";
 	} waterTemp, phProbe,adc2;
 
-	int ireneJsonSize;
+	int ireneJsonSize=100;
 
 	const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exa
 

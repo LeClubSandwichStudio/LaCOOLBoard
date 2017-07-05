@@ -22,21 +22,16 @@
 
 /**
 *	CoolTime::begin():
-*	This method is provided to init the rtc,
+*	This method is provided to init
 *	the udp connection 
-*
-*	\return true if successful,false otherwise
+*	
 */
 void CoolTime::begin()
 {
+	Serial.println("Entering CoolTime.begin()");
+	Serial.println();
 
 	Udp.begin(localPort);
-
-	time_t tm=getNtpTime();
-
-	breakTime(tm, this->tmSet);//get NTP time
-
-	this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
 	
 }
 
@@ -47,9 +42,14 @@ void CoolTime::begin()
 */
 void CoolTime::update()
 {
+	Serial.println("Entering CoolTime.update()");
+	Serial.println();
+
 	if( !( this->isTimeSync() ) )
 	{
 		Serial.println("waiting for sync");
+		Serial.println();
+
 		this->timeSync=this->getNtpTime();
 		breakTime(this->getNtpTime(), this->tmSet);
 		this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
@@ -64,6 +64,9 @@ void CoolTime::update()
 */
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, int seconds)
 { 
+	Serial.println("Entering CoolTime.setDateTime");
+	Serial.println();
+
 	tmElements_t tm;
 	tm.Second=seconds; 
 	tm.Minute=minutes; 
@@ -72,7 +75,28 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 	tm.Month=month; 
 	tm.Year=year;   
 
+	Serial.print("setting time to : ");//"20yy-mm-ddT00:00:00Z
+
+	Serial.print(tm.Year);
+	Serial.print("-");
+	Serial.print( this->formatDigits( tm.Month ) );
+	Serial.print("-");
+	Serial.print( this->formatDigits( tm.Day ) );
+	Serial.print("T");
+	Serial.print( this->formatDigits( tm.Hour ) );
+	Serial.print(":");
+	Serial.print( this->formatDigits( tm.Minute ) );
+	Serial.print( ":" );
+	Serial.print( this->formatDigits( tm.Second ) );
+	Serial.print("Z");
+
+	Serial.println();
+
 	this->rtc.set(makeTime(tm),CLOCK_ADDRESS);
+	
+	Serial.print("time set to : ");
+	Serial.println(this->getESDate());
+	Serial.println();
 }
 
 /**
@@ -84,9 +108,27 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 */
 tmElements_t CoolTime::getTimeDate()
 {	
+	Serial.println("Entering CoolTime.getTimeDate()");
+	Serial.println();
+
 	tmElements_t tm;
 	time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
 	breakTime(timeDate,tm);
+	
+	Serial.print("time is : ");
+	Serial.print(tm.Year);
+	Serial.print("-");
+	Serial.print( this->formatDigits( tm.Month ) );
+	Serial.print("-");
+	Serial.print( this->formatDigits( tm.Day ) );
+	Serial.print("T");
+	Serial.print( this->formatDigits( tm.Hour ) );
+	Serial.print(":");
+	Serial.print( this->formatDigits( tm.Minute ) );
+	Serial.print( ":" );
+	Serial.print( this->formatDigits( tm.Second ) );
+	Serial.print("Z");
+	
 	return(tm);
 }
 
@@ -100,6 +142,9 @@ tmElements_t CoolTime::getTimeDate()
 */
 String CoolTime::getESDate()
 {
+	Serial.println("Entering CoolTime.getESDate()");
+	Serial.println();
+
 	tmElements_t tm=this->getTimeDate();
 
   	//"20yy-mm-ddT00:00:00Z"
@@ -109,6 +154,10 @@ String CoolTime::getESDate()
 	
 	elasticSearchString +=this->formatDigits(tm.Minute)+":"+this->formatDigits(tm.Second)+"Z";
 	
+	Serial.print("elastic Search date : ");
+	Serial.println(elasticSearchString);
+	Serial.println();
+
 	return (elasticSearchString);
 }
 
@@ -122,6 +171,12 @@ String CoolTime::getESDate()
 */	
 unsigned long CoolTime::getLastSyncTime()
 {
+	Serial.println("Entering CoolTime.getLastSyncTime()");
+	Serial.println();
+	
+	Serial.print("last sync time : ");
+	Serial.println(this->timeSync);
+
 	return(this->timeSync);
 }
 
@@ -137,12 +192,16 @@ unsigned long CoolTime::getLastSyncTime()
 */
 bool CoolTime::isTimeSync(unsigned long seconds)
 {
+	Serial.println("Entering CoolTime.isTimeSync() ");
+	Serial.println();
+
 //default is once per week we try to get a time update
 	if( (this->getLastSyncTime()+seconds) > (RTC.get(CLOCK_ADDRESS)) ) 
 	{
+		Serial.println("time is not syncronised ");
 		return(false);	
 	}
-
+	Serial.println("time is syncronised ");
 	return(true);
 }
 
@@ -157,6 +216,9 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 */
 time_t CoolTime::getNtpTime()
 {
+	Serial.println("Entering CoolTime.getNtpTime()");
+	Serial.println();
+
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
 	
 	Serial.println("Transmit NTP Request");
@@ -178,6 +240,17 @@ time_t CoolTime::getNtpTime()
 			secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
 			secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
 			secsSince1900 |= (unsigned long)packetBuffer[43];
+			
+			Serial.print("received unix time : ");
+			Serial.println(secsSince1900 - 2208988800UL);
+			Serial.println();
+
+			Serial.print("received unix time +");
+			Serial.print(this->timeZone);
+			Serial.print(" : ");
+			Serial.println( secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR );
+			Serial.println();
+			
 			return secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR;
 		}
 	}
@@ -192,6 +265,9 @@ time_t CoolTime::getNtpTime()
 */ 
 void CoolTime::sendNTPpacket(IPAddress &address)
 {
+	Serial.println("Enter CoolTime.sendNTPpacket()");
+	Serial.println();
+
 	memset(packetBuffer, 0, NTP_PACKET_SIZE);
 	// Initialize values needed to form NTP request
 	// (see URL above for details on the packets)
@@ -218,9 +294,13 @@ void CoolTime::sendNTPpacket(IPAddress &address)
 */
 void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
 {
+	Serial.println("Enter CoomTime.config() , no SPIFFS variant ");
+	Serial.println();
+
 	this->timeZone=timeZone;
 	this->timeServer=timeServer;
 	this->localPort=localPort;
+	
 } 
 
 /**
@@ -233,10 +313,16 @@ void CoolTime::config(int timeZone,IPAddress timeServer,unsigned int localPort)
 */
 bool CoolTime::config()
 {
+	Serial.println("Enter CoolTime.config()");
+	Serial.println();
+
 	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
 
 	if (!rtcConfig) 
 	{
+		Serial.println("failed to read /rtcConfig.json");
+		Serial.println();
+
 		return(false);
 	}
 	else
@@ -250,10 +336,18 @@ bool CoolTime::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse json");
+			Serial.println();
+
+			return(false);
 		} 
 		else
-		{  	String ip;
+		{  	
+			Serial.println("configuration json is :");
+			json.printTo(Serial);
+			Serial.println();
+
+			String ip;
 			
 			if(json["timeZone"].success() )
 			{
@@ -292,12 +386,19 @@ bool CoolTime::config()
 			
 			if(!rtcConfig)
 			{
+				Serial.println("failed to write to /rtcConfig.json");
+				Serial.println();
+
 				return(false);
 			}
 			
 			json.printTo(rtcConfig);
 			rtcConfig.close();
-						
+
+			Serial.println("configuration is :");
+			json.printTo(Serial);
+			Serial.println();
+		
 			return(true); 
 		}
 	}	
@@ -314,9 +415,18 @@ bool CoolTime::config()
 */
 void CoolTime::printConf()
 {
-	Serial.println("RTC Config") ;
+	Serial.println("Entering CoolTime.printConf()");
+	Serial.println();
+
+	Serial.println("RTC Configuration") ;
+
+	Serial.print("timeZone : ");
 	Serial.println(timeZone);
+
+	Serial.print("timeServer : ");
 	Serial.println(timeServer);
+	
+	Serial.print("localPort : :");
 	Serial.println(localPort);
 }
 
@@ -329,10 +439,18 @@ void CoolTime::printConf()
 *	\return formatted string of the input digit
 */
 String CoolTime::formatDigits(int digits)
-{ 
+{
+	Serial.println("Entering CoolTime.formatDigits()");
+ 	Serial.println();
+
 	if(digits < 10)
 	{
+		Serial.println("output digit : ");
+		Serial.println( String("0") + String(digits) );
 		return( String("0") + String(digits) );
 	}
+	
+	Serial.println("output digit : ");
+	Serial.println(digits);
 	return( String(digits) );
 }

@@ -80,31 +80,28 @@ private:
 	//sensors control structs :
 	struct lightActive
 	{
-		byte visible;
-		byte ir;
-		byte uv;	
+		byte visible=0;
+		byte ir=0;
+		byte uv=0;	
 
 	}lightDataActive;
 
 
 	struct airActive
 	{
-		byte temperature;
-		byte humidity;
-		byte pressure;
-
-
-
+		byte temperature=0;
+		byte humidity=0;
+		byte pressure=0;
 	}airDataActive;
 
 	const int EnMoisture = 13;                      // Moisture Enable Pin
 	const int AnMplex = 12;                         // Analog Multiplexer  LOW=Vbat , HIGH=Moisture
 	const int EnI2C = 5;                            // double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch
 							// All I2C is over pins (2,14)
-        byte vbatActive;
-	byte earthMoistureActive;
+        byte vbatActive=0;
+	byte soilMoistureActive=0;
 
-	int jsonSize;//for the json output
+	int jsonSize=500;//for the json output
 };
 
 #endif

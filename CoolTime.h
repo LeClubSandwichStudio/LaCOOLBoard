@@ -60,15 +60,15 @@ public:
 
 private:
 	
-	unsigned long timeSync;
+	unsigned long timeSync=0;
 	
-	int timeZone;
+	int timeZone=0;
 	
 	IPAddress timeServer; // time-a.timefreq.bldrdoc.gov
 	
 	WiFiUDP Udp;
 	
-	unsigned int localPort;  // local port to listen for UDP packets
+	unsigned int localPort=0;  // local port to listen for UDP packets
 
 	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 	

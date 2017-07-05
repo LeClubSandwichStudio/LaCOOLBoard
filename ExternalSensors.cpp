@@ -29,6 +29,9 @@
 */
 void ExternalSensors::begin() 
 {
+	Serial.println("Enter ExternalSensors.begin()");
+	Serial.println();
+
 	for(int i=0;i< this->sensorsNumber ; i++)
 	{
 		if( (sensors[i].reference) == "NDIR_I2C" )
@@ -65,19 +68,21 @@ void ExternalSensors::begin()
 String ExternalSensors::read()
 {
 
+	Serial.println("Entering ExternalSensors.read()");
+	Serial.println();
+
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
 	JsonObject& root = jsonBuffer.createObject();
 
 	if(!root.success() )
 	{
-
-	 return("00 ");
+		Serial.println("failed to create json ");
+		return("00");
 	}
-
 	else
 	{
-		if(sensorsNumber!=0)
+		if(sensorsNumber>0)
 		{
 			for(int i=0;i<sensorsNumber;i++)
 			{
@@ -86,8 +91,11 @@ String ExternalSensors::read()
 			}
 		}	
 		
-		Serial.println(" ");
 		root.printTo(data);
+
+		Serial.println("sensors data :");
+		Serial.println(data);
+		Serial.println();
 	
 		return(data);
 	}
@@ -104,6 +112,13 @@ String ExternalSensors::read()
 */
 int ExternalSensors::getJsonSize()
 {
+	Serial.println("Enter ExternalSensors.getJsonSize");
+	Serial.println();
+	
+	Serial.print("jsonSize : ");
+	Serial.println(this->jsonSize);
+	Serial.println();
+
 	return(this->jsonSize );
 }
 
@@ -123,6 +138,9 @@ bool ExternalSensors::config()
 
 	if (!externalSensorsConfig) 
 	{
+		Serial.println("failed to read /externalSensorsConfig.json");
+		Serial.println();
+		
 		return(false);
 	}
 	else
@@ -137,10 +155,17 @@ bool ExternalSensors::config()
 
 		if (!json.success()) 
 		{
-			  return(false);
+			Serial.println("failed to parse json");
+			Serial.println();
+
+			return(false);
 		} 
 		else
 		{  	
+			Serial.println("read configuration json : ");
+			json.printTo(Serial);
+			Serial.println();
+
 			if(json["jsonSize"]!=NULL )
 			{			
 				this->jsonSize=json["jsonSize"];
@@ -250,12 +275,19 @@ bool ExternalSensors::config()
 
 			if(!externalSensorsConfig)
 			{
+				Serial.println("failed to write to /externalSensorsConfig.json");
+				Serial.println();
+
 				return(false);
 			}
 			
 			json.printTo(externalSensorsConfig);
 			externalSensorsConfig.close();
 			
+			Serial.println("saved configuration is : ");
+			json.printTo(Serial);
+			Serial.println();
+
 			return(true); 
 		}
 	}	
@@ -272,15 +304,42 @@ bool ExternalSensors::config()
 */
 void ExternalSensors::printConf()
 {
-	Serial.println("External Sensors config ");
+	Serial.println("Entering ExternalSensors.printConf()");
+	Serial.println();
+
+	Serial.println("External Sensors configuration ");
+
+	Serial.print("sensorsNumber : ");
 	Serial.println(sensorsNumber);
+
+	Serial.println("jsonSize : ");
 	Serial.println(jsonSize);
+
 	for(int i=0;i<sensorsNumber;i++)
 	{
+		Serial.print("sensor ");
+		Serial.print(i);
+		Serial.print(" reference : ");
 		Serial.println(this->sensors[i].reference);
+
+		Serial.print("sensor ");
+		Serial.print(i);
+		Serial.print(" type : ");
 		Serial.println(this->sensors[i].type);
+
+		Serial.print("sensor ");
+		Serial.print(i);
+		Serial.print(" connection : ");
 		Serial.println(this->sensors[i].connection);
+		
+		Serial.print("sensor ");
+		Serial.print(i);
+		Serial.print(" dataSize : ");
 		Serial.println(this->sensors[i].dataSize);
+		
+		Serial.print("sensor ");
+		Serial.print(i);
+		Serial.print(" address : ");
 		Serial.println(this->sensors[i].address);
 	
 	}

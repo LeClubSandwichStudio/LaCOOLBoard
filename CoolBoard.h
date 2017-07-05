@@ -84,27 +84,27 @@ private:
 
 	ExternalSensors externalSensors;
 
-	bool userActive;
+	bool userActive=0;
 
-	bool ireneActive;
+	bool ireneActive=0;
 
-	bool jetpackActive;
+	bool jetpackActive=0;
 
-	bool externalSensorsActive;		
+	bool externalSensorsActive=0;		
 
-	bool sleepActive;	
+	bool sleepActive=0;	
 
-	uint16_t logInterval;//ms
+	uint16_t logInterval=1000;//ms
 
-	int answerJsonSize;
+	int answerJsonSize=3000;
 	
-	int sensorJsonSize;
+	int sensorJsonSize=1000;
 
-	int serverTimeOut;
+	int serverTimeOut=180;
 
-	String data;
+	String data="";
 
-	String answer;
+	String answer="";
 
 
 };
