@@ -79,7 +79,7 @@ int CoolMQTT::connect(uint16_t keepAlive)
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this->user , keepAlive ) ) 
+		if( this->client.connect( this-> user, keepAlive ) )
 		{
 			Serial.println("MQTT connected");
 			// Once connected, publish an announcement...
@@ -122,7 +122,7 @@ bool CoolMQTT::publish(const char* data)
 	Serial.print("data size ");Serial.println(strlen(data));
 	Serial.println();
 	
-	bool pub=client.publish( this->outTopic, data,strlen(data) );
+	bool pub=client.publish( this->outTopic, data,strlen(data),false );
 	
 	Serial.print("success : ");Serial.println(pub);	
 
