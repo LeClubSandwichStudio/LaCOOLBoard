@@ -122,7 +122,7 @@ bool CoolMQTT::publish(const char* data)
 	Serial.print("data size ");Serial.println(strlen(data));
 	Serial.println();
 	
-	bool pub=client.publish( this->outTopic, data,strlen(data),false );
+	bool pub=client.publish( this->outTopic, data,strlen(data));
 	
 	Serial.print("success : ");Serial.println(pub);	
 
