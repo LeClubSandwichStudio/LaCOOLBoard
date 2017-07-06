@@ -31,7 +31,11 @@ void CoolTime::begin()
 	Serial.println("Entering CoolTime.begin()");
 	Serial.println();
 
+
 	Udp.begin(localPort);
+
+	this->update();
+
 	
 }
 
@@ -53,6 +57,8 @@ void CoolTime::update()
 		this->timeSync=this->getNtpTime();
 		breakTime(this->getNtpTime(), this->tmSet);
 		this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
+
+		this->saveTimeSync();
 	}
 	
 }
@@ -116,7 +122,7 @@ tmElements_t CoolTime::getTimeDate()
 	breakTime(timeDate,tm);
 	
 	Serial.print("time is : ");
-	Serial.print(tm.Year);
+	Serial.print(tm.Year+ 1970 );
 	Serial.print("-");
 	Serial.print( this->formatDigits( tm.Month ) );
 	Serial.print("-");
@@ -196,7 +202,7 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 	Serial.println();
 
 //default is once per week we try to get a time update
-	if( (this->getLastSyncTime()+seconds) > (RTC.get(CLOCK_ADDRESS)) ) 
+	if( ( RTC.get(CLOCK_ADDRESS) - this->getLastSyncTime() ) > ( seconds ) ) 
 	{
 		Serial.println("time is not syncronised ");
 		return(false);	
@@ -245,13 +251,13 @@ time_t CoolTime::getNtpTime()
 			Serial.println(secsSince1900 - 2208988800UL);
 			Serial.println();
 
-			Serial.print("received unix time +");
-			Serial.print(this->timeZone);
-			Serial.print(" : ");
-			Serial.println( secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR );
-			Serial.println();
+			//Serial.print("received unix time +");
+			//Serial.print(this->timeZone);
+			//Serial.print(" : ");
+			//Serial.println( secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR );
+			//Serial.println();
 			
-			return secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR;
+			return secsSince1900 - 2208988800UL ;
 		}
 	}
 	Serial.println("No NTP Response :-(");
@@ -381,12 +387,139 @@ bool CoolTime::config()
 			}
 			json["localPort"]=this->localPort;
 
+
+			if( json["timeSync"].success() )
+			{
+				this->timeSync=json["timeSync"];
+			}
+			else
+			{
+				this->timeSync=this->timeSync;
+			}
+			json["timeSync"]=this->timeSync;
+
+
 			rtcConfig.close();
 			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
 			
 			if(!rtcConfig)
 			{
 				Serial.println("failed to write to /rtcConfig.json");
+				Serial.println();
+
+				return(false);
+			}
+			
+			json.printTo(rtcConfig);
+			rtcConfig.close();
+
+			Serial.println("configuration is :");
+			json.printTo(Serial);
+			Serial.println();
+		
+			return(true); 
+		}
+	}	
+
+
+
+}
+
+
+/**
+*	CoolTime::saveTimeSync()
+*	This method is provided to
+*	save last syncronisation time
+*	to the SPIFFS
+*/
+bool CoolTime::saveTimeSync()
+{
+	Serial.println("Enter CoolTime.saveTimeSync()");
+	Serial.println();
+
+	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+
+	if (!rtcConfig) 
+	{
+		Serial.println("failed to read /rtcConfig.json");
+		Serial.println();
+
+		return(false);
+	}
+	else
+	{
+		size_t size = rtcConfig.size();
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr<char[]> buf(new char[size]);
+
+		rtcConfig.readBytes(buf.get(), size);
+		DynamicJsonBuffer jsonBuffer;
+		JsonObject& json = jsonBuffer.parseObject(buf.get());
+		if (!json.success()) 
+		{
+			Serial.println("failed to parse json");
+			Serial.println();
+
+			return(false);
+		} 
+		else
+		{  	
+			Serial.println("configuration json is :");
+			json.printTo(Serial);
+			Serial.println();
+
+			String ip;
+			
+			if(json["timeZone"].success() )
+			{
+				this->timeZone=json["timeZone"] ;
+			}
+			else
+			{
+				this->timeZone=this->timeZone;			
+			}
+			json["timeZone"]=this->timeZone;
+			
+			if(json["timeServer"].success() )
+			{			
+				 ip=json["timeServer"].as<String>();
+				this->timeServer.fromString(ip);
+ 				
+			}
+			else
+			{
+				this->timeServer=this->timeServer;
+			}
+			json["timeServer"]=ip;
+			
+			if(json["localPort"].success() )
+			{						
+				this->localPort=json["localPort"];
+			}
+			else
+			{
+				this->localPort=this->localPort;
+			}
+			json["localPort"]=this->localPort;
+
+
+			if( json["timeSync"].success() )
+			{
+				json["timeSync"]=this->timeSync;
+			}
+			else
+			{
+				this->timeSync=this->timeSync;
+			}
+			json["timeSync"]=this->timeSync;
+
+
+			rtcConfig.close();
+			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
+			
+			if(!rtcConfig)
+			{
+				Serial.println("failed to write timeSync to /rtcConfig.json");
 				Serial.println();
 
 				return(false);
@@ -420,8 +553,8 @@ void CoolTime::printConf()
 
 	Serial.println("RTC Configuration") ;
 
-	Serial.print("timeZone : ");
-	Serial.println(timeZone);
+	//Serial.print("timeZone : ");
+	//Serial.println(timeZone);
 
 	Serial.print("timeServer : ");
 	Serial.println(timeServer);
@@ -440,17 +573,17 @@ void CoolTime::printConf()
 */
 String CoolTime::formatDigits(int digits)
 {
-	Serial.println("Entering CoolTime.formatDigits()");
- 	Serial.println();
+	//Serial.println("Entering CoolTime.formatDigits()");
+ 	//Serial.println();
 
 	if(digits < 10)
 	{
-		Serial.println("output digit : ");
-		Serial.println( String("0") + String(digits) );
+		//Serial.println("output digit : ");
+		//Serial.println( String("0") + String(digits) );
 		return( String("0") + String(digits) );
 	}
 	
-	Serial.println("output digit : ");
-	Serial.println(digits);
+	//Serial.println("output digit : ");
+	//Serial.println(digits);
 	return( String(digits) );
 }

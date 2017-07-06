@@ -32,11 +32,6 @@ void CoolBoard::begin()
 	coolBoardSensors.printConf();
 	delay(100);
 
-	rtc.config();
-	rtc.begin();
-	rtc.printConf();
-	delay(100);
-
 	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.printConf();
@@ -70,6 +65,14 @@ void CoolBoard::begin()
 		externalSensors.printConf();
 		delay(100);
 	}
+
+	this->connect();
+
+	rtc.config();
+	rtc.begin();
+	rtc.printConf();
+	delay(100);
+
 
 }
 

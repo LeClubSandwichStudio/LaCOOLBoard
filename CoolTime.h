@@ -58,6 +58,8 @@ public:
 	
 	String formatDigits(int digits);
 
+	bool saveTimeSync();
+
 private:
 	
 	unsigned long timeSync=0;
