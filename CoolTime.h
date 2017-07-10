@@ -60,6 +60,8 @@ public:
 	
 	bool saveTimeSync();
 
+	bool saveTimeSync();
+
 private:
 	
 	unsigned long timeSync=0;

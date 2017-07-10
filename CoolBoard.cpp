@@ -95,6 +95,14 @@ void CoolBoard::begin()
 	delay(100);
 
 
+	this->connect();
+
+	rtc.config();
+	rtc.begin();
+	rtc.printConf();
+	delay(100);
+
+
 }
 
 /**
