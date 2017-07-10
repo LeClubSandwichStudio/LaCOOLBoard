@@ -35,15 +35,15 @@ void CoolBoardLed::colorFade(int R, int G, int B, int T)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.colorFade()");
+	Serial.println( F("Entering CoolBoardLed.colorFade()") );
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : ") );
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G : ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
-	Serial.print("Time :");
+	Serial.print( F("Time : ") );
 	Serial.println(T);
 	Serial.println();
 
@@ -73,15 +73,15 @@ void CoolBoardLed::blink(int R, int G, int B, int T)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.blink()");
+	Serial.println( F("Entering CoolBoardLed.blink()"));
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : "));
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G : ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
-	Serial.print("Time :");
+	Serial.print( F("Time :") );
 	Serial.println(T);
 	Serial.println();
 
@@ -103,15 +103,15 @@ void CoolBoardLed::fadeIn(int R, int G, int B, int T)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.fadeIn()");
+	Serial.println( F("Entering CoolBoardLed.fadeIn()") );
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : ") );
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G : ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
-	Serial.print("Time :");
+	Serial.print( F("Time :") );
 	Serial.println(T);
 	Serial.println();
 
@@ -134,15 +134,15 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T)
 
 #if DEBUG == 1 
 
-	Serial.println("Entering CoolBoardLed.fadeOut()");
+	Serial.println( F("Entering CoolBoardLed.fadeOut()" ) );
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : ") );
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G : ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
-	Serial.print("Time :");
+	Serial.print( F("Time :") );
 	Serial.println(T);
 	Serial.println();
 
@@ -166,15 +166,15 @@ void CoolBoardLed::strobe(int R, int G, int B, int T)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.strobe()");
+	Serial.println( F("Entering CoolBoardLed.strobe()") );
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : ") );
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G: ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
-	Serial.print("Time :");
+	Serial.print( F("Time :") );
 	Serial.println(T);
 	Serial.println();
 
@@ -201,7 +201,7 @@ void CoolBoardLed::end()
 
 #if DEBUG == 1 
 	
-	Serial.println("Entering CoolBoardLed.end()");
+	Serial.println( F("Entering CoolBoardLed.end()") );
 
 #endif
 
@@ -220,7 +220,7 @@ void CoolBoardLed::begin( )
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.begin() ");
+	Serial.println( F("Entering CoolBoardLed.begin() ") );
 
 #endif
 
@@ -241,13 +241,13 @@ void CoolBoardLed::write(int R, int G, int B)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardLed.write()");
+	Serial.println( F("Entering CoolBoardLed.write()") );
 	Serial.println();
-	Serial.print("R : ");
+	Serial.print( F("R : ") );
 	Serial.println(R);
-	Serial.print("G	: ");
+	Serial.print( F("G : ") );
 	Serial.println(G);
-	Serial.print("B	: ");
+	Serial.print( F("B : ") );
 	Serial.println(B);
 	Serial.println();	
 
@@ -270,7 +270,7 @@ bool CoolBoardLed::config()
 
 #if DEBUG == 1 
 		
-	Serial.println("Entering CoolBoardLed.config()");
+	Serial.println( F("Entering CoolBoardLed.config()") );
 	Serial.println();
 
 #endif
@@ -282,7 +282,7 @@ bool CoolBoardLed::config()
 	
 	#if DEBUG == 1
 
-		Serial.println("failed to read /coolBoardLedConfig.json");
+		Serial.println( F("failed to read /coolBoardLedConfig.json") );
 		Serial.println();
 
 	#endif
@@ -303,7 +303,7 @@ bool CoolBoardLed::config()
 		
 		#if DEBUG == 1
 
-			Serial.println("failed to parse json");
+			Serial.println( F("failed to parse json") );
 			Serial.println();
 		
 		#endif
@@ -315,7 +315,7 @@ bool CoolBoardLed::config()
 		
 		#if DEBUG == 1
   	
-			Serial.println("read configuration file : ");
+			Serial.println( F("read configuration file : ") );
 			json.printTo(Serial);
 			Serial.println();
 		
@@ -339,7 +339,7 @@ bool CoolBoardLed::config()
 			
 			#if DEBUG == 1 
 
-				Serial.println("failed to write to /coolBoardLedConfig.json");
+				Serial.println( F("failed to write to /coolBoardLedConfig.json") );
 				Serial.println();
 
 			#endif
@@ -352,7 +352,7 @@ bool CoolBoardLed::config()
 
 		#if DEBUG == 1
 	
-			Serial.println("saved Led Config is : ");
+			Serial.println( F("saved Led Config is : ") );
 			json.printTo(Serial);
 			Serial.println();
 
@@ -375,7 +375,7 @@ void CoolBoardLed::printConf()
 
 #if DEBUG == 1 
 
-	Serial.println("Entering CoolBoardLed.printConf()");
+	Serial.println( F("Entering CoolBoardLed.printConf()") );
 	Serial.println();
 
 #endif

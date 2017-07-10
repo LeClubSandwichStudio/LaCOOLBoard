@@ -8,7 +8,7 @@
 */
 
 #include "FS.h"                // File Storage System >>> http://esp8266.github.io/Arduino/versions/2.0.0/doc/filesystem.html
-#include"CoolFileSystem.h"
+#include "CoolFileSystem.h"
 #include "ArduinoJson.h"      // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
 
 
@@ -35,9 +35,9 @@ bool CoolFileSystem::begin()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolFileSystem.begin()");
+	Serial.println( F("Entering CoolFileSystem.begin()") );
 	Serial.println();	
-	Serial.print("SPIFFS success ? ");
+	Serial.print( F("SPIFFS success ? ") );
 	Serial.println(SPIFFS.begin());
 	Serial.println();
 
@@ -62,7 +62,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolFileSystem.saveSensorData()");
+	Serial.println( F("Entering CoolFileSystem.saveSensorData()") );
 	Serial.println();
 
 #endif
@@ -73,7 +73,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	
 	#if DEBUG == 1
 	
-		Serial.println("failed to append to /sensorsData.json");
+		Serial.println( F("failed to append to /sensorsData.json") );
 		Serial.println();
 	
 	#endif
@@ -92,7 +92,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	
 	#if DEBUG == 1
 	
-		Serial.println("saved data is : ");
+		Serial.println( F("saved data is : ") );
 		root.printTo(Serial);
 		Serial.println();
 	
@@ -106,7 +106,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	
 	#if DEBUG == 1
 
-		Serial.println("failed to parse json");
+		Serial.println( F("failed to parse json") );
 	
 	#endif
 
@@ -130,21 +130,31 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolFileSystem.updateConfigFiles");
+	Serial.println( F("Entering CoolFileSystem.updateConfigFiles") );
 	Serial.println();
+	
+	Serial.println( F("input answer : ") );
+	Serial.println(answer);
+#endif
+	//test
+	char buffer[ answer.length()+2 ];
+	answer.toCharArray( buffer, answer.length()+2  );
+	//total json object	
+	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
+	JsonObject& root = jsonBuffer.parseObject( buffer );
+
+#if DEBUG == 1
+	Serial.println( F("json object : ") );	
+	root.printTo(Serial);
 
 #endif
 
-	//total json object	
-	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
-	JsonObject& root = jsonBuffer.parseObject( answer.c_str() );
-	
 	if(! ( root.success() ))
 	{
 	
 	#if DEBUG == 1
 
-		Serial.println("failed to parse root ");
+		Serial.println( F("failed to parse root ") );
 		Serial.println();
 	
 	#endif
@@ -155,7 +165,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	{
 	#if DEBUG == 1
 		
-		Serial.println("success to parse root ");
+		Serial.println( F("success to parse root ") );
 		Serial.println();
 		
 	#endif	
@@ -163,7 +173,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 #if DEBUG == 1
 
-	Serial.println("input message is : ");
+	Serial.println( F("input message is : ") );
 	root.printTo(Serial);
 	Serial.println();
 
@@ -177,7 +187,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1
 
-	Serial.println("before config CoolBoard json");
+	Serial.println( F("before config CoolBoard json") );
 	jsonCoolBoard.printTo(Serial);
 
 #endif
@@ -189,7 +199,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		{	
 		#if DEBUG == 1
 			
-			Serial.println("failed to write to coolBoardConfig.json");
+			Serial.println( F("failed to write to coolBoardConfig.json") );
 
 		#endif
 			return(false);
@@ -202,7 +212,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1
 
-		Serial.println("CoolBoard Config");
+		Serial.println( F("CoolBoard Config") );
 		jsonCoolBoard.printTo(Serial);
 	
 	#endif
@@ -213,7 +223,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse CoolBoard ");
+		Serial.println( F("failed to parse CoolBoard ") );
 	
 	#endif
 
@@ -225,7 +235,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 
-	Serial.println("before config CoolSensorsBoard json");
+	Serial.println( F("before config CoolSensorsBoard json") );
 	jsonSensorsBoard.printTo(Serial);
 
 #endif 
@@ -237,7 +247,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		{
 		#if DEBUG == 1 
 		
-			Serial.println("failed to write coolBoardSensors.json");
+			Serial.println( F("failed to write coolBoardSensors.json") );
 
 		#endif
 
@@ -260,7 +270,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1
 
-		Serial.println("failed to parse CoolSensorsBoard sensors ");	
+		Serial.println( F("failed to parse CoolSensorsBoard sensors ") );	
 	
 	#endif
 
@@ -274,7 +284,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 	
-	Serial.println("before config rtc json");
+	Serial.println( F("before config rtc json") );
 	jsonRTC.printTo(Serial);
 
 #endif
@@ -286,7 +296,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 		#if DEBUG == 1 
 
-			Serial.println("failed to write rtcConfig.json");
+			Serial.println( F("failed to write rtcConfig.json") );
 
 		#endif
 
@@ -298,7 +308,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1 
 
-		Serial.println("RTC Config");
+		Serial.println( F("RTC Config") );
 		jsonRTC.printTo(Serial);
 	
 	#endif
@@ -310,7 +320,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse rtc ");
+		Serial.println( F("failed to parse rtc ") );
 	
 	#endif
 
@@ -326,7 +336,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 #if DEBUG == 1 
 
-	Serial.println("before config Led json");
+	Serial.println( F("before config Led json") );
 	jsonLedBoard.printTo(Serial);
 
 #endif
@@ -339,7 +349,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 		#if DEBUG == 1 
 		
-			Serial.println("failed to write led config");
+			Serial.println( F("failed to write led config") );
 		
 		#endif
 
@@ -351,7 +361,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1 
 
-		Serial.println("CoolBoardLed Config");		
+		Serial.println( F("CoolBoardLed Config") );		
 		jsonLedBoard.printTo(Serial);
 	
 	#endif
@@ -363,7 +373,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse led");
+		Serial.println( F("failed to parse led") );
 	
 	#endif 
 
@@ -378,7 +388,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 
-	Serial.println("before config jetpack json");
+	Serial.println( F("before config jetpack json") );
 	jsonJetpack.printTo(Serial);
 
 #endif
@@ -390,7 +400,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		{
 		#if DEBUG == 1
 
-			Serial.println("failed to write jetpack file");
+			Serial.println( F("failed to write jetpack file") );
 		
 		#endif
 
@@ -402,7 +412,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1
 
-		Serial.println("jetpack Config");	
+		Serial.println( F("jetpack Config") );	
 		jsonJetpack.printTo(Serial);
 	
 	#endif
@@ -414,7 +424,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse jetpack");	
+		Serial.println( F("failed to parse jetpack") );	
 	
 	#endif
 
@@ -426,7 +436,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 #if DEBUG == 1 
 
-	Serial.println("before config irene json");	
+	Serial.println( F("before config irene json") );	
 	jsonIrene.printTo(Serial);
 
 #endif 
@@ -439,7 +449,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 		#if DEBUG == 1 
 
-			Serial.println("failed to write irene file");
+			Serial.println( F("failed to write irene file") );
 		
 		#endif
 
@@ -451,7 +461,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 		
-		Serial.println("irene3000 Config");
+		Serial.println( F("irene3000 Config") );
 		jsonIrene.printTo(Serial);
 	
 	#endif
@@ -462,7 +472,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse irene");	
+		Serial.println( F("failed to parse irene") );	
 	
 	#endif 
 
@@ -475,7 +485,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 
-	Serial.println("before config external Sensors json");
+	Serial.println( F("before config external Sensors json") );
 	jsonExternalSensors.printTo(Serial);
 
 #endif
@@ -488,7 +498,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 		#if DEBUG == 1 
 
-			Serial.println("failed to open external sensors file ");
+			Serial.println( F("failed to open external sensors file ") );
 		
 		#endif 
 
@@ -497,7 +507,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 		
-		Serial.println("externalSensors Config");
+		Serial.println( F("externalSensors Config") );
 		jsonExternalSensors.printTo(Serial);
 
 #endif 
@@ -512,7 +522,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1
 		
-		Serial.println("failed to parse external sensors");
+		Serial.println( F("failed to parse external sensors") );
 
 	#endif
 
@@ -526,7 +536,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 #if DEBUG == 1 
 
-	Serial.println("before config mqtt json");
+	Serial.println( F("before config mqtt json") );
 	jsonMQTT.printTo(Serial);
 
 #endif
@@ -539,7 +549,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 		#if DEBUG == 1 
 
-			Serial.println("failed to open mqtt file ");
+			Serial.println( F("failed to open mqtt file ") );
 		
 		#endif
 		
@@ -548,7 +558,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 #if DEBUG == 1 
 
-		Serial.println("mqtt config");
+		Serial.println( F("mqtt config") );
 		jsonMQTT.printTo(Serial);
 
 #endif
@@ -561,7 +571,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse mqtt");
+		Serial.println( F("failed to parse mqtt") );
 	
 	#endif
 
@@ -586,9 +596,9 @@ bool CoolFileSystem::isDataSaved()
 
 #if DEBUG == 1 
 
-	Serial.println("Entering CoolFileSystem.isDataSaved()");
+	Serial.println( F("Entering CoolFileSystem.isDataSaved()") );
 	Serial.println();
-	Serial.print("savedData : ");
+	Serial.print( F("savedData : ") );
 	Serial.println(this->savedData);
 
 #endif
@@ -609,7 +619,7 @@ String CoolFileSystem::getSensorSavedData()
 
 #if DEBUG == 1 
 
-	Serial.println("Entering CoolFileSystem.getSensorSavedData()");
+	Serial.println( F("Entering CoolFileSystem.getSensorSavedData()") );
 	Serial.println();
 
 #endif
@@ -622,7 +632,7 @@ String CoolFileSystem::getSensorSavedData()
 
 	#if DEBUG == 1 
 
-		Serial.println("Failed to read /sensorsData.json");
+		Serial.println( F("Failed to read /sensorsData.json") );
 
 	#endif
  
@@ -647,7 +657,7 @@ String CoolFileSystem::getSensorSavedData()
 
 		#if DEBUG == 1
 		
-			Serial.println("failed to parse json");
+			Serial.println( F("failed to parse json") );
 		
 		#endif
 		
@@ -670,7 +680,7 @@ String CoolFileSystem::getSensorSavedData()
 			{
 			#if DEBUG == 1
 		
-				Serial.println("failed to delete data in the file");
+				Serial.println( F("failed to delete data in the file") );
 		
 			#endif
 
@@ -684,7 +694,7 @@ String CoolFileSystem::getSensorSavedData()
 			
 		#if DEBUG == 1 
 
-			Serial.println("saved data : ");
+			Serial.println( F("saved data : ") );
 			Serial.println(sensorDataString);
 			Serial.println();
 		

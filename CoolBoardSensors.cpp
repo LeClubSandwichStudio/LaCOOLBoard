@@ -37,7 +37,7 @@ CoolBoardSensors::CoolBoardSensors()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors Constructor");
+	Serial.println( F("Entering CoolBoardSensors Constructor") );
 	Serial.println();
 
 #endif
@@ -63,9 +63,9 @@ int CoolBoardSensors::getJsonSize()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.getJsonSize()");
+	Serial.println( F("Entering CoolBoardSensors.getJsonSize()") );
 	Serial.println();
-	Serial.print("json size is : ");
+	Serial.print( F("json size is : ") );
 	Serial.println(this->jsonSize);
 	Serial.println();
 
@@ -84,9 +84,9 @@ void CoolBoardSensors::setJsonSize(int jsonSize)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.setJsonSize()");
+	Serial.println( F("Entering CoolBoardSensors.setJsonSize()") );
 	Serial.println();	
-	Serial.print("old json Size is : ");
+	Serial.print( F("old json Size is : ") );
 	Serial.println(this->jsonSize);
 #endif
 		
@@ -94,7 +94,7 @@ void CoolBoardSensors::setJsonSize(int jsonSize)
 
 #if DEBUG == 1 
 	
-	Serial.print("new json Size is : ");
+	Serial.print( F("new json Size is : ") );
 	Serial.println(this->jsonSize);
 
 #endif
@@ -112,7 +112,7 @@ void CoolBoardSensors::allActive()
 
 #if DEBUG == 1 
 
-	Serial.println("Entering CoolBoardSensors.allActive()");
+	Serial.println( F("Entering CoolBoardSensors.allActive()") );
 	Serial.println();
 
 #endif
@@ -145,7 +145,7 @@ void CoolBoardSensors::begin()
 
 #if DEBUG == 1 
      
-	Serial.println("Entering CoolBoardSensors.begin()");
+	Serial.println( F("Entering CoolBoardSensors.begin()") );
 	Serial.println();
 
 #endif
@@ -157,7 +157,7 @@ void CoolBoardSensors::begin()
 	
 	#if DEBUG == 1
 
-		Serial.println("Si1145 is not ready!  1 second");
+		Serial.println( F("Si1145 is not ready!  1 second") );
 
 	#endif
 
@@ -171,7 +171,7 @@ void CoolBoardSensors::begin()
 
 #if DEBUG == 1 
 	
-	Serial.print("BME280 begin answer is :");
+	Serial.print( F("BME280 begin answer is :") );
 	Serial.println(envSensor.begin(), HEX);
 	Serial.println();
 
@@ -188,7 +188,7 @@ void CoolBoardSensors::end()
 {
 
 #if DEBUG == 1 	
-	Serial.println("Entering CoolBoardSensors.end()");
+	Serial.println( F("Entering CoolBoardSensors.end()") );
 	Serial.println();
 
 #endif
@@ -210,7 +210,7 @@ String CoolBoardSensors::read()
 
 #if DEBUG == 1 
 	
-	Serial.println("Entering CoolBoardSensors.read()");
+	Serial.println( F("Entering CoolBoardSensors.read()") );
 	Serial.println();
 
 #endif
@@ -272,7 +272,7 @@ String CoolBoardSensors::read()
 
 #if DEBUG == 1
 
-	Serial.println("CoolBoardSensors data is :");
+	Serial.println( F("CoolBoardSensors data is :") );
 	root.printTo(Serial);
 	Serial.println();
 
@@ -293,7 +293,7 @@ void CoolBoardSensors::initReadI2C()
 
 #if DEBUG == 1
 
- 	Serial.println("Entering CoolBoardSensors.initReadI2C()");
+ 	Serial.println( F("Entering CoolBoardSensors.initReadI2C()") );
 	Serial.println();
 
 #endif
@@ -312,7 +312,7 @@ void CoolBoardSensors::stopReadI2C()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.stopReadI2C()");
+	Serial.println( F("Entering CoolBoardSensors.stopReadI2C()") );
 	Serial.println();
 
 #endif
@@ -336,7 +336,7 @@ bool CoolBoardSensors::config()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.config()");
+	Serial.println( F("Entering CoolBoardSensors.config()") );
 	Serial.println();
 
 #endif
@@ -350,7 +350,7 @@ bool CoolBoardSensors::config()
 	
 	#if DEBUG == 1
 
-		Serial.println("failed to read /coolBoardSensorsConfig.json");
+		Serial.println( F("failed to read /coolBoardSensorsConfig.json") );
 		Serial.println();
 	
 	#endif
@@ -371,7 +371,7 @@ bool CoolBoardSensors::config()
 		
 		#if DEBUG == 1
 
-			Serial.println("failed to parse coolBoardSensorsConfig json");
+			Serial.println( F("failed to parse coolBoardSensorsConfig json") );
 			Serial.println();
 		
 		#endif
@@ -383,7 +383,7 @@ bool CoolBoardSensors::config()
 
 		#if DEBUG == 1
 
-			Serial.println("Configuration Json is :");
+			Serial.println( F("Configuration Json is :") );
 			json.printTo(Serial);
 			Serial.println();
 		
@@ -495,7 +495,7 @@ bool CoolBoardSensors::config()
 			
 			#if DEBUG == 1
 
-				Serial.println("failed to write to /coolBoardSensorsConfig.json");
+				Serial.println( F("failed to write to /coolBoardSensorsConfig.json") );
 				Serial.println();
 			
 			#endif
@@ -508,7 +508,7 @@ bool CoolBoardSensors::config()
 			
 		#if DEBUG == 1
 
-			Serial.println("Saved Configuration Json is : ");
+			Serial.println( F("Saved Configuration Json is : ") );
 			json.printTo(Serial);
 			Serial.println();
 		
@@ -531,7 +531,7 @@ void CoolBoardSensors::printConf()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.printConf()");
+	Serial.println( F("Entering CoolBoardSensors.printConf()") );
 	Serial.println();
 
 #endif
@@ -584,7 +584,7 @@ void CoolBoardSensors::setEnvSensorSettings( uint8_t commInterface, uint8_t I2CA
 
 #if DEBUG == 1
 	
-	Serial.println("Entering CoolBoardSensors.setEnvSensorSettings()");
+	Serial.println( F("Entering CoolBoardSensors.setEnvSensorSettings()") );
 	Serial.println();
 
 #endif
@@ -620,7 +620,7 @@ float CoolBoardSensors::readVBat()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoardSensors.readVBat()");
+	Serial.println( F("Entering CoolBoardSensors.readVBat()") );
 	Serial.println();
 
 #endif
@@ -635,7 +635,7 @@ float CoolBoardSensors::readVBat()
 	
 #if DEBUG == 1
 
-	Serial.println("Vbat is : ");
+	Serial.println( F("Vbat is : ") );
 	Serial.println(val);
 	Serial.println();
 
@@ -657,7 +657,7 @@ float CoolBoardSensors::readMoisture()
 
 #if DEBUG == 1
 	
-	Serial.println("Entering CoolBoardSensors.readMoisture()");
+	Serial.println( F("Entering CoolBoardSensors.readMoisture()") );
 	Serial.println();
 	
 #endif
@@ -676,7 +676,7 @@ float CoolBoardSensors::readMoisture()
 	
 #if DEBUG == 1 
 
-	Serial.println("Soil Moisture is : ");
+	Serial.println( F("Soil Moisture is : ") );
 	Serial.println(result);
 	Serial.println();
 

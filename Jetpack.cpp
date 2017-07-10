@@ -14,6 +14,8 @@
 #include "Jetpack.h"
 
 
+#define DEBUG 1 
+
 #ifndef DEBUG
 
 #define DEBUG 0
@@ -32,7 +34,7 @@ void Jetpack::begin()
 
 #if DEBUG == 1 
  
-	Serial.println("Entering Jetpack.begin() ");
+	Serial.println( F("Entering Jetpack.begin() ") );
 	Serial.println();
 
 #endif
@@ -59,10 +61,10 @@ void Jetpack::write(byte action)
 
 #if DEBUG == 1
 
-	Serial.println("Entering Jetpack.write()");
+	Serial.println( F("Entering Jetpack.write()") );
 	Serial.println();
 
-	Serial.println("writing this action : ");
+	Serial.println( F("writing this action : ") );
 	Serial.println(action,HEX);
 	Serial.println();
 
@@ -89,12 +91,12 @@ void Jetpack::writeBit(byte pin,bool state)
 
 #if DEBUG == 1 
 
-	Serial.println("Entering Jetpack.writeBit() ");
+	Serial.println( F("Entering Jetpack.writeBit() ") );
 
-	Serial.print("Writing ");
+	Serial.print( F("Writing ") );
 	Serial.print(state);
 
-	Serial.print("to pin N°");
+	Serial.print( F("to pin N°") );
 	Serial.print(pin);
 
 	Serial.println();
@@ -134,14 +136,14 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 
 #if DEBUG == 1 
 
-	Serial.println("Entering Jetpack.doAction()");
+	Serial.println( F("Entering Jetpack.doAction()") );
 	Serial.println();
 
-	Serial.println("input data is :");
+	Serial.println( F("input data is :") );
 	Serial.println(data);
 	Serial.println();
 
-	Serial.println("input size is :");	
+	Serial.println( F("input size is :") );	
 	Serial.println(JSON_SIZE);
 	Serial.println();
 
@@ -155,7 +157,7 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("failed to parse json object ");
+		Serial.println( F("failed to parse json object ") );
 		Serial.println();
 	
 	#endif 
@@ -166,7 +168,7 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("created Json object :");
+		Serial.println( F("created Json object :") );
 		root.printTo(Serial);
 		Serial.println();
 	
@@ -228,7 +230,7 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	
 	#if DEBUG == 1 
 
-		Serial.println("new action is : ");
+		Serial.println( F("new action is : ") );
 		Serial.println(this->action);
 		Serial.println();
 	
@@ -251,7 +253,7 @@ bool Jetpack::config()
 
 #if DEBUG == 1 
 
-	Serial.println("Entering Jetpack.config() ");
+	Serial.println( F("Entering Jetpack.config() ") );
 	Serial.println();
 
 #endif
@@ -263,7 +265,7 @@ bool Jetpack::config()
 
 	#if DEBUG == 1 
 
-		Serial.println("failed to read /jetPackConfig.json ");
+		Serial.println( F("failed to read /jetPackConfig.json ") );
 		Serial.println();
 
 	#endif
@@ -284,7 +286,7 @@ bool Jetpack::config()
 		
 		#if DEBUG == 1 
 
-			Serial.println("failed to parse jetpack config json from file ");
+			Serial.println( F("failed to parse jetpack config json from file ") );
 			Serial.println();
 
 		#endif
@@ -296,7 +298,7 @@ bool Jetpack::config()
  		
 		#if DEBUG == 1 
 
-			Serial.println("read configuration file : ");
+			Serial.println( F("read configuration file : ") );
 			json.printTo(Serial);
 			Serial.println();
 		
@@ -387,7 +389,7 @@ bool Jetpack::config()
 			
 			#if DEBUG == 1 
 
-				Serial.println("failed to write to /jetPackConfig.json ");
+				Serial.println( F("failed to write to /jetPackConfig.json ") );
 				Serial.println();
 			
 			#endif
@@ -400,7 +402,7 @@ bool Jetpack::config()
 
 		#if DEBUG == 1 
 			
-			Serial.println("saved configuration : ");
+			Serial.println(F("saved configuration : "));
 			json.printTo(Serial );
 			Serial.println();		
 		
@@ -424,13 +426,13 @@ void Jetpack::printConf()
 
 #if DEBUG == 1 
 
-	Serial.println("Enter Jetpack.printConf() ");
+	Serial.println( F("Enter Jetpack.printConf() ") );
 	Serial.println();
 
 #endif 
-	Serial.println("Jetpack configuration ") ;
+	Serial.println( "Jetpack configuration " ) ;
 
-	Serial.print("actorsNumber : ");
+	Serial.print( "actorsNumber : " );
 	Serial.println(this->actorsNumber);
  
         for(int i=0;i<this->actorsNumber;i++)

@@ -45,7 +45,7 @@ public:
 
 	#if DEBUG == 1 
 
-		Serial.println("BaseExternalSensor Constructor");
+		Serial.println( "BaseExternalSensor Constructor" );
 		Serial.println();
 	
 	#endif
@@ -65,7 +65,7 @@ public:
 	
 	#if DEBUG == 1 
 	
-		Serial.println("BaseExternalSensor.begin()");
+		Serial.println( "BaseExternalSensor.begin()" );
 		Serial.println();
 	
 	#endif
@@ -87,7 +87,7 @@ public:
 	
 	#if DEBUG == 1 
 
-		Serial.println("BaseExternalSensor.read()");
+		Serial.println( "BaseExternalSensor.read()" );
 		Serial.println();
 	
 	#endif		
@@ -130,7 +130,7 @@ public :
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <Generic> Constructor");
+		Serial.println( "ExternalSensor <Generic> Constructor" );
 		Serial.println();
 	
 	#endif
@@ -148,7 +148,7 @@ public :
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <Generic> begin()");
+		Serial.println( "ExternalSensor <Generic> begin()" );
 		Serial.println();
 	
 	#endif
@@ -164,7 +164,7 @@ public :
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <Generic> read() ");
+		Serial.println( "ExternalSensor <Generic> read() " );
 		Serial.println();
 		
 	#endif
@@ -200,7 +200,7 @@ public:
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <NDIR_I2C> constructor");
+		Serial.println( "ExternalSensor <NDIR_I2C> constructor");
 		Serial.println();
 	
 	#endif
@@ -220,7 +220,7 @@ public:
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <NDIR_I2C> begin()");
+		Serial.println( "ExternalSensor <NDIR_I2C> begin()" );
 		Serial.println();
 	
 	#endif 
@@ -230,7 +230,7 @@ public:
 		
 		#if DEBUG == 1 
 			
-			Serial.println("NDIR_I2C init : wait 10 seconds");
+			Serial.println( "NDIR_I2C init : wait 10 seconds" );
 			Serial.println();
 		
 		#endif
@@ -244,7 +244,7 @@ public:
 		
 		#if DEBUG == 1 
 
-			Serial.println("NDIR_I2C init : fail ");
+			Serial.println( "NDIR_I2C init : fail " );
 			Serial.println();
 		
 		#endif
@@ -265,7 +265,7 @@ public:
 		
 	#if DEBUG == 1 
 		
-		Serial.println("ExternalSensor <NDIR_I2C> read()");
+		Serial.println( "ExternalSensor <NDIR_I2C> read()" );
 		Serial.println();
 
 	#endif
@@ -275,7 +275,7 @@ public:
 		
 		#if DEBUG == 1 
 
-			Serial.print("NDIR_I2C ppm :");
+			Serial.print( "NDIR_I2C ppm :" );
 			Serial.println( (float) sensor.ppm);
 			
 			Serial.println();			
@@ -291,7 +291,7 @@ public:
 		
 		#if DEBUG == 1 
 
-			Serial.println("NDIR_I2C read fail ");
+			Serial.println( "NDIR_I2C read fail " );
 			Serial.println();
 		
 		#endif
@@ -324,7 +324,7 @@ public:
 		
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <DallasTemperature> constructor");
+		Serial.println( "ExternalSensor <DallasTemperature> constructor" );
 		Serial.println();
 	
 	#endif
@@ -345,7 +345,7 @@ public:
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <DallasTemperature> begin()");
+		Serial.println( "ExternalSensor <DallasTemperature> begin()" );
 		Serial.println();
 	
 	#endif
@@ -366,12 +366,12 @@ public:
 	
 	#if DEBUG == 1 
 
-		Serial.println("ExternalSensor <DallasTemperature> read()");
+		Serial.println( "ExternalSensor <DallasTemperature> read()" );
 		Serial.println();
 
-		Serial.print("temperature : ");
+		Serial.print( "temperature : ");
 		Serial.print( (float) sensor.getTempC(this->dallasAddress) );
-		Serial.print("°C");
+		Serial.print( "°C" );
 		Serial.println();
 	
 	#endif

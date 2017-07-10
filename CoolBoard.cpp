@@ -39,8 +39,8 @@ void CoolBoard::begin()
 
 #if DEBUG == 1
 
-	Serial.println("Starting the CoolBoard  " );
-	Serial.println("Entering CoolBoard.begin() " );
+	Serial.println( F("Starting the CoolBoard  ")  );
+	Serial.println( F("Entering CoolBoard.begin() ")  );
 	Serial.println();
 #endif
 	
@@ -117,9 +117,9 @@ int CoolBoard::connect()
 
 #if DEBUG == 1	
 
-	Serial.println("Entering CoolBoard.connect " );
+	Serial.println( F("Entering CoolBoard.connect ") );
 	Serial.println();
-	Serial.println("Connecting the CoolBoard  " );
+	Serial.println( F("Connecting the CoolBoard  ") );
 	delay(100);
 
 #endif
@@ -129,8 +129,8 @@ int CoolBoard::connect()
 	
 	#if DEBUG == 1		
 
-		Serial.println("CoolBoard not connected to WiFi " );
-		Serial.println("Launching WiFiManager" );
+		Serial.println( F("CoolBoard not connected to WiFi ") );
+		Serial.println( F("Launching WiFiManager") );
 		Serial.println();
 
 	#endif
@@ -148,8 +148,8 @@ int CoolBoard::connect()
 	
 	#if DEBUG == 1	
 	
-		Serial.println("CoolBoard not connected to MQTT " );
-		Serial.println("Launching mqtt.connect()" );
+		Serial.println( F("CoolBoard not connected to MQTT ") );
+		Serial.println( F("Launching mqtt.connect()") );
 		Serial.println();
 
 	#endif	
@@ -161,7 +161,7 @@ int CoolBoard::connect()
 	
 #if DEBUG == 1
 
-	Serial.println("mqtt state is :");
+	Serial.println( F("mqtt state is :") );
 	Serial.println(mqtt.state());
 	Serial.println();
 	delay(100);
@@ -186,7 +186,7 @@ void CoolBoard::onLineMode()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.onLineMode() " );
+	Serial.println( F("Entering CoolBoard.onLineMode() ") );
 	Serial.println();
 
 #endif
@@ -200,8 +200,8 @@ void CoolBoard::onLineMode()
 	
 	#if DEBUG == 1
 
-		Serial.println("There is data saved on the File System");
-		Serial.println("Sending saved data over MQTT ");
+		Serial.println( F("There is data saved on the File System") );
+		Serial.println( F("Sending saved data over MQTT ") );
 		Serial.println();
 	
 	#endif	
@@ -221,7 +221,7 @@ void CoolBoard::onLineMode()
 	
 	#if DEBUG == 1
 
-		Serial.println("Saved data sent " );
+		Serial.println( F("Saved data sent ") );
 		Serial.println();
 	
 	#endif
@@ -237,8 +237,8 @@ void CoolBoard::onLineMode()
 	
 	#if DEBUG == 1
 
-		Serial.println("User is Active");
-		Serial.println("Collecting User's data ( mac,username,timeStamp )");
+		Serial.println( F("User is Active") );
+		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
 		Serial.println();
 	
 	#endif	
@@ -252,7 +252,7 @@ void CoolBoard::onLineMode()
 		//read sensors data
 	#if DEBUG == 1
 
-		Serial.println("Collecting sensors data " );
+		Serial.println( F("Collecting sensors data ") );
 		Serial.println();
 	
 	#endif
@@ -268,7 +268,7 @@ void CoolBoard::onLineMode()
 		//read sensors data
 	#if DEBUG == 1
 
-		Serial.println("Collecting sensors data " );
+		Serial.println( F("Collecting sensors data ") );
 		Serial.println();
 	
 	#endif
@@ -282,8 +282,8 @@ void CoolBoard::onLineMode()
 	
 	#if DEBUG ==1
 
-		Serial.println("jetpack is Active ");
-		Serial.println("jetpack doing action ");
+		Serial.println( F("jetpack is Active ") );
+		Serial.println( F("jetpack doing action ") );
 		Serial.println();
 
 	#endif
@@ -305,8 +305,8 @@ void CoolBoard::onLineMode()
 
 #if DEBUG == 1 
 
-	Serial.println("checking if there's an MQTT message " );
-	Serial.println("answer is : ");	
+	Serial.println( F("checking if there's an MQTT message ")  );
+	Serial.println( F("answer is : ") );	
 	Serial.println(answer);	
 	Serial.println();
 
@@ -351,7 +351,7 @@ void CoolBoard::offLineMode()
 
 #if DEBUG == 1	
 	
-	Serial.println("Entering off line mode ");	
+	Serial.println( F("Entering off line mode ") );	
 	
 #endif
 
@@ -361,8 +361,8 @@ void CoolBoard::offLineMode()
 
 	#if DEBUG == 1
 		
-		Serial.println("User is Active");
-		Serial.println("Collecting User's data ( mac,username,timeStamp )");
+		Serial.println( F("User is Active") );
+		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
 		Serial.println();
 
 	#endif
@@ -377,7 +377,7 @@ void CoolBoard::offLineMode()
 		//read sensors data
 	#if DEBUG == 1
 
-		Serial.println("Collecting sensors data " );
+		Serial.println( F("Collecting sensors data ") );
 		Serial.println();
 
 	#endif
@@ -395,7 +395,7 @@ void CoolBoard::offLineMode()
 		//read sensors data
 	#if DEBUG == 1
 
-		Serial.println("Collecting sensors data " );
+		Serial.println( F("Collecting sensors data ") );
 		Serial.println();
 
 	#endif
@@ -409,8 +409,8 @@ void CoolBoard::offLineMode()
 
 	#if DEBUG == 1
 
-		Serial.println("jetpack is Active ");
-		Serial.println("jetpack doing action ");
+		Serial.println( F("jetpack is Active ") );
+		Serial.println( F("jetpack doing action ") );
 		Serial.println();
 	
 	#endif
@@ -443,7 +443,7 @@ bool CoolBoard::config()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.config() ");
+	Serial.println( F("Entering CoolBoard.config() ") );
 	Serial.println();
 
 #endif
@@ -460,7 +460,7 @@ bool CoolBoard::config()
 	
 	#if DEBUG == 1
 
-		Serial.println("failed to read /coolBoardConfig.json  ");
+		Serial.println( F("failed to read /coolBoardConfig.json  ") );
 
 	#endif
 	
@@ -485,7 +485,7 @@ bool CoolBoard::config()
 		
 		#if DEBUG == 1
 
-			Serial.println("failed to parse CoolBoard Config json object ");
+			Serial.println( F("failed to parse CoolBoard Config json object ") );
 	
 		#endif
 
@@ -497,7 +497,7 @@ bool CoolBoard::config()
 		
 		#if DEBUG == 1
 			
-			Serial.println("configuration json : ");
+			Serial.println( F("configuration json : ") );
 			json.printTo(Serial);
 			Serial.println();
 		
@@ -611,7 +611,7 @@ bool CoolBoard::config()
 			
 			#if DEBUG == 1
 
-				Serial.println("failed to write to /coolBoardConfig.json");
+				Serial.println( F("failed to write to /coolBoardConfig.json") );
 				Serial.println();
 			
 			#endif
@@ -638,7 +638,7 @@ void CoolBoard::printConf()
 
 #if DEBUG == 1
 	
-	Serial.println("Entering CoolBoard.printConf() ");
+	Serial.println( F("Entering CoolBoard.printConf() ") );
 	Serial.println();
 
 #endif
@@ -688,9 +688,9 @@ void CoolBoard::update(const char * answer)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.update() ");
+	Serial.println( F("Entering CoolBoard.update() ") );
 	Serial.println();
-	Serial.println("message is : ");
+	Serial.println( F("message is : ") );
 	Serial.println(answer);
 	Serial.println();
 
@@ -704,7 +704,7 @@ void CoolBoard::update(const char * answer)
 	
 	#if DEBUG == 1
 
-		Serial.println("update message parsing : success");
+		Serial.println( F("update message parsing : success") );
 		Serial.println();
 	
 	#endif
@@ -717,8 +717,8 @@ void CoolBoard::update(const char * answer)
 			
 		#if DEBUG == 1		
 		
-			Serial.println("update is 1 ");
-			Serial.println("desired update is : ");			
+			Serial.println( F("update is 1 ") );
+			Serial.println( F("desired update is : ") );			
 			Serial.println(answerDesired);
 			Serial.println();
 		
@@ -769,9 +769,9 @@ void CoolBoard::update(const char * answer)
 
 		#if DEBUG == 1
 
-			Serial.println("preparing answer message ");
+			Serial.println( F("preparing answer message ") );
 			Serial.println();
-			Serial.println("updateAnswer : ");
+			Serial.println( F("updateAnswer : ") );
 			Serial.println(updateAnswer);
 		
 		#endif	
@@ -791,7 +791,7 @@ void CoolBoard::update(const char * answer)
 		
 		#if DEBUG == 1 
 
-			Serial.println("update is not 1 ");
+			Serial.println( F("update is not 1 ") );
 			Serial.println();
 		
 		#endif
@@ -803,7 +803,7 @@ void CoolBoard::update(const char * answer)
 	
 	#if DEBUG == 1
 
-		Serial.println("Failed to parse update message( OR no message received )");
+		Serial.println( F("Failed to parse update message( OR no message received )") );
 		Serial.println();
 	
 	#endif
@@ -823,9 +823,9 @@ uint16_t CoolBoard::getLogInterval()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.getLogInterval() ");
+	Serial.println( F("Entering CoolBoard.getLogInterval() ") );
 	Serial.println();
-	Serial.println("log Interval is :");
+	Serial.println( F("log Interval is :") );
 	Serial.println(logInterval);
 	Serial.println();
 
@@ -847,7 +847,7 @@ String CoolBoard::readSensors()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.readSensors()");
+	Serial.println( F("Entering CoolBoard.readSensors()") );
 	Serial.println();
 
 #endif
@@ -879,7 +879,7 @@ String CoolBoard::readSensors()
 	
 #if DEBUG == 1
 
-	Serial.println("sensors data is ");
+	Serial.println( F("sensors data is ") );
 	Serial.println(sensorsData);
 	Serial.println();
 
@@ -901,7 +901,7 @@ String CoolBoard::userData()
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.userData() ");
+	Serial.println( F("Entering CoolBoard.userData() ") );
 	Serial.println();
 
 #endif
@@ -926,7 +926,7 @@ String CoolBoard::userData()
 
 #if DEBUG == 1
 
-	Serial.println("userData is : ");
+	Serial.println( F("userData is : ") );
 	Serial.println(userJson);
 	Serial.println();
 
@@ -948,8 +948,10 @@ void CoolBoard::sleep(int interval)
 
 #if DEBUG == 1
 
-	Serial.println("Entering CoolBoard.sleep() ");
-	Serial.print("going to sleep for ");Serial.print(interval);Serial.println("ms");
+	Serial.println( F("Entering CoolBoard.sleep() ") );
+	Serial.print( F("going to sleep for ") );
+	Serial.print(interval);
+	Serial.println(F("ms") );
 	Serial.println();
 
 #endif
