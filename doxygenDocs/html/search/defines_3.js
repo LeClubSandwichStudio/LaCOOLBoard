@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ntp_5fpacket_5fsize',['NTP_PACKET_SIZE',['../CoolTime_8h.html#a56a6ea64006651b4f42adf713e244f06',1,'CoolTime.h']]]
+  ['freeadc',['freeAdc',['../Irene3000_8h.html#a55497513af255250e464ed76543d46d7',1,'Irene3000.h']]]
 ];

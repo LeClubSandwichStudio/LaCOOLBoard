@@ -1,88 +1,156 @@
 class CoolFileSystem
 !!!132101.cpp!!!	begin() : bool
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolFileSystem.begin()");
-	Serial.println();
-	
+	Serial.println();	
 	Serial.print("SPIFFS success ? ");
 	Serial.println(SPIFFS.begin());
 	Serial.println();
-	
+
+#endif
+
 	return( SPIFFS.begin() );                                   //Initialize Filesystem
 
 !!!132229.cpp!!!	updateConfigFiles(in answer : String, in JSON_SIZE : int) : bool
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolFileSystem.updateConfigFiles");
 	Serial.println();
 
-	//String conversion to char*
-	//char jsonRoot = new char(answer.length() + 1);
-	//strcpy(jsonRoot, answer.c_str());
+#endif
+
 	//total json object	
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject( answer.c_str() );
 	
 	if(! ( root.success() ))
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("failed to parse root ");
 		Serial.println();
+	
+	#endif
+
 		return(false);
 	}
 	else
 	{
+	#if DEBUG == 1
+		
 		Serial.println("success to parse root ");
-		Serial.println();	
+		Serial.println();
+		
+	#endif	
 	}
 	
+#if DEBUG == 1
+
 	Serial.println("input message is : ");
 	root.printTo(Serial);
 	Serial.println();
 
+#endif
 	//temp string
 	String temp;
 
 	//CoolBoard Configuration File
 
     	JsonObject& jsonCoolBoard=root["CoolBoard"];
+
+#if DEBUG == 1
+
+	Serial.println("before config CoolBoard json");
+	jsonCoolBoard.printTo(Serial);
+
+#endif
+
 	if(jsonCoolBoard.success())
 	{
 		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w");	
 		if(!coolBoardConfig)
 		{	
+		#if DEBUG == 1
+			
 			Serial.println("failed to write to coolBoardConfig.json");
+
+		#endif
 			return(false);
 		}
-		Serial.println("CoolBoard Config");
-		jsonCoolBoard.printTo(Serial);
 		
 		jsonCoolBoard.printTo(coolBoardConfig);
 		
 		coolBoardConfig.close();
+
+
+	#if DEBUG == 1
+
+		Serial.println("CoolBoard Config");
+		jsonCoolBoard.printTo(Serial);
+	
+	#endif
+		
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse CoolBoard ");
+	
+	#endif
+
 	}		
 
 	
 	//Cool Board Sensors Configuration File
-	DynamicJsonBuffer jsonSBoard;
-    	JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];	
+    	JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];
+
+#if DEBUG == 1 
+
+	Serial.println("before config CoolSensorsBoard json");
+	jsonSensorsBoard.printTo(Serial);
+
+#endif 
+	
 	if(jsonSensorsBoard.success())
 	{	
 		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");	
 		if(!coolBoardSensorsConfig)
 		{
+		#if DEBUG == 1 
+		
 			Serial.println("failed to write coolBoardSensors.json");
+
+		#endif
+
 			return(false);
 		}
 		
-		Serial.println("CoolBoardSensors Config");
 		jsonSensorsBoard.printTo(coolBoardSensorsConfig);
-		jsonSensorsBoard.printTo(Serial);
 		coolBoardSensorsConfig.close();
+
+	#if DEBUG == 1
+
+		Serial.println("CoolBoardSensors Config");
+		jsonSensorsBoard.printTo(Serial);
+
+	#endif
+
 	}
 	else
 	{
+
+	#if DEBUG == 1
+
 		Serial.println("failed to parse CoolSensorsBoard sensors ");	
+	
+	#endif
+
 	}
 	
 	
@@ -90,25 +158,49 @@ class CoolFileSystem
 	//rtc configuration file
 	DynamicJsonBuffer jsonR;
     	JsonObject& jsonRTC=root["rtc"];
+
+#if DEBUG == 1 
+	
 	Serial.println("before config rtc json");
 	jsonRTC.printTo(Serial);
+
+#endif
 	if(jsonRTC.success() )
 	{
 		File rtcConfig = SPIFFS.open("/rtcConfig.json", "w");	
 		if(!rtcConfig)
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to write rtcConfig.json");
+
+		#endif
+
 			return(false);
 		}
-		Serial.println("RTC Config");
+
 		jsonRTC.printTo(rtcConfig);
-		jsonRTC.printTo(Serial);
 		rtcConfig.close();
+
+	#if DEBUG == 1 
+
+		Serial.println("RTC Config");
+		jsonRTC.printTo(Serial);
+	
+	#endif
+
 	
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse rtc ");
+	
+	#endif
+
 	}
 
 	
@@ -118,25 +210,50 @@ class CoolFileSystem
         //cool board led configuration
 	DynamicJsonBuffer jsonLBoard;
     	JsonObject& jsonLedBoard=root["led"];
+	
+#if DEBUG == 1 
+
 	Serial.println("before config Led json");
 	jsonLedBoard.printTo(Serial);
+
+#endif
+
 	if(jsonLedBoard.success())
 	{	
 		File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");	
 		if(!coolBoardLedConfig)
 		{
+		
+		#if DEBUG == 1 
+		
 			Serial.println("failed to write led config");
+		
+		#endif
+
 			return(false);
 		}
-		Serial.println("CoolBoardLed Config");
+		
 		jsonLedBoard.printTo(coolBoardLedConfig);
-		jsonLedBoard.printTo(Serial);
 		coolBoardLedConfig.close();
+
+	#if DEBUG == 1 
+
+		Serial.println("CoolBoardLed Config");		
+		jsonLedBoard.printTo(Serial);
+	
+	#endif
+
 	
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse led");
+	
+	#endif 
+
 	}
 		
 
@@ -145,111 +262,220 @@ class CoolFileSystem
 	//jetpack configuration
 	DynamicJsonBuffer jsonJBoard;
     	JsonObject& jsonJetpack=root["jetPack"];
+
+#if DEBUG == 1 
+
 	Serial.println("before config jetpack json");
 	jsonJetpack.printTo(Serial);
+
+#endif
+
 	if(jsonJetpack.success())
 	{	
 		File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");	
 		if(!jetPackConfig)
 		{
+		#if DEBUG == 1
+
 			Serial.println("failed to write jetpack file");
+		
+		#endif
+
 			return(false);
 		}
-		Serial.println("jetpack Config");	
+
 		jsonJetpack.printTo(jetPackConfig);
-		jsonJetpack.printTo(Serial);
 		jetPackConfig.close();
+
+	#if DEBUG == 1
+
+		Serial.println("jetpack Config");	
+		jsonJetpack.printTo(Serial);
+	
+	#endif
+
 	}
+
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse jetpack");	
+	
+	#endif
+
 	}
 	
 	//irene configuration	
 	DynamicJsonBuffer jsonIBoard;
     	JsonObject& jsonIrene=root["irene3000"];
+	
+#if DEBUG == 1 
+
 	Serial.println("before config irene json");	
 	jsonIrene.printTo(Serial);
+
+#endif 
+
 	if(jsonIrene.success())
 	{
 		File irene3000Config = SPIFFS.open("/irene3000Config.json", "w");	
 		if(!irene3000Config)
 		{
+
+		#if DEBUG == 1 
+
 			Serial.println("failed to write irene file");
+		
+		#endif
+
 			return(false);
 		}
-		Serial.println("irene3000 Config");
+
 		jsonIrene.printTo(irene3000Config);
-		jsonIrene.printTo(Serial);
 		irene3000Config.close();
+	
+	#if DEBUG == 1 
+		
+		Serial.println("irene3000 Config");
+		jsonIrene.printTo(Serial);
+	
+	#endif
 	
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse irene");	
+	
+	#endif 
+
+
 	}
 	
 	//external sensors
 	DynamicJsonBuffer jsonESBoard;
     	JsonObject& jsonExternalSensors=root["externalSensors"];
+
+#if DEBUG == 1 
+
 	Serial.println("before config external Sensors json");
 	jsonExternalSensors.printTo(Serial);
+
+#endif
+
 	if(jsonExternalSensors.success())
 	{
 		File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");	
 		if(!externalSensorsConfig)
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to open external sensors file ");
+		
+		#endif 
+
 			return(false);
 		}
+
+#if DEBUG == 1 
+		
 		Serial.println("externalSensors Config");
-		jsonExternalSensors.printTo(externalSensorsConfig);
 		jsonExternalSensors.printTo(Serial);
-	
+
+#endif 
+
+		jsonExternalSensors.printTo(externalSensorsConfig);	
 		externalSensorsConfig.close();
 
 	}
+
 	else
-	{
-		Serial.println("failed to parse external sensors");	
+	{	
+
+	#if DEBUG == 1
+		
+		Serial.println("failed to parse external sensors");
+
+	#endif
+
+
 	}
 
 	
 	//mqtt config
 	DynamicJsonBuffer jsonMQ;
     	JsonObject& jsonMQTT=root["mqtt"];
+	
+#if DEBUG == 1 
+
 	Serial.println("before config mqtt json");
 	jsonMQTT.printTo(Serial);
+
+#endif
+
 	if(jsonMQTT.success())
 	{
 		File mqttConfig = SPIFFS.open("/mqttConfig.json", "w");	
 		if(!mqttConfig)
 		{
-			Serial.println("failed to open mqtt file ");		
+		
+		#if DEBUG == 1 
+
+			Serial.println("failed to open mqtt file ");
+		
+		#endif
+		
 			return(false);
 		}
+
+#if DEBUG == 1 
+
 		Serial.println("mqtt config");
-		jsonMQTT.printTo(mqttConfig);
 		jsonMQTT.printTo(Serial);
+
+#endif
+	
+		jsonMQTT.printTo(mqttConfig);
 		mqttConfig.close();
 	}
 	else
 	{
-		Serial.println("failed to parse mqtt");	
+
+	#if DEBUG == 1 
+
+		Serial.println("failed to parse mqtt");
+	
+	#endif
+
+	
 	}	
 		
 	return true;
 
 !!!132357.cpp!!!	saveSensorData(in data : char, in Sensor_JSON_SIZE : int) : bool
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolFileSystem.saveSensorData()");
 	Serial.println();
 
+#endif
 	
 	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
 	if(!sensorsData)
 	{
+	
+	#if DEBUG == 1
+	
 		Serial.println("failed to append to /sensorsData.json");
 		Serial.println();
+	
+	#endif
 
 		this->savedData=false;
 		return (false);	
@@ -262,42 +488,68 @@ class CoolFileSystem
 	{
 		root.printTo(sensorsData);
 		sensorsData.close();
-
+	
+	#if DEBUG == 1
+	
 		Serial.println("saved data is : ");
 		root.printTo(Serial);
 		Serial.println();
+	
+	#endif
 
 		this->savedData=true;
 		return (true);		
 	}
 	else
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("failed to parse json");
+	
+	#endif
+
 		this->savedData=false;
 		return(false);
 	}
 	
 
 !!!153349.cpp!!!	isDataSaved() : bool
+
+#if DEBUG == 1 
+
 	Serial.println("Entering CoolFileSystem.isDataSaved()");
 	Serial.println();
-	
 	Serial.print("savedData : ");
 	Serial.println(this->savedData);
 
+#endif
+
 	return( this->savedData );
 !!!153477.cpp!!!	getSensorSavedData() : String
+
+#if DEBUG == 1 
+
 	Serial.println("Entering CoolFileSystem.getSensorSavedData()");
 	Serial.println();
+
+#endif
 
 	//open sensors data file
 	File sensorsData=SPIFFS.open("/sensorsData.json","r");
 	
 	if (!sensorsData)
 	{
-		Serial.println("Failed to read /sensorsData.json"); 
+
+	#if DEBUG == 1 
+
+		Serial.println("Failed to read /sensorsData.json");
+
+	#endif
+ 
 		return("failed to open file");
 	}
+
 	else
 	{
 		size_t size = sensorsData.size();
@@ -313,6 +565,13 @@ class CoolFileSystem
 		
 		if (!json.success())
 		{
+
+		#if DEBUG == 1
+		
+			Serial.println("failed to parse json");
+		
+		#endif
+		
 			return("failed to parse json");
 		}
 		else
@@ -330,6 +589,12 @@ class CoolFileSystem
 			File sensorsData=SPIFFS.open("/sensorsData.json","w");
 			if (!sensorsData)	
 			{
+			#if DEBUG == 1
+		
+				Serial.println("failed to delete data in the file");
+		
+			#endif
+
 				return("failed to delete data in the file");
 			}
 
@@ -337,10 +602,14 @@ class CoolFileSystem
 			
 			//position the saved data flag to false
 			this->savedData=false;	
-		
+			
+		#if DEBUG == 1 
+
 			Serial.println("saved data : ");
 			Serial.println(sensorDataString);
 			Serial.println();
+		
+		#endif
 
 			//return the string
 			return(sensorDataString);		

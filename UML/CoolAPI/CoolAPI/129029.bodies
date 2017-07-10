@@ -1,7 +1,12 @@
 class ExternalSensors
 !!!136709.cpp!!!	begin() : void
+
+#if DEBUG == 1
+
 	Serial.println("Enter ExternalSensors.begin()");
 	Serial.println();
+
+#endif 
 
 	for(int i=0;i< this->sensorsNumber ; i++)
 	{
@@ -28,8 +33,12 @@ class ExternalSensors
 	}
 !!!136837.cpp!!!	read() : String
 
+#if DEBUG == 1
+
 	Serial.println("Entering ExternalSensors.read()");
 	Serial.println();
+
+#endif 
 
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
@@ -37,7 +46,13 @@ class ExternalSensors
 
 	if(!root.success() )
 	{
+ 
+	#if DEBUG == 1
+
 		Serial.println("failed to create json ");
+	
+	#endif 
+
 		return("00");
 	}
 	else
@@ -52,10 +67,14 @@ class ExternalSensors
 		}	
 		
 		root.printTo(data);
+	
+	#if DEBUG == 1
 
 		Serial.println("sensors data :");
 		Serial.println(data);
 		Serial.println();
+	
+	#endif
 	
 		return(data);
 	}
@@ -67,8 +86,13 @@ class ExternalSensors
 
 	if (!externalSensorsConfig) 
 	{
+	
+	#if DEBUG == 1
+		
 		Serial.println("failed to read /externalSensorsConfig.json");
 		Serial.println();
+	
+	#endif
 		
 		return(false);
 	}
@@ -84,16 +108,26 @@ class ExternalSensors
 
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to parse json");
 			Serial.println();
+		
+		#endif
 
 			return(false);
 		} 
 		else
-		{  	
+		{
+		
+		#if DEBUG == 1 
+	
 			Serial.println("read configuration json : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
 
 			if(json["jsonSize"]!=NULL )
 			{			
@@ -204,8 +238,13 @@ class ExternalSensors
 
 			if(!externalSensorsConfig)
 			{
+			
+			#if DEBUG == 1 
+
 				Serial.println("failed to write to /externalSensorsConfig.json");
 				Serial.println();
+			
+			#endif
 
 				return(false);
 			}
@@ -213,9 +252,13 @@ class ExternalSensors
 			json.printTo(externalSensorsConfig);
 			externalSensorsConfig.close();
 			
+		#if DEBUG == 1 
+
 			Serial.println("saved configuration is : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
 
 			return(true); 
 		}
@@ -225,6 +268,9 @@ class ExternalSensors
 
 
 !!!137093.cpp!!!	getJsonSize() : int
+	
+#if DEBUG == 1
+
 	Serial.println("Enter ExternalSensors.getJsonSize");
 	Serial.println();
 	
@@ -232,10 +278,17 @@ class ExternalSensors
 	Serial.println(this->jsonSize);
 	Serial.println();
 
+#endif 
+
 	return(this->jsonSize );
 !!!137221.cpp!!!	printConf() : void
+
+#if DEBUG == 1
+
 	Serial.println("Entering ExternalSensors.printConf()");
 	Serial.println();
+
+#endif 
 
 	Serial.println("External Sensors configuration ");
 

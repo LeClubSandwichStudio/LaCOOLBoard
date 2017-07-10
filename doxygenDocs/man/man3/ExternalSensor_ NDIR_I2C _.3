@@ -1,4 +1,4 @@
-.TH "ExternalSensor< NDIR_I2C >" 3 "Wed Jul 5 2017" "CoolAPI" \" -*- nroff -*-
+.TH "ExternalSensor< NDIR_I2C >" 3 "Mon Jul 10 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -39,23 +39,28 @@ Inherits \fBBaseExternalSensor\fP\&.
 class ExternalSensor< NDIR_I2C >"
 NDIR_I2C Specialization Class This is the template specialization for the NDIR_I2C CO2 sensor\&. 
 .PP
-Definition at line 146 of file ExternalSensor\&.h\&.
+Definition at line 190 of file ExternalSensor\&.h\&.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "\fBExternalSensor\fP< NDIR_I2C >::\fBExternalSensor\fP (uint8_t i2c_addr)\fC [inline]\fP"
 \fBExternalSensor(I2C address)\fP: NDIR_I2C specific constructor 
 .PP
-Definition at line 154 of file ExternalSensor\&.h\&.
+Definition at line 198 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-155     {
-156         Serial\&.println("ExternalSensor <NDIR_I2C> constructor");
-157         Serial\&.println();
-158 
-159         sensor=NDIR_I2C(i2c_addr);
-160     }
+199     {
+200     
+201     #if DEBUG == 1 
+202 
+203         Serial\&.println("ExternalSensor <NDIR_I2C> constructor");
+204         Serial\&.println();
+205     
+206     #endif
+207 
+208         sensor=NDIR_I2C(i2c_addr);
+209     }
 .fi
 .SH "Member Function Documentation"
 .PP 
@@ -71,31 +76,47 @@ true if successful, false otherwise
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 169 of file ExternalSensor\&.h\&.
+Definition at line 218 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-170     {
-171         Serial\&.println("ExternalSensor <NDIR_I2C> begin()");
-172         Serial\&.println();
-173 
-174          if (sensor\&.begin()) 
-175         {
-176             Serial\&.println("NDIR_I2C init : wait 10 seconds");
-177             Serial\&.println();
-178 
-179             delay(10000);
-180             return(true);
-181             }
-182          else 
-183         {
-184             Serial\&.println("NDIR_I2C init : fail ");
-185             Serial\&.println();
-186 
-187             return(false);
-188         }   
-189     }
+219     {
+220     
+221     #if DEBUG == 1 
+222 
+223         Serial\&.println("ExternalSensor <NDIR_I2C> begin()");
+224         Serial\&.println();
+225     
+226     #endif 
+227 
+228         if (sensor\&.begin()) 
+229         {
+230         
+231         #if DEBUG == 1 
+232             
+233             Serial\&.println("NDIR_I2C init : wait 10 seconds");
+234             Serial\&.println();
+235         
+236         #endif
+237 
+238             delay(10000);
+239             return(true);
+240 
+241             }
+242         else 
+243         {
+244         
+245         #if DEBUG == 1 
+246 
+247             Serial\&.println("NDIR_I2C init : fail ");
+248             Serial\&.println();
+249         
+250         #endif
+251 
+252             return(false);
+253         }   
+254     }
 .fi
 .SS "virtual float \fBExternalSensor\fP< NDIR_I2C >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
 \fBread()\fP: NDIR_I2C specific read method
@@ -109,41 +130,56 @@ the ppm value if successful, else return -42
 .PP
 Reimplemented from \fBBaseExternalSensor\fP\&.
 .PP
-Definition at line 198 of file ExternalSensor\&.h\&.
+Definition at line 263 of file ExternalSensor\&.h\&.
 .PP
 References ExternalSensor< T >::sensor\&.
 .PP
 .nf
-199     {
-200         Serial\&.println("ExternalSensor <NDIR_I2C> read()");
-201         Serial\&.println();
-202 
-203         if (sensor\&.measure())
-204         {
-205             Serial\&.print("NDIR_I2C ppm :");
-206             Serial\&.println( (float) sensor\&.ppm);
-207             
-208             Serial\&.println();            
-209 
-210             return( (float) sensor\&.ppm);
-211             
-212         }
-213         
-214         else
-215         {
-216             Serial\&.println("NDIR_I2C read fail ");
-217             Serial\&.println();
-218 
-219             return(-42);
-220         }
-221     }
+264     {
+265         
+266     #if DEBUG == 1 
+267         
+268         Serial\&.println("ExternalSensor <NDIR_I2C> read()");
+269         Serial\&.println();
+270 
+271     #endif
+272 
+273         if (sensor\&.measure())
+274         {
+275         
+276         #if DEBUG == 1 
+277 
+278             Serial\&.print("NDIR_I2C ppm :");
+279             Serial\&.println( (float) sensor\&.ppm);
+280             
+281             Serial\&.println();            
+282 
+283         #endif
+284 
+285             return( (float) sensor\&.ppm);
+286             
+287         }
+288         
+289         else
+290         {
+291         
+292         #if DEBUG == 1 
+293 
+294             Serial\&.println("NDIR_I2C read fail ");
+295             Serial\&.println();
+296         
+297         #endif
+298 
+299             return(-42);
+300         }
+301     }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "NDIR_I2C \fBExternalSensor\fP< NDIR_I2C >::sensor =NULL\fC [private]\fP"
 
 .PP
-Definition at line 225 of file ExternalSensor\&.h\&.
+Definition at line 305 of file ExternalSensor\&.h\&.
 
 .SH "Author"
 .PP 

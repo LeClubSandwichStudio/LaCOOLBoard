@@ -1,4 +1,4 @@
-.TH "Irene3000" 3 "Wed Jul 5 2017" "CoolAPI" \" -*- nroff -*-
+.TH "Irene3000" 3 "Mon Jul 10 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -103,81 +103,101 @@ Definition at line 35 of file Irene3000\&.h\&.
 .SS "void Irene3000::begin (void)"
 \fBIrene3000::begin()\fP: This method is provided to start the \fBIrene3000\fP ADS chip 
 .PP
-Definition at line 22 of file irene3000\&.cpp\&.
+Definition at line 38 of file irene3000\&.cpp\&.
 .PP
 References ads\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-23 {
-24     Serial\&.println("Entering Irene3000\&.begin()");
-25     Serial\&.println();
-26 
-27     this->ads\&.begin();
-28 }
+39 {
+40 
+41 #if DEBUG == 1 
+42 
+43     Serial\&.println("Entering Irene3000\&.begin()");
+44     Serial\&.println();
+45 
+46 #endif
+47 
+48     this->ads\&.begin();
+49 }
 .fi
 .SS "void Irene3000::calcpHSlope ()"
 Irene3000::calcpHSlop(): This method is provided to calculate th PH slope 
 .PP
-Definition at line 454 of file irene3000\&.cpp\&.
+Definition at line 586 of file irene3000\&.cpp\&.
 .PP
 References opampGain, params, Irene3000::parameters_T::pH4Cal, Irene3000::parameters_T::pH7Cal, Irene3000::parameters_T::pHStep, and vRef\&.
 .PP
 Referenced by calibratepH4(), and calibratepH7()\&.
 .PP
 .nf
-455 {
-456     Serial\&.println("Entering Irene3000\&.calcpHSlope()");
-457     Serial\&.println();
-458 
-459     params\&.pHStep = ((((vRef * (float)(params\&.pH7Cal - params\&.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
-460 
-461  
-462 }
+587 {
+588 
+589 #if DEBUG == 1 
+590 
+591     Serial\&.println("Entering Irene3000\&.calcpHSlope()");
+592     Serial\&.println();
+593 
+594 #endif 
+595 
+596     params\&.pHStep = ((((vRef * (float)(params\&.pH7Cal - params\&.pH4Cal)) / 32767) * 1000) / opampGain) / 3;
+597 
+598  
+599 }
 .fi
 .SS "void Irene3000::calibratepH4 (adsGain_t gain)"
 Irene3000::calibratepH4(gain): This method is provided to calibrate the PH probe to 4 
 .PP
-Definition at line 434 of file irene3000\&.cpp\&.
+Definition at line 561 of file irene3000\&.cpp\&.
 .PP
 References ads, calcpHSlope(), params, ph, Irene3000::parameters_T::pH4Cal, and setGain()\&.
 .PP
 .nf
-435 {
-436     Serial\&.println("Entering Irene3000\&.calibraph4()");
-437     Serial\&.println();
-438     
-439     this->setGain(gain);
-440 
-441     this->params\&.pH4Cal =  ads\&.readADC_SingleEnded(ph);
-442 
-443     this->calcpHSlope();
-444 
-445 
-446 
-447 }
+562 {
+563 
+564 #if DEBUG == 1 
+565 
+566     Serial\&.println("Entering Irene3000\&.calibraph4()");
+567     Serial\&.println();
+568 
+569 #endif 
+570     
+571     this->setGain(gain);
+572 
+573     this->params\&.pH4Cal =  ads\&.readADC_SingleEnded(ph);
+574 
+575     this->calcpHSlope();
+576 
+577 
+578 
+579 }
 .fi
 .SS "void Irene3000::calibratepH7 (adsGain_t gain)"
 Irene3000::calibratepH7(gain): This method is provided to calibrate the PH probe to 7 
 .PP
-Definition at line 415 of file irene3000\&.cpp\&.
+Definition at line 537 of file irene3000\&.cpp\&.
 .PP
 References ads, calcpHSlope(), params, ph, Irene3000::parameters_T::pH7Cal, and setGain()\&.
 .PP
 .nf
-416 {
-417     Serial\&.println("Entering Irene3000\&.calibratepH7() ");
-418     Serial\&.println();
-419 
-420     this->setGain(gain);
-421         
-422     this->params\&.pH7Cal = ads\&.readADC_SingleEnded(ph);
-423  
-424     this->calcpHSlope();
-425 
-426 
-427 }
+538 {
+539 
+540 #if DEBUG == 1 
+541 
+542     Serial\&.println("Entering Irene3000\&.calibratepH7() ");
+543     Serial\&.println();
+544 
+545 #endif 
+546 
+547     this->setGain(gain);
+548         
+549     this->params\&.pH7Cal = ads\&.readADC_SingleEnded(ph);
+550  
+551     this->calcpHSlope();
+552 
+553 
+554 }
 .fi
 .SS "bool Irene3000::config ()"
 \fBIrene3000::config()\fP: This method is provided to configure the \fBIrene3000\fP shield through a configuration file
@@ -189,162 +209,190 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 88 of file irene3000\&.cpp\&.
+Definition at line 124 of file irene3000\&.cpp\&.
 .PP
 References Irene3000::state::active, adc2, Irene3000::state::gain, gainConvert(), ireneJsonSize, phProbe, Irene3000::state::type, and waterTemp\&.
 .PP
 Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
 .PP
 .nf
-89 {
-90 
-91     Serial\&.println("Entering Irene3000\&.config()");
-92     Serial\&.println();
-93 
-94     File irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "r");
-95 
-96     if (!irene3000Config) 
-97     {
-98         Serial\&.println("failed to read /irene3000Config\&.json");
-99         Serial\&.println();
-100 
-101         return(false);
-102     }
-103     else
-104     {
-105         size_t size = irene3000Config\&.size();
-106         // Allocate a buffer to store contents of the file\&.
-107         std::unique_ptr<char[]> buf(new char[size]);
-108             uint16_t tempGain;
-109         irene3000Config\&.readBytes(buf\&.get(), size);
-110         DynamicJsonBuffer jsonBuffer;
-111         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-112         if (!json\&.success()) 
-113         {
-114             Serial\&.println("failed to parse json ");
-115             Serial\&.println();
-116             
-117             return(false);
-118         } 
-119         else
-120         {   
-121             Serial\&.println("read configuration file ");
-122             json\&.printTo(Serial);
-123             Serial\&.println();
-124             
-125             if(json["ireneJsonSize"]\&.success() )
-126             {
-127                 this->ireneJsonSize=json["ireneJsonSize"];
-128             }
-129             else
-130             {
-131                 this->ireneJsonSize=this->ireneJsonSize;
-132             }
-133             json["ireneJsonSize"]=this->ireneJsonSize;
-134 
-135             
-136             if(json["waterTemp"]["active"]\&.success() )
-137             {           
-138                 this->waterTemp\&.active = json["waterTemp"]["active"]; 
-139             }
-140             else
-141             {
-142                 this->waterTemp\&.active=this->waterTemp\&.active;
-143             }
-144             json["waterTemp"]["active"]=this->waterTemp\&.active;
+125 {
+126 
+127 #if DEBUG == 1 
+128 
+129     Serial\&.println("Entering Irene3000\&.config()");
+130     Serial\&.println();
+131 
+132 #endif
+133 
+134     File irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "r");
+135 
+136     if (!irene3000Config) 
+137     {
+138     
+139     #if DEBUG == 1 
+140 
+141         Serial\&.println("failed to read /irene3000Config\&.json");
+142         Serial\&.println();
+143     
+144     #endif
 145 
-146             
-147             if(json["waterTemp"]["gain"]\&.success() )
-148             {           
-149                 tempGain = json["waterTemp"]["gain"]; 
-150                 this->waterTemp\&.gain=this->gainConvert(tempGain);
-151             }
-152             else
-153             {
-154                 this->waterTemp\&.gain=this->waterTemp\&.gain;
-155             }
-156             json["waterTemp"]["gain"]=this->waterTemp\&.gain;
-157 
-158             
-159             if(json["phProbe"]["active"]\&.success())
-160             {
-161                 this->phProbe\&.active=json["phProbe"]["active"];
-162             }
-163             else
-164             {
-165                 this->phProbe\&.active=this->phProbe\&.active;
-166             }
-167             json["phProbe"]["active"]=this->phProbe\&.active;
-168     
-169             
-170             if(json["phProbe"]["gain"]\&.success() )
-171             {       
-172                 tempGain=json["phProbe"]["gain"];
-173                 this->phProbe\&.gain=this->gainConvert(tempGain);          
-174             }
-175             else
-176             {
-177                 this->phProbe\&.gain=this->phProbe\&.gain;
-178             }
-179             json["phProbe"]["gain"]=this->phProbe\&.gain;
-180 
-181             
-182             if(json["adc2"]["active"]\&.success() )
-183             {
-184                 this->adc2\&.active=json["adc2"]["active"];
-185             }
-186             else
-187             {
-188                 this->adc2\&.active=this->adc2\&.active;
-189             }
-190             json["adc2"]["active"]=this->adc2\&.active;
-191 
-192             
-193             if(json["adc2"]["gain"]\&.success() )
-194             {           
-195                 tempGain=json["adc2"]["gain"];
-196                 this->adc2\&.gain=this->gainConvert(tempGain);
-197             }
-198             else
-199             {
-200                 this->adc2\&.gain=this->adc2\&.gain;
-201             }
-202             json["adc2"]["gain"]=this->adc2\&.gain;
-203 
-204             
-205             if(json["adc2"]["type"]\&.success() )
-206             {
-207                 this->adc2\&.type=json["adc2"]["type"]\&.as<String>(); 
-208             }
-209             else
-210             {
-211                 this->adc2\&.type=this->adc2\&.type;
-212             }
-213             json["adc2"]["type"]=this->adc2\&.type;
-214 
-215             irene3000Config\&.close();
-216             irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "w");
-217 
-218             if(!irene3000Config)
+146         return(false);
+147     }
+148     else
+149     {
+150         size_t size = irene3000Config\&.size();
+151         // Allocate a buffer to store contents of the file\&.
+152         std::unique_ptr<char[]> buf(new char[size]);
+153             uint16_t tempGain;
+154         irene3000Config\&.readBytes(buf\&.get(), size);
+155         DynamicJsonBuffer jsonBuffer;
+156         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+157         if (!json\&.success()) 
+158         {
+159         
+160         #if DEBUG == 1 
+161 
+162             Serial\&.println("failed to parse json ");
+163             Serial\&.println();
+164         
+165         #endif
+166             
+167             return(false);
+168         } 
+169         else
+170         {
+171         
+172         #if DEBUG == 1 
+173     
+174             Serial\&.println("read configuration file ");
+175             json\&.printTo(Serial);
+176             Serial\&.println();
+177         
+178         #endif 
+179             
+180             if(json["ireneJsonSize"]\&.success() )
+181             {
+182                 this->ireneJsonSize=json["ireneJsonSize"];
+183             }
+184             else
+185             {
+186                 this->ireneJsonSize=this->ireneJsonSize;
+187             }
+188             json["ireneJsonSize"]=this->ireneJsonSize;
+189 
+190             
+191             if(json["waterTemp"]["active"]\&.success() )
+192             {           
+193                 this->waterTemp\&.active = json["waterTemp"]["active"]; 
+194             }
+195             else
+196             {
+197                 this->waterTemp\&.active=this->waterTemp\&.active;
+198             }
+199             json["waterTemp"]["active"]=this->waterTemp\&.active;
+200 
+201             
+202             if(json["waterTemp"]["gain"]\&.success() )
+203             {           
+204                 tempGain = json["waterTemp"]["gain"]; 
+205                 this->waterTemp\&.gain=this->gainConvert(tempGain);
+206             }
+207             else
+208             {
+209                 this->waterTemp\&.gain=this->waterTemp\&.gain;
+210             }
+211             json["waterTemp"]["gain"]=this->waterTemp\&.gain;
+212 
+213             
+214             if(json["phProbe"]["active"]\&.success())
+215             {
+216                 this->phProbe\&.active=json["phProbe"]["active"];
+217             }
+218             else
 219             {
-220                 Serial\&.println("failed to write to /irene3000Config\&.json");
-221                 Serial\&.println();
-222 
-223                 return(false);
-224             }
-225 
-226             json\&.printTo(irene3000Config);
-227             irene3000Config\&.close();
-228             
-229             Serial\&.println("saved configuration file :" );
-230             json\&.printTo(Serial);
-231             Serial\&.println();
-232 
-233             return(true); 
-234         }
-235     }   
-236 
-237 }
+220                 this->phProbe\&.active=this->phProbe\&.active;
+221             }
+222             json["phProbe"]["active"]=this->phProbe\&.active;
+223     
+224             
+225             if(json["phProbe"]["gain"]\&.success() )
+226             {       
+227                 tempGain=json["phProbe"]["gain"];
+228                 this->phProbe\&.gain=this->gainConvert(tempGain);          
+229             }
+230             else
+231             {
+232                 this->phProbe\&.gain=this->phProbe\&.gain;
+233             }
+234             json["phProbe"]["gain"]=this->phProbe\&.gain;
+235 
+236             
+237             if(json["adc2"]["active"]\&.success() )
+238             {
+239                 this->adc2\&.active=json["adc2"]["active"];
+240             }
+241             else
+242             {
+243                 this->adc2\&.active=this->adc2\&.active;
+244             }
+245             json["adc2"]["active"]=this->adc2\&.active;
+246 
+247             
+248             if(json["adc2"]["gain"]\&.success() )
+249             {           
+250                 tempGain=json["adc2"]["gain"];
+251                 this->adc2\&.gain=this->gainConvert(tempGain);
+252             }
+253             else
+254             {
+255                 this->adc2\&.gain=this->adc2\&.gain;
+256             }
+257             json["adc2"]["gain"]=this->adc2\&.gain;
+258 
+259             
+260             if(json["adc2"]["type"]\&.success() )
+261             {
+262                 this->adc2\&.type=json["adc2"]["type"]\&.as<String>(); 
+263             }
+264             else
+265             {
+266                 this->adc2\&.type=this->adc2\&.type;
+267             }
+268             json["adc2"]["type"]=this->adc2\&.type;
+269 
+270             irene3000Config\&.close();
+271             irene3000Config = SPIFFS\&.open("/irene3000Config\&.json", "w");
+272 
+273             if(!irene3000Config)
+274             {
+275             
+276             #if DEBUG == 1
+277 
+278                 Serial\&.println("failed to write to /irene3000Config\&.json");
+279                 Serial\&.println();
+280             
+281             #endif 
+282 
+283                 return(false);
+284             }
+285 
+286             json\&.printTo(irene3000Config);
+287             irene3000Config\&.close();
+288             
+289         #if DEBUG == 1 
+290 
+291             Serial\&.println("saved configuration file :" );
+292             json\&.printTo(Serial);
+293             Serial\&.println();
+294         
+295         #endif
+296 
+297             return(true); 
+298         }
+299     }   
+300 
+301 }
 .fi
 .SS "adsGain_t Irene3000::gainConvert (uint16_t tempGain)"
 \fBIrene3000::gainConvert\fP( gain : { 2/3,1,2,4,8,16 } ) This method is provided to convert the gain to Internal Constants
@@ -356,68 +404,78 @@ internal representation of the ADS gain
 .PP
 
 .PP
-Definition at line 491 of file irene3000\&.cpp\&.
+Definition at line 633 of file irene3000\&.cpp\&.
 .PP
 Referenced by config()\&.
 .PP
 .nf
-492 {
-493     Serial\&.println("Entering Irene3000\&.gainConvert()");
-494     Serial\&.println();
-495     
-496     switch(tempGain)
-497     {
-498         case(2/3): return(GAIN_TWOTHIRDS);
-499         case(1): return (GAIN_ONE);
-500         case(2) : return(GAIN_TWO);
-501         case(4): return(GAIN_FOUR) ;   
-502         case(8):return(GAIN_EIGHT)  ;  
-503         case(16):return(GAIN_SIXTEEN);  
-504     }
-505 
-506 
-507 
-508 }
+634 {
+635 
+636 #if DEBUG == 1 
+637 
+638     Serial\&.println("Entering Irene3000\&.gainConvert()");
+639     Serial\&.println();
+640 
+641 #endif 
+642     
+643     switch(tempGain)
+644     {
+645         case(2/3): return(GAIN_TWOTHIRDS);
+646         case(1): return (GAIN_ONE);
+647         case(2) : return(GAIN_TWO);
+648         case(4): return(GAIN_FOUR) ;   
+649         case(8):return(GAIN_EIGHT)  ;  
+650         case(16):return(GAIN_SIXTEEN);  
+651     }
+652 
+653 
+654 
+655 }
 .fi
 .SS "void Irene3000::printConf ()"
 \fBIrene3000::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
-Definition at line 244 of file irene3000\&.cpp\&.
+Definition at line 308 of file irene3000\&.cpp\&.
 .PP
 References Irene3000::state::active, adc2, Irene3000::state::gain, phProbe, Irene3000::state::type, and waterTemp\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-245 {
-246     Serial\&.println("Entering Irene3000\&.printConf()");
-247     Serial\&.println();
-248 
-249     Serial\&.println("Irene Configuration ");
-250 
-251     Serial\&.print("waterTemp\&.active : ");
-252     Serial\&.println(waterTemp\&.active);
-253 
-254     Serial\&.print("waterTemp\&.gain : ");
-255     Serial\&.println(waterTemp\&.gain,HEX);   
-256 
-257     Serial\&.print("phProbe\&.active : ");
-258     Serial\&.println(phProbe\&.active);
-259 
-260     Serial\&.print("phProbe\&.gain : ");
-261     Serial\&.println(phProbe\&.gain,HEX);
-262     
-263     Serial\&.print("adc2\&.active : ");
-264     Serial\&.println(adc2\&.active);
-265 
-266     Serial\&.print("adc2\&.gain : ");
-267     Serial\&.println(adc2\&.gain,HEX);
-268 
-269     Serial\&.print("adc2\&.type : ");
-270     Serial\&.println(adc2\&.type);
-271 
-272     Serial\&.println();
-273 }
+309 {
+310 
+311 #if DEBUG == 1 
+312 
+313     Serial\&.println("Entering Irene3000\&.printConf()");
+314     Serial\&.println();
+315 
+316 #endif 
+317 
+318     Serial\&.println("Irene Configuration ");
+319 
+320     Serial\&.print("waterTemp\&.active : ");
+321     Serial\&.println(waterTemp\&.active);
+322 
+323     Serial\&.print("waterTemp\&.gain : ");
+324     Serial\&.println(waterTemp\&.gain,HEX);   
+325 
+326     Serial\&.print("phProbe\&.active : ");
+327     Serial\&.println(phProbe\&.active);
+328 
+329     Serial\&.print("phProbe\&.gain : ");
+330     Serial\&.println(phProbe\&.gain,HEX);
+331     
+332     Serial\&.print("adc2\&.active : ");
+333     Serial\&.println(adc2\&.active);
+334 
+335     Serial\&.print("adc2\&.gain : ");
+336     Serial\&.println(adc2\&.gain,HEX);
+337 
+338     Serial\&.print("adc2\&.type : ");
+339     Serial\&.println(adc2\&.type);
+340 
+341     Serial\&.println();
+342 }
 .fi
 .SS "String Irene3000::read (void)"
 \fBIrene3000\fP:\fBread()\fP: This method is provided to read the \fBIrene3000\fP sensors data
@@ -429,54 +487,69 @@ json string of the sensors data
 .PP
 
 .PP
-Definition at line 38 of file irene3000\&.cpp\&.
+Definition at line 59 of file irene3000\&.cpp\&.
 .PP
 References Irene3000::state::active, adc2, Irene3000::state::gain, ireneJsonSize, phProbe, readADSChannel2(), readPh(), readTemp(), Irene3000::state::type, and waterTemp\&.
 .PP
 Referenced by CoolBoard::readSensors()\&.
 .PP
 .nf
-39 {  
-40     Serial\&.println("Entering Irene3000\&.read()");
-41     Serial\&.println();
-42 
-43     String data;
-44     DynamicJsonBuffer jsonBuffer(ireneJsonSize);
-45     JsonObject& root = jsonBuffer\&.createObject();
-46     if( !( root\&.success()) )
-47     {
-48         Serial\&.println("failed to create json");
-49         return("");
-50     }
-51 
-52         
-53     if(waterTemp\&.active)
-54     {
-55         root["waterTemp"] = this->readTemp(waterTemp\&.gain);
-56 
-57         if(phProbe\&.active)
-58         {
-59             root["ph"] =this->readPh(phProbe\&.gain) ;
-60         }
+60 {
 61 
-62     }
-63 
-64     if(adc2\&.active)
-65     {
-66         root[adc2\&.type] =this->readADSChannel2(adc2\&.gain);
-67     }
-68     
-69     root\&.printTo(data);
-70 
-71     Serial\&.println("Irene data : ");
-72     Serial\&.println(data);
-73     Serial\&.println();
+62 #if DEBUG == 1 
+63     
+64     Serial\&.println("Entering Irene3000\&.read()");
+65     Serial\&.println();
+66 
+67 #endif 
+68 
+69     String data;
+70     DynamicJsonBuffer jsonBuffer(ireneJsonSize);
+71     JsonObject& root = jsonBuffer\&.createObject();
+72     if( !( root\&.success()) )
+73     {
 74     
-75     return(data);
-76     
-77     
-78 
-79 }
+75     #if DEBUG == 1 
+76 
+77         Serial\&.println("failed to create json");
+78     
+79     #endif 
+80 
+81         return("");
+82     }
+83 
+84         
+85     if(waterTemp\&.active)
+86     {
+87         root["waterTemp"] = this->readTemp(waterTemp\&.gain);
+88 
+89         if(phProbe\&.active)
+90         {
+91             root["ph"] =this->readPh(phProbe\&.gain) ;
+92         }
+93 
+94     }
+95 
+96     if(adc2\&.active)
+97     {
+98         root[adc2\&.type] =this->readADSChannel2(adc2\&.gain);
+99     }
+100     
+101     root\&.printTo(data);
+102     
+103 #if DEBUG == 1 
+104 
+105     Serial\&.println("Irene data : ");
+106     Serial\&.println(data);
+107     Serial\&.println();
+108 
+109 #endif
+110     
+111     return(data);
+112     
+113     
+114 
+115 }
 .fi
 .SS "int Irene3000::readADSChannel2 (adsGain_t gain)"
 Irene3000::readADSChannel2(gain): This method is provided to read from the ADS channel 2 \&. ADS Channel 2 is free and the user can connect another analog sensor to it\&.
@@ -488,25 +561,34 @@ the ADS Channel 2 value
 .PP
 
 .PP
-Definition at line 318 of file irene3000\&.cpp\&.
+Definition at line 401 of file irene3000\&.cpp\&.
 .PP
 References ads, freeAdc, and setGain()\&.
 .PP
 Referenced by read()\&.
 .PP
 .nf
-319 {  
-320     Serial\&.println("Entering Irene3000\&.readADSChannel2()");
-321     Serial\&.println();
-322 
-323     this->setGain(gain);
-324     
-325     Serial\&.println("adc2 value : ");
-326     Serial\&.println(this->ads\&.readADC_SingleEnded(freeAdc) );
-327     Serial\&.println();
-328 
-329     return( this->ads\&.readADC_SingleEnded(freeAdc) ) ;
-330 }
+402 {  
+403 
+404 #if DEBUG == 1 
+405     
+406     Serial\&.println("Entering Irene3000\&.readADSChannel2()");
+407     Serial\&.println();
+408 
+409 #endif
+410 
+411     this->setGain(gain);
+412 
+413 #if DEBUG == 1 
+414     
+415     Serial\&.println("adc2 value : ");
+416     Serial\&.println(this->ads\&.readADC_SingleEnded(freeAdc) );
+417     Serial\&.println();
+418 
+419 #endif
+420 
+421     return( this->ads\&.readADC_SingleEnded(freeAdc) ) ;
+422 }
 .fi
 .SS "int Irene3000::readButton (adsGain_t gain)"
 Irene3000::readButton(gain): This method is provided to read the \fBIrene3000\fP button
@@ -518,23 +600,32 @@ the button value
 .PP
 
 .PP
-Definition at line 282 of file irene3000\&.cpp\&.
+Definition at line 351 of file irene3000\&.cpp\&.
 .PP
 References ads, button, and setGain()\&.
 .PP
 .nf
-283 {
-284     Serial\&.println("Entering Irene3000\&.readButton()");
-285     Serial\&.println();
-286 
-287     this->setGain(gain);
-288     
-289     Serial\&.println("button value : ");
-290     Serial\&.println(this->ads\&.readADC_SingleEnded(button) );
-291 
-292     return( this->ads\&.readADC_SingleEnded(button) );
-293     
-294 }
+352 {
+353 
+354 #if DEBUG == 1 
+355 
+356     Serial\&.println("Entering Irene3000\&.readButton()");
+357     Serial\&.println();
+358 
+359 #endif 
+360 
+361     this->setGain(gain);
+362 
+363 #if DEBUG == 1
+364     
+365     Serial\&.println("button value : ");
+366     Serial\&.println(this->ads\&.readADC_SingleEnded(button) );
+367 
+368 #endif 
+369 
+370     return( this->ads\&.readADC_SingleEnded(button) );
+371     
+372 }
 .fi
 .SS "float Irene3000::readPh (adsGain_t gain)"
 Irene3000::readPh(gain): This method is provided to read the PH probe note that for the best results, PH must be correlated to Temperature\&.
@@ -546,30 +637,39 @@ the PH probe value
 .PP
 
 .PP
-Definition at line 340 of file irene3000\&.cpp\&.
+Definition at line 432 of file irene3000\&.cpp\&.
 .PP
 References ADC_MAXIMUM_VALUE, ads, opampGain, params, ph, Irene3000::parameters_T::pH7Cal, Irene3000::parameters_T::pHStep, setGain(), and vRef\&.
 .PP
 Referenced by read()\&.
 .PP
 .nf
-341 {
-342     Serial\&.println("Entering Irene3000\&.readPh()");
-343     Serial\&.println();
-344 
-345     this->setGain(gain);
-346 
-347     double Voltage =  gain * ( ads\&.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
-348 
-349     float miliVolts = Voltage * 1000;
-350     float temporary = ((((vRef * (float)params\&.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
-351 
-352     Serial\&.println("ph is : ");
-353     Serial\&.println( 7 - (temporary / params\&.pHStep) ) ;
-354 
-355     return( 7 - (temporary / params\&.pHStep) );
-356 
-357 }
+433 {
+434 
+435 #if DEBUG == 1 
+436 
+437     Serial\&.println("Entering Irene3000\&.readPh()");
+438     Serial\&.println();
+439 
+440 #endif 
+441 
+442     this->setGain(gain);
+443 
+444     double Voltage =  gain * ( ads\&.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
+445 
+446     float miliVolts = Voltage * 1000;
+447     float temporary = ((((vRef * (float)params\&.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
+448 
+449 #if DEBUG == 1 
+450 
+451     Serial\&.println("ph is : ");
+452     Serial\&.println( 7 - (temporary / params\&.pHStep) ) ;
+453 
+454 #endif 
+455 
+456     return( 7 - (temporary / params\&.pHStep) );
+457 
+458 }
 .fi
 .SS "double Irene3000::readTemp (adsGain_t gain)"
 Irene3000::readTemp(gain): This method is provided to read the Temeperature probe
@@ -581,92 +681,123 @@ the Temperature probe value
 .PP
 
 .PP
-Definition at line 366 of file irene3000\&.cpp\&.
+Definition at line 467 of file irene3000\&.cpp\&.
 .PP
 References ads, setGain(), temp, and V_GAIN_8\&.
 .PP
 Referenced by read()\&.
 .PP
 .nf
-367 {
-368 
-369     Serial\&.println("Entering Irene3000\&.readTemp()");
-370     Serial\&.println();
-371 
-372     const double A = 3\&.9083E-3;
-373     const double B = -5\&.775E-7;
-374     double T;
-375 
-376     this->setGain(gain);
-377     int adc0 = ads\&.readADC_SingleEnded(temp);
-378 
-379 
-380     double R = ((adc0 * V_GAIN_8) / 0\&.095) / 1000;
-381 
-382     T = 0\&.0 - A;
-383     T += sqrt((A * A) - 4\&.0 * B * (1\&.0 - R));
-384     T /= (2\&.0 * B);
-385 
-386     if (T > 0 && T < 200) 
-387     {
-388         Serial\&.print("temperature : ");
-389         Serial\&.println(T);
-390         Serial\&.println();
-391 
-392         return T;
-393     }
-394     else 
-395     {
-396         T = 0\&.0 - A;
-397         T -= sqrt((A * A) - 4\&.0 * B * (1\&.0 - R));
-398         T /= (2\&.0 * B);
-399         
-400         Serial\&.println("temperature : ");
-401         Serial\&.println(T);
-402         Serial\&.println();
-403 
-404         return T;
-405     }
-406 
-407 }
+468 {
+469 
+470 #if DEBUG == 1 
+471 
+472     Serial\&.println("Entering Irene3000\&.readTemp()");
+473     Serial\&.println();
+474 
+475 #endif
+476 
+477     const double A = 3\&.9083E-3;
+478     const double B = -5\&.775E-7;
+479     double T;
+480 
+481     this->setGain(gain);
+482     double adc0 = ads\&.readADC_SingleEnded(temp);
+483 
+484 
+485     double R = ( ( adc0 * V_GAIN_8 ) / 0\&.095 ) / 1000 ;
+486 
+487     T = 0\&.0 - A;
+488     T += sqrt((A * A) - 4\&.0 * B * (1\&.0 - R));
+489     T /= (2\&.0 * B);
+490 
+491     if (T > 0 && T < 200) 
+492     {
+493 
+494     #if DEBUG == 1 
+495 
+496         Serial\&.print(" temperature : ");
+497         Serial\&.println(T);
+498         Serial\&.println();
+499     
+500     #endif 
+501         if(isnan(T))
+502         {
+503             return(-300);           
+504         }
+505 
+506         return T;
+507     }
+508     else 
+509     {
+510         T = 0\&.0 - A;
+511         T -= sqrt((A * A) - 4\&.0 * B * (1\&.0 - R));
+512         T /= (2\&.0 * B);
+513     
+514     #if DEBUG == 1 
+515     
+516         Serial\&.println("temperature : ");
+517         Serial\&.println(T);
+518         Serial\&.println();
+519     
+520     #endif
+521         if(isnan(T))
+522         {
+523             return(-400);           
+524         }
+525 
+526         return T;
+527     }
+528 
+529 }
 .fi
 .SS "void Irene3000::resetParams (void)"
 \fBIrene3000::resetParams()\fP: This method is provided to reset the PH configuration, assuming Ideal configuration 
 .PP
-Definition at line 470 of file irene3000\&.cpp\&.
+Definition at line 607 of file irene3000\&.cpp\&.
 .PP
 References params, Irene3000::parameters_T::pH4Cal, Irene3000::parameters_T::pH7Cal, Irene3000::parameters_T::pHStep, Write_Check, and Irene3000::parameters_T::WriteCheck\&.
 .PP
 .nf
-471 {
-472     Serial\&.println("Entering Irene3000\&.resetParams()");
-473     Serial\&.println();
-474 
-475     //Restore to default set of parameters!
-476     params\&.WriteCheck = Write_Check;
-477     params\&.pH7Cal = 16384; //assume ideal probe and amp conditions 1/2 of 4096
-478     params\&.pH4Cal = 8192; //using ideal probe slope we end up this many 12bit units away on the 4 scale
-479     params\&.pHStep = 59\&.16;//ideal probe slope
-480 
-481 
-482 }
+608 {
+609 
+610 #if DEBUG == 1 
+611 
+612     Serial\&.println("Entering Irene3000\&.resetParams()");
+613     Serial\&.println();
+614 
+615 #endif 
+616 
+617     //Restore to default set of parameters!
+618     params\&.WriteCheck = Write_Check;
+619     params\&.pH7Cal = 16384; //assume ideal probe and amp conditions 1/2 of 4096
+620     params\&.pH4Cal = 8192; //using ideal probe slope we end up this many 12bit units away on the 4 scale
+621     params\&.pHStep = 59\&.16;//ideal probe slope
+622 
+623 
+624 }
 .fi
 .SS "void Irene3000::setGain (adsGain_t gain)"
 Irene3000::setGain(gain): This method is provided to set the ADS chip gain 
 .PP
-Definition at line 301 of file irene3000\&.cpp\&.
+Definition at line 379 of file irene3000\&.cpp\&.
 .PP
 References ads\&.
 .PP
 Referenced by calibratepH4(), calibratepH7(), readADSChannel2(), readButton(), readPh(), and readTemp()\&.
 .PP
 .nf
-302 {
-303     Serial\&.println("Entering Irene3000\&.setGain()");
-304     Serial\&.println();
-305 
-306     this->ads\&.setGain(gain);
-307 }
+380 {
+381 
+382 #if DEBUG == 1  
+383 
+384     Serial\&.println("Entering Irene3000\&.setGain()");
+385     Serial\&.println();
+386 
+387 #endif
+388 
+389     this->ads\&.setGain(gain);
+390 }
 .fi
 .SH "Member Data Documentation"
 .PP 

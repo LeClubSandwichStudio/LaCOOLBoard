@@ -1,8 +1,12 @@
 class Jetpack
 !!!139141.cpp!!!	begin() : void
+
+#if DEBUG == 1 
  
 	Serial.println("Entering Jetpack.begin() ");
 	Serial.println();
+
+#endif
 
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
@@ -11,12 +15,17 @@ class Jetpack
 	
 
 !!!139269.cpp!!!	write(in action : byte) : void
+
+#if DEBUG == 1
+
 	Serial.println("Entering Jetpack.write()");
 	Serial.println();
 
 	Serial.println("writing this action : ");
 	Serial.println(action,HEX);
 	Serial.println();
+
+#endif 
 
 	this->action=action;
 
@@ -28,9 +37,20 @@ class Jetpack
 	digitalWrite(EnI2C, HIGH);
 
 !!!139397.cpp!!!	writeBit(in pin : byte, in state : bool) : void
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.writeBit() ");
-	Serial.print("Writing ");Serial.print(state);Serial.print("to pin N°");Serial.print(pin);
+
+	Serial.print("Writing ");
+	Serial.print(state);
+
+	Serial.print("to pin N°");
+	Serial.print(pin);
+
 	Serial.println();
+
+#endif
 
 	bitWrite(this->action, pin, state);
 	digitalWrite(EnI2C, LOW);
@@ -40,6 +60,9 @@ class Jetpack
 	digitalWrite(EnI2C, HIGH);
 
 !!!139525.cpp!!!	doAction(in data : char, in JSON_SIZE : int) : void
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.doAction()");
 	Serial.println();
 
@@ -51,19 +74,32 @@ class Jetpack
 	Serial.println(JSON_SIZE);
 	Serial.println();
 
+#endif 
+
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(data);
 	
 	if (!root.success()) 
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse json object ");
 		Serial.println();
+	
+	#endif 
+
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("created Json object :");
 		root.printTo(Serial);
 		Serial.println();
+	
+	#endif 
 
 		//invert the current action state for each actor
 		//if the value is outside the limits
@@ -118,24 +154,38 @@ class Jetpack
 				}
 			}
 		}
+	
+	#if DEBUG == 1 
 
 		Serial.println("new action is : ");
 		Serial.println(this->action);
 		Serial.println();
+	
+	#endif 
 
 		this->write(this->action);
 
 	} 
 !!!139653.cpp!!!	config() : bool
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.config() ");
 	Serial.println();
+
+#endif
 
 	File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "r");
 
 	if (!jetPackConfig) 
 	{
+
+	#if DEBUG == 1 
+
 		Serial.println("failed to read /jetPackConfig.json ");
 		Serial.println();
+
+	#endif
 
 		return(false);
 	}
@@ -150,16 +200,26 @@ class Jetpack
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to parse jetpack config json from file ");
 			Serial.println();
+
+		#endif
 
 			return(false);
 		} 
 		else
-		{  	
+		{ 
+ 		
+		#if DEBUG == 1 
+
 			Serial.println("read configuration file : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
   
 			if(json["ActorsNumber"].success() )
 			{
@@ -243,28 +303,43 @@ class Jetpack
 			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
 			if(!jetPackConfig)
 			{
+			
+			#if DEBUG == 1 
+
 				Serial.println("failed to write to /jetPackConfig.json ");
 				Serial.println();
+			
+			#endif
 				
 				return(false);			
 			}  
 
 			json.printTo(jetPackConfig);
 			jetPackConfig.close();
+
+		#if DEBUG == 1 
 			
 			Serial.println("saved configuration : ");
 			json.printTo(Serial );
 			Serial.println();		
-			
+		
+		#endif
+
 			return(true); 
 		}
 	}	
 	
 
 !!!139781.cpp!!!	printConf() : void
+
+#if DEBUG == 1 
+
 	Serial.println("Enter Jetpack.printConf() ");
 	Serial.println();
-	
+
+#endif 
+	Serial.println("Jetpack configuration ") ;
+
 	Serial.print("actorsNumber : ");
 	Serial.println(this->actorsNumber);
  
@@ -297,3 +372,4 @@ class Jetpack
  
 
 	}
+	Serial.println();

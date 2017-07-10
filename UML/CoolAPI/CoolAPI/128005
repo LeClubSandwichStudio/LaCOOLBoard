@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 5
+  revision 6
   modified_by 5 "ashiroji"
   // class settings
   
@@ -68,8 +68,9 @@ ${inlines}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoard::begin():
-//	This method is provided to configure,
-//	begin the used CoolKit Parts.
+//	This method is provided to configure and
+//	start the used CoolKit Parts.
+//	It also starts the first connection try
 //	If Serial is enabled,it prints the configuration
 //	of the used parts.
 //
@@ -1569,18 +1570,17 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 
       operation 134149 "config"
 	preserve_cpp_body_indent public explicit_return_type "void"
-	nparams 3
-	  param in name "timeZone" explicit_type "int"
+	nparams 2
 	  param in name "timeServer" explicit_type "IPAddress"
 	  param in name "localPort" explicit_type "uint"
-	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}${)}${const}${volatile}${throw}${abstract};
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolTime::config(time Zone, Time server IP , udp Port):
+	cpp_def "//	CoolTime::config(Time server IP , udp Port):
 //	This method is provided to do manual configuration.
 //	
 //
 
-${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}${)}${const}${throw}${staticnl}{
+${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -1594,13 +1594,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}${)}$
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolTime::printConf():
-//	This method is provided to print
-//	the CoolTime configuration to the
-//	Serial Monitor
-//
-
-${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -1772,15 +1766,44 @@ ${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${thro
 	  param in name "digits" explicit_type "int"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolTime::printDigits(digit)
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 167301 "saveTimeSync"
+	public explicit_return_type "bool"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 167429 "saveTimeSync"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolTime::saveTimeSync()
+//	This method is provided to save
+//	the last sync time in the 
+//	SPIFFS.
 //
-//	utility function for digital clock display
-//	adds leading 0
-//	
-//	\\return formatted string of the input digit
+//	\\return true if successful,false
+//	otherwise
 //
 
-${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -1791,19 +1814,6 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}
 
       attribute 132741 "timeSync"
 	private explicit_type "ulong"
-	init_value "= 0"
-	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-	mysql_decl ""
-	MysqlColumn
-      end
-
-      attribute 132869 "timeZone"
-	private explicit_type "int"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1891,6 +1901,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}
 	mysql_decl ""
 	MysqlColumn
       end
+
     end
 
     class 128645 "CoolMQTT"
@@ -2651,7 +2662,6 @@ ${inlines}
 	MysqlColumn
 	comment " I2C/Shift pin"
       end
-
     end
 
     class 128901 "Irene3000"
@@ -3032,7 +3042,7 @@ ${inlines}
 
 	attribute 135429 "pHStep"
 	  public explicit_type "float"
-	  init_value "= 0"
+	  init_value "= 1"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
 	  java_decl ""
@@ -3398,8 +3408,14 @@ ${inlines}
 	cpp_inline public explicit_return_type ""
 	nparams 0
 	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract} {
+
+	#if DEBUG == 1 
+
 		Serial.println(\"BaseExternalSensor Constructor\");
 		Serial.println();
+	
+	#endif
+
 	};
 "
 	
@@ -3415,8 +3431,13 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "uint8_t"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+	
 		Serial.println(\"BaseExternalSensor.begin()\");
 		Serial.println();
+	
+	#endif
 
 		return(-2);
 	};
@@ -3438,8 +3459,13 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "float"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"BaseExternalSensor.read()\");
-		Serial.println();		
+		Serial.println();
+	
+	#endif		
 		
 		return(-2);
 	};
@@ -3505,8 +3531,13 @@ ${inlines}
 	cpp_inline public explicit_return_type ""
 	nparams 0
 	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <Generic> Constructor\");
 		Serial.println();
+	
+	#endif
 
 		sensor();
 	};
@@ -3523,8 +3554,13 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "uint8_t"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <Generic> begin()\");
 		Serial.println();
+	
+	#endif
 
 		return(sensor.begin() );	
 	};
@@ -3543,10 +3579,14 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "float"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
 
 		Serial.println(\"ExternalSensor <Generic> read() \");
 		Serial.println();
 		
+	#endif
+
 		return(sensor.read());
 	};
 "
@@ -3603,8 +3643,13 @@ ${inlines}
 	nparams 1
 	  param in name "i2c_addr" explicit_type "uint8_t"
 	cpp_decl "    ${comment}${inline}${name}${(}${t0} ${p0}${v0}${)}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <NDIR_I2C> constructor\");
 		Serial.println();
+	
+	#endif
 
 		sensor=NDIR_I2C(i2c_addr);
 	};
@@ -3622,21 +3667,37 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "uint8_t"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <NDIR_I2C> begin()\");
 		Serial.println();
+	
+	#endif 
 
-		 if (sensor.begin()) 
+		if (sensor.begin()) 
 		{
+		
+		#if DEBUG == 1 
+			
 			Serial.println(\"NDIR_I2C init : wait 10 seconds\");
 			Serial.println();
+		
+		#endif
 
 			delay(10000);
 			return(true);
+
     		}
-		 else 
+		else 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println(\"NDIR_I2C init : fail \");
 			Serial.println();
+		
+		#endif
 
 			return(false);
 		}	
@@ -3658,15 +3719,25 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "float"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+		
+	#if DEBUG == 1 
+		
 		Serial.println(\"ExternalSensor <NDIR_I2C> read()\");
 		Serial.println();
 
+	#endif
+
 		if (sensor.measure())
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.print(\"NDIR_I2C ppm :\");
 			Serial.println( (float) sensor.ppm);
 			
 			Serial.println();			
+
+		#endif
 
 			return( (float) sensor.ppm);
 			
@@ -3674,8 +3745,13 @@ ${inlines}
 		
 		else
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println(\"NDIR_I2C read fail \");
 			Serial.println();
+		
+		#endif
 
 			return(-42);
 		}
@@ -3737,8 +3813,13 @@ ${inlines}
 	cpp_inline public explicit_return_type ""
 	nparams 0
 	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract} {
+		
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <DallasTemperature> constructor\");
 		Serial.println();
+	
+	#endif
 
 		OneWire oneWire(0);
 		
@@ -3758,9 +3839,14 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "uint8_t"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <DallasTemperature> begin()\");
 		Serial.println();
-		
+	
+	#endif
+	
 		sensor.begin(); 
 		delay(5);
 		sensor.getAddress(this->dallasAddress, 1);	
@@ -3782,6 +3868,9 @@ ${inlines}
 	cpp_virtual cpp_inline public explicit_return_type "float"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUG == 1 
+
 		Serial.println(\"ExternalSensor <DallasTemperature> read()\");
 		Serial.println();
 
@@ -3789,6 +3878,8 @@ ${inlines}
 		Serial.print( (float) sensor.getTempC(this->dallasAddress) );
 		Serial.print(\"°C\");
 		Serial.println();
+	
+	#endif
 		
 		return( (float) sensor.getTempC(this->dallasAddress) );
 	};

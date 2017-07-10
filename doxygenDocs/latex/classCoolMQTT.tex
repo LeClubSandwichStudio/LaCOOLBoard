@@ -86,7 +86,7 @@ Definition at line 22 of file Cool\+M\+Q\+T\+T.\+h.
 
 \hyperlink{classCoolMQTT_ac9248808641ebf3054ed0620ea9d0100}{Cool\+M\+Q\+T\+T\+::begin()}\+: This method is provided to set the mqtt client\textquotesingle{}s parameters\+: -\/client -\/server -\/callback method -\/buffer size 
 
-Definition at line 26 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 39 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -98,17 +98,22 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-27 \{ 
-28     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.begin()"});
-29     Serial.println();
-30 
-31     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setClient(\hyperlink{classCoolMQTT_acc30a0200967374a524092a8a806502a}{espClient});
-32     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setServer(\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}, 1883); 
-33     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setCallback([\textcolor{keyword}{this}] (\textcolor{keywordtype}{char}* topic, byte* payload, \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length) \{ this->
+40 \{ 
+41 
+42 \textcolor{preprocessor}{#if DEBUG == 1 }
+43 
+44     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.begin()"});
+45     Serial.println();
+46 
+47 \textcolor{preprocessor}{#endif}
+48 
+49     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setClient(\hyperlink{classCoolMQTT_acc30a0200967374a524092a8a806502a}{espClient});
+50     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setServer(\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}, 1883); 
+51     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setCallback([\textcolor{keyword}{this}] (\textcolor{keywordtype}{char}* topic, byte* payload, \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length) \{ this->
       \hyperlink{classCoolMQTT_a30d82ad665bfb603f46ecdbc290775df}{callback}(topic, payload, length); \});
-34     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setBufferSize((\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{short})\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize});
-35 
-36 \}
+52     \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.setBufferSize((\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{short})\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize});
+53 
+54 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -134,7 +139,7 @@ Cool\+M\+Q\+T\+T\+::callback(in topic, incoming message , message length)\+: Thi
 
 Arguments are automatically assigned in client.\+set\+Callback() 
 
-Definition at line 203 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 282 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -146,43 +151,72 @@ Referenced by begin().
 
 
 \begin{DoxyCode}
-204 \{
-205     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.callback() "});
-206     Serial.println();
-207 
-208     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}==\textcolor{keyword}{false})
-209     \{
-210         \textcolor{keywordtype}{char} \hyperlink{Irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp}[length+1];
-211         Serial.println(\textcolor{stringliteral}{"received temp msg : "});
-212         
-213         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < length; i++) 
-214         \{
-215             temp[i]=(char)payload[i];
-216             Serial.print( (\textcolor{keywordtype}{char})payload[i] );
-217 
-218         \}
-219 
-220         Serial.println();
-221     
-222         Serial.println(\textcolor{stringliteral}{"storing new message : "});
-223         Serial.println();
-224 
-225         this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}=\textcolor{keyword}{true};
-226 
-227         temp[length+1]=\textcolor{charliteral}{'\(\backslash\)0'};
-228 
-229         this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg}=String(temp);
-230         this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg}.remove(length,1);
-231         Serial.println(\textcolor{stringliteral}{"stored message : "});
-232         Serial.println(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
-233     \}
-234     \textcolor{keywordflow}{else}
-235     \{
-236         Serial.println(\textcolor{stringliteral}{"did not read last message"});
-237         
-238     \}
-239 
-240 \}
+283 \{
+284 
+285 \textcolor{preprocessor}{#if DEBUG == 1}
+286 
+287     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.callback() "});
+288     Serial.println();
+289 
+290 \textcolor{preprocessor}{#endif }
+291 
+292     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}==\textcolor{keyword}{false})
+293     \{
+294         \textcolor{keywordtype}{char} \hyperlink{Irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp}[length+1];
+295 
+296 \textcolor{preprocessor}{    #if DEBUG == 1}
+297 
+298         Serial.println(\textcolor{stringliteral}{"received temp msg : "});
+299 
+300 \textcolor{preprocessor}{    #endif}
+301         
+302         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < length; i++) 
+303         \{
+304             temp[i]=(char)payload[i];
+305         
+306 \textcolor{preprocessor}{        #if DEBUG == 1 }
+307 
+308             Serial.print( (\textcolor{keywordtype}{char})payload[i] );
+309         
+310 \textcolor{preprocessor}{        #endif}
+311 
+312         \}
+313     
+314 \textcolor{preprocessor}{    #if DEBUG == 1 }
+315 
+316         Serial.println();
+317         Serial.println(\textcolor{stringliteral}{"storing new message : "});
+318         Serial.println();
+319     
+320 \textcolor{preprocessor}{    #endif}
+321 
+322         this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}=\textcolor{keyword}{true};
+323 
+324         temp[length+1]=\textcolor{charliteral}{'\(\backslash\)0'};
+325 
+326         this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg}=String(temp);
+327         this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg}.remove(length,1);
+328     
+329 \textcolor{preprocessor}{    #if DEBUG == 1 }
+330 
+331         Serial.println(\textcolor{stringliteral}{"stored message : "});
+332         Serial.println(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
+333     
+334 \textcolor{preprocessor}{    #endif}
+335 
+336     \}
+337     \textcolor{keywordflow}{else}
+338     \{
+339     
+340 \textcolor{preprocessor}{    #if DEBUG == 1}
+341 
+342         Serial.println(\textcolor{stringliteral}{"did not read last message"});
+343     
+344 \textcolor{preprocessor}{    #endif }
+345         
+346     \}
+347 
+348 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -199,7 +233,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 Cool\+M\+Q\+T\+T\+::config(server,in topic, out topic , user Id, buffer size)\+: This method is provided to manually configure the mqtt client 
 
-Definition at line 429 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 588 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -211,21 +245,26 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-430 \{
-431     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.config() , no SPIFFS variant"});
-432     Serial.println();
-433 
-434     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
-435     \{
-436         this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i];
-437         this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i]=\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i];
-438         this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i]=\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i];
-439         this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i];
-440     \}
-441     this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
-442     
-443 
-444 \}
+589 \{
+590 
+591 \textcolor{preprocessor}{#if DEBUG == 1}
+592 
+593     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.config() , no SPIFFS variant"});
+594     Serial.println();
+595 
+596 \textcolor{preprocessor}{#endif}
+597 
+598     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
+599     \{
+600         this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i];
+601         this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i]=\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i];
+602         this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i]=\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i];
+603         this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i];
+604     \}
+605     this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
+606     
+607 
+608 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -247,7 +286,7 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 279 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 396 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -255,149 +294,191 @@ References buffer\+Size, in\+Topic, mqtt\+Server, out\+Topic, and user.
 
 
 \begin{DoxyCode}
-280 \{
-281     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.config()"});
-282     Serial.println();
-283 
-284     \textcolor{comment}{//read config file}
-285     \textcolor{comment}{//update data}
-286     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"r"});
-287 
-288     \textcolor{keywordflow}{if} (!configFile) 
-289     \{
-290         Serial.println(\textcolor{stringliteral}{"failed to read /mqttConfig.json"});
-291         Serial.println();
-292         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-293     \}
-294     \textcolor{keywordflow}{else}
-295     \{
-296         \textcolor{keywordtype}{size\_t} size = configFile.size();
-297         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-298         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-299 
-300         configFile.readBytes(buf.get(), size);
-301         DynamicJsonBuffer jsonBuffer;
-302         JsonObject& json = jsonBuffer.parseObject(buf.get());
-303         \textcolor{keywordflow}{if} (!json.success()) 
-304         \{
-305             Serial.println(\textcolor{stringliteral}{"failed to parse json "});
-306             Serial.println();
-307             
-308             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-309         \} 
-310         \textcolor{keywordflow}{else}
-311         \{       
-312             Serial.println(\textcolor{stringliteral}{"configuration json is "});
-313             json.printTo(Serial);
-314             Serial.println();
-315     
-316             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"mqttServer"}].success() )
-317             \{           
-318                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempmqttServer = json[\textcolor{stringliteral}{"mqttServer"}]; 
-319                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
-320                 \{
-321                     \hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=tempmqttServer[i];
-322                 \}
-323             \}
-324             \textcolor{keywordflow}{else}
-325             \{
-326                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
-327                 \{
-328                     this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i];
-329                 \}
-330 
-331             \}
-332             json[\textcolor{stringliteral}{"mqttServer"}]=this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer};
-333 
-334             
-335             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"inTopic"}].success() )
-336             \{
-337                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempInTopic = json[\textcolor{stringliteral}{"inTopic"}]; 
-338                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50;i++)
-339                 \{
-340                     \hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i]=tempInTopic[i];
-341                 \}
-342             \}
-343             \textcolor{keywordflow}{else}
-344             \{
-345                 String tempMAC = WiFi.macAddress();
-346                 tempMAC.replace(\textcolor{stringliteral}{":"},\textcolor{stringliteral}{""});
-347                 snprintf(\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}, 50, \textcolor{stringliteral}{"$aws/things/%s/shadow/update/delta"}, tempMAC.c\_str());    
-348                 Serial.print(\textcolor{stringliteral}{"Set Incomming MQTT Channel to : "});
-349                 Serial.println(\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}); 
-350             \}
-351             json[\textcolor{stringliteral}{"inTopic"}]=this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic};
-352             
-353             
-354             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"outTopic"}].success() )
-355             \{
-356                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempOutTopic = json[\textcolor{stringliteral}{"outTopic"}]; 
-357                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i<50;i++)
-358                 \{
-359                     \hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i]=tempOutTopic[i];
-360                 \}
-361             \}
-362             \textcolor{keywordflow}{else}
-363             \{
-364                 String tempMAC = WiFi.macAddress();
-365                 tempMAC.replace(\textcolor{stringliteral}{":"},\textcolor{stringliteral}{""});
-366                 snprintf(\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}, 50, \textcolor{stringliteral}{"$aws/things/%s/shadow/update"}, tempMAC.c\_str());
-367                 Serial.print(\textcolor{stringliteral}{"Set Outgoing MQTT Channel to : "});
-368                 Serial.println(\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic});
-369             \}
-370             json[\textcolor{stringliteral}{"outTopic"}]=this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic};
-371         
-372             
-373             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"user"}].success() )
-374             \{               
-375                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempUser = json[\textcolor{stringliteral}{"user"}]; 
-376                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i<50;i++)
-377                 \{
-378                     \hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=tempUser[i];
-379                 \}
-380             \}
-381             \textcolor{keywordflow}{else}
-382             \{
-383                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<50;i++)
-384                 \{
-385                     this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i];
-386                 \}               
-387             \}
-388             json[\textcolor{stringliteral}{"user"}]=this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user};
-389             
-390             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"bufferSize"}].success() )
-391             \{
-392                 \textcolor{keywordtype}{int} tempBufferSize = json[\textcolor{stringliteral}{"bufferSize"}]; 
-393                 \hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=tempBufferSize;
-394             \}
-395             \textcolor{keywordflow}{else}
-396             \{
-397                 this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
-398             \}
-399             json[\textcolor{stringliteral}{"bufferSize"}]=this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
+397 \{
+398 
+399 \textcolor{preprocessor}{#if DEBUG == 1 }
 400 
-401             configFile.close();
-402             configFile = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"w"});
-403             \textcolor{keywordflow}{if}(!configFile)
-404             \{
-405                 Serial.println(\textcolor{stringliteral}{"failed to write to /mqttConfig.json"});
-406                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});              
-407             \}
-408             
-409             json.printTo(configFile);
-410 
-411             Serial.println(\textcolor{stringliteral}{"saved configuration is :"});
-412             json.printTo(Serial);
-413             Serial.println();
+401     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.config()"});
+402     Serial.println();
+403 
+404 \textcolor{preprocessor}{#endif}
+405 
+406     \textcolor{comment}{//read config file}
+407     \textcolor{comment}{//update data}
+408     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"r"});
+409 
+410     \textcolor{keywordflow}{if} (!configFile) 
+411     \{
+412     
+413 \textcolor{preprocessor}{    #if DEBUG == 1 }
 414 
-415             configFile.close();
-416           
-417             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-418         \}
-419     \}   
-420     
-421 
-422 \}
+415         Serial.println(\textcolor{stringliteral}{"failed to read /mqttConfig.json"});
+416         Serial.println();
+417 
+418 \textcolor{preprocessor}{    #endif}
+419 
+420         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+421     \}
+422     \textcolor{keywordflow}{else}
+423     \{
+424         \textcolor{keywordtype}{size\_t} size = configFile.size();
+425         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+426         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+427 
+428         configFile.readBytes(buf.get(), size);
+429         DynamicJsonBuffer jsonBuffer;
+430         JsonObject& json = jsonBuffer.parseObject(buf.get());
+431         \textcolor{keywordflow}{if} (!json.success()) 
+432         \{
+433         
+434 \textcolor{preprocessor}{        #if DEBUG == 1 }
+435 
+436             Serial.println(\textcolor{stringliteral}{"failed to parse json "});
+437             Serial.println();
+438         
+439 \textcolor{preprocessor}{        #endif}
+440             
+441             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+442         \} 
+443         \textcolor{keywordflow}{else}
+444         \{
+445         
+446 \textcolor{preprocessor}{        #if DEBUG == 1 }
+447         
+448             Serial.println(\textcolor{stringliteral}{"configuration json is "});
+449             json.printTo(Serial);
+450             Serial.println();
+451 
+452 \textcolor{preprocessor}{        #endif}
+453 
+454             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"mqttServer"}].success() )
+455             \{           
+456                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempmqttServer = json[\textcolor{stringliteral}{"mqttServer"}]; 
+457                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
+458                 \{
+459                     \hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=tempmqttServer[i];
+460                 \}
+461             \}
+462             \textcolor{keywordflow}{else}
+463             \{
+464                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50 ;i++)
+465                 \{
+466                     this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i]=this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer}[i];
+467                 \}
+468 
+469             \}
+470             json[\textcolor{stringliteral}{"mqttServer"}]=this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer};
+471 
+472             
+473             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"inTopic"}].success() )
+474             \{
+475                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempInTopic = json[\textcolor{stringliteral}{"inTopic"}]; 
+476                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i< 50;i++)
+477                 \{
+478                     \hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}[i]=tempInTopic[i];
+479                 \}
+480             \}
+481             \textcolor{keywordflow}{else}
+482             \{
+483                 String tempMAC = WiFi.macAddress();
+484                 tempMAC.replace(\textcolor{stringliteral}{":"},\textcolor{stringliteral}{""});
+485                 snprintf(\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic}, 50, \textcolor{stringliteral}{"$aws/things/%s/shadow/update/delta"}, tempMAC.c\_str());    
+486             
+487 \textcolor{preprocessor}{            #if DEBUG == 1              }
+488                 
+489                 Serial.print(\textcolor{stringliteral}{"Set Incomming MQTT Channel to : "});
+490                 Serial.println(\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic});
+491             
+492 \textcolor{preprocessor}{            #endif  }
+493 
+494             \}
+495             json[\textcolor{stringliteral}{"inTopic"}]=this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic};
+496             
+497             
+498             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"outTopic"}].success() )
+499             \{
+500                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempOutTopic = json[\textcolor{stringliteral}{"outTopic"}]; 
+501                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i<50;i++)
+502                 \{
+503                     \hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}[i]=tempOutTopic[i];
+504                 \}
+505             \}
+506             \textcolor{keywordflow}{else}
+507             \{
+508                 String tempMAC = WiFi.macAddress();
+509                 tempMAC.replace(\textcolor{stringliteral}{":"},\textcolor{stringliteral}{""});
+510                 snprintf(\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}, 50, \textcolor{stringliteral}{"$aws/things/%s/shadow/update"}, tempMAC.c\_str());
+511             
+512 \textcolor{preprocessor}{            #if DEBUG == 1 }
+513 
+514                 Serial.print(\textcolor{stringliteral}{"Set Outgoing MQTT Channel to : "});
+515                 Serial.println(\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic});
+516             
+517 \textcolor{preprocessor}{            #endif}
+518 
+519             \}
+520             json[\textcolor{stringliteral}{"outTopic"}]=this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic};
+521         
+522             
+523             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"user"}].success() )
+524             \{               
+525                 \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempUser = json[\textcolor{stringliteral}{"user"}]; 
+526                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0;i<50;i++)
+527                 \{
+528                     \hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=tempUser[i];
+529                 \}
+530             \}
+531             \textcolor{keywordflow}{else}
+532             \{
+533                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<50;i++)
+534                 \{
+535                     this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i]=this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}[i];
+536                 \}               
+537             \}
+538             json[\textcolor{stringliteral}{"user"}]=this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user};
+539             
+540             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"bufferSize"}].success() )
+541             \{
+542                 \textcolor{keywordtype}{int} tempBufferSize = json[\textcolor{stringliteral}{"bufferSize"}]; 
+543                 \hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=tempBufferSize;
+544             \}
+545             \textcolor{keywordflow}{else}
+546             \{
+547                 this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize}=this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
+548             \}
+549             json[\textcolor{stringliteral}{"bufferSize"}]=this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize};
+550 
+551             configFile.close();
+552             configFile = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"w"});
+553             \textcolor{keywordflow}{if}(!configFile)
+554             \{
+555             
+556 \textcolor{preprocessor}{            #if DEBUG == 1 }
+557 
+558                 Serial.println(\textcolor{stringliteral}{"failed to write to /mqttConfig.json"});
+559             
+560 \textcolor{preprocessor}{            #endif}
+561 
+562                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});              
+563             \}
+564             
+565             json.printTo(configFile);
+566             configFile.close();
+567 
+568 \textcolor{preprocessor}{        #if DEBUG == 1 }
+569 
+570             Serial.println(\textcolor{stringliteral}{"saved configuration is :"});
+571             json.printTo(Serial);
+572             Serial.println();
+573         
+574 \textcolor{preprocessor}{        #endif}
+575 
+576             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+577         \}
+578     \}   
+579     
+580 
+581 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{classCoolMQTT_a58b0b1f64b269c2681685208262fba1d}\label{classCoolMQTT_a58b0b1f64b269c2681685208262fba1d}} 
 \index{Cool\+M\+Q\+TT@{Cool\+M\+Q\+TT}!connect@{connect}}
@@ -412,11 +493,11 @@ mqtt client state
 \end{DoxyReturn}
 
 
-Definition at line 73 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 95 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
-References client, in\+Topic, and state().
+References client, in\+Topic, state(), and user.
 
 
 
@@ -424,39 +505,55 @@ Referenced by Cool\+Board\+::connect().
 
 
 \begin{DoxyCode}
-74 \{       
-75     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.connect()"});
-76 
-77     \textcolor{keywordtype}{int} i=0;
-78     Serial.println(\textcolor{stringliteral}{"MQTT connecting..."});
-79     \textcolor{keywordflow}{while}( ( !this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.connected() ) && ( i<100 ) ) 
-80     \{
-81         \textcolor{comment}{// Attempt to connect}
-82         \textcolor{keywordflow}{if}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.connect( this->user , keepAlive ) ) 
-83         \{
-84             Serial.println(\textcolor{stringliteral}{"MQTT connected"});
-85             \textcolor{comment}{// Once connected, publish an announcement...}
-86             \textcolor{comment}{//client.publish(outTopic, "hello world by Ash");}
-87             \textcolor{comment}{// ... and resubscribe}
-88             \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.subscribe( this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic} );
-89             Serial.println(\textcolor{stringliteral}{" subscribed , leavin "}) ;
-90             \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a5d003307eff78efbd585e42b43b72b6d}{state}() );
-91         \}
-92         \textcolor{keywordflow}{else}
-93         \{
-94             Serial.println(\textcolor{stringliteral}{"not connected , retrying"});
-95             
-96         \}
-97     delay(5);
-98     i++;
-99     \}
-100     
-101     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a5d003307eff78efbd585e42b43b72b6d}{state}() );
-102 
-103 \}
+96 \{       
+97 
+98     \textcolor{keywordtype}{int} i=0;
+99 
+100 \textcolor{preprocessor}{#if DEBUG == 1 }
+101 
+102     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.connect()"});
+103     Serial.println(\textcolor{stringliteral}{"MQTT connecting..."});
+104 
+105 \textcolor{preprocessor}{#endif}
+106 
+107     \textcolor{keywordflow}{while}( ( !this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.connected() ) && ( i<100 ) ) 
+108     \{
+109         \textcolor{comment}{// Attempt to connect}
+110         \textcolor{keywordflow}{if}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.connect( this-> \hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user}, keepAlive ) )
+111         \{
+112             \hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.subscribe( this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic} );
+113 
+114 \textcolor{preprocessor}{        #if DEBUG == 1 }
+115 
+116             Serial.println(\textcolor{stringliteral}{"MQTT connected"});
+117             Serial.println(\textcolor{stringliteral}{" subscribed , leavin "}) ;
+118         
+119 \textcolor{preprocessor}{        #endif}
+120 
+121             \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a5d003307eff78efbd585e42b43b72b6d}{state}() );
+122         \}
+123 
+124         \textcolor{keywordflow}{else}
+125         \{
+126         
+127 \textcolor{preprocessor}{        #if DEBUG == 1 }
+128 
+129             Serial.println(\textcolor{stringliteral}{"not connected , retrying"});
+130         
+131 \textcolor{preprocessor}{        #endif}
+132 
+133             
+134         \}
+135 
+136     delay(5);
+137     i++;
+138     \}
+139     
+140     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a5d003307eff78efbd585e42b43b72b6d}{state}() );
+141 
+142 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -468,7 +565,7 @@ Here is the caller graph for this function\+:
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=324pt]{classCoolMQTT_a58b0b1f64b269c2681685208262fba1d_icgraph}
+\includegraphics[width=350pt]{classCoolMQTT_a58b0b1f64b269c2681685208262fba1d_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{classCoolMQTT_a373cc92fca7760d886f02d8a6e5b3f63}\label{classCoolMQTT_a373cc92fca7760d886f02d8a6e5b3f63}} 
@@ -479,7 +576,7 @@ Here is the caller graph for this function\+:
 
 \hyperlink{classCoolMQTT_a373cc92fca7760d886f02d8a6e5b3f63}{Cool\+M\+Q\+T\+T\+::get\+User()}\+: This method is provided to get the user name 
 
-Definition at line 482 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 651 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -491,15 +588,19 @@ Referenced by Cool\+Board\+::user\+Data().
 
 
 \begin{DoxyCode}
-483 \{
-484     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.getUser()"});
-485     Serial.println();
-486     
-487     Serial.print(\textcolor{stringliteral}{"user : "});
-488     Serial.println(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
-489 
-490     \textcolor{keywordflow}{return} String(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
-491 \}
+652 \{
+653 
+654 \textcolor{preprocessor}{#if DEBUG == 1 }
+655     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.getUser()"});
+656     Serial.println();
+657     
+658     Serial.print(\textcolor{stringliteral}{"user : "});
+659     Serial.println(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
+660 
+661 \textcolor{preprocessor}{#endif}
+662 
+663     \textcolor{keywordflow}{return} String(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
+664 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -522,7 +623,7 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 175 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 247 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -534,25 +635,32 @@ Referenced by Cool\+Board\+::on\+Line\+Mode(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-176 \{
-177     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} lastTime=millis();
-178 
-179     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.mqttLoop()"});
-180     Serial.println();
-181 
-182     
-183 
-184     \textcolor{keywordflow}{while}( ( millis() - lastTime ) < 5000)
-185     \{
-186         this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop();  
-187     \}
-188     
-189     Serial.print(\textcolor{stringliteral}{"loop result : "});
-190     Serial.println( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop() );
-191     Serial.println();
-192 
-193     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop() );
-194 \}
+248 \{
+249 
+250     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} lastTime=millis();
+251 
+252 \textcolor{preprocessor}{#if DEBUG == 1}
+253 
+254     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.mqttLoop()"});
+255     Serial.println();
+256 
+257 \textcolor{preprocessor}{#endif  }
+258 
+259     \textcolor{keywordflow}{while}( ( millis() - lastTime ) < 5000)
+260     \{
+261         this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop();  
+262     \}
+263 
+264 \textcolor{preprocessor}{#if DEBUG == 1 }
+265     
+266     Serial.print(\textcolor{stringliteral}{"loop result : "});
+267     Serial.println( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop() );
+268     Serial.println();
+269 
+270 \textcolor{preprocessor}{#endif}
+271 
+272     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.loop() );
+273 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -570,7 +678,7 @@ Here is the caller graph for this function\+:
 
 \hyperlink{classCoolMQTT_a40553a0ad4b5ecf1cb4411ab54ca85fb}{Cool\+M\+Q\+T\+T\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 451 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 615 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -582,31 +690,36 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-452 \{
-453     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.printConf()"});
-454     Serial.println();   
-455     
-456     Serial.println(\textcolor{stringliteral}{"MQTT configuration "});
-457 
-458     Serial.print(\textcolor{stringliteral}{"mqttServer : "});
-459     Serial.println(this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer});
-460 
-461     Serial.print(\textcolor{stringliteral}{"inTopic : "});
-462     Serial.println(this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic});
-463 
-464     Serial.print(\textcolor{stringliteral}{"outTopic : "});
-465     Serial.println(this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic});
-466 
-467     Serial.print(\textcolor{stringliteral}{"user : "});
-468     Serial.println(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
-469 
-470     Serial.print(\textcolor{stringliteral}{"bufferSize : "});
-471     Serial.println(this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize});
-472 
-473     Serial.println();
-474 
-475 
-476 \}
+616 \{
+617 
+618 \textcolor{preprocessor}{#if DEBUG == 1 }
+619 
+620     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.printConf()"});
+621     Serial.println();   
+622 
+623 \textcolor{preprocessor}{#endif}
+624     
+625     Serial.println(\textcolor{stringliteral}{"MQTT configuration "});
+626 
+627     Serial.print(\textcolor{stringliteral}{"mqttServer : "});
+628     Serial.println(this->\hyperlink{classCoolMQTT_ab8bb951f87ddbf92db74c2ad16a3e53e}{mqttServer});
+629 
+630     Serial.print(\textcolor{stringliteral}{"inTopic : "});
+631     Serial.println(this->\hyperlink{classCoolMQTT_a4492f52a441e83cc5151010317fdb52d}{inTopic});
+632 
+633     Serial.print(\textcolor{stringliteral}{"outTopic : "});
+634     Serial.println(this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic});
+635 
+636     Serial.print(\textcolor{stringliteral}{"user : "});
+637     Serial.println(this->\hyperlink{classCoolMQTT_a8cd47e45d457f908d4b4390b35aaee83}{user});
+638 
+639     Serial.print(\textcolor{stringliteral}{"bufferSize : "});
+640     Serial.println(this->\hyperlink{classCoolMQTT_a7f3cf26b51d6770f216e42c5ef13ca9f}{bufferSize});
+641 
+642     Serial.println();
+643 
+644 
+645 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -629,7 +742,7 @@ true if publish successful, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 113 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 152 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -641,24 +754,39 @@ Referenced by Cool\+Board\+::on\+Line\+Mode(), publish(), and Cool\+Board\+::upd
 
 
 \begin{DoxyCode}
-114 \{
-115 
-116     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.publish()"});
-117     Serial.println();
-118     \textcolor{comment}{//data is in JSON, publish it directly}
-119 
-120     Serial.println(\textcolor{stringliteral}{"data to publish"});
-121     Serial.println(data);
-122     Serial.print(\textcolor{stringliteral}{"data size "});Serial.println(strlen(data));
-123     Serial.println();
-124     
-125     \textcolor{keywordtype}{bool} pub=\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.publish( this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}, data,strlen(data) );
-126     
-127     Serial.print(\textcolor{stringliteral}{"success : "});Serial.println(pub); 
-128 
-129     \textcolor{keywordflow}{return}(pub);
-130 
-131 \}
+153 \{
+154 
+155 \textcolor{preprocessor}{#if DEBUG == 1 }
+156 
+157     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.publish()"});
+158     Serial.println();
+159     \textcolor{comment}{//data is in JSON, publish it directly}
+160 
+161     Serial.println(\textcolor{stringliteral}{"data to publish : "});
+162     Serial.println(data);
+163     Serial.print(\textcolor{stringliteral}{"data size : "});
+164     Serial.println(strlen(data));
+165 
+166     Serial.println();
+167 
+168 \textcolor{preprocessor}{#endif}
+169     
+170 <<<<<<< HEAD
+171     \textcolor{keywordtype}{bool} pub=\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.publish( this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}, data,strlen(data) );
+172 
+173 \textcolor{preprocessor}{#if DEBUG == 1 }
+174 =======
+175     \textcolor{keywordtype}{bool} pub=\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.publish( this->\hyperlink{classCoolMQTT_a109c786a17b463f9eeba046194279522}{outTopic}, data,strlen(data));
+176 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
+177     
+178     Serial.print(\textcolor{stringliteral}{"success : "});
+179     Serial.println(pub);    
+180 
+181 \textcolor{preprocessor}{#endif}
+182 
+183     \textcolor{keywordflow}{return}(pub);
+184 
+185 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -681,7 +809,7 @@ true if publish successful, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 141 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 195 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -689,30 +817,48 @@ References previous\+Log\+Time, and publish().
 
 
 \begin{DoxyCode}
-142 \{
-143     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.publish() every logInterval "});
-144     Serial.println();
-145     
-146     \textcolor{keywordflow}{if}( ( millis() - ( this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime})  ) >=( logInterval ) )
-147     \{
-148         Serial.println(\textcolor{stringliteral}{"log Interval has passed "});
-149         Serial.println();
-150 
-151         this->\hyperlink{classCoolMQTT_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(data);
-152 
-153         this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime}=millis();
-154 
-155         Serial.print(\textcolor{stringliteral}{"last log time : "});
-156         Serial.println(this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime});
-157 
-158         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-159     \}
-160 
-161     Serial.println(\textcolor{stringliteral}{"log Interval still didn't pass "});  
-162     Serial.println();
-163 
-164     \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-165 \}
+196 \{
+197 
+198 \textcolor{preprocessor}{#if DEBUG == 1 }
+199 
+200     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.publish() every logInterval "});
+201     Serial.println();
+202 
+203 \textcolor{preprocessor}{#endif }
+204     
+205     \textcolor{keywordflow}{if}( ( millis() - ( this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime})  ) >=( logInterval ) )
+206     \{
+207     
+208 \textcolor{preprocessor}{    #if DEBUG == 1}
+209 
+210         Serial.println(\textcolor{stringliteral}{"log Interval has passed "});
+211         Serial.println();
+212     
+213 \textcolor{preprocessor}{    #endif}
+214 
+215         this->\hyperlink{classCoolMQTT_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(data);
+216 
+217         this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime}=millis();
+218     
+219 \textcolor{preprocessor}{    #if DEBUG == 1 }
+220 
+221         Serial.print(\textcolor{stringliteral}{"last log time : "});
+222         Serial.println(this->\hyperlink{classCoolMQTT_a3db37ef9ed3b05b2a8d44edba0e7d3cc}{previousLogTime});
+223 
+224 \textcolor{preprocessor}{    #endif}
+225 
+226         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+227     \}
+228 
+229 \textcolor{preprocessor}{#if DEBUG == 1 }
+230 
+231     Serial.println(\textcolor{stringliteral}{"log Interval still didn't pass "});  
+232     Serial.println();
+233 
+234 \textcolor{preprocessor}{#endif}
+235 
+236     \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+237 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
@@ -730,7 +876,7 @@ Here is the call graph for this function\+:
 
 \hyperlink{classCoolMQTT_ae3c18f6ae9723746d32765f1c8f176ca}{Cool\+M\+Q\+T\+T\+::read()}\+: This method is provided to return the last read message. 
 
-Definition at line 247 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 355 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -742,25 +888,34 @@ Referenced by Cool\+Board\+::on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-248 \{   
-249     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.read()"});
-250     Serial.println();
-251     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}==\textcolor{keyword}{true})
-252     \{
-253         
-254         this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}=\textcolor{keyword}{false};
-255 
-256         Serial.println(\textcolor{stringliteral}{"received new message"});
-257         Serial.println(\textcolor{stringliteral}{"message : "});
-258         Serial.println(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
-259         Serial.println();
-260                 
-261         \textcolor{keywordflow}{return}(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
-262         
-263     \}
-264     \textcolor{keywordflow}{return}(\textcolor{stringliteral}{""});
-265 
-266 \}
+356 \{   
+357 
+358 \textcolor{preprocessor}{#if DEBUG == 1 }
+359 
+360     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.read()"});
+361     Serial.println();
+362 
+363 \textcolor{preprocessor}{#endif }
+364 
+365     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}==\textcolor{keyword}{true})
+366     \{
+367         
+368         this->\hyperlink{classCoolMQTT_a3240388137b885775aadf38e96b24c6b}{newMsg}=\textcolor{keyword}{false};
+369 
+370 \textcolor{preprocessor}{#if DEBUG == 1 }
+371         Serial.println(\textcolor{stringliteral}{"received new message"});
+372         Serial.println(\textcolor{stringliteral}{"message : "});
+373         Serial.println(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
+374         Serial.println();
+375 
+376 \textcolor{preprocessor}{#endif}
+377 
+378         \textcolor{keywordflow}{return}(this->\hyperlink{classCoolMQTT_af6b19e7074dbbb4ae493c44dcb53f7ff}{msg});
+379         
+380     \}
+381     \textcolor{keywordflow}{return}(\textcolor{stringliteral}{""});
+382 
+383 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -781,7 +936,7 @@ mqtt client state\+: -\/4 \+: M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+I\+O\+N\+\_
 \end{DoxyReturn}
 
 
-Definition at line 54 of file Cool\+M\+Q\+T\+T.\+cpp.
+Definition at line 72 of file Cool\+M\+Q\+T\+T.\+cpp.
 
 
 
@@ -793,15 +948,19 @@ Referenced by connect(), and Cool\+Board\+::connect().
 
 
 \begin{DoxyCode}
-55 \{
-56     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.state()"});
-57     Serial.println();
-58     
-59     Serial.print(\textcolor{stringliteral}{"state : "});
-60     Serial.println( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.state() );
-61     
-62     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.state() );
-63 \}
+73 \{
+74 
+75 \textcolor{preprocessor}{#if DEBUG == 1 }
+76 
+77     Serial.println(\textcolor{stringliteral}{"Entering CoolMQTT.state()"});
+78     Serial.println();   
+79     Serial.print(\textcolor{stringliteral}{"state : "});
+80     Serial.println( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.state() );
+81 
+82 \textcolor{preprocessor}{#endif}
+83     
+84     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolMQTT_a4ca71e4f76ef868692a297efd45b1415}{client}.state() );
+85 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -952,7 +1111,7 @@ Definition at line 55 of file Cool\+M\+Q\+T\+T.\+h.
 
 
 
-Referenced by config(), get\+User(), and print\+Conf().
+Referenced by config(), connect(), get\+User(), and print\+Conf().
 
 
 

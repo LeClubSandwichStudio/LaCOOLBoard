@@ -1,7 +1,12 @@
 class CoolBoardSensors
 !!!130309.cpp!!!	CoolBoardSensors()
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors Constructor");
 	Serial.println();
+
+#endif
 	
 	Wire.begin(2, 14);                       //I2C init Maybe change this to the CoolBoard?
 
@@ -11,30 +16,50 @@ class CoolBoardSensors
 
 
 !!!130437.cpp!!!	begin() : void
-       
+  
+
+#if DEBUG == 1 
+     
 	Serial.println("Entering CoolBoardSensors.begin()");
 	Serial.println();
 
+#endif
+
 	initReadI2C();
 
-	while (!lightSensor.Begin()) {
-  	  Serial.println("Si1145 is not ready!  1 second");
-  	  delay(1000);
+	while (!lightSensor.Begin()) 
+	{
+	
+	#if DEBUG == 1
+
+		Serial.println("Si1145 is not ready!  1 second");
+
+	#endif
+
+		delay(1000);
   	}
 	 
 	this->setEnvSensorSettings();
 	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
 	this->envSensor.begin();
 	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
+
+#if DEBUG == 1 
 	
 	Serial.print("BME280 begin answer is :");
 	Serial.println(envSensor.begin(), HEX);
 	Serial.println();
 
+#endif
 
 !!!130565.cpp!!!	read() : String
+
+#if DEBUG == 1 
+	
 	Serial.println("Entering CoolBoardSensors.read()");
 	Serial.println();
+
+#endif
 
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
@@ -91,37 +116,57 @@ class CoolBoardSensors
 	
 	root.printTo(data);
 
+#if DEBUG == 1
+
 	Serial.println("CoolBoardSensors data is :");
 	root.printTo(Serial);
 	Serial.println();
+
+#endif
 
 	return(data);	
 	
 
 !!!130693.cpp!!!	getJsonSize() : int
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.getJsonSize()");
 	Serial.println();
-
 	Serial.print("json size is : ");
 	Serial.println(this->jsonSize);
 	Serial.println();
 
+#endif
+
 	return(this->jsonSize );
 !!!130821.cpp!!!	setJsonSize(in jsonSize : int) : void
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.setJsonSize()");
-	Serial.println();
-	
+	Serial.println();	
 	Serial.print("old json Size is : ");
 	Serial.println(this->jsonSize);
+#endif
 		
 	this->jsonSize=jsonSize;
+
+#if DEBUG == 1 
 	
 	Serial.print("new json Size is : ");
 	Serial.println(this->jsonSize);
+
+#endif
 	
 !!!130949.cpp!!!	allActive() : void
+
+#if DEBUG == 1 
+
 	Serial.println("Entering CoolBoardSensors.allActive()");
 	Serial.println();
+
+#endif
 	
 	this->lightDataActive.visible=1;
 	this->lightDataActive.ir=1;
@@ -139,26 +184,45 @@ class CoolBoardSensors
 
 
 !!!131077.cpp!!!	initReadI2C() : void
+
+#if DEBUG == 1
+
  	Serial.println("Entering CoolBoardSensors.initReadI2C()");
 	Serial.println();
+
+#endif
  
 	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
 
 !!!131205.cpp!!!	stopReadI2C() : void
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.stopReadI2C()");
 	Serial.println();
+
+#endif
 
 	digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
 
 !!!131333.cpp!!!	end() : void
+
+#if DEBUG == 1 	
 	Serial.println("Entering CoolBoardSensors.end()");
 	Serial.println();
+
+#endif
 
 	lightSensor.DeInit();
 
 !!!131461.cpp!!!	config() : bool
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.config()");
 	Serial.println();
+
+#endif
 
 	//read config file
 	//update data
@@ -166,8 +230,13 @@ class CoolBoardSensors
 
 	if (!coolBoardSensorsConfig) 
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("failed to read /coolBoardSensorsConfig.json");
 		Serial.println();
+	
+	#endif
 
 		return(false);
 	}
@@ -182,16 +251,26 @@ class CoolBoardSensors
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1
+
 			Serial.println("failed to parse coolBoardSensorsConfig json");
 			Serial.println();
+		
+		#endif
 	
 			return(false);
 		} 
 		else
 		{
+
+		#if DEBUG == 1
+
 			Serial.println("Configuration Json is :");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
   	  
 			if(json["jsonSize"].success() )
 			{
@@ -296,8 +375,13 @@ class CoolBoardSensors
 			coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");			
 			if(!coolBoardSensorsConfig)
 			{
+			
+			#if DEBUG == 1
+
 				Serial.println("failed to write to /coolBoardSensorsConfig.json");
 				Serial.println();
+			
+			#endif
 
 				return(false);			
 			}  
@@ -305,36 +389,65 @@ class CoolBoardSensors
 			json.printTo(coolBoardSensorsConfig);
 			coolBoardSensorsConfig.close();			
 			
+		#if DEBUG == 1
+
 			Serial.println("Saved Configuration Json is : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
+
 			return(true); 
 		}
 	}	
 
 !!!131589.cpp!!!	printConf() : void
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.printConf()");
 	Serial.println();
 
+#endif
+
 	Serial.println("Sensors Configuration : ");
 	
-	Serial.print("json size : ");Serial.println(this->jsonSize);
-	Serial.print("airDataActive.temperature : ");Serial.println(this->airDataActive.temperature);
-	Serial.print("airDataActive.humidity : ");Serial.println(airDataActive.humidity);
-	Serial.print("airDataActive.pressure : ");Serial.println(airDataActive.pressure);
+	Serial.print("json size : ");
+	Serial.println(this->jsonSize);
 
-	Serial.print("lightDataActive.visible : ");Serial.println(lightDataActive.visible);
-	Serial.print("lightDataActive.ir : ");Serial.println(lightDataActive.ir);
-	Serial.print("lightDataActive.uv : ");Serial.println(lightDataActive.uv);
+	Serial.print("airDataActive.temperature : ");
+	Serial.println(this->airDataActive.temperature);
+
+	Serial.print("airDataActive.humidity : ");
+	Serial.println(airDataActive.humidity);
+
+	Serial.print("airDataActive.pressure : ");
+	Serial.println(airDataActive.pressure);
+
+	Serial.print("lightDataActive.visible : ");
+	Serial.println(lightDataActive.visible);
+
+	Serial.print("lightDataActive.ir : ");
+	Serial.println(lightDataActive.ir);
+
+	Serial.print("lightDataActive.uv : ");
+	Serial.println(lightDataActive.uv);
 	
-	Serial.print("vbatActive : ");Serial.println(vbatActive);
+	Serial.print("vbatActive : ");
+	Serial.println(vbatActive);
 
-	Serial.print("soilMoitureActive : ");Serial.println(soilMoistureActive);
+	Serial.print("soilMoitureActive : ");
+	Serial.println(soilMoistureActive);
 
 	Serial.println();
 !!!131717.cpp!!!	setEnvSensorSettings(in commInterface : uint8_t = I2C_MODE, in I2CAddress : uint8_t = 0x76, in runMode : uint8_t = 3, in tStandby : uint8_t = 0, in filter : uint8_t = 0, in tempOverSample : uint8_t = 1, in pressOverSample : uint8_t = 1, in humidOverSample : uint8_t = 1) : void
+
+#if DEBUG == 1
+	
 	Serial.println("Entering CoolBoardSensors.setEnvSensorSettings()");
 	Serial.println();
+
+#endif
   
 	this->envSensor.settings.commInterface = commInterface;      
 
@@ -353,8 +466,13 @@ class CoolBoardSensors
 	this->envSensor.settings.humidOverSample = humidOverSample;
 
 !!!131845.cpp!!!	readVBat() : float
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardSensors.readVBat()");
 	Serial.println();
+
+#endif
 
 	digitalWrite(this->AnMplex, LOW);                            //Enable Analog Switch to get the batterie tension
   	
@@ -364,15 +482,23 @@ class CoolBoardSensors
  	
 	float val = 6.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
 	
+#if DEBUG == 1
+
 	Serial.println("Vbat is : ");
 	Serial.println(val);
 	Serial.println();
 
+#endif
 
 	return (val);	
 !!!131973.cpp!!!	readMoisture() : float
+
+#if DEBUG == 1
+	
 	Serial.println("Entering CoolBoardSensors.readMoisture()");
 	Serial.println();
+	
+#endif
 
 	digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
 
@@ -386,8 +512,12 @@ class CoolBoardSensors
 
 	digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
 	
+#if DEBUG == 1 
+
 	Serial.println("Soil Moisture is : ");
 	Serial.println(result);
 	Serial.println();
+
+#endif 
 
 	return (result);
