@@ -168,7 +168,7 @@ bool CoolMQTT::publish(const char* data)
 #endif
 	
 
-	bool pub=client.publish( this->outTopic, data,(byte)strlen(data),false  );
+	bool pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
 
 #if DEBUG == 1 
 

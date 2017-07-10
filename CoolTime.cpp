@@ -548,12 +548,14 @@ bool CoolTime::config()
 
 }
 
-
 /**
 *	CoolTime::saveTimeSync()
-*	This method is provided to
-*	save last syncronisation time
-*	to the SPIFFS
+*	This method is provided to save
+*	the last sync time in the 
+*	SPIFFS.
+*
+*	\return true if successful,false
+*	otherwise
 */
 bool CoolTime::saveTimeSync()
 {
@@ -592,17 +594,7 @@ bool CoolTime::saveTimeSync()
 			Serial.println();
 
 			String ip;
-			
-			if(json["timeZone"].success() )
-			{
-				this->timeZone=json["timeZone"] ;
-			}
-			else
-			{
-				this->timeZone=this->timeZone;			
-			}
-			json["timeZone"]=this->timeZone;
-			
+					
 			if(json["timeServer"].success() )
 			{			
 				 ip=json["timeServer"].as<String>();
@@ -729,134 +721,4 @@ String CoolTime::formatDigits(int digits)
 	return( String(digits) );
 }
 
-/**
-*	CoolTime::saveTimeSync()
-*	This method is provided to save
-*	the last sync time in the 
-*	SPIFFS.
-*
-*	\return true if successful,false
-*	otherwise
-*/
-bool CoolTime::saveTimeSync()
-{
 
-#if DEBUG == 1
-
-	Serial.println("Enter CoolTime.saveTimeSync()");
-	Serial.println();
-
-#endif 
-
-	File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
-
-	if (!rtcConfig) 
-	{
-	
-	#if DEBUG == 1
-
-		Serial.println("failed to read /rtcConfig.json");
-		Serial.println();
-	
-	#endif 
-
-		return(false);
-	}
-	else
-	{
-		size_t size = rtcConfig.size();
-		// Allocate a buffer to store contents of the file.
-		std::unique_ptr<char[]> buf(new char[size]);
-
-		rtcConfig.readBytes(buf.get(), size);
-		DynamicJsonBuffer jsonBuffer;
-		JsonObject& json = jsonBuffer.parseObject(buf.get());
-		if (!json.success()) 
-		{
-		
-		#if DEBUG == 1
-
-			Serial.println("failed to parse json");
-			Serial.println();
-		
-		#endif 
-			
-			return(false);
-		} 
-		else
-		{
-		
-		#if DEBUG == 1 
-  	
-			Serial.println("configuration json is :");
-			json.printTo(Serial);
-			Serial.println();
-		
-		#endif 
-
-			String ip;
-			
-			if(json["timeServer"].success() )
-			{			
-				 ip=json["timeServer"].as<String>();
-				this->timeServer.fromString(ip);
- 				
-			}
-			else
-			{
-				this->timeServer=this->timeServer;
-			}
-			json["timeServer"]=ip;
-			
-			if(json["localPort"].success() )
-			{						
-				this->localPort=json["localPort"];
-			}
-			else
-			{
-				this->localPort=this->localPort;
-			}
-			json["localPort"]=this->localPort;
-
-			if(json["timeSync"].success() )
-			{						
-				json["timeSync"]=this->timeSync;
-			}
-			else
-			{
-				this->timeSync=this->timeSync;
-			}
-			json["timeSync"]=this->timeSync;
-
-			rtcConfig.close();
-			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
-			
-			if(!rtcConfig)
-			{
-			
-			#if DEBUG == 1 
-
-				Serial.println("failed to write to /rtcConfig.json");
-				Serial.println();
-			
-			#endif 
-
-				return(false);
-			}
-			
-			json.printTo(rtcConfig);
-			rtcConfig.close();
-
-		#if DEBUG == 1 
-
-			Serial.println("configuration is :");
-			json.printTo(Serial);
-			Serial.println();
-		
-		#endif
-		
-			return(true); 
-		}
-	}	
-
-}
