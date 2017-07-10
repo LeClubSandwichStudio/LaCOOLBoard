@@ -8,7 +8,7 @@
 WiFiManager wifiManager;
 CoolTime clock;
 
-int timeZone = 1;
+
 IPAddress timeServer(132,163,4,101);
 unsigned int localPort = 8888;
 
@@ -24,9 +24,9 @@ void setup()
 		Serial.println("Wifi Set" );
 	}
 	
-	clock.config(timeZone,timeServer,localPort);
+	clock.config(timeServer,localPort);
 	clock.begin();
-	clock.update();
+
 	
 
 }

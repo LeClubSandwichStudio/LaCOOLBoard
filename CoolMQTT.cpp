@@ -167,14 +167,11 @@ bool CoolMQTT::publish(const char* data)
 
 #endif
 	
-<<<<<<< HEAD
-	bool pub=client.publish( this->outTopic, data,strlen(data) );
+
+	bool pub=client.publish( this->outTopic, data,(byte)strlen(data),false  );
 
 #if DEBUG == 1 
-=======
-	bool pub=client.publish( this->outTopic, data,strlen(data));
->>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-	
+
 	Serial.print("success : ");
 	Serial.println(pub);	
 
