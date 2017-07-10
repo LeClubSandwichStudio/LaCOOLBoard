@@ -54,9 +54,6 @@ CoolTime \- This class manages the DS1337 RTC \&.
 .ti -1c
 .RI "bool \fBsaveTimeSync\fP ()"
 .br
-.ti -1c
-.RI "bool \fBsaveTimeSync\fP ()"
-.br
 .in -1c
 .SS "Private Attributes"
 
@@ -104,22 +101,17 @@ Referenced by CoolBoard::begin()\&.
 43 
 44 #if DEBUG == 1 
 45 
-46     Serial\&.println("Entering CoolTime\&.begin()");
+46     Serial\&.println( F("Entering CoolTime\&.begin()") );
 47     Serial\&.println();
 48 
-49 <<<<<<< HEAD
-50 #endif 
-51 =======
-52 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-53 
-54     Udp\&.begin(localPort);
-55 
-56     this->update();
-57 
-58     
-59     this->update();
-60     
-61 }
+49 #endif 
+50 
+51 
+52     Udp\&.begin(localPort);
+53     
+54     this->update();
+55     
+56 }
 .fi
 .SS "bool CoolTime::config ()"
 \fBCoolTime::config()\fP: This method is provided to configure the \fBCoolTime\fP object through a configuration file\&.
@@ -129,369 +121,212 @@ Referenced by CoolBoard::begin()\&.
 true if successful,false otherwise 
 .RE
 .PP
-\fBCoolTime::saveTimeSync()\fP This method is provided to save last syncronisation time to the SPIFFS
+
 .PP
-\fBCoolTime::printConf()\fP: This method is provided to print the \fBCoolTime\fP configuration to the Serial Monitor
+Definition at line 424 of file CoolTime\&.cpp\&.
 .PP
+References localPort, timeServer, and timeSync\&.
+.PP
+Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
+.PP
+.nf
+425 {
+426 
+427 #if DEBUG == 1 
+428 
+429     Serial\&.println( F("Enter CoolTime\&.config()") );
+430     Serial\&.println();
+431 
+432 #endif 
+433 
+434     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
+435 
+436     if (!rtcConfig) 
+437     {
+438     
+439     #if DEBUG == 1 
+440 
+441         Serial\&.println( F("failed to read /rtcConfig\&.json") );
+442         Serial\&.println();
+443     
+444     #endif
+445 
+446         return(false);
+447     }
+448     else
+449     {
+450         size_t size = rtcConfig\&.size();
+451         // Allocate a buffer to store contents of the file\&.
+452         std::unique_ptr<char[]> buf(new char[size]);
+453 
+454         rtcConfig\&.readBytes(buf\&.get(), size);
+455         DynamicJsonBuffer jsonBuffer;
+456         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+457         if (!json\&.success()) 
+458         {
+459         
+460         #if DEBUG == 1 
+461 
+462             Serial\&.println( F("failed to parse json") );
+463             Serial\&.println();
+464         
+465         #endif 
+466 
+467             return(false);
+468         } 
+469         else
+470         {  
+471         
+472         #if DEBUG == 1 
+473 
+474             Serial\&.println( F("configuration json is :") );
+475             json\&.printTo(Serial);
+476             Serial\&.println();
+477 
+478         #endif
+479 
+480             String ip;
+481             
+482             if(json["timeServer"]\&.success() )
+483             {           
+484                  ip=json["timeServer"]\&.as<String>();
+485                 this->timeServer\&.fromString(ip);
+486                 
+487             }
+488             else
+489             {
+490                 this->timeServer=this->timeServer;
+491             }
+492             json["timeServer"]=ip;
+493             
+494             if(json["localPort"]\&.success() )
+495             {                       
+496                 this->localPort=json["localPort"];
+497             }
+498             else
+499             {
+500                 this->localPort=this->localPort;
+501             }
+502             json["localPort"]=this->localPort;
+503 
+504 
+505             if( json["timeSync"]\&.success() )
+506             {
+507 
+508                 this->timeSync=json["timeSync"];
+509             }
+510             else
+511             {
+512                 this->timeSync=this->timeSync;
+513             }
+514             json["timeSync"]=this->timeSync;
+515 
+516             rtcConfig\&.close();
+517             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
+518             
+519             if(!rtcConfig)
+520             {
+521             
+522             #if DEBUG == 1
+523 
+524                 Serial\&.println( F("failed to write to /rtcConfig\&.json") );
+525                 Serial\&.println();
+526             
+527             #endif
+528 
+529                 return(false);
+530             }
+531             
+532             json\&.printTo(rtcConfig);
+533             rtcConfig\&.close();
+534 
+535         #if DEBUG == 1 
+536 
+537             Serial\&.println( F("configuration is :") );
+538             json\&.printTo(Serial);
+539             Serial\&.println();
+540         
+541         #endif
+542         
+543             return(true); 
+544         }
+545     }   
+546 
+547 
+548 
+549 }
+.fi
+.SS "void CoolTime::config (IPAddress timeServer, unsigned int localPort)"
+CoolTime::config(Time server IP , udp Port): This method is provided to do manual configuration\&. 
+.PP
+Definition at line 401 of file CoolTime\&.cpp\&.
+.PP
+References localPort, and timeServer\&.
+.PP
+.nf
+402 {
+403 
+404 #if DEBUG == 1 
+405 
+406     Serial\&.println( F("Enter CoomTime\&.config() , no SPIFFS variant ") );
+407     Serial\&.println();
+408 
+409 #endif 
+410 
+411     this->timeServer=timeServer;
+412     this->localPort=localPort;
+413     
+414 } 
+.fi
+.SS "String CoolTime::formatDigits (int digits)"
 CoolTime::printDigits(digit)
 .PP
 utility method for digital clock display adds leading 0
 .PP
 \fBReturns:\fP
 .RS 4
-formatted string of the input digit
+formatted string of the input digit 
 .RE
 .PP
 
 .PP
-Definition at line 445 of file CoolTime\&.cpp\&.
+Definition at line 691 of file CoolTime\&.cpp\&.
 .PP
-References formatDigits(), localPort, printConf(), saveTimeSync(), timeServer, and timeSync\&.
-.PP
-Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
+Referenced by getESDate(), getTimeDate(), and setDateTime()\&.
 .PP
 .nf
-446 {
-447 
-448 #if DEBUG == 1 
-449 
-450     Serial\&.println("Enter CoolTime\&.config()");
-451     Serial\&.println();
-452 
-453 #endif 
-454 
-455     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
-456 
-457     if (!rtcConfig) 
-458     {
-459     
-460     #if DEBUG == 1 
-461 
-462         Serial\&.println("failed to read /rtcConfig\&.json");
-463         Serial\&.println();
-464     
-465     #endif
-466 
-467         return(false);
-468     }
-469     else
-470     {
-471         size_t size = rtcConfig\&.size();
-472         // Allocate a buffer to store contents of the file\&.
-473         std::unique_ptr<char[]> buf(new char[size]);
-474 
-475         rtcConfig\&.readBytes(buf\&.get(), size);
-476         DynamicJsonBuffer jsonBuffer;
-477         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-478         if (!json\&.success()) 
-479         {
-480         
-481         #if DEBUG == 1 
-482 
-483             Serial\&.println("failed to parse json");
-484             Serial\&.println();
-485         
-486         #endif 
-487 
-488             return(false);
-489         } 
-490         else
-491         {  
-492         
-493         #if DEBUG == 1 
-494 
-495             Serial\&.println("configuration json is :");
-496             json\&.printTo(Serial);
-497             Serial\&.println();
-498 
-499         #endif
-500 
-501             String ip;
-502             
-503             if(json["timeServer"]\&.success() )
-504             {           
-505                  ip=json["timeServer"]\&.as<String>();
-506                 this->timeServer\&.fromString(ip);
-507                 
-508             }
-509             else
-510             {
-511                 this->timeServer=this->timeServer;
-512             }
-513             json["timeServer"]=ip;
-514             
-515             if(json["localPort"]\&.success() )
-516             {                       
-517                 this->localPort=json["localPort"];
-518             }
-519             else
-520             {
-521                 this->localPort=this->localPort;
-522             }
-523             json["localPort"]=this->localPort;
-524 
-525 <<<<<<< HEAD
-526             if(json["timeSync"]\&.success() )
-527             {                       
-528 =======
-529 
-530             if( json["timeSync"]\&.success() )
-531             {
-532 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-533                 this->timeSync=json["timeSync"];
-534             }
-535             else
-536             {
-537                 this->timeSync=this->timeSync;
-538             }
-539             json["timeSync"]=this->timeSync;
-540 
-541 <<<<<<< HEAD
-542 =======
-543 
-544 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-545             rtcConfig\&.close();
-546             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
-547             
-548             if(!rtcConfig)
-549             {
-550             
-551             #if DEBUG == 1
-552 
-553                 Serial\&.println("failed to write to /rtcConfig\&.json");
-554                 Serial\&.println();
-555             
-556             #endif
-557 
-558                 return(false);
-559             }
-560             
-561             json\&.printTo(rtcConfig);
-562             rtcConfig\&.close();
-563 
-564         #if DEBUG == 1 
-565 
-566             Serial\&.println("configuration is :");
-567             json\&.printTo(Serial);
-568             Serial\&.println();
-569         
-570         #endif
-571         
-572             return(true); 
-573         }
-574     }   
-575 
-576 
-577 
-578 }
-579 
-580 
-587 bool CoolTime::saveTimeSync()
-588 {
-589     Serial\&.println("Enter CoolTime\&.saveTimeSync()");
-590     Serial\&.println();
-591 
-592     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
-593 
-594     if (!rtcConfig) 
-595     {
-596         Serial\&.println("failed to read /rtcConfig\&.json");
-597         Serial\&.println();
-598 
-599         return(false);
-600     }
-601     else
-602     {
-603         size_t size = rtcConfig\&.size();
-604         // Allocate a buffer to store contents of the file\&.
-605         std::unique_ptr<char[]> buf(new char[size]);
-606 
-607         rtcConfig\&.readBytes(buf\&.get(), size);
-608         DynamicJsonBuffer jsonBuffer;
-609         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-610         if (!json\&.success()) 
-611         {
-612             Serial\&.println("failed to parse json");
-613             Serial\&.println();
-614 
-615             return(false);
-616         } 
-617         else
-618         {   
-619             Serial\&.println("configuration json is :");
-620             json\&.printTo(Serial);
-621             Serial\&.println();
-622 
-623             String ip;
-624             
-625             if(json["timeZone"]\&.success() )
-626             {
-627                 this->timeZone=json["timeZone"] ;
-628             }
-629             else
-630             {
-631                 this->timeZone=this->timeZone;          
-632             }
-633             json["timeZone"]=this->timeZone;
-634             
-635             if(json["timeServer"]\&.success() )
-636             {           
-637                  ip=json["timeServer"]\&.as<String>();
-638                 this->timeServer\&.fromString(ip);
-639                 
-640             }
-641             else
-642             {
-643                 this->timeServer=this->timeServer;
-644             }
-645             json["timeServer"]=ip;
-646             
-647             if(json["localPort"]\&.success() )
-648             {                       
-649                 this->localPort=json["localPort"];
-650             }
-651             else
-652             {
-653                 this->localPort=this->localPort;
-654             }
-655             json["localPort"]=this->localPort;
-656 
-657 
-658             if( json["timeSync"]\&.success() )
-659             {
-660                 json["timeSync"]=this->timeSync;
-661             }
-662             else
-663             {
-664                 this->timeSync=this->timeSync;
-665             }
-666             json["timeSync"]=this->timeSync;
-667 
-668 
-669             rtcConfig\&.close();
-670             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
-671             
-672             if(!rtcConfig)
-673             {
-674                 Serial\&.println("failed to write timeSync to /rtcConfig\&.json");
-675                 Serial\&.println();
-676 
-677                 return(false);
-678             }
-679             
-680             json\&.printTo(rtcConfig);
-681             rtcConfig\&.close();
-682 
-683             Serial\&.println("configuration is :");
-684             json\&.printTo(Serial);
-685             Serial\&.println();
-686         
-687             return(true); 
-688         }
-689     }   
-690 
-691 
-692 
-693 }
-694 
-701 void CoolTime::printConf()
-702 {
-703 
-704 #if DEBUG == 1
+692 {
+693 
+694 #if DEBUG == 1 
+695 
+696     Serial\&.println( F("Entering CoolTime\&.formatDigits()") );
+697     Serial\&.println();
+698 
+699 #endif 
+700 
+701     if(digits < 10)
+702     {
+703     
+704     #if DEBUG == 1
 705 
-706     Serial\&.println("Entering CoolTime\&.printConf()");
-707     Serial\&.println();
+706         Serial\&.println( F("output digit : ") );
+707         Serial\&.println( String("0") + String(digits) );
 708 
-709 #endif 
+709     #endif
 710 
-711 <<<<<<< HEAD
-712     Serial\&.println("RTC Configuration") ;
-713 =======
-714     //Serial\&.print("timeZone : ");
-715     //Serial\&.println(timeZone);
-716 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-717 
-718     Serial\&.print("timeServer : ");
-719     Serial\&.println(timeServer);
-720     
-721     Serial\&.print("localPort : :");
-722     Serial\&.println(localPort);
-723 }
-724 
-733 String CoolTime::formatDigits(int digits)
-734 {
-735 <<<<<<< HEAD
-736 
-737 #if DEBUG == 1 
-738 
-739     Serial\&.println("Entering CoolTime\&.formatDigits()");
-740     Serial\&.println();
-741 =======
-742     //Serial\&.println("Entering CoolTime\&.formatDigits()");
-743     //Serial\&.println();
-744 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-745 
-746 #endif 
-747 
-748     if(digits < 10)
-749     {
-750 <<<<<<< HEAD
-751     
-752     #if DEBUG == 1
-753 
-754         Serial\&.println("output digit : ");
-755         Serial\&.println( String("0") + String(digits) );
-756 
-757     #endif
-758 
-759         return( String("0") + String(digits) );
-760     }
-761     
-762 #if DEBUG == 1 
-763 
-764     Serial\&.println("output digit : ");
-765     Serial\&.println(digits);
-766 
-767 #endif
-768 
-769 =======
-770         //Serial\&.println("output digit : ");
-771         //Serial\&.println( String("0") + String(digits) );
-772         return( String("0") + String(digits) );
-773     }
-774     
-775     //Serial\&.println("output digit : ");
-776     //Serial\&.println(digits);
-777 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-778     return( String(digits) );
-779 }
+711         return( String("0") + String(digits) );
+712     }
+713     
+714 #if DEBUG == 1 
+715 
+716     Serial\&.println( F("output digit : ") );
+717     Serial\&.println(digits);
+718 
+719 #endif
+720 
+721     return( String(digits) );
+722 }
 .fi
-.SS "void CoolTime::config (IPAddress timeServer, unsigned int localPort)"
-CoolTime::config(Time server IP , udp Port): This method is provided to do manual configuration\&. 
-.PP
-Definition at line 422 of file CoolTime\&.cpp\&.
-.PP
-References localPort, and timeServer\&.
-.PP
-.nf
-423 {
-424 
-425 #if DEBUG == 1 
-426 
-427     Serial\&.println("Enter CoomTime\&.config() , no SPIFFS variant ");
-428     Serial\&.println();
-429 
-430 #endif 
-431 
-432     this->timeServer=timeServer;
-433     this->localPort=localPort;
-434     
-435 } 
-.fi
-.SS "String CoolTime::formatDigits (int digits)"
-
-.PP
-Referenced by config(), getESDate(), getTimeDate(), and setDateTime()\&.
 .SS "String CoolTime::getESDate ()"
 CoolTime::getESD(): This method is provided to return an Elastic Search compatible date Format
 .PP
@@ -502,41 +337,41 @@ date String in Elastic Search format
 .PP
 
 .PP
-Definition at line 202 of file CoolTime\&.cpp\&.
+Definition at line 193 of file CoolTime\&.cpp\&.
 .PP
 References formatDigits(), and getTimeDate()\&.
 .PP
 Referenced by setDateTime(), and CoolBoard::userData()\&.
 .PP
 .nf
-203 {
+194 {
+195 
+196 #if DEBUG == 1 
+197 
+198     Serial\&.println( F("Entering CoolTime\&.getESDate()") );
+199     Serial\&.println();
+200 
+201 #endif 
+202 
+203     tmElements_t tm=this->getTimeDate();
 204 
-205 #if DEBUG == 1 
-206 
-207     Serial\&.println("Entering CoolTime\&.getESDate()");
-208     Serial\&.println();
-209 
-210 #endif 
+205     //"20yy-mm-ddT00:00:00Z"
+206     String elasticSearchString =String(tm\&.Year+1970)+"-"+this->formatDigits(tm\&.Month)+"-";
+207 
+208     elasticSearchString +=this->formatDigits(tm\&.Day)+"T"+this->formatDigits(tm\&.Hour)+":";
+209     
+210     elasticSearchString +=this->formatDigits(tm\&.Minute)+":"+this->formatDigits(tm\&.Second)+"Z";
 211 
-212     tmElements_t tm=this->getTimeDate();
+212 #if DEBUG == 1 
 213 
-214     //"20yy-mm-ddT00:00:00Z"
-215     String elasticSearchString =String(tm\&.Year+1970)+"-"+this->formatDigits(tm\&.Month)+"-";
-216 
-217     elasticSearchString +=this->formatDigits(tm\&.Day)+"T"+this->formatDigits(tm\&.Hour)+":";
-218     
-219     elasticSearchString +=this->formatDigits(tm\&.Minute)+":"+this->formatDigits(tm\&.Second)+"Z";
-220 
-221 #if DEBUG == 1 
-222 
-223     Serial\&.print("elastic Search date : ");
-224     Serial\&.println(elasticSearchString);
-225     Serial\&.println();
-226 
-227 #endif
-228 
-229     return (elasticSearchString);
-230 }
+214     Serial\&.print( F("elastic Search date : ") );
+215     Serial\&.println(elasticSearchString);
+216     Serial\&.println();
+217 
+218 #endif
+219 
+220     return (elasticSearchString);
+221 }
 .fi
 .SS "unsigned long CoolTime::getLastSyncTime ()"
 \fBCoolTime::getLastSyncTime()\fP: This method is provided to get the last time we syncronised the time
@@ -548,27 +383,27 @@ unsigned long representation of last syncronisation time in seconds
 .PP
 
 .PP
-Definition at line 240 of file CoolTime\&.cpp\&.
+Definition at line 231 of file CoolTime\&.cpp\&.
 .PP
 References timeSync\&.
 .PP
 Referenced by isTimeSync()\&.
 .PP
 .nf
-241 {
-242 
-243 #if DEBUG == 1 
-244 
-245     Serial\&.println("Entering CoolTime\&.getLastSyncTime()");
-246     Serial\&.println();
-247     
-248     Serial\&.print("last sync time : ");
-249     Serial\&.println(this->timeSync);
-250 
-251 #endif 
-252 
-253     return(this->timeSync);
-254 }
+232 {
+233 
+234 #if DEBUG == 1 
+235 
+236     Serial\&.println( F("Entering CoolTime\&.getLastSyncTime()") );
+237     Serial\&.println();
+238     
+239     Serial\&.print( F("last sync time : ") );
+240     Serial\&.println(this->timeSync);
+241 
+242 #endif 
+243 
+244     return(this->timeSync);
+245 }
 .fi
 .SS "time_t CoolTime::getNtpTime ()"
 CoolTime::getNtopTime(): This method is provided to get the Time through an NTP request to a Time Server
@@ -580,82 +415,74 @@ a time_t (unsigned long ) timestamp in seconds
 .PP
 
 .PP
-Definition at line 312 of file CoolTime\&.cpp\&.
+Definition at line 299 of file CoolTime\&.cpp\&.
 .PP
 References NTP_PACKET_SIZE, packetBuffer, sendNTPpacket(), timeServer, and Udp\&.
 .PP
 Referenced by update()\&.
 .PP
 .nf
-313 {
+300 {
+301 
+302 #if DEBUG == 1 
+303 
+304     Serial\&.println( F("Entering CoolTime\&.getNtpTime()") );
+305     Serial\&.println();
+306 
+307 #endif 
+308 
+309     while (Udp\&.parsePacket() > 0) ; // discard any previously received packets
+310 
+311 #if DEBUG == 1 
+312     
+313     Serial\&.println( F("Transmit NTP Request") );
 314 
-315 #if DEBUG == 1 
+315 #endif 
 316 
-317     Serial\&.println("Entering CoolTime\&.getNtpTime()");
-318     Serial\&.println();
-319 
-320 #endif 
-321 
-322     while (Udp\&.parsePacket() > 0) ; // discard any previously received packets
-323 
-324 #if DEBUG == 1 
-325     
-326     Serial\&.println("Transmit NTP Request");
-327 
-328 #endif 
-329 
-330     sendNTPpacket(timeServer);
-331 
-332     uint32_t beginWait = millis();
-333 
-334     while (millis() - beginWait < 1500) 
-335     {
-336         int size = Udp\&.parsePacket();
-337         if (size >= NTP_PACKET_SIZE) 
-338         {
-339         
-340         #if DEBUG == 1
-341 
-342             Serial\&.println("Receive NTP Response");
-343         
-344         #endif
-345 
-346             Udp\&.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
-347             unsigned long secsSince1900;
-348             // convert four bytes starting at location 40 to a long integer
-349             secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
-350             secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-351             secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-352             secsSince1900 |= (unsigned long)packetBuffer[43];
-353         
-354         #if DEBUG == 1 
-355     
-356             Serial\&.print("received unix time : ");
-357             Serial\&.println(secsSince1900 - 2208988800UL);
-358             Serial\&.println();
-359 <<<<<<< HEAD
-360         #endif 
-361 =======
-362 
-363             //Serial\&.print("received unix time +");
-364             //Serial\&.print(this->timeZone);
-365             //Serial\&.print(" : ");
-366             //Serial\&.println( secsSince1900 - 2208988800UL + this->timeZone * SECS_PER_HOUR );
-367             //Serial\&.println();
-368 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-369             
-370             return secsSince1900 - 2208988800UL ;
-371         }
-372     }
-373     
-374 #if DEBUG == 1
-375 
-376     Serial\&.println("No NTP Response :-(");
-377 
-378 #endif 
-379 
-380     return 0; // return 0 if unable to get the time
-381 }
+317     sendNTPpacket(timeServer);
+318 
+319     uint32_t beginWait = millis();
+320 
+321     while (millis() - beginWait < 1500) 
+322     {
+323         int size = Udp\&.parsePacket();
+324         if (size >= NTP_PACKET_SIZE) 
+325         {
+326         
+327         #if DEBUG == 1
+328 
+329             Serial\&.println( F("Receive NTP Response") );
+330         
+331         #endif
+332 
+333             Udp\&.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+334             unsigned long secsSince1900;
+335             // convert four bytes starting at location 40 to a long integer
+336             secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+337             secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+338             secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+339             secsSince1900 |= (unsigned long)packetBuffer[43];
+340         
+341         #if DEBUG == 1 
+342     
+343             Serial\&.print( F("received unix time : ") );
+344             Serial\&.println(secsSince1900 - 2208988800UL);
+345             Serial\&.println();
+346 
+347         #endif 
+348 
+349             return secsSince1900 - 2208988800UL ;
+350         }
+351     }
+352     
+353 #if DEBUG == 1
+354 
+355     Serial\&.println( F("No NTP Response :-(") );
+356 
+357 #endif 
+358 
+359     return 0; // return 0 if unable to get the time
+360 }
 .fi
 .SS "tmElements_t CoolTime::getTimeDate ()"
 \fBCoolTime::getTimeDate()\fP: This method is provided to get the RTC Time
@@ -667,46 +494,46 @@ a tmElements_t structre that has the time in it
 .PP
 
 .PP
-Definition at line 159 of file CoolTime\&.cpp\&.
+Definition at line 150 of file CoolTime\&.cpp\&.
 .PP
 References formatDigits(), and rtc\&.
 .PP
 Referenced by getESDate()\&.
 .PP
 .nf
-160 {
-161 
-162 #if DEBUG == 1 
-163     
-164     Serial\&.println("Entering CoolTime\&.getTimeDate()");
-165     Serial\&.println();
-166 
-167 #endif
-168 
-169     tmElements_t tm;
-170     time_t timeDate = this->rtc\&.get(CLOCK_ADDRESS);
-171     breakTime(timeDate,tm);
-172 
-173 #if DEBUG == 1
-174     
-175     Serial\&.print("time is : ");
-176     Serial\&.print(tm\&.Year+ 1970 );
-177     Serial\&.print("-");
-178     Serial\&.print( this->formatDigits( tm\&.Month ) );
-179     Serial\&.print("-");
-180     Serial\&.print( this->formatDigits( tm\&.Day ) );
-181     Serial\&.print("T");
-182     Serial\&.print( this->formatDigits( tm\&.Hour ) );
-183     Serial\&.print(":");
-184     Serial\&.print( this->formatDigits( tm\&.Minute ) );
-185     Serial\&.print( ":" );
-186     Serial\&.print( this->formatDigits( tm\&.Second ) );
-187     Serial\&.print("Z");
-188 
-189 #endif
-190     
-191     return(tm);
-192 }
+151 {
+152 
+153 #if DEBUG == 1 
+154     
+155     Serial\&.println( F("Entering CoolTime\&.getTimeDate()") );
+156     Serial\&.println();
+157 
+158 #endif
+159 
+160     tmElements_t tm;
+161     time_t timeDate = this->rtc\&.get(CLOCK_ADDRESS);
+162     breakTime(timeDate,tm);
+163 
+164 #if DEBUG == 1
+165     
+166     Serial\&.print( F("time is : ") );
+167     Serial\&.print(tm\&.Year+ 1970 );
+168     Serial\&.print( F("-") );
+169     Serial\&.print( this->formatDigits( tm\&.Month ) );
+170     Serial\&.print( F("-") );
+171     Serial\&.print( this->formatDigits( tm\&.Day ) );
+172     Serial\&.print( F("T") );
+173     Serial\&.print( this->formatDigits( tm\&.Hour ) );
+174     Serial\&.print( F(":") );
+175     Serial\&.print( this->formatDigits( tm\&.Minute ) );
+176     Serial\&.print( F(":") );
+177     Serial\&.print( this->formatDigits( tm\&.Second ) );
+178     Serial\&.print( F("Z") );
+179 
+180 #endif
+181     
+182     return(tm);
+183 }
 .fi
 .SS "bool CoolTime::isTimeSync (unsigned long seconds = \fC604800\fP)"
 CoolTime::isTimeSync( time in seconds): This method is provided to test if the time is syncronised or not\&. By default we test once per week\&.
@@ -718,53 +545,73 @@ true if time is syncronised,false otherwise
 .PP
 
 .PP
-Definition at line 266 of file CoolTime\&.cpp\&.
+Definition at line 257 of file CoolTime\&.cpp\&.
 .PP
 References getLastSyncTime()\&.
 .PP
 Referenced by update()\&.
 .PP
 .nf
-267 {
-268 
-269 #if DEBUG == 1
-270 
-271     Serial\&.println("Entering CoolTime\&.isTimeSync() ");
-272     Serial\&.println();
+258 {
+259 
+260 #if DEBUG == 1
+261 
+262     Serial\&.println( F("Entering CoolTime\&.isTimeSync() ") );
+263     Serial\&.println();
+264 
+265 #endif 
+266 
+267 
+268     //default is once per week we try to get a time update
+269     if( ( RTC\&.get(CLOCK_ADDRESS) - this->getLastSyncTime() ) > ( seconds ) ) 
+270     {
+271 
+272     #if DEBUG == 1 
 273 
-274 <<<<<<< HEAD
-275 #endif 
-276 
-277     //default is once per week we try to get a time update
-278     if( ( RTC\&.get( CLOCK_ADDRESS ) ) - ( this->getLastSyncTime() ) > ( seconds ) ) 
-279 =======
-280 //default is once per week we try to get a time update
-281     if( ( RTC\&.get(CLOCK_ADDRESS) - this->getLastSyncTime() ) > ( seconds ) ) 
-282 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-283     {
+274         Serial\&.println( F("time is not syncronised ") );
+275     
+276     #endif
+277 
+278         return(false);  
+279     }
+280     
+281 #if DEBUG == 1 
+282 
+283     Serial\&.println( F("time is syncronised ") );
 284 
-285     #if DEBUG == 1 
+285 #endif 
 286 
-287         Serial\&.println("time is not syncronised ");
-288     
-289     #endif
-290 
-291         return(false);  
-292     }
-293     
-294 #if DEBUG == 1 
-295 
-296     Serial\&.println("time is syncronised ");
-297 
-298 #endif 
-299 
-300     return(true);
-301 }
+287     return(true);
+288 }
 .fi
 .SS "void CoolTime::printConf ()"
-
+\fBCoolTime::printConf()\fP: This method is provided to print the \fBCoolTime\fP configuration to the Serial Monitor 
 .PP
-Referenced by CoolBoard::begin(), and config()\&.
+Definition at line 664 of file CoolTime\&.cpp\&.
+.PP
+References localPort, and timeServer\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+665 {
+666 
+667 #if DEBUG == 1
+668 
+669     Serial\&.println( F("Entering CoolTime\&.printConf()") );
+670     Serial\&.println();
+671 
+672 #endif 
+673 
+674     Serial\&.println("RTC Configuration") ;
+675 
+676     Serial\&.print("timeServer : ");
+677     Serial\&.println(timeServer);
+678     
+679     Serial\&.print("localPort : :");
+680     Serial\&.println(localPort);
+681 }
+.fi
 .SS "bool CoolTime::saveTimeSync ()"
 \fBCoolTime::saveTimeSync()\fP This method is provided to save the last sync time in the SPIFFS\&.
 .PP
@@ -775,312 +622,281 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 790 of file CoolTime\&.cpp\&.
+Definition at line 560 of file CoolTime\&.cpp\&.
 .PP
 References localPort, timeServer, and timeSync\&.
 .PP
-Referenced by config(), and update()\&.
+Referenced by update()\&.
 .PP
 .nf
-791 {
-792 
-793 #if DEBUG == 1
-794 
-795     Serial\&.println("Enter CoolTime\&.saveTimeSync()");
-796     Serial\&.println();
-797 
-798 #endif 
-799 
-800     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
-801 
-802     if (!rtcConfig) 
-803     {
-804     
-805     #if DEBUG == 1
-806 
-807         Serial\&.println("failed to read /rtcConfig\&.json");
-808         Serial\&.println();
-809     
-810     #endif 
-811 
-812         return(false);
-813     }
-814     else
-815     {
-816         size_t size = rtcConfig\&.size();
-817         // Allocate a buffer to store contents of the file\&.
-818         std::unique_ptr<char[]> buf(new char[size]);
-819 
-820         rtcConfig\&.readBytes(buf\&.get(), size);
-821         DynamicJsonBuffer jsonBuffer;
-822         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-823         if (!json\&.success()) 
-824         {
-825         
-826         #if DEBUG == 1
-827 
-828             Serial\&.println("failed to parse json");
-829             Serial\&.println();
-830         
-831         #endif 
-832             
-833             return(false);
-834         } 
-835         else
-836         {
-837         
-838         #if DEBUG == 1 
-839     
-840             Serial\&.println("configuration json is :");
-841             json\&.printTo(Serial);
-842             Serial\&.println();
-843         
-844         #endif 
-845 
-846             String ip;
-847             
-848             if(json["timeServer"]\&.success() )
-849             {           
-850                  ip=json["timeServer"]\&.as<String>();
-851                 this->timeServer\&.fromString(ip);
-852                 
-853             }
-854             else
-855             {
-856                 this->timeServer=this->timeServer;
-857             }
-858             json["timeServer"]=ip;
-859             
-860             if(json["localPort"]\&.success() )
-861             {                       
-862                 this->localPort=json["localPort"];
-863             }
-864             else
-865             {
-866                 this->localPort=this->localPort;
-867             }
-868             json["localPort"]=this->localPort;
-869 
-870             if(json["timeSync"]\&.success() )
-871             {                       
-872                 json["timeSync"]=this->timeSync;
-873             }
-874             else
-875             {
-876                 this->timeSync=this->timeSync;
-877             }
-878             json["timeSync"]=this->timeSync;
-879 
-880             rtcConfig\&.close();
-881             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
-882             
-883             if(!rtcConfig)
-884             {
-885             
-886             #if DEBUG == 1 
-887 
-888                 Serial\&.println("failed to write to /rtcConfig\&.json");
-889                 Serial\&.println();
-890             
-891             #endif 
-892 
-893                 return(false);
-894             }
-895             
-896             json\&.printTo(rtcConfig);
-897             rtcConfig\&.close();
-898 
-899         #if DEBUG == 1 
-900 
-901             Serial\&.println("configuration is :");
-902             json\&.printTo(Serial);
-903             Serial\&.println();
-904         
-905         #endif
-906         
-907             return(true); 
-908         }
-909     }   
-910 
-911 }
+561 {
+562     Serial\&.println( F("Enter CoolTime\&.saveTimeSync()") );
+563     Serial\&.println();
+564 
+565     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
+566 
+567     if (!rtcConfig) 
+568     {
+569         Serial\&.println( F("failed to read /rtcConfig\&.json") );
+570         Serial\&.println();
+571 
+572         return(false);
+573     }
+574     else
+575     {
+576         size_t size = rtcConfig\&.size();
+577         // Allocate a buffer to store contents of the file\&.
+578         std::unique_ptr<char[]> buf(new char[size]);
+579 
+580         rtcConfig\&.readBytes(buf\&.get(), size);
+581         DynamicJsonBuffer jsonBuffer;
+582         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+583         if (!json\&.success()) 
+584         {
+585             Serial\&.println( F("failed to parse json") );
+586             Serial\&.println();
+587 
+588             return(false);
+589         } 
+590         else
+591         {   
+592             Serial\&.println( F("configuration json is :") );
+593             json\&.printTo(Serial);
+594             Serial\&.println();
+595 
+596             String ip;
+597                     
+598             if(json["timeServer"]\&.success() )
+599             {           
+600                  ip=json["timeServer"]\&.as<String>();
+601                 this->timeServer\&.fromString(ip);
+602                 
+603             }
+604             else
+605             {
+606                 this->timeServer=this->timeServer;
+607             }
+608             json["timeServer"]=ip;
+609             
+610             if(json["localPort"]\&.success() )
+611             {                       
+612                 this->localPort=json["localPort"];
+613             }
+614             else
+615             {
+616                 this->localPort=this->localPort;
+617             }
+618             json["localPort"]=this->localPort;
+619 
+620 
+621             if( json["timeSync"]\&.success() )
+622             {
+623                 json["timeSync"]=this->timeSync;
+624             }
+625             else
+626             {
+627                 this->timeSync=this->timeSync;
+628             }
+629             json["timeSync"]=this->timeSync;
+630 
+631 
+632             rtcConfig\&.close();
+633             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
+634             
+635             if(!rtcConfig)
+636             {
+637                 Serial\&.println( F("failed to write timeSync to /rtcConfig\&.json") );
+638                 Serial\&.println();
+639 
+640                 return(false);
+641             }
+642             
+643             json\&.printTo(rtcConfig);
+644             rtcConfig\&.close();
+645 
+646             Serial\&.println( F("configuration is :") );
+647             json\&.printTo(Serial);
+648             Serial\&.println();
+649         
+650             return(true); 
+651         }
+652     }   
+653 
+654 
+655 
+656 }
 .fi
-.SS "bool CoolTime::saveTimeSync ()"
-
 .SS "void CoolTime::sendNTPpacket (IPAddress & address)"
 CoolTime::sendNTPpacket( Time Server IP address): This method is provided to send an NTP request to the time server at the given address 
 .PP
-Definition at line 388 of file CoolTime\&.cpp\&.
+Definition at line 367 of file CoolTime\&.cpp\&.
 .PP
 References NTP_PACKET_SIZE, packetBuffer, and Udp\&.
 .PP
 Referenced by getNtpTime()\&.
 .PP
 .nf
-389 {
-390 
-391 #if DEBUG == 1 
-392 
-393     Serial\&.println("Enter CoolTime\&.sendNTPpacket()");
-394     Serial\&.println();
-395 
-396 #endif
-397 
-398     memset(packetBuffer, 0, NTP_PACKET_SIZE);
-399     // Initialize values needed to form NTP request
-400     // (see URL above for details on the packets)
-401     packetBuffer[0] = 0b11100011;   // LI, Version, Mode
-402     packetBuffer[1] = 0;     // Stratum, or type of clock
-403     packetBuffer[2] = 6;     // Polling Interval
-404     packetBuffer[3] = 0xEC;  // Peer Clock Precision
-405     // 8 bytes of zero for Root Delay & Root Dispersion
-406     packetBuffer[12]  = 49;
-407     packetBuffer[13]  = 0x4E;
-408     packetBuffer[14]  = 49;
-409     packetBuffer[15]  = 52;
-410     // all NTP fields have been given values, now
-411     // you can send a packet requesting a timestamp:                 
-412     Udp\&.beginPacket(address, 123); //NTP requests are to port 123
-413     Udp\&.write(packetBuffer, NTP_PACKET_SIZE);
-414     Udp\&.endPacket(); 
-415 }
+368 {
+369 
+370 #if DEBUG == 1 
+371 
+372     Serial\&.println( F("Enter CoolTime\&.sendNTPpacket()") );
+373     Serial\&.println();
+374 
+375 #endif
+376 
+377     memset(packetBuffer, 0, NTP_PACKET_SIZE);
+378     // Initialize values needed to form NTP request
+379     // (see URL above for details on the packets)
+380     packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+381     packetBuffer[1] = 0;     // Stratum, or type of clock
+382     packetBuffer[2] = 6;     // Polling Interval
+383     packetBuffer[3] = 0xEC;  // Peer Clock Precision
+384     // 8 bytes of zero for Root Delay & Root Dispersion
+385     packetBuffer[12]  = 49;
+386     packetBuffer[13]  = 0x4E;
+387     packetBuffer[14]  = 49;
+388     packetBuffer[15]  = 52;
+389     // all NTP fields have been given values, now
+390     // you can send a packet requesting a timestamp:                 
+391     Udp\&.beginPacket(address, 123); //NTP requests are to port 123
+392     Udp\&.write(packetBuffer, NTP_PACKET_SIZE);
+393     Udp\&.endPacket(); 
+394 }
 .fi
 .SS "void CoolTime::setDateTime (int year, int month, int day, int hour, int minutes, int seconds)"
 CoolTime::setDateTime(year,month,dat,hour,minutes,seconds): This method is provided to manually set the RTc Time 
 .PP
-Definition at line 105 of file CoolTime\&.cpp\&.
+Definition at line 96 of file CoolTime\&.cpp\&.
 .PP
 References formatDigits(), getESDate(), and rtc\&.
 .PP
 .nf
-106 { 
-107 
-108 #if DEBUG == 1
-109 
-110     Serial\&.println("Entering CoolTime\&.setDateTime");
-111     Serial\&.println();
-112 
-113 #endif
-114 
-115     tmElements_t tm;
-116     tm\&.Second=seconds; 
-117     tm\&.Minute=minutes; 
-118     tm\&.Hour=hour; 
-119     tm\&.Day=day;
-120     tm\&.Month=month; 
-121     tm\&.Year=year;
-122     
-123     this->rtc\&.set(makeTime(tm),CLOCK_ADDRESS);   
-124 
-125 #if DEBUG == 1
-126 
-127     Serial\&.print("setting time to : ");//"20yy-mm-ddT00:00:00Z
-128 
-129     Serial\&.print(tm\&.Year);
-130     Serial\&.print("-");
-131     Serial\&.print( this->formatDigits( tm\&.Month ) );
-132     Serial\&.print("-");
-133     Serial\&.print( this->formatDigits( tm\&.Day ) );
-134     Serial\&.print("T");
-135     Serial\&.print( this->formatDigits( tm\&.Hour ) );
-136     Serial\&.print(":");
-137     Serial\&.print( this->formatDigits( tm\&.Minute ) );
-138     Serial\&.print( ":" );
-139     Serial\&.print( this->formatDigits( tm\&.Second ) );
-140     Serial\&.print("Z");
-141 
-142     Serial\&.println();
-143     
-144     Serial\&.print("time set to : ");
-145     Serial\&.println(this->getESDate());
-146     Serial\&.println();
-147 
-148 #endif
-149 
-150 }
+97 { 
+98 
+99 #if DEBUG == 1
+100 
+101     Serial\&.println( F("Entering CoolTime\&.setDateTime") );
+102     Serial\&.println();
+103 
+104 #endif
+105 
+106     tmElements_t tm;
+107     tm\&.Second=seconds; 
+108     tm\&.Minute=minutes; 
+109     tm\&.Hour=hour; 
+110     tm\&.Day=day;
+111     tm\&.Month=month; 
+112     tm\&.Year=year;
+113     
+114     this->rtc\&.set(makeTime(tm),CLOCK_ADDRESS);   
+115 
+116 #if DEBUG == 1
+117 
+118     Serial\&.print( F("setting time to : ") );//"20yy-mm-ddT00:00:00Z
+119 
+120     Serial\&.print(tm\&.Year);
+121     Serial\&.print( F("-") );
+122     Serial\&.print( this->formatDigits( tm\&.Month ) );
+123     Serial\&.print( F("-") );
+124     Serial\&.print( this->formatDigits( tm\&.Day ) );
+125     Serial\&.print( F("T") );
+126     Serial\&.print( this->formatDigits( tm\&.Hour ) );
+127     Serial\&.print( F(":") );
+128     Serial\&.print( this->formatDigits( tm\&.Minute ) );
+129     Serial\&.print( F(":") );
+130     Serial\&.print( this->formatDigits( tm\&.Second ) );
+131     Serial\&.print( F("Z") );
+132 
+133     Serial\&.println();
+134     
+135     Serial\&.print( F("time set to : ") );
+136     Serial\&.println(this->getESDate());
+137     Serial\&.println();
+138 
+139 #endif
+140 
+141 }
 .fi
 .SS "void CoolTime::update ()"
 \fBCoolTime::update()\fP: This method is provided to correct the rtc Time when it drifts,once every week\&. 
 .PP
-Definition at line 68 of file CoolTime\&.cpp\&.
+Definition at line 63 of file CoolTime\&.cpp\&.
 .PP
 References getNtpTime(), isTimeSync(), rtc, saveTimeSync(), timeSync, and tmSet\&.
 .PP
 Referenced by begin(), and CoolBoard::onLineMode()\&.
 .PP
 .nf
-69 {
+64 {
+65 
+66 #if DEBUG == 1
+67 
+68     Serial\&.println( F("Entering CoolTime\&.update()") );
+69     Serial\&.println();
 70 
-71 #if DEBUG == 1
+71 #endif 
 72 
-73     Serial\&.println("Entering CoolTime\&.update()");
-74     Serial\&.println();
-75 
-76 #endif 
+73     if( !( this->isTimeSync() ) )
+74     {
+75     
+76     #if DEBUG == 1
 77 
-78     if( !( this->isTimeSync() ) )
-79     {
-80     
-81     #if DEBUG == 1
+78         Serial\&.println( F("waiting for sync") );
+79         Serial\&.println();
+80 
+81     #endif 
 82 
-83         Serial\&.println("waiting for sync");
-84         Serial\&.println();
-85 
-86     #endif 
-87 
-88         this->timeSync=this->getNtpTime();
-89         breakTime(this->getNtpTime(), this->tmSet);
-90         this->rtc\&.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
-91 <<<<<<< HEAD
-92 =======
-93 
-94 >>>>>>> 022ecfccbd47fa628feca52fc7c1ee420c585e2b
-95         this->saveTimeSync();
-96     }
-97     
-98 }
+83         this->timeSync=this->getNtpTime();
+84         breakTime(this->getNtpTime(), this->tmSet);
+85         this->rtc\&.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
+86         this->saveTimeSync();
+87     }
+88     
+89 }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "unsigned int CoolTime::localPort =0\fC [private]\fP"
 
 .PP
-Definition at line 73 of file CoolTime\&.h\&.
+Definition at line 71 of file CoolTime\&.h\&.
 .PP
-Referenced by begin(), config(), and saveTimeSync()\&.
+Referenced by begin(), config(), printConf(), and saveTimeSync()\&.
 .SS "byte CoolTime::packetBuffer[\fBNTP_PACKET_SIZE\fP]\fC [private]\fP"
 
 .PP
-Definition at line 75 of file CoolTime\&.h\&.
+Definition at line 73 of file CoolTime\&.h\&.
 .PP
 Referenced by getNtpTime(), and sendNTPpacket()\&.
 .SS "DS1337RTC CoolTime::rtc\fC [private]\fP"
 
 .PP
-Definition at line 79 of file CoolTime\&.h\&.
+Definition at line 77 of file CoolTime\&.h\&.
 .PP
 Referenced by getTimeDate(), setDateTime(), and update()\&.
 .SS "IPAddress CoolTime::timeServer\fC [private]\fP"
 
 .PP
-Definition at line 69 of file CoolTime\&.h\&.
+Definition at line 67 of file CoolTime\&.h\&.
 .PP
-Referenced by config(), getNtpTime(), and saveTimeSync()\&.
+Referenced by config(), getNtpTime(), printConf(), and saveTimeSync()\&.
 .SS "unsigned long CoolTime::timeSync =0\fC [private]\fP"
 
 .PP
-Definition at line 67 of file CoolTime\&.h\&.
+Definition at line 65 of file CoolTime\&.h\&.
 .PP
 Referenced by config(), getLastSyncTime(), saveTimeSync(), and update()\&.
 .SS "tmElements_t CoolTime::tmSet\fC [private]\fP"
 
 .PP
-Definition at line 77 of file CoolTime\&.h\&.
+Definition at line 75 of file CoolTime\&.h\&.
 .PP
 Referenced by update()\&.
 .SS "WiFiUDP CoolTime::Udp\fC [private]\fP"
 
 .PP
-Definition at line 71 of file CoolTime\&.h\&.
+Definition at line 69 of file CoolTime\&.h\&.
 .PP
 Referenced by begin(), getNtpTime(), and sendNTPpacket()\&.
 

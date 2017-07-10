@@ -11,7 +11,6 @@ var classCoolTime =
     [ "isTimeSync", "classCoolTime.html#a5ae038a4498602b189f76a10bf02adf8", null ],
     [ "printConf", "classCoolTime.html#af355e7f9b3898211cd2ff25eab5933b1", null ],
     [ "saveTimeSync", "classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85", null ],
-    [ "saveTimeSync", "classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85", null ],
     [ "sendNTPpacket", "classCoolTime.html#a236a38d120dc53bc67456d763838c5a1", null ],
     [ "setDateTime", "classCoolTime.html#ab81ea7fdaace111aa01cc1ec84c6d297", null ],
     [ "update", "classCoolTime.html#aae601f795452cfa48d9fb337aed483a8", null ],

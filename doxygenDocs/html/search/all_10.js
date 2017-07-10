@@ -2,7 +2,7 @@ var searchData=
 [
   ['saveddata',['savedData',['../classCoolFileSystem.html#ad398e0c5c41a0c88acdf5d672aa71351',1,'CoolFileSystem']]],
   ['savesensordata',['saveSensorData',['../classCoolFileSystem.html#a4c560c2ddd40b74b7758e6ceb2c58957',1,'CoolFileSystem']]],
-  ['savetimesync',['saveTimeSync',['../classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85',1,'CoolTime::saveTimeSync()'],['../classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85',1,'CoolTime::saveTimeSync()']]],
+  ['savetimesync',['saveTimeSync',['../classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85',1,'CoolTime']]],
   ['sendntppacket',['sendNTPpacket',['../classCoolTime.html#a236a38d120dc53bc67456d763838c5a1',1,'CoolTime']]],
   ['sensor',['sensor',['../structExternalSensors_1_1sensor.html',1,'ExternalSensors::sensor'],['../classExternalSensor.html#a6e1f518119abe08c14b498ce24a7e1b3',1,'ExternalSensor::sensor()'],['../classExternalSensor_3_01NDIR__I2C_01_4.html#ae541c9cece7c38674b70114cdb74a7dc',1,'ExternalSensor&lt; NDIR_I2C &gt;::sensor()'],['../classExternalSensor_3_01DallasTemperature_01_4.html#adb6ba4fcdedef95ad8f6b0c9b6c0f9d1',1,'ExternalSensor&lt; DallasTemperature &gt;::sensor()']]],
   ['sensorjsonsize',['sensorJsonSize',['../classCoolBoard.html#a58e4b6072e3ac8b141ec0befb479208e',1,'CoolBoard']]],
