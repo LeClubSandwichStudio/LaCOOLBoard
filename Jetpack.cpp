@@ -14,6 +14,12 @@
 #include "Jetpack.h"
 
 
+#ifndef DEBUG
+
+#define DEBUG 0
+
+#endif
+
 
 /**
 *	Jetpack::begin():
@@ -22,9 +28,14 @@
 *	the Jetpack shield
 */
 void Jetpack::begin()
- { 
+{
+
+#if DEBUG == 1 
+ 
 	Serial.println("Entering Jetpack.begin() ");
 	Serial.println();
+
+#endif
 
 	pinMode(EnI2C,OUTPUT);
 	pinMode(dataPin,OUTPUT);
@@ -32,7 +43,7 @@ void Jetpack::begin()
 	
 	
 
- }
+}
 
 
 /**
@@ -45,12 +56,17 @@ void Jetpack::begin()
 */
 void Jetpack::write(byte action)
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering Jetpack.write()");
 	Serial.println();
 
 	Serial.println("writing this action : ");
 	Serial.println(action,HEX);
 	Serial.println();
+
+#endif 
 
 	this->action=action;
 
@@ -70,9 +86,20 @@ void Jetpack::write(byte action)
 */
 void Jetpack::writeBit(byte pin,bool state) 
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.writeBit() ");
-	Serial.print("Writing ");Serial.print(state);Serial.print("to pin N°");Serial.print(pin);
+
+	Serial.print("Writing ");
+	Serial.print(state);
+
+	Serial.print("to pin N°");
+	Serial.print(pin);
+
 	Serial.println();
+
+#endif
 
 	bitWrite(this->action, pin, state);
 	digitalWrite(EnI2C, LOW);
@@ -104,6 +131,9 @@ void Jetpack::writeBit(byte pin,bool state)
 */
 void Jetpack::doAction(const char* data,int JSON_SIZE)
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.doAction()");
 	Serial.println();
 
@@ -115,19 +145,32 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	Serial.println(JSON_SIZE);
 	Serial.println();
 
+#endif 
+
 	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
 	JsonObject& root = jsonBuffer.parseObject(data);
 	
 	if (!root.success()) 
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("failed to parse json object ");
 		Serial.println();
+	
+	#endif 
+
 	}
 	else
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("created Json object :");
 		root.printTo(Serial);
 		Serial.println();
+	
+	#endif 
 
 		//invert the current action state for each actor
 		//if the value is outside the limits
@@ -182,10 +225,14 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 				}
 			}
 		}
+	
+	#if DEBUG == 1 
 
 		Serial.println("new action is : ");
 		Serial.println(this->action);
 		Serial.println();
+	
+	#endif 
 
 		this->write(this->action);
 
@@ -201,15 +248,25 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 */ 
 bool Jetpack::config()
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Entering Jetpack.config() ");
 	Serial.println();
+
+#endif
 
 	File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "r");
 
 	if (!jetPackConfig) 
 	{
+
+	#if DEBUG == 1 
+
 		Serial.println("failed to read /jetPackConfig.json ");
 		Serial.println();
+
+	#endif
 
 		return(false);
 	}
@@ -224,16 +281,26 @@ bool Jetpack::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to parse jetpack config json from file ");
 			Serial.println();
+
+		#endif
 
 			return(false);
 		} 
 		else
-		{  	
+		{ 
+ 		
+		#if DEBUG == 1 
+
 			Serial.println("read configuration file : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
   
 			if(json["ActorsNumber"].success() )
 			{
@@ -317,19 +384,28 @@ bool Jetpack::config()
 			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
 			if(!jetPackConfig)
 			{
+			
+			#if DEBUG == 1 
+
 				Serial.println("failed to write to /jetPackConfig.json ");
 				Serial.println();
+			
+			#endif
 				
 				return(false);			
 			}  
 
 			json.printTo(jetPackConfig);
 			jetPackConfig.close();
+
+		#if DEBUG == 1 
 			
 			Serial.println("saved configuration : ");
 			json.printTo(Serial );
 			Serial.println();		
-			
+		
+		#endif
+
 			return(true); 
 		}
 	}	
@@ -345,9 +421,15 @@ bool Jetpack::config()
 */
 void Jetpack::printConf()
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Enter Jetpack.printConf() ");
 	Serial.println();
-	
+
+#endif 
+	Serial.println("Jetpack configuration ") ;
+
 	Serial.print("actorsNumber : ");
 	Serial.println(this->actorsNumber);
  
@@ -380,6 +462,7 @@ void Jetpack::printConf()
  
 
 	}
+	Serial.println();
 }
  
 

@@ -38,7 +38,7 @@ public:
 	
 	bool config();
 
-	void config(int timeZone,IPAddress timeServer,unsigned int localPort); 
+	void config(IPAddress timeServer,unsigned int localPort); 
 	
 	void printConf();
 
@@ -57,12 +57,12 @@ public:
 	void sendNTPpacket(IPAddress &address);
 	
 	String formatDigits(int digits);
+	
+	bool saveTimeSync();
 
 private:
 	
 	unsigned long timeSync=0;
-	
-	int timeZone=0;
 	
 	IPAddress timeServer; // time-a.timefreq.bldrdoc.gov
 	

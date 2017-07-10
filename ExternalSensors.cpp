@@ -22,6 +22,19 @@
 
 #include"ExternalSensor.h"
 
+
+
+#define DEBUG 1
+
+#ifndef DEBUG
+
+#define DEBUG 0
+
+#endif
+
+
+
+
 /**
 *	ExternalSensors::begin():
 *	This method is provided to initialise
@@ -29,8 +42,13 @@
 */
 void ExternalSensors::begin() 
 {
+
+#if DEBUG == 1
+
 	Serial.println("Enter ExternalSensors.begin()");
 	Serial.println();
+
+#endif 
 
 	for(int i=0;i< this->sensorsNumber ; i++)
 	{
@@ -68,8 +86,12 @@ void ExternalSensors::begin()
 String ExternalSensors::read()
 {
 
+#if DEBUG == 1
+
 	Serial.println("Entering ExternalSensors.read()");
 	Serial.println();
+
+#endif 
 
 	String data;
 	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
@@ -77,7 +99,13 @@ String ExternalSensors::read()
 
 	if(!root.success() )
 	{
+ 
+	#if DEBUG == 1
+
 		Serial.println("failed to create json ");
+	
+	#endif 
+
 		return("00");
 	}
 	else
@@ -92,10 +120,14 @@ String ExternalSensors::read()
 		}	
 		
 		root.printTo(data);
+	
+	#if DEBUG == 1
 
 		Serial.println("sensors data :");
 		Serial.println(data);
 		Serial.println();
+	
+	#endif
 	
 		return(data);
 	}
@@ -112,12 +144,17 @@ String ExternalSensors::read()
 */
 int ExternalSensors::getJsonSize()
 {
+	
+#if DEBUG == 1
+
 	Serial.println("Enter ExternalSensors.getJsonSize");
 	Serial.println();
 	
 	Serial.print("jsonSize : ");
 	Serial.println(this->jsonSize);
 	Serial.println();
+
+#endif 
 
 	return(this->jsonSize );
 }
@@ -138,8 +175,13 @@ bool ExternalSensors::config()
 
 	if (!externalSensorsConfig) 
 	{
+	
+	#if DEBUG == 1
+		
 		Serial.println("failed to read /externalSensorsConfig.json");
 		Serial.println();
+	
+	#endif
 		
 		return(false);
 	}
@@ -155,16 +197,26 @@ bool ExternalSensors::config()
 
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("failed to parse json");
 			Serial.println();
+		
+		#endif
 
 			return(false);
 		} 
 		else
-		{  	
+		{
+		
+		#if DEBUG == 1 
+	
 			Serial.println("read configuration json : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
 
 			if(json["jsonSize"]!=NULL )
 			{			
@@ -275,8 +327,13 @@ bool ExternalSensors::config()
 
 			if(!externalSensorsConfig)
 			{
+			
+			#if DEBUG == 1 
+
 				Serial.println("failed to write to /externalSensorsConfig.json");
 				Serial.println();
+			
+			#endif
 
 				return(false);
 			}
@@ -284,9 +341,13 @@ bool ExternalSensors::config()
 			json.printTo(externalSensorsConfig);
 			externalSensorsConfig.close();
 			
+		#if DEBUG == 1 
+
 			Serial.println("saved configuration is : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
 
 			return(true); 
 		}
@@ -304,8 +365,13 @@ bool ExternalSensors::config()
 */
 void ExternalSensors::printConf()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering ExternalSensors.printConf()");
 	Serial.println();
+
+#endif 
 
 	Serial.println("External Sensors configuration ");
 

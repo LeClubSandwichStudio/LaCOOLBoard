@@ -11,7 +11,20 @@
 
 #include<NDIR_I2C.h>
 #include<DallasTemperature.h>
-#include"Arduino.h"  
+#include"Arduino.h" 
+
+ 
+#define DEBUG 1
+
+#ifndef DEBUG
+
+#define DEBUG 0
+
+#endif 
+
+
+
+
 
 /**
 *	\class BaseExternalSensor:
@@ -29,9 +42,16 @@ public:
 	*/
 	BaseExternalSensor()
 	{
+
+	#if DEBUG == 1 
+
 		Serial.println("BaseExternalSensor Constructor");
 		Serial.println();
+	
+	#endif
+
 	}
+
 	/**
 	*	begin():
 	*	Base class virtual 
@@ -42,8 +62,13 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+	
+	#if DEBUG == 1 
+	
 		Serial.println("BaseExternalSensor.begin()");
 		Serial.println();
+	
+	#endif
 
 		return(-2);
 	}
@@ -59,8 +84,13 @@ public:
 	*/
 	virtual float read()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("BaseExternalSensor.read()");
-		Serial.println();		
+		Serial.println();
+	
+	#endif		
 		
 		return(-2);
 	}
@@ -97,8 +127,13 @@ public :
 	*/ 
 	ExternalSensor()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <Generic> Constructor");
 		Serial.println();
+	
+	#endif
 
 		sensor();
 	}
@@ -110,8 +145,13 @@ public :
 	*/
 	virtual uint8_t begin()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <Generic> begin()");
 		Serial.println();
+	
+	#endif
 
 		return(sensor.begin() );	
 	}
@@ -121,10 +161,14 @@ public :
 	*/
 	virtual float read()
 	{
+	
+	#if DEBUG == 1 
 
 		Serial.println("ExternalSensor <Generic> read() ");
 		Serial.println();
 		
+	#endif
+
 		return(sensor.read());
 	}
 
@@ -153,8 +197,13 @@ public:
 	*/
 	ExternalSensor(uint8_t i2c_addr)
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <NDIR_I2C> constructor");
 		Serial.println();
+	
+	#endif
 
 		sensor=NDIR_I2C(i2c_addr);
 	}
@@ -168,21 +217,37 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <NDIR_I2C> begin()");
 		Serial.println();
+	
+	#endif 
 
-		 if (sensor.begin()) 
+		if (sensor.begin()) 
 		{
+		
+		#if DEBUG == 1 
+			
 			Serial.println("NDIR_I2C init : wait 10 seconds");
 			Serial.println();
+		
+		#endif
 
 			delay(10000);
 			return(true);
+
     		}
-		 else 
+		else 
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("NDIR_I2C init : fail ");
 			Serial.println();
+		
+		#endif
 
 			return(false);
 		}	
@@ -197,15 +262,25 @@ public:
 	*/
 	virtual float read()
 	{
+		
+	#if DEBUG == 1 
+		
 		Serial.println("ExternalSensor <NDIR_I2C> read()");
 		Serial.println();
 
+	#endif
+
 		if (sensor.measure())
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.print("NDIR_I2C ppm :");
 			Serial.println( (float) sensor.ppm);
 			
 			Serial.println();			
+
+		#endif
 
 			return( (float) sensor.ppm);
 			
@@ -213,8 +288,13 @@ public:
 		
 		else
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("NDIR_I2C read fail ");
 			Serial.println();
+		
+		#endif
 
 			return(-42);
 		}
@@ -241,8 +321,13 @@ public:
 	*/
 	ExternalSensor()
 	{
+		
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <DallasTemperature> constructor");
 		Serial.println();
+	
+	#endif
 
 		OneWire oneWire(0);
 		
@@ -257,9 +342,14 @@ public:
 	*/
 	virtual uint8_t begin()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <DallasTemperature> begin()");
 		Serial.println();
-		
+	
+	#endif
+	
 		sensor.begin(); 
 		delay(5);
 		sensor.getAddress(this->dallasAddress, 1);	
@@ -273,6 +363,9 @@ public:
 	*/
 	virtual float read()
 	{
+	
+	#if DEBUG == 1 
+
 		Serial.println("ExternalSensor <DallasTemperature> read()");
 		Serial.println();
 
@@ -280,6 +373,8 @@ public:
 		Serial.print( (float) sensor.getTempC(this->dallasAddress) );
 		Serial.print("°C");
 		Serial.println();
+	
+	#endif
 		
 		return( (float) sensor.getTempC(this->dallasAddress) );
 	}

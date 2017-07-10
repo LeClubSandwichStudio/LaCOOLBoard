@@ -11,30 +11,45 @@
 #include "Arduino.h"
 #include "CoolBoard.h"
 #include "ArduinoJson.h"
+
+
+
+
+#define DEBUG 1 
+
+#ifndef DEBUG
+
+#define DEBUG 0
+
+#endif
+
+
+
+
 /**
 *	CoolBoard::begin():
-*	This method is provided to configure,
-*	begin the used CoolKit Parts.
+*	This method is provided to configure and
+*	start the used CoolKit Parts.
+*	It also starts the first connection try
 *	If Serial is enabled,it prints the configuration
 *	of the used parts.
 */
 void CoolBoard::begin()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Starting the CoolBoard  " );
 	Serial.println("Entering CoolBoard.begin() " );
 	Serial.println();
-
+#endif
+	
 	fileSystem.begin();
 	delay(100);
 	
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	coolBoardSensors.printConf();
-	delay(100);
-
-	rtc.config();
-	rtc.begin();
-	rtc.printConf();
 	delay(100);
 
 	coolBoardLed.config();
@@ -70,6 +85,15 @@ void CoolBoard::begin()
 		externalSensors.printConf();
 		delay(100);
 	}
+	
+	this->connect();
+	delay(100);
+
+	rtc.config();
+	rtc.begin();
+	rtc.printConf();
+	delay(100);
+
 
 }
 
@@ -82,18 +106,27 @@ void CoolBoard::begin()
 */
 int CoolBoard::connect()
 {
-	
-	Serial.println("Entering CoolBoard.connect " );
 
+#if DEBUG == 1	
+
+	Serial.println("Entering CoolBoard.connect " );
 	Serial.println();
 	Serial.println("Connecting the CoolBoard  " );
 	delay(100);
 
+#endif
+
 	if (WiFi.status() != WL_CONNECTED)
 	{		
+	
+	#if DEBUG == 1		
+
 		Serial.println("CoolBoard not connected to WiFi " );
 		Serial.println("Launching WiFiManager" );
 		Serial.println();
+
+	#endif
+	
 		wifiManager.setConfigPortalTimeout(this -> serverTimeOut);
 		wifiManager.autoConnect("CoolBoard");
 		delay(100);
@@ -104,19 +137,28 @@ int CoolBoard::connect()
 	
 	if (mqtt.state() != 0)
 	{	
-			
+	
+	#if DEBUG == 1	
+	
 		Serial.println("CoolBoard not connected to MQTT " );
 		Serial.println("Launching mqtt.connect()" );
 		Serial.println();
+
+	#endif	
+	
 		mqtt.connect(this -> getLogInterval());
 		delay(100);
 		
 	}
+	
+#if DEBUG == 1
 
 	Serial.println("mqtt state is :");
 	Serial.println(mqtt.state());
 	Serial.println();
 	delay(100);
+
+#endif
 
 	return(mqtt.state());
 }
@@ -133,8 +175,13 @@ int CoolBoard::connect()
 */
 void CoolBoard::onLineMode()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.onLineMode() " );
 	Serial.println();
+
+#endif
 
 	data="";
 	answer="";
@@ -142,10 +189,15 @@ void CoolBoard::onLineMode()
 	//send saved data if any
 	if(fileSystem.isDataSaved())
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("There is data saved on the File System");
 		Serial.println("Sending saved data over MQTT ");
 		Serial.println();
-
+	
+	#endif	
+	
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
@@ -158,9 +210,14 @@ void CoolBoard::onLineMode()
 
 		mqtt.publish( data.c_str() );
 		mqtt.mqttLoop();
-		
+	
+	#if DEBUG == 1
+
 		Serial.println("Saved data sent " );
 		Serial.println();
+	
+	#endif
+
 	}
 
 	//clock update
@@ -169,23 +226,30 @@ void CoolBoard::onLineMode()
 	//read user data if user is active
 	if(userActive)
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("User is Active");
 		Serial.println("Collecting User's data ( mac,username,timeStamp )");
 		Serial.println();
+	
+	#endif	
+	
 		//reading user data
 		data=this->userData();//{"":"","":"","",""}
 
 		//formatting json 
 		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
-		
 				
 		//read sensors data
+	#if DEBUG == 1
+
 		Serial.println("Collecting sensors data " );
 		Serial.println();
+	
+	#endif
 
-		data+=this->readSensors();//{"":"","":"","","",{.......}
-
-		
+		data+=this->readSensors();//{"":"","":"","","",{.......}		
 
 		//formatting json correctly
 		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
@@ -194,8 +258,12 @@ void CoolBoard::onLineMode()
 	else
 	{
 		//read sensors data
+	#if DEBUG == 1
+
 		Serial.println("Collecting sensors data " );
 		Serial.println();
+	
+	#endif
 
 		data=this->readSensors();//{..,..,..}
 	}
@@ -203,9 +271,14 @@ void CoolBoard::onLineMode()
 	//do action
 	if (jetpackActive)
 	{
+	
+	#if DEBUG ==1
+
 		Serial.println("jetpack is Active ");
 		Serial.println("jetpack doing action ");
 		Serial.println();
+
+	#endif
 
 		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
@@ -222,11 +295,14 @@ void CoolBoard::onLineMode()
 	
 	answer = mqtt.read();
 
+#if DEBUG == 1 
+
 	Serial.println("checking if there's an MQTT message " );
 	Serial.println("answer is : ");	
 	Serial.println(answer);	
 	Serial.println();
-	
+
+#endif	
 
 
 	//check if the configuration needs update 
@@ -234,11 +310,7 @@ void CoolBoard::onLineMode()
 	this -> update(answer.c_str());
 	
 
-	//publishing data
-
-	
-	Serial.println();
-	
+	//publishing data	
 	if( this->sleepActive==0)	
 	{	
 		
@@ -268,17 +340,25 @@ void CoolBoard::onLineMode()
 */
 void CoolBoard::offLineMode()
 {
+
+#if DEBUG == 1	
+	
 	Serial.println("Entering off line mode ");	
 	
-	//clock update
-	//rtc.update(); this is done over ntp so it's usless in offLineMode
-	
+#endif
+
 	//read user data if user is active
 	if(userActive)
 	{
+
+	#if DEBUG == 1
+		
 		Serial.println("User is Active");
 		Serial.println("Collecting User's data ( mac,username,timeStamp )");
 		Serial.println();
+
+	#endif
+
 		//reading user data
 		data=this->userData();//{"":"","":"","",""}
 
@@ -287,8 +367,12 @@ void CoolBoard::offLineMode()
 		
 				
 		//read sensors data
+	#if DEBUG == 1
+
 		Serial.println("Collecting sensors data " );
 		Serial.println();
+
+	#endif
 
 		data+=this->readSensors();//{"":"","":"","","",{.......}
 
@@ -301,8 +385,12 @@ void CoolBoard::offLineMode()
 	else
 	{
 		//read sensors data
+	#if DEBUG == 1
+
 		Serial.println("Collecting sensors data " );
 		Serial.println();
+
+	#endif
 
 		data=this->readSensors();//{..,..,..}
 	}
@@ -310,9 +398,14 @@ void CoolBoard::offLineMode()
 	//do action
 	if (jetpackActive)
 	{
+
+	#if DEBUG == 1
+
 		Serial.println("jetpack is Active ");
 		Serial.println("jetpack doing action ");
 		Serial.println();
+	
+	#endif
 
 		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
@@ -339,8 +432,13 @@ void CoolBoard::offLineMode()
 */
 bool CoolBoard::config()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.config() ");
 	Serial.println();
+
+#endif
 
 	//open file system
 	fileSystem.begin();
@@ -351,7 +449,13 @@ bool CoolBoard::config()
 	if (!configFile)
 
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("failed to read /coolBoardConfig.json  ");
+
+	#endif
+	
 		return(false);
 	}
 
@@ -370,15 +474,26 @@ bool CoolBoard::config()
 
 		if (!json.success())
 		{
+		
+		#if DEBUG == 1
+
 			Serial.println("failed to parse CoolBoard Config json object ");
+	
+		#endif
+
 			return(false);
 		}
 
 		else
 		{	
+		
+		#if DEBUG == 1
+			
 			Serial.println("configuration json : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
 			
 			//parsing userActive Key
 			if (json["userActive"].success())
@@ -485,11 +600,17 @@ bool CoolBoard::config()
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
 			if (!configFile)
 			{
+			
+			#if DEBUG == 1
+
 				Serial.println("failed to write to /coolBoardConfig.json");
 				Serial.println();
+			
+			#endif
  
 				return(false);
 			}
+
 			json.printTo(configFile);
 			configFile.close();
 			return(true);
@@ -506,19 +627,42 @@ bool CoolBoard::config()
 */
 void CoolBoard::printConf()
 {
+
+#if DEBUG == 1
+	
 	Serial.println("Entering CoolBoard.printConf() ");
 	Serial.println();
 
+#endif
+
 	Serial.println("Printing Cool Board Configuration ");
-	Serial.print("log interval 		: ");Serial.println(this->logInterval);
-	Serial.print("sensor json size 		: ");Serial.println(this->sensorJsonSize);
-	Serial.print("answer json size 		: ");Serial.println(this->answerJsonSize);
-	Serial.print("irene active 		: ");Serial.println(this->ireneActive);
-	Serial.print("jetpack active		: ");Serial.println(this->jetpackActive);
-	Serial.print("external sensors active 	: ");Serial.println(this->externalSensorsActive);
-	Serial.print("access point timeOut 	: ");Serial.println(this->serverTimeOut);
-	Serial.print("sleept active 		: ");Serial.println(this->sleepActive);
-	Serial.print("user active 		: ");Serial.println(this->userActive);
+	Serial.print("log interval 		: ");
+	Serial.println(this->logInterval);
+
+	Serial.print("sensor json size 		: ");
+	Serial.println(this->sensorJsonSize);
+
+	Serial.print("answer json size 		: ");
+	Serial.println(this->answerJsonSize);
+
+	Serial.print("irene active 		: ");
+	Serial.println(this->ireneActive);
+
+	Serial.print("jetpack active		: ");
+	Serial.println(this->jetpackActive);
+
+	Serial.print("external sensors active 	: ");
+	Serial.println(this->externalSensorsActive);
+
+	Serial.print("access point timeOut 	: ");
+	Serial.println(this->serverTimeOut);
+
+	Serial.print("sleept active 		: ");
+	Serial.println(this->sleepActive);
+
+	Serial.print("user active 		: ");
+	Serial.println(this->userActive);
+
 	Serial.println();
 
 
@@ -533,32 +677,44 @@ void CoolBoard::printConf()
 */
 void CoolBoard::update(const char * answer)
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.update() ");
 	Serial.println();
-
 	Serial.println("message is : ");
 	Serial.println(answer);
 	Serial.println();
+
+#endif
 
 	DynamicJsonBuffer jsonBuffer(answerJsonSize);
 	JsonObject & root = jsonBuffer.parseObject(answer);
 	JsonObject & stateDesired = root["state"];
 	if (stateDesired.success())
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("update message parsing : success");
 		Serial.println();
+	
+	#endif
 
 		if (stateDesired["update"] == 1)
 		{
 			String answerDesired;
-
-			Serial.println("update is 1 ");
-			Serial.println("desired update is : ");
-			
+		
 			stateDesired.printTo(answerDesired);
 			
+		#if DEBUG == 1		
+		
+			Serial.println("update is 1 ");
+			Serial.println("desired update is : ");			
 			Serial.println(answerDesired);
 			Serial.println();
+		
+		#endif
 			
 			fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
 
@@ -594,12 +750,7 @@ void CoolBoard::update(const char * answer)
 		        //answering the update msg:
 			//reported = received configuration
 			//desired=null
-			//probably this is the bug
-			//probably this is a fix:
-
-			Serial.println("preparing answer message ");
-			Serial.println();
-			
+		
 			String updateAnswer;
 			String tempString;
 			
@@ -608,8 +759,14 @@ void CoolBoard::update(const char * answer)
 			updateAnswer+=tempString;
 			updateAnswer+=",\"desired\":null}}";
 
+		#if DEBUG == 1
+
+			Serial.println("preparing answer message ");
+			Serial.println();
 			Serial.println("updateAnswer : ");
 			Serial.println(updateAnswer);
+		
+		#endif	
 
 			mqtt.publish(updateAnswer.c_str());
 			
@@ -623,14 +780,26 @@ void CoolBoard::update(const char * answer)
 		}
 		else
 		{
+		
+		#if DEBUG == 1 
+
 			Serial.println("update is not 1 ");
 			Serial.println();
+		
+		#endif
+
 		}
 	}
 	else
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("Failed to parse update message( OR no message received )");
-		Serial.println();	
+		Serial.println();
+	
+	#endif
+	
 	}		
 }
 
@@ -643,12 +812,16 @@ void CoolBoard::update(const char * answer)
 */
 uint16_t CoolBoard::getLogInterval()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.getLogInterval() ");
 	Serial.println();
-
 	Serial.println("log Interval is :");
 	Serial.println(logInterval);
 	Serial.println();
+
+#endif
 
 	return(this -> logInterval);
 }
@@ -663,8 +836,13 @@ uint16_t CoolBoard::getLogInterval()
 */
 String CoolBoard::readSensors()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.readSensors()");
 	Serial.println();
+
+#endif
 
 	String sensorsData;
 
@@ -691,9 +869,13 @@ String CoolBoard::readSensors()
 		
 	}
 	
+#if DEBUG == 1
+
 	Serial.println("sensors data is ");
 	Serial.println(sensorsData);
 	Serial.println();
+
+#endif
 
 	return(sensorsData);
 
@@ -708,8 +890,13 @@ String CoolBoard::readSensors()
 */
 String CoolBoard::userData()
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.userData() ");
 	Serial.println();
+
+#endif
 
 	String tempMAC = WiFi.macAddress();
 
@@ -728,10 +915,14 @@ String CoolBoard::userData()
 	userJson += tempMAC;
 
 	userJson += "\"}";
-	
+
+#if DEBUG == 1
+
 	Serial.println("userData is : ");
 	Serial.println(userJson);
-	Serial.println();	
+	Serial.println();
+
+#endif	
 	
 	return(userJson);
 	
@@ -746,9 +937,14 @@ String CoolBoard::userData()
 */
 void CoolBoard::sleep(int interval)
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoard.sleep() ");
 	Serial.print("going to sleep for ");Serial.print(interval);Serial.println("ms");
 	Serial.println();
+
+#endif
 
 	ESP.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
 }

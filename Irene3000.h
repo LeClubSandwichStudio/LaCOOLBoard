@@ -73,7 +73,7 @@ private:
 	{
 		unsigned int WriteCheck=0;
 		int pH7Cal, pH4Cal=0;
-		float pHStep=0;
+		float pHStep=1;
 	}params;
 
 	struct state

@@ -14,6 +14,17 @@
 #include "ArduinoJson.h"
 
 
+
+#define DEBUG 1
+
+#ifndef DEBUG
+
+#define DEBUG 0
+
+#endif
+
+
+
 /**
 *	CoolBoardLed::colorFade ( Red , Green , Blue, Time in seconds ):
 *	colorFade animation:	Fade In over T(seconds)
@@ -21,14 +32,22 @@
 */
 void CoolBoardLed::colorFade(int R, int G, int B, int T) 
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.colorFade()");
 	Serial.println();
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
+	Serial.print("Time :");
+	Serial.println(T);
+	Serial.println();
 
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
-	Serial.print("Time :");Serial.println(T);
-	Serial.println();	
+#endif	
 
 	for (int k = 0; k < 1000; k++) 
 	{
@@ -51,14 +70,22 @@ void CoolBoardLed::colorFade(int R, int G, int B, int T)
 */
 void CoolBoardLed::blink(int R, int G, int B, int T) 
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.blink()");
 	Serial.println();
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
+	Serial.print("Time :");
+	Serial.println(T);
+	Serial.println();
 
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
-	Serial.print("Time :");Serial.println(T);
-	Serial.println();	
+#endif	
 
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 	neoPixelLed->Show();
@@ -73,14 +100,22 @@ void CoolBoardLed::blink(int R, int G, int B, int T)
 */
 void CoolBoardLed::fadeIn(int R, int G, int B, int T) 
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.fadeIn()");
 	Serial.println();
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
+	Serial.print("Time :");
+	Serial.println(T);
+	Serial.println();
 
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
-	Serial.print("Time :");Serial.println(T);
-	Serial.println();	
+#endif	
 
 	for (int k = 0; k < 1000; k++) 
 	{
@@ -96,14 +131,22 @@ void CoolBoardLed::fadeIn(int R, int G, int B, int T)
 */
 void CoolBoardLed::fadeOut(int R, int G, int B, int T) 
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Entering CoolBoardLed.fadeOut()");
 	Serial.println();
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
+	Serial.print("Time :");
+	Serial.println(T);
+	Serial.println();
 
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
-	Serial.print("Time :");Serial.println(T);
-	Serial.println();	
+#endif	
 
 
 	for (int k = 1000; k >= 0; k--) 
@@ -120,14 +163,22 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T)
 */
 void CoolBoardLed::strobe(int R, int G, int B, int T) 
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.strobe()");
 	Serial.println();
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
+	Serial.print("Time :");
+	Serial.println(T);
+	Serial.println();
 
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
-	Serial.print("Time :");Serial.println(T);
-	Serial.println();	
+#endif	
 
 	
 	for (int k = 1000; k >= 0; k--) 
@@ -147,7 +198,12 @@ void CoolBoardLed::strobe(int R, int G, int B, int T)
 */
 void CoolBoardLed::end()
 {
+
+#if DEBUG == 1 
+	
 	Serial.println("Entering CoolBoardLed.end()");
+
+#endif
 
 	delete neoPixelLed;
 }
@@ -161,7 +217,12 @@ void CoolBoardLed::end()
 */
 void CoolBoardLed::begin( )
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.begin() ");
+
+#endif
 
 	pinMode(5,OUTPUT);
 	digitalWrite(5,HIGH);
@@ -177,14 +238,20 @@ void CoolBoardLed::begin( )
 */
 void CoolBoardLed::write(int R, int G, int B)
 {
+
+#if DEBUG == 1
+
 	Serial.println("Entering CoolBoardLed.write()");
 	Serial.println();
-
-	Serial.print("R : ");Serial.println(R);
-	Serial.print("G	: ");Serial.println(G);
-	Serial.print("B	: ");Serial.println(B);
+	Serial.print("R : ");
+	Serial.println(R);
+	Serial.print("G	: ");
+	Serial.println(G);
+	Serial.print("B	: ");
+	Serial.println(B);
 	Serial.println();	
 
+#endif
 
 	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 	neoPixelLed->Show();
@@ -200,15 +267,26 @@ void CoolBoardLed::write(int R, int G, int B)
 */
 bool CoolBoardLed::config()
 {
+
+#if DEBUG == 1 
+		
 	Serial.println("Entering CoolBoardLed.config()");
 	Serial.println();
+
+#endif
 	
 	File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "r");
 
 	if (!coolBoardLedConfig) 
 	{
+	
+	#if DEBUG == 1
+
 		Serial.println("failed to read /coolBoardLedConfig.json");
 		Serial.println();
+
+	#endif
+
 		return(false);
 	}
 	else
@@ -222,15 +300,26 @@ bool CoolBoardLed::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
+		
+		#if DEBUG == 1
+
 			Serial.println("failed to parse json");
 			Serial.println();
+		
+		#endif
+
 			return(false);
 		} 
 		else
-		{  	
+		{
+		
+		#if DEBUG == 1
+  	
 			Serial.println("read configuration file : ");
 			json.printTo(Serial);
 			Serial.println();
+		
+		#endif
   
 			if(json["ledActive"].success() )
 			{
@@ -247,17 +336,27 @@ bool CoolBoardLed::config()
 			coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");
 			if(!coolBoardLedConfig)
 			{
+			
+			#if DEBUG == 1 
+
 				Serial.println("failed to write to /coolBoardLedConfig.json");
 				Serial.println();
+
+			#endif
+
 				return(false);			
 			}
 
 			json.printTo(coolBoardLedConfig);
 			coolBoardLedConfig.close();
 
+		#if DEBUG == 1
+	
 			Serial.println("saved Led Config is : ");
 			json.printTo(Serial);
 			Serial.println();
+
+		#endif
 
 			return(true); 
 		}
@@ -273,10 +372,15 @@ bool CoolBoardLed::config()
 */
 void CoolBoardLed::printConf()
 {
+
+#if DEBUG == 1 
+
 	Serial.println("Entering CoolBoardLed.printConf()");
 	Serial.println();
 
-	Serial.println("Led Conf");
+#endif
+
+	Serial.println("Led Configuration");
 
 	Serial.print("ledActive : ");
 	Serial.println(ledActive);
