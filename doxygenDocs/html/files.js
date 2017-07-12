@@ -24,6 +24,10 @@ var files =
     ] ],
     [ "CoolTime.cpp", "CoolTime_8cpp.html", "CoolTime_8cpp" ],
     [ "CoolTime.h", "CoolTime_8h.html", "CoolTime_8h" ],
+    [ "CoolWifi.cpp", "CoolWifi_8cpp.html", "CoolWifi_8cpp" ],
+    [ "CoolWifi.h", "CoolWifi_8h.html", [
+      [ "CoolWifi", "classCoolWifi.html", "classCoolWifi" ]
+    ] ],
     [ "ExternalSensor.h", "ExternalSensor_8h.html", "ExternalSensor_8h" ],
     [ "ExternalSensors.cpp", "ExternalSensors_8cpp.html", "ExternalSensors_8cpp" ],
     [ "ExternalSensors.h", "ExternalSensors_8h.html", [

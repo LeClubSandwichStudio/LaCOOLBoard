@@ -30,5 +30,5 @@ var classCoolBoard =
     [ "serverTimeOut", "classCoolBoard.html#a7a8d8d3d316220cdd049cd63c1aa8fe6", null ],
     [ "sleepActive", "classCoolBoard.html#a0a51b2287139f66c738101fb53139230", null ],
     [ "userActive", "classCoolBoard.html#a6395459131d6889a3005f79c7a35e964", null ],
-    [ "wifiManager", "classCoolBoard.html#a55b28656e295140928557c47d7fff01e", null ]
+    [ "wifiManager", "classCoolBoard.html#acd88e6003606b47479ebba81e4aceeca", null ]
 ];

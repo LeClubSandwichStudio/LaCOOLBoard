@@ -5,5 +5,6 @@ var searchData=
   ['coolboardsensors',['CoolBoardSensors',['../classCoolBoardSensors.html',1,'']]],
   ['coolfilesystem',['CoolFileSystem',['../classCoolFileSystem.html',1,'']]],
   ['coolmqtt',['CoolMQTT',['../classCoolMQTT.html',1,'']]],
-  ['cooltime',['CoolTime',['../classCoolTime.html',1,'']]]
+  ['cooltime',['CoolTime',['../classCoolTime.html',1,'']]],
+  ['coolwifi',['CoolWifi',['../classCoolWifi.html',1,'']]]
 ];

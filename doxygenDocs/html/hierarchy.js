@@ -12,6 +12,7 @@ var hierarchy =
     [ "CoolFileSystem", "classCoolFileSystem.html", null ],
     [ "CoolMQTT", "classCoolMQTT.html", null ],
     [ "CoolTime", "classCoolTime.html", null ],
+    [ "CoolWifi", "classCoolWifi.html", null ],
     [ "ExternalSensors", "classExternalSensors.html", null ],
     [ "Irene3000", "classIrene3000.html", null ],
     [ "Jetpack", "classJetpack.html", null ],

@@ -9,6 +9,7 @@ var searchData=
   ['adc2',['adc2',['../classIrene3000.html#aae3a95a1c83c766cd2f299ce471c337e',1,'Irene3000']]],
   ['adc_5fmaximum_5fvalue',['ADC_MAXIMUM_VALUE',['../Irene3000_8h.html#ae04444a85a37b5dce09107f2ce2b2c80',1,'Irene3000.h']]],
   ['address',['address',['../structExternalSensors_1_1sensor.html#a8d70ca58524521ed054fc6b81eb58d34',1,'ExternalSensors::sensor']]],
+  ['addwifi',['addWifi',['../classCoolWifi.html#a914d7a1df14dd6b75345fb614c34e9d6',1,'CoolWifi']]],
   ['ads',['ads',['../classIrene3000.html#a1215e77ba761c9908d80d691f149e135',1,'Irene3000']]],
   ['airactive',['airActive',['../structCoolBoardSensors_1_1airActive.html',1,'CoolBoardSensors']]],
   ['airdataactive',['airDataActive',['../classCoolBoardSensors.html#abff8dfeccb2f7689847bb64d5f1cd31e',1,'CoolBoardSensors']]],

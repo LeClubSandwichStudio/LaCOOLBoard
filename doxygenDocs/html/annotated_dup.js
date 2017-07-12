@@ -7,6 +7,7 @@ var annotated_dup =
     [ "CoolFileSystem", "classCoolFileSystem.html", "classCoolFileSystem" ],
     [ "CoolMQTT", "classCoolMQTT.html", "classCoolMQTT" ],
     [ "CoolTime", "classCoolTime.html", "classCoolTime" ],
+    [ "CoolWifi", "classCoolWifi.html", "classCoolWifi" ],
     [ "ExternalSensor", "classExternalSensor.html", "classExternalSensor" ],
     [ "ExternalSensor< DallasTemperature >", "classExternalSensor_3_01DallasTemperature_01_4.html", "classExternalSensor_3_01DallasTemperature_01_4" ],
     [ "ExternalSensor< NDIR_I2C >", "classExternalSensor_3_01NDIR__I2C_01_4.html", "classExternalSensor_3_01NDIR__I2C_01_4" ],
