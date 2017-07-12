@@ -215,6 +215,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 		Serial.println( F("CoolBoard Config") );
 		jsonCoolBoard.printTo(Serial);
+		Serial.println();
 	
 	#endif
 		
@@ -262,6 +263,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 		Serial.println("CoolBoardSensors Config");
 		jsonSensorsBoard.printTo(Serial);
+		Serial.println();
 
 	#endif
 
@@ -310,6 +312,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 		Serial.println( F("RTC Config") );
 		jsonRTC.printTo(Serial);
+		Serial.println();
 	
 	#endif
 
@@ -358,10 +361,12 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		jsonLedBoard.printTo(coolBoardLedConfig);
 		coolBoardLedConfig.close();
 
+
 	#if DEBUG == 1 
 
 		Serial.println( F("CoolBoardLed Config") );		
 		jsonLedBoard.printTo(Serial);
+		Serial.println();
 	
 	#endif
 
@@ -412,6 +417,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 		Serial.println( F("jetpack Config") );	
 		jsonJetpack.printTo(Serial);
+		Serial.println();
 	
 	#endif
 
@@ -460,6 +466,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 		Serial.println( F("irene3000 Config") );
 		jsonIrene.printTo(Serial);
+		Serial.println();
 	
 	#endif
 	
@@ -501,15 +508,17 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 			return(false);
 		}
 
+		jsonExternalSensors.printTo(externalSensorsConfig);	
+		externalSensorsConfig.close();
+
 #if DEBUG == 1 
 		
 		Serial.println( F("externalSensors Config") );
 		jsonExternalSensors.printTo(Serial);
+		Serial.println();
 
 #endif 
 
-		jsonExternalSensors.printTo(externalSensorsConfig);	
-		externalSensorsConfig.close();
 
 	}
 
@@ -550,16 +559,18 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 		
 			return(false);
 		}
+			
+		jsonMQTT.printTo(mqttConfig);
+		mqttConfig.close();
 
 #if DEBUG == 1 
 
 		Serial.println( F("mqtt config") );
 		jsonMQTT.printTo(Serial);
+		Serial.println();
 
 #endif
-	
-		jsonMQTT.printTo(mqttConfig);
-		mqttConfig.close();
+
 	}
 	else
 	{
@@ -598,15 +609,15 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 			return(false);
 		}
 
+		jsonWifi.printTo(wifiConfig);
+		wifiConfig.close();
+
 #if DEBUG == 1 
 
 		Serial.println( F("wifi config") );
 		jsonWifi.printTo(Serial);
 
 #endif
-	
-		jsonMQTT.printTo(wifiConfig);
-		wifiConfig.close();
 	}
 	else
 	{

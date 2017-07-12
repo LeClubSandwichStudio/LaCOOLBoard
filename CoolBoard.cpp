@@ -721,7 +721,10 @@ void CoolBoard::update(const char * answer)
 			Serial.println( F("update is 1 ") );
 			Serial.println( F("desired update is : ") );			
 			Serial.println(answerDesired);
+			Serial.println("json size is : ");
+			Serial.println(jsonBuffer.size() ) ;				
 			Serial.println();
+
 		
 		#endif
 			
@@ -735,6 +738,8 @@ void CoolBoard::update(const char * answer)
 			rtc.config();
 
 			coolBoardLed.config();
+			
+			wifiManager.config();
 
 			mqtt.config();
 
@@ -754,6 +759,8 @@ void CoolBoard::update(const char * answer)
 			}
 
 			delay(10);
+			wifiManager.begin();
+			delay(100);
 			mqtt.begin();
 
 		        //answering the update msg:
