@@ -56,6 +56,11 @@ void CoolBoard::begin()
 	coolBoardLed.begin();
 	coolBoardLed.printConf();
 	delay(100);
+	
+	wifiManager.config();
+	wifiManager.begin();
+	wifiManager.printConf();
+	delay(100);
 
 	mqtt.config();
 	mqtt.begin();
@@ -94,15 +99,6 @@ void CoolBoard::begin()
 	rtc.printConf();
 	delay(100);
 
-
-	this->connect();
-
-	rtc.config();
-	rtc.begin();
-	rtc.printConf();
-	delay(100);
-
-
 }
 
 /**
@@ -124,21 +120,18 @@ int CoolBoard::connect()
 
 #endif
 
-	if (WiFi.status() != WL_CONNECTED)
+	if (wifiManager.state() != WL_CONNECTED)
 	{		
 	
 	#if DEBUG == 1		
 
 		Serial.println( F("CoolBoard not connected to WiFi ") );
-		Serial.println( F("Launching WiFiManager") );
+		Serial.println( F("Launching CoolWifi") );
 		Serial.println();
 
 	#endif
-	
-		wifiManager.setConfigPortalTimeout(this -> serverTimeOut);
-		wifiManager.autoConnect("CoolBoard");
+		wifiManager.connect();
 		delay(100);
-
 	}
 
 

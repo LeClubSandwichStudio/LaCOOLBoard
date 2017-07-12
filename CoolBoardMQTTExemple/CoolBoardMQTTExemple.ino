@@ -1,11 +1,12 @@
 #include<CoolMQTT.h>
-#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
-#include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
-#include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
-#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
+#include<CoolWifi.h>
 
-WiFiManager wifiManager;
+CoolWifi wifiManager;
 CoolMQTT mqtt;
+
+String ssid[] = {"lapaillasse","ssid"};
+String pass[]={"biohacking","pass"};
+
 
 const char mqttServer[]="broker.mqtt-dashboard.com";
 const char inTopic[]="inTopic";
@@ -19,15 +20,16 @@ void setup()
 {
 	Serial.begin(115200);
 
-	if(WiFi.status() != WL_CONNECTED)
-	{
-		Serial.println("Entering WiFi Connect");
-		wifiManager.autoConnect("CoolBoardAP");
-		Serial.println("Wifi Set" );
-	}
+	wifiManager.config(ssid,pass,2,180);
+	wifiManager.begin();
+	wifiManager.printConf();
 
 	mqtt.config(mqttServer,inTopic, outTopic,clientId,bufferSize);
 	mqtt.begin();
+	mqtt.printConf();
+	
+	wifiManager.connect();
+
 	mqtt.connect(keepAlive);
 }
 

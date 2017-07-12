@@ -279,7 +279,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	
 	//rtc configuration file
-	DynamicJsonBuffer jsonR;
     	JsonObject& jsonRTC=root["rtc"];
 
 #if DEBUG == 1 
@@ -331,7 +330,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 	
         //cool board led configuration
-	DynamicJsonBuffer jsonLBoard;
     	JsonObject& jsonLedBoard=root["led"];
 	
 #if DEBUG == 1 
@@ -383,7 +381,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	
 
 	//jetpack configuration
-	DynamicJsonBuffer jsonJBoard;
     	JsonObject& jsonJetpack=root["jetPack"];
 
 #if DEBUG == 1 
@@ -431,7 +428,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	}
 	
 	//irene configuration	
-	DynamicJsonBuffer jsonIBoard;
     	JsonObject& jsonIrene=root["irene3000"];
 	
 #if DEBUG == 1 
@@ -480,7 +476,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	}
 	
 	//external sensors
-	DynamicJsonBuffer jsonESBoard;
     	JsonObject& jsonExternalSensors=root["externalSensors"];
 
 #if DEBUG == 1 
@@ -531,7 +526,6 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 
 	
 	//mqtt config
-	DynamicJsonBuffer jsonMQ;
     	JsonObject& jsonMQTT=root["mqtt"];
 	
 #if DEBUG == 1 
@@ -572,6 +566,53 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	#if DEBUG == 1 
 
 		Serial.println( F("failed to parse mqtt") );
+	
+	#endif
+
+	
+	}	
+
+	//wifi config
+    	JsonObject& jsonWifi=root["wifi"];
+	
+#if DEBUG == 1 
+
+	Serial.println( F("before config wifi json") );
+	jsonWifi.printTo(Serial);
+
+#endif
+
+	if(jsonWifi.success())
+	{
+		File wifiConfig = SPIFFS.open("/wifiConfig.json", "w");	
+		if(!wifiConfig)
+		{
+		
+		#if DEBUG == 1 
+
+			Serial.println( F("failed to open wifi file ") );
+		
+		#endif
+		
+			return(false);
+		}
+
+#if DEBUG == 1 
+
+		Serial.println( F("wifi config") );
+		jsonWifi.printTo(Serial);
+
+#endif
+	
+		jsonMQTT.printTo(wifiConfig);
+		wifiConfig.close();
+	}
+	else
+	{
+
+	#if DEBUG == 1 
+
+		Serial.println( F("failed to parse wifi") );
 	
 	#endif
 
