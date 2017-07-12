@@ -263,6 +263,14 @@ class CoolBoard
 	DynamicJsonBuffer jsonBuffer(answerJsonSize);
 	JsonObject & root = jsonBuffer.parseObject(answer);
 	JsonObject & stateDesired = root["state"];
+
+#if DEBUG == 1
+	
+	root.printTo(Serial);
+	stateDesired.printTo(Serial);
+
+#endif
+
 	if (stateDesired.success())
 	{
 	
@@ -284,7 +292,10 @@ class CoolBoard
 			Serial.println( F("update is 1 ") );
 			Serial.println( F("desired update is : ") );			
 			Serial.println(answerDesired);
+			Serial.println("json size is : ");
+			Serial.println(jsonBuffer.size() ) ;				
 			Serial.println();
+
 		
 		#endif
 			
@@ -298,6 +309,8 @@ class CoolBoard
 			rtc.config();
 
 			coolBoardLed.config();
+			
+			wifiManager.config();
 
 			mqtt.config();
 
@@ -317,6 +330,8 @@ class CoolBoard
 			}
 
 			delay(10);
+			wifiManager.begin();
+			delay(100);
 			mqtt.begin();
 
 		        //answering the update msg:
