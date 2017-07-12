@@ -692,6 +692,14 @@ void CoolBoard::update(const char * answer)
 	DynamicJsonBuffer jsonBuffer(answerJsonSize);
 	JsonObject & root = jsonBuffer.parseObject(answer);
 	JsonObject & stateDesired = root["state"];
+
+#if DEBUG == 1
+	
+	root.printTo(Serial);
+	stateDesired.printTo(Serial);
+
+#endif
+
 	if (stateDesired.success())
 	{
 	

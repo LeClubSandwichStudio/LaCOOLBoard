@@ -144,6 +144,7 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	JsonObject& root = jsonBuffer.parseObject( buffer );
 
 #if DEBUG == 1
+
 	Serial.println( F("json object : ") );	
 	root.printTo(Serial);
 
