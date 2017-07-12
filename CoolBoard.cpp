@@ -710,15 +710,13 @@ void CoolBoard::update(const char * answer)
 	
 	#endif
 
-		if (stateDesired["update"] == 1)
-		{
 			String answerDesired;
 		
 			stateDesired.printTo(answerDesired);
 			
 		#if DEBUG == 1		
 		
-			Serial.println( F("update is 1 ") );
+			Serial.println( F("update is ok ") );
 			Serial.println( F("desired update is : ") );			
 			Serial.println(answerDesired);
 			Serial.println("json size is : ");
@@ -792,19 +790,6 @@ void CoolBoard::update(const char * answer)
 			
 			//restart the esp
 			ESP.restart();
-				
-		}
-		else
-		{
-		
-		#if DEBUG == 1 
-
-			Serial.println( F("update is not 1 ") );
-			Serial.println();
-		
-		#endif
-
-		}
 	}
 	else
 	{
