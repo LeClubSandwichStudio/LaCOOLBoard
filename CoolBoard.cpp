@@ -866,12 +866,21 @@ String CoolBoard::readSensors()
 		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
 		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
 		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
-		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}
+		
 		
 	}
+
+	//getting Hour:
+	tmElements_t tm;
+	tm=rtc.getTimeDate();
+	
+	//adding Hour
+	sensorsData+="\"hour\":";	
+	sensorsData+=tm.Hour;
+	sensorsData+="}";
 	
 #if DEBUG == 1
-
+	Serial.println();
 	Serial.println( F("sensors data is ") );
 	Serial.println(sensorsData);
 	Serial.println();

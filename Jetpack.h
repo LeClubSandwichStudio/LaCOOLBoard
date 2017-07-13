@@ -42,7 +42,7 @@ private:
 
 	struct state{
 	
-	const char* type="0";
+	String type;
 
 	bool actif=0; 
 
@@ -54,7 +54,9 @@ private:
 	
 	unsigned long actifTime=0;
 	
-	unsigned long inactifTime=0;	
+	unsigned long inactifTime=0;
+	
+	bool inverted=0;	
 
 	}actors[8];
 
