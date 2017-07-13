@@ -7,7 +7,7 @@
 *
 */
 
-#include "FS.h"                // File Storage System >>> http://esp8266.github.io/Arduino/versions/2.0.0/doc/filesystem.html
+#include <FS.h>
 #include "CoolFileSystem.h"
 #include "ArduinoJson.h"      // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
 
@@ -88,15 +88,35 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	if( root.success() )
 	{
 		root.printTo(sensorsData);
+		sensors.Data.println();
 		sensorsData.close();
-	
+
 	#if DEBUG == 1
+		sensorsData=SPIFFS.open("/sensorsData.json","r");
+		
+		if(!sensorsData)
+		{
+			Serial.println(F("failed to reopen /sensorsData.json"));
+			return(false);				
+		}
 	
 		Serial.println( F("saved data is : ") );
 		root.printTo(Serial);
 		Serial.println();
+
+		Serial.println(F("/sensorsData.json") );
+		while (sensorsData.available()) 
+		{
+			Serial.println(sensorsData.readString()) ;
+		}
+		
+		Serial.println();
+		
+		sensorsData.close();
 	
 	#endif
+
+		this->saveSensorDataCSV(data,Sensor_JSON_SIZE);		
 
 		this->savedData=true;
 		return (true);		
@@ -117,8 +137,209 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 
 }
 
+
 /**
-*	CoolFileSyste::updateConfigFiles( mqtt answer, answer size):
+*	CoolFileSystem::saveSensorDataCSV( data, data size ):
+*	This method is provided to save the data on the local
+*	memory in CSV format.
+*
+*	\return true if the data was saved,
+*	false otherwise
+*/
+bool CoolFileSystem::saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE)
+{
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolFileSystem.saveSensorDataCSV()") );
+	Serial.println();
+
+#endif
+	//parsing json
+	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+	JsonObject& root = jsonBuffer.parseObject(data);
+	String header="",values="";
+	
+	//if json parse success
+	if( root.success() )
+	{		
+		for (auto kv : root) 
+		{
+			//print the header(json keys ) to header string
+			header+=kv.key;
+			header+=',';
+			
+			//print the values to header string
+			values+=( kv.value.as<char*>() );
+			values+=',';
+		}
+
+		header.remove(header.lastIndexOf(','), 1);
+		values.remove(values.lastIndexOf(','), 1);		
+	
+	#if DEBUG == 1
+	
+		Serial.println( F(" data is : ") );
+		root.printTo(Serial);
+		Serial.println();
+		
+		Serial.println(F(" header is :" ) ) ;
+		Serial.println(header);
+		Serial.println(F(" values are : "));
+		Serial.println(values);
+	
+	#endif
+	
+	}
+	//failed to parse json
+	else
+	{
+	
+	#if DEBUG == 1
+
+		Serial.println( F("failed to parse json") );
+	
+	#endif
+
+		return(false);
+	}
+
+	//check if file exists
+	File sensorsData=SPIFFS.open("/sensorsData.csv","r");
+	
+	//file doesn't exist
+	if(!sensorsData)
+	{
+	
+	#if DEBUG == 1
+	
+		Serial.println( F("/sensorsData.csv not found") );
+		Serial.println( F("creating /sensorsData.csv") );
+		Serial.println();
+	
+	#endif
+		//create file
+		sensorsData=SPIFFS.open("/sensorsData.csv","w");
+		
+		if(!sensorsData)
+		{
+
+		#if DEBUG == 1
+		
+			Serial.println( F("failed to create /sensorsData.csv") );
+			Serial.println();
+		
+		#endif
+		
+			return(false);
+
+		}
+		
+		//print the header(json keys ) to the CSV file
+		sensorsData.println(header);
+
+		//print the values to the CSV file
+		sensorsData.println(values);
+		
+		sensorsData.close();
+	
+	#if DEBUG == 1
+
+		sensorsData=SPIFFS.open("/sensorsData.csv","r");
+		
+		if(!sensorsData)
+		{
+			Serial.println(F("failed to reopen /sensorsData.csv "));
+			return(false);		
+		}
+
+		Serial.println( F("/sensorsData.csv : ") );
+
+		while (sensorsData.available()) 
+		{
+  			Serial.print(sensorsData.readString()) ;
+		}
+		Serial.println();
+
+		//close the file
+		sensorsData.close();
+
+	#endif
+		
+
+		
+		return(true);
+		
+	}
+
+	//file exist
+	else
+	{
+
+	#if DEBUG == 1
+	
+		Serial.println( F("/sensorsData.csv  found") );
+		Serial.println( F("appending to /sensorsData.csv") );
+		Serial.println();
+	
+	#endif
+
+		//append to file
+		sensorsData=SPIFFS.open("/sensorsData.csv","a");
+		
+		if(!sensorsData)
+		{
+		
+		#if DEBUG == 1
+			
+			Serial.println( F("failed to open /sensorsData.csv") );
+			Serial.println();
+
+		#endif
+			
+			return(false);
+		
+		}
+
+		//print the values to the CSV file
+		sensorsData.println(values);
+		
+		sensorsData.close();
+
+	#if DEBUG == 1
+
+		sensorsData=SPIFFS.open("/sensorsData.csv","r");
+		
+		if(!sensorsData)
+		{
+			Serial.println(F("failed to reopen /sensorsData.csv "));
+			return(false);		
+		}
+
+		
+		Serial.println( F("/sensorsData.csv : ") );
+
+		while (sensorsData.available()) 
+		{
+  			Serial.println(sensorsData.readString()) ;
+		}
+		
+		Serial.println();
+		
+		sensorsData.close();
+		
+	#endif		
+		
+		return(true);
+	
+	}	
+
+
+
+}
+
+
+/**
+*	CoolFileSystem::updateConfigFiles( mqtt answer, answer size):
 *	This method is provided to update the configuration files when
 *	the appropriate mqtt answer is received:	-update : 1
 *
@@ -729,7 +950,8 @@ String CoolFileSystem::getSensorSavedData()
 
 			//delete data in the file
 			File sensorsData=SPIFFS.open("/sensorsData.json","w");
-			if (!sensorsData)	
+			File sensorsDataCSV=SPIFFS.open("/sensorsDataCSV.json","w");
+			if( (!sensorsData)||(!sensorsDataCSV) )	
 			{
 			#if DEBUG == 1
 		
@@ -741,7 +963,8 @@ String CoolFileSystem::getSensorSavedData()
 			}
 
 			sensorsData.close();
-			
+			sensorsDataCSV.close();
+
 			//position the saved data flag to false
 			this->savedData=false;	
 			

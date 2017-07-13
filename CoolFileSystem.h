@@ -29,6 +29,8 @@ public:
 	
 	bool saveSensorData(const char* data,int Sensor_JSON_SIZE);
 	
+	bool saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE);
+	
 	bool isDataSaved();
 	
 	String getSensorSavedData();
