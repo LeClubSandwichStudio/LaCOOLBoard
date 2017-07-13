@@ -1,4 +1,4 @@
-.TH "CoolBoard" 3 "Wed Jul 12 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolBoard" 3 "Thu Jul 13 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -812,7 +812,7 @@ json string of all the sensors read\&.
 .PP
 Definition at line 838 of file CoolBoard\&.cpp\&.
 .PP
-References coolBoardSensors, externalSensors, externalSensorsActive, irene3000, ireneActive, ExternalSensors::read(), CoolBoardSensors::read(), and Irene3000::read()\&.
+References coolBoardSensors, externalSensors, externalSensorsActive, CoolTime::getTimeDate(), irene3000, ireneActive, ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), and rtc\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
 .PP
@@ -847,44 +847,53 @@ Referenced by offLineMode(), and onLineMode()\&.
 866         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('}'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.{\&.\&.,\&.\&.,\&.\&.,
 867         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('{'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,\&.\&.,
 868         sensorsData\&.remove(sensorsData\&.lastIndexOf('}'), 1); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
-869         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf(','), '}'); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+869         
 870         
 871     }
-872     
-873 #if DEBUG == 1
-874 
-875     Serial\&.println( F("sensors data is ") );
-876     Serial\&.println(sensorsData);
-877     Serial\&.println();
-878 
-879 #endif
-880 
-881     return(sensorsData);
-882 
-883 }
+872 
+873     //getting Hour:
+874     tmElements_t tm;
+875     tm=rtc\&.getTimeDate();
+876     
+877     //adding Hour
+878     sensorsData+="\"hour\":";   
+879     sensorsData+=tm\&.Hour;
+880     sensorsData+="}";
+881     
+882 #if DEBUG == 1
+883     Serial\&.println();
+884     Serial\&.println( F("sensors data is ") );
+885     Serial\&.println(sensorsData);
+886     Serial\&.println();
+887 
+888 #endif
+889 
+890     return(sensorsData);
+891 
+892 }
 .fi
 .SS "void CoolBoard::sleep (int interval)"
 \fBCoolBoard::sleep(int interval)\fP: This method is provided to allow the board to enter deepSleep mode for a period of time equal to interval in ms 
 .PP
-Definition at line 939 of file CoolBoard\&.cpp\&.
+Definition at line 948 of file CoolBoard\&.cpp\&.
 .PP
 Referenced by onLineMode()\&.
 .PP
 .nf
-940 {
-941 
-942 #if DEBUG == 1
-943 
-944     Serial\&.println( F("Entering CoolBoard\&.sleep() ") );
-945     Serial\&.print( F("going to sleep for ") );
-946     Serial\&.print(interval);
-947     Serial\&.println(F("ms") );
-948     Serial\&.println();
-949 
-950 #endif
-951 
-952     ESP\&.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
-953 }
+949 {
+950 
+951 #if DEBUG == 1
+952 
+953     Serial\&.println( F("Entering CoolBoard\&.sleep() ") );
+954     Serial\&.print( F("going to sleep for ") );
+955     Serial\&.print(interval);
+956     Serial\&.println(F("ms") );
+957     Serial\&.println();
+958 
+959 #endif
+960 
+961     ESP\&.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
+962 }
 .fi
 .SS "void CoolBoard::update (const char * answer)"
 CoolBoard::update(mqtt answer): This method is provided to handle the configuration update of the different parts 
@@ -1033,51 +1042,51 @@ json string of the user's data
 .PP
 
 .PP
-Definition at line 892 of file CoolBoard\&.cpp\&.
+Definition at line 901 of file CoolBoard\&.cpp\&.
 .PP
 References CoolTime::getESDate(), CoolMQTT::getUser(), mqtt, and rtc\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
 .PP
 .nf
-893 {
-894 
-895 #if DEBUG == 1
-896 
-897     Serial\&.println( F("Entering CoolBoard\&.userData() ") );
-898     Serial\&.println();
-899 
-900 #endif
-901 
-902     String tempMAC = WiFi\&.macAddress();
+902 {
 903 
-904     tempMAC\&.replace(":", "");
+904 #if DEBUG == 1
 905 
-906     String userJson = "{\"user\":\"";
-907 
-908     userJson += mqtt\&.getUser();
-909 
-910     userJson += "\",\"timestamp\":\"";
-911 
-912     userJson += rtc\&.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
-913 
-914     userJson += "\",\"mac\":\"";
-915 
-916     userJson += tempMAC;
-917 
-918     userJson += "\"}";
-919 
-920 #if DEBUG == 1
-921 
-922     Serial\&.println( F("userData is : ") );
-923     Serial\&.println(userJson);
-924     Serial\&.println();
-925 
-926 #endif  
-927     
-928     return(userJson);
-929     
-930 }
+906     Serial\&.println( F("Entering CoolBoard\&.userData() ") );
+907     Serial\&.println();
+908 
+909 #endif
+910 
+911     String tempMAC = WiFi\&.macAddress();
+912 
+913     tempMAC\&.replace(":", "");
+914 
+915     String userJson = "{\"user\":\"";
+916 
+917     userJson += mqtt\&.getUser();
+918 
+919     userJson += "\",\"timestamp\":\"";
+920 
+921     userJson += rtc\&.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+922 
+923     userJson += "\",\"mac\":\"";
+924 
+925     userJson += tempMAC;
+926 
+927     userJson += "\"}";
+928 
+929 #if DEBUG == 1
+930 
+931     Serial\&.println( F("userData is : ") );
+932     Serial\&.println(userJson);
+933     Serial\&.println();
+934 
+935 #endif  
+936     
+937     return(userJson);
+938     
+939 }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -1170,7 +1179,7 @@ Referenced by begin(), connect(), onLineMode(), update(), and userData()\&.
 .PP
 Definition at line 69 of file CoolBoard\&.h\&.
 .PP
-Referenced by begin(), onLineMode(), update(), and userData()\&.
+Referenced by begin(), onLineMode(), readSensors(), update(), and userData()\&.
 .SS "int CoolBoard::sensorJsonSize =1000\fC [private]\fP"
 
 .PP

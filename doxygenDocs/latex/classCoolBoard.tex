@@ -11,7 +11,8 @@ This class manages the \hyperlink{classCoolBoard}{Cool\+Board} and all of Its fu
 
 
 
-Collaboration diagram for Cool\+Board\+:\nopagebreak
+Collaboration diagram for Cool\+Board\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -647,7 +648,8 @@ References data, Jetpack\+::do\+Action(), file\+System, jet\+Pack, jetpack\+Acti
       \hyperlink{classCoolBoard_a58e4b6072e3ac8b141ec0befb479208e}{sensorJsonSize});
 418 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -826,7 +828,8 @@ References answer, data, Jetpack\+::do\+Action(), file\+System, get\+Log\+Interv
 331         
 332 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -910,7 +913,7 @@ Definition at line 838 of file Cool\+Board.\+cpp.
 
 
 
-References cool\+Board\+Sensors, external\+Sensors, external\+Sensors\+Active, irene3000, irene\+Active, External\+Sensors\+::read(), Cool\+Board\+Sensors\+::read(), and Irene3000\+::read().
+References cool\+Board\+Sensors, external\+Sensors, external\+Sensors\+Active, Cool\+Time\+::get\+Time\+Date(), irene3000, irene\+Active, External\+Sensors\+::read(), Cool\+Board\+Sensors\+::read(), Irene3000\+::read(), and rtc.
 
 
 
@@ -948,30 +951,41 @@ Referenced by off\+Line\+Mode(), and on\+Line\+Mode().
 866         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\{..,..,..,}
 867         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\},..,..,..,}
 868         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,}
-869         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..,..,..,..\}}
+869         
 870         
 871     \}
-872     
-873 \textcolor{preprocessor}{#if DEBUG == 1}
-874 
-875     Serial.println( F(\textcolor{stringliteral}{"sensors data is "}) );
-876     Serial.println(sensorsData);
-877     Serial.println();
-878 
-879 \textcolor{preprocessor}{#endif}
-880 
-881     \textcolor{keywordflow}{return}(sensorsData);
-882 
-883 \}
+872 
+873     \textcolor{comment}{//getting Hour:}
+874     tmElements\_t tm;
+875     tm=\hyperlink{classCoolBoard_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{classCoolTime_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
+876     
+877     \textcolor{comment}{//adding Hour}
+878     sensorsData+=\textcolor{stringliteral}{"\(\backslash\)"hour\(\backslash\)":"};   
+879     sensorsData+=tm.Hour;
+880     sensorsData+=\textcolor{stringliteral}{"\}"};
+881     
+882 \textcolor{preprocessor}{#if DEBUG == 1}
+883     Serial.println();
+884     Serial.println( F(\textcolor{stringliteral}{"sensors data is "}) );
+885     Serial.println(sensorsData);
+886     Serial.println();
+887 
+888 \textcolor{preprocessor}{#endif}
+889 
+890     \textcolor{keywordflow}{return}(sensorsData);
+891 
+892 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolBoard_ad03abdce2e65f520bbf2cff0f2d083cf_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -986,7 +1000,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{classCoolBoard_a5d0c8ff93b615efd676be432de9f164a}{Cool\+Board\+::sleep(int interval)}\+: This method is provided to allow the board to enter deep\+Sleep mode for a period of time equal to interval in ms 
 
-Definition at line 939 of file Cool\+Board.\+cpp.
+Definition at line 948 of file Cool\+Board.\+cpp.
 
 
 
@@ -994,22 +1008,23 @@ Referenced by on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-940 \{
-941 
-942 \textcolor{preprocessor}{#if DEBUG == 1}
-943 
-944     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.sleep() "}) );
-945     Serial.print( F(\textcolor{stringliteral}{"going to sleep for "}) );
-946     Serial.print(interval);
-947     Serial.println(F(\textcolor{stringliteral}{"ms"}) );
-948     Serial.println();
-949 
-950 \textcolor{preprocessor}{#endif}
-951 
-952     ESP.deepSleep ( ( interval * 1000 ), WAKE\_RF\_DEFAULT) ;
-953 \}
+949 \{
+950 
+951 \textcolor{preprocessor}{#if DEBUG == 1}
+952 
+953     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.sleep() "}) );
+954     Serial.print( F(\textcolor{stringliteral}{"going to sleep for "}) );
+955     Serial.print(interval);
+956     Serial.println(F(\textcolor{stringliteral}{"ms"}) );
+957     Serial.println();
+958 
+959 \textcolor{preprocessor}{#endif}
+960 
+961     ESP.deepSleep ( ( interval * 1000 ), WAKE\_RF\_DEFAULT) ;
+962 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1164,14 +1179,16 @@ Referenced by on\+Line\+Mode().
 804     \}       
 805 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolBoard_a8612756d3f73198cdde857a66f0fe690_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1191,7 +1208,7 @@ json string of the user\textquotesingle{}s data
 \end{DoxyReturn}
 
 
-Definition at line 892 of file Cool\+Board.\+cpp.
+Definition at line 901 of file Cool\+Board.\+cpp.
 
 
 
@@ -1203,53 +1220,55 @@ Referenced by off\+Line\+Mode(), and on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-893 \{
-894 
-895 \textcolor{preprocessor}{#if DEBUG == 1}
-896 
-897     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.userData() "}) );
-898     Serial.println();
-899 
-900 \textcolor{preprocessor}{#endif}
-901 
-902     String tempMAC = WiFi.macAddress();
+902 \{
 903 
-904     tempMAC.replace(\textcolor{stringliteral}{":"}, \textcolor{stringliteral}{""});
+904 \textcolor{preprocessor}{#if DEBUG == 1}
 905 
-906     String userJson = \textcolor{stringliteral}{"\{\(\backslash\)"user\(\backslash\)":\(\backslash\)""};
-907 
-908     userJson += \hyperlink{classCoolBoard_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{classCoolMQTT_a373cc92fca7760d886f02d8a6e5b3f63}{getUser}();
-909 
-910     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"timestamp\(\backslash\)":\(\backslash\)""};
-911 
-912     userJson += \hyperlink{classCoolBoard_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{classCoolTime_ac4f32ee513c1328d984306645e8785a4}{getESDate}(); \textcolor{comment}{// "timestamp":"20yy-mm-ddThh:mm:ssZ"}
-913 
-914     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"mac\(\backslash\)":\(\backslash\)""};
-915 
-916     userJson += tempMAC;
-917 
-918     userJson += \textcolor{stringliteral}{"\(\backslash\)"\}"};
-919 
-920 \textcolor{preprocessor}{#if DEBUG == 1}
-921 
-922     Serial.println( F(\textcolor{stringliteral}{"userData is : "}) );
-923     Serial.println(userJson);
-924     Serial.println();
-925 
-926 \textcolor{preprocessor}{#endif  }
-927     
-928     \textcolor{keywordflow}{return}(userJson);
-929     
-930 \}
+906     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.userData() "}) );
+907     Serial.println();
+908 
+909 \textcolor{preprocessor}{#endif}
+910 
+911     String tempMAC = WiFi.macAddress();
+912 
+913     tempMAC.replace(\textcolor{stringliteral}{":"}, \textcolor{stringliteral}{""});
+914 
+915     String userJson = \textcolor{stringliteral}{"\{\(\backslash\)"user\(\backslash\)":\(\backslash\)""};
+916 
+917     userJson += \hyperlink{classCoolBoard_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{classCoolMQTT_a373cc92fca7760d886f02d8a6e5b3f63}{getUser}();
+918 
+919     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"timestamp\(\backslash\)":\(\backslash\)""};
+920 
+921     userJson += \hyperlink{classCoolBoard_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{classCoolTime_ac4f32ee513c1328d984306645e8785a4}{getESDate}(); \textcolor{comment}{// "timestamp":"20yy-mm-ddThh:mm:ssZ"}
+922 
+923     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"mac\(\backslash\)":\(\backslash\)""};
+924 
+925     userJson += tempMAC;
+926 
+927     userJson += \textcolor{stringliteral}{"\(\backslash\)"\}"};
+928 
+929 \textcolor{preprocessor}{#if DEBUG == 1}
+930 
+931     Serial.println( F(\textcolor{stringliteral}{"userData is : "}) );
+932     Serial.println(userJson);
+933     Serial.println();
+934 
+935 \textcolor{preprocessor}{#endif  }
+936     
+937     \textcolor{keywordflow}{return}(userJson);
+938     
+939 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolBoard_ae7358fb6e623cfc81b775f5f1734909b_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1467,7 +1486,7 @@ Definition at line 69 of file Cool\+Board.\+h.
 
 
 
-Referenced by begin(), on\+Line\+Mode(), update(), and user\+Data().
+Referenced by begin(), on\+Line\+Mode(), read\+Sensors(), update(), and user\+Data().
 
 \mbox{\Hypertarget{classCoolBoard_a58e4b6072e3ac8b141ec0befb479208e}\label{classCoolBoard_a58e4b6072e3ac8b141ec0befb479208e}} 
 \index{Cool\+Board@{Cool\+Board}!sensor\+Json\+Size@{sensor\+Json\+Size}}

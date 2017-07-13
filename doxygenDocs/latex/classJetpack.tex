@@ -11,7 +11,8 @@ This class manages the \hyperlink{classJetpack}{Jetpack} shield.
 
 
 
-Collaboration diagram for Jetpack\+:\nopagebreak
+Collaboration diagram for Jetpack\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -120,11 +121,11 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 251 of file Jetpack.\+cpp.
+Definition at line 341 of file Jetpack.\+cpp.
 
 
 
-References Jetpack\+::state\+::actif, actors, actors\+Number, Jetpack\+::state\+::high, Jetpack\+::state\+::low, Jetpack\+::state\+::temporal, and Jetpack\+::state\+::type.
+References Jetpack\+::state\+::actif, actors, actors\+Number, Jetpack\+::state\+::high, Jetpack\+::state\+::inverted, Jetpack\+::state\+::low, Jetpack\+::state\+::temporal, and Jetpack\+::state\+::type.
 
 
 
@@ -132,187 +133,208 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-252 \{
-253 
-254 \textcolor{preprocessor}{#if DEBUG == 1 }
-255 
-256     Serial.println( F(\textcolor{stringliteral}{"Entering Jetpack.config() "}) );
-257     Serial.println();
-258 
-259 \textcolor{preprocessor}{#endif}
-260 
-261     File jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"r"});
-262 
-263     \textcolor{keywordflow}{if} (!jetPackConfig) 
-264     \{
-265 
-266 \textcolor{preprocessor}{    #if DEBUG == 1 }
-267 
-268         Serial.println( F(\textcolor{stringliteral}{"failed to read /jetPackConfig.json "}) );
-269         Serial.println();
-270 
-271 \textcolor{preprocessor}{    #endif}
-272 
-273         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-274     \}
-275     \textcolor{keywordflow}{else}
-276     \{
-277         \textcolor{keywordtype}{size\_t} size = jetPackConfig.size();
-278         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-279         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-280 
-281         jetPackConfig.readBytes(buf.get(), size);
-282         DynamicJsonBuffer jsonBuffer;
-283         JsonObject& json = jsonBuffer.parseObject(buf.get());
-284         \textcolor{keywordflow}{if} (!json.success()) 
-285         \{
-286         
-287 \textcolor{preprocessor}{        #if DEBUG == 1 }
-288 
-289             Serial.println( F(\textcolor{stringliteral}{"failed to parse jetpack config json from file "}) );
-290             Serial.println();
-291 
-292 \textcolor{preprocessor}{        #endif}
-293 
-294             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-295         \} 
-296         \textcolor{keywordflow}{else}
-297         \{ 
-298         
-299 \textcolor{preprocessor}{        #if DEBUG == 1 }
-300 
-301             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
-302             json.printTo(Serial);
-303             Serial.println();
-304         
-305 \textcolor{preprocessor}{        #endif}
-306   
-307             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ActorsNumber"}].success() )
-308             \{
-309                 this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber} = json[\textcolor{stringliteral}{"ActorsNumber"}]; 
-310             
-311                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<8;i++)
-312                 \{   \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)].success())
-313                     \{
-314                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}].success() )
-315                         \{
-316                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}];
-317                         \}
-318                         \textcolor{keywordflow}{else}
-319                         \{
-320                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif};
-321                         \}
-322                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif};
-323 
-324 
-325                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}].success() )
-326                         \{                   
-327                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}];
-328                         \}
-329                         \textcolor{keywordflow}{else}
-330                         \{
-331                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low};                 
-332                         \}
-333                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low};
-334     
-335                     
-336                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}].success() )
-337                         \{               
-338                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}];
-339                         \}
-340                         \textcolor{keywordflow}{else}
-341                         \{
-342                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high};
-343                         \}
-344                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high};
+342 \{
+343 
+344 \textcolor{preprocessor}{#if DEBUG == 1 }
 345 
-346                     
-347                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}].success() )
-348                         \{               
-349                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a59e307555493f5a64f87ac4c63943371}{type}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}]; 
-350                         \}
-351                         \textcolor{keywordflow}{else}
-352                         \{
-353                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a59e307555493f5a64f87ac4c63943371}{type}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_a59e307555493f5a64f87ac4c63943371}{type};
-354                         \}
-355                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_a59e307555493f5a64f87ac4c63943371}{type};
-356 
-357                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}].success() )
-358                         \{
-359                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}
-      ];                                                   
-360                         \}
-361                         \textcolor{keywordflow}{else}
-362                         \{
-363                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}
-      ]; 
-364                         \}   
-365                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}; 
-366                     \}
-367                     \textcolor{keywordflow}{else}
-368                     \{
-369                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i];
-370                     \}
-371                     
-372                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+346     Serial.println( F(\textcolor{stringliteral}{"Entering Jetpack.config() "}) );
+347     Serial.println();
+348 
+349 \textcolor{preprocessor}{#endif}
+350 
+351     File jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"r"});
+352 
+353     \textcolor{keywordflow}{if} (!jetPackConfig) 
+354     \{
+355 
+356 \textcolor{preprocessor}{    #if DEBUG == 1 }
+357 
+358         Serial.println( F(\textcolor{stringliteral}{"failed to read /jetPackConfig.json "}) );
+359         Serial.println();
+360 
+361 \textcolor{preprocessor}{    #endif}
+362 
+363         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+364     \}
+365     \textcolor{keywordflow}{else}
+366     \{
+367         \textcolor{keywordtype}{size\_t} size = jetPackConfig.size();
+368         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+369         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+370 
+371         jetPackConfig.readBytes(buf.get(), size);
+372         DynamicJsonBuffer jsonBuffer;
+373         JsonObject& json = jsonBuffer.parseObject(buf.get());
+374         \textcolor{keywordflow}{if} (!json.success()) 
+375         \{
+376         
+377 \textcolor{preprocessor}{        #if DEBUG == 1 }
+378 
+379             Serial.println( F(\textcolor{stringliteral}{"failed to parse jetpack config json from file "}) );
+380             Serial.println();
+381 
+382 \textcolor{preprocessor}{        #endif}
+383 
+384             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+385         \} 
+386         \textcolor{keywordflow}{else}
+387         \{ 
+388         
+389 \textcolor{preprocessor}{        #if DEBUG == 1 }
+390 
+391             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
+392             json.printTo(Serial);
+393             Serial.println();
+394         
+395 \textcolor{preprocessor}{        #endif}
+396   
+397             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ActorsNumber"}].success() )
+398             \{
+399                 this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber} = json[\textcolor{stringliteral}{"ActorsNumber"}]; 
+400             
+401                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<8;i++)
+402                 \{   \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)].success())
+403                     \{
+404                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}].success() )
+405                         \{
+406                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}];
+407                         \}
+408                         \textcolor{keywordflow}{else}
+409                         \{
+410                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
       \hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif};
-373                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+411                         \}
+412                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif};
+413 
+414 
+415                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}].success() )
+416                         \{                   
+417                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}];
+418                         \}
+419                         \textcolor{keywordflow}{else}
+420                         \{
+421                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low};                 
+422                         \}
+423                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
       \hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low};
-374                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+424     
+425                     
+426                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}].success() )
+427                         \{               
+428                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}];
+429                         \}
+430                         \textcolor{keywordflow}{else}
+431                         \{
+432                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
       \hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high};
-375                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
-      \hyperlink{structJetpack_1_1state_a59e307555493f5a64f87ac4c63943371}{type};
-376                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+433                         \}
+434                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high};
+435 
+436                     
+437                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}].success() )
+438                         \{               
+439                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a9143580871c2e573fb502bb94c1da8e5}{type}=String( json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}].
+      as<const char*>() ); 
+440                         \}
+441                         \textcolor{keywordflow}{else}
+442                         \{
+443                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a9143580871c2e573fb502bb94c1da8e5}{type}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a9143580871c2e573fb502bb94c1da8e5}{type};
+444                         \}
+445                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a9143580871c2e573fb502bb94c1da8e5}{type}.c\_str();
+446 
+447 
+448                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}].success() )
+449                         \{
+450                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}
+      ];                                                   
+451                         \}
+452                         \textcolor{keywordflow}{else}
+453                         \{
+454                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
       \hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal}; 
-377                 \}
-378             \}
-379             \textcolor{keywordflow}{else}
-380             \{
-381                 this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber}=this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};
-382             \}
-383             json[\textcolor{stringliteral}{"actorsNumber"}]=this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};
-384 
-385             jetPackConfig.close();          
-386             jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"w"});            
-387             \textcolor{keywordflow}{if}(!jetPackConfig)
-388             \{
-389             
-390 \textcolor{preprocessor}{            #if DEBUG == 1 }
-391 
-392                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /jetPackConfig.json "}) );
-393                 Serial.println();
-394             
-395 \textcolor{preprocessor}{            #endif}
-396                 
-397                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
-398             \}  
-399 
-400             json.printTo(jetPackConfig);
-401             jetPackConfig.close();
-402 
-403 \textcolor{preprocessor}{        #if DEBUG == 1 }
-404             
-405             Serial.println(F(\textcolor{stringliteral}{"saved configuration : "}));
-406             json.printTo(Serial );
-407             Serial.println();       
-408         
-409 \textcolor{preprocessor}{        #endif}
-410 
-411             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-412         \}
-413     \}   
-414     
-415 
-416 \}
+455                         \}   
+456                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal};
+457 
+458                         
+459                         \textcolor{keywordflow}{if}(json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"inverted"}].success() )
+460                         \{
+461                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a6bc03bb8f05b10aa142dbb0c39c87fb5}{inverted}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"inverted"}
+      ];                                                   
+462                         \}
+463                         \textcolor{keywordflow}{else}
+464                         \{
+465                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_a6bc03bb8f05b10aa142dbb0c39c87fb5}{inverted}=json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"inverted"}
+      ]; 
+466                         \}   
+467                         json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"inverted"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a6bc03bb8f05b10aa142dbb0c39c87fb5}{inverted};
+468 
+469                         
+470                          
+471                     \}
+472                     \textcolor{keywordflow}{else}
+473                     \{
+474                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i];
+475                     \}
+476                     
+477                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"actif"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif};
+478                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"low"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_ace3ecd2b1f262756d8f7a8adda20136a}{low};
+479                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"high"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a54cc9291c7cc30102a07fd2b0ccd8dde}{high};
+480                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"type"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a9143580871c2e573fb502bb94c1da8e5}{type};
+481                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"temporal"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_abd6039e7a48856550b0ffbf8bcff7bdd}{temporal};
+482                     json[String(\textcolor{stringliteral}{"Act"})+String(i)][\textcolor{stringliteral}{"inverted"}]=this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].
+      \hyperlink{structJetpack_1_1state_a6bc03bb8f05b10aa142dbb0c39c87fb5}{inverted}; 
+483                 \}
+484             \}
+485             \textcolor{keywordflow}{else}
+486             \{
+487                 this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber}=this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};
+488             \}
+489             json[\textcolor{stringliteral}{"actorsNumber"}]=this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};
+490 
+491             jetPackConfig.close();          
+492             jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"w"});            
+493             \textcolor{keywordflow}{if}(!jetPackConfig)
+494             \{
+495             
+496 \textcolor{preprocessor}{            #if DEBUG == 1 }
+497 
+498                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /jetPackConfig.json "}) );
+499                 Serial.println();
+500             
+501 \textcolor{preprocessor}{            #endif}
+502                 
+503                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
+504             \}  
+505 
+506             json.printTo(jetPackConfig);
+507             jetPackConfig.close();
+508 
+509 \textcolor{preprocessor}{        #if DEBUG == 1 }
+510             
+511             Serial.println(F(\textcolor{stringliteral}{"saved configuration : "}));
+512             json.printTo(Serial );
+513             Serial.println();       
+514         
+515 \textcolor{preprocessor}{        #endif}
+516 
+517             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+518         \}
+519     \}   
+520     
+521 
+522 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -396,67 +418,161 @@ Referenced by Cool\+Board\+::off\+Line\+Mode(), and Cool\+Board\+::on\+Line\+Mod
 183             \{   
 184                 \textcolor{comment}{//if the actor is not temporal}
 185                 \textcolor{keywordflow}{if}( this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].temporal==0 ) 
-186                 \{
-187                     \textcolor{keywordflow}{if}( ( ( root[this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type] ) > ( this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high ) ) || ( ( 
-      root[ this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ] ) < ( this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low ) ) )   
-188                     \{   
-189                         bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , !( bitRead(this->
-      \hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action}, i ) ) );  
-190                     \}
-191                 \}
-192                 \textcolor{comment}{//if the actor is temporal}
-193                 \textcolor{keywordflow}{else}
-194                 \{   \textcolor{comment}{//if the actor was actif for highTime or more :}
-195                     \textcolor{keywordflow}{if}( ( millis()- this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].actifTime  ) >= ( this->
-      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high  ) )
-196                     \{
-197                         \textcolor{comment}{//stop the actor}
-198                         bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 0) ;
-199 
-200                         \textcolor{comment}{//make the actor inactif:}
-201                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=0;
-202 
-203                         \textcolor{comment}{//start the low timer}
-204                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aaf817b1f9e7a4d65b9e3ca4726b281f6}{inactifTime}=millis();              
-205                     \}           
-206                             
-207                 \}
-208             \}
-209             \textcolor{comment}{//check if actor is inactif}
-210             \textcolor{keywordflow}{else}
-211             \{   \textcolor{comment}{//check if actor is temporal}
-212                 \textcolor{keywordflow}{if}(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].temporal==1)
-213                 \{
-214                     \textcolor{comment}{//if the actor was inactif for lowTime or more :}
-215                     \textcolor{keywordflow}{if}( ( millis() - this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].inactifTime ) >= ( this->
-      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low  ) )
-216                     \{
-217                         \textcolor{comment}{//start the actor}
-218                         bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 1) ;
-219 
-220                         \textcolor{comment}{//make the actor actif:}
-221                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=1;
-222 
-223                         \textcolor{comment}{//start the low timer}
-224                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_af2e1cc323ef9ffcc3cf4d203f85d726b}{actifTime}=millis();              
-225                     \}           
-226             
-227                 \}
-228             \}
-229         \}
-230     
-231 \textcolor{preprocessor}{    #if DEBUG == 1 }
+186                 \{   
+187                     \textcolor{comment}{//regular actor}
+188                     \textcolor{keywordflow}{if}( (this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].inverted) == 0 )
+189                     \{
+190                         \textcolor{comment}{//measure >= high limit : stop actor}
+191                         \textcolor{keywordflow}{if}( ( root[this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type] ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high ) )    
+192                         \{   
+193                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 0 ) ;    
+194                         \}
+195                         \textcolor{comment}{//measure <= low limit : start actor}
+196                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ] ) <= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low ) )
+197                         \{
+198                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 1 ) ;                    
+199                         \}
+200                     \}
+201                     \textcolor{comment}{//inverted actor}
+202                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( (this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].inverted) == 1 )
+203                     \{
+204                         \textcolor{comment}{//measure >= high limit : start actor}
+205                         \textcolor{keywordflow}{if}( ( root[this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type] ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high ) )    
+206                         \{   
+207                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 1 ) ;    
+208                         \}
+209                         \textcolor{comment}{//measure <= low limit : stop actor}
+210                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ] ) <= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low ) )
+211                         \{
+212                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 0 ) ;                    
+213                         \}
+214 
+215                     
+216                     \}
+217                 \}
+218 
+219                 \textcolor{comment}{//if the actor is temporal}
+220                 \textcolor{keywordflow}{else}
+221                 \{
+222                     \textcolor{comment}{//actor of type hour}
+223                     \textcolor{keywordflow}{if}( ( this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ) == ( \textcolor{stringliteral}{"hour"} ) )  
+224                     \{
+225                     
+226 \textcolor{preprocessor}{                    #if DEBUG == 1}
+227                         
+228                         Serial.println(\textcolor{stringliteral}{"hour actor "});
+229                         Serial.println(i);
+230                         Serial.println();
+231 \textcolor{preprocessor}{                    #endif}
 232 
-233         Serial.println( F(\textcolor{stringliteral}{"new action is : "}) );
-234         Serial.println(this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action});
-235         Serial.println();
-236     
-237 \textcolor{preprocessor}{    #endif }
-238 
-239         this->\hyperlink{classJetpack_a338f1af8cbc6504ac69b47c7328569b5}{write}(this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action});
-240 
-241     \} 
-242 \}
+233                         \textcolor{comment}{//time >= high : stop actor}
+234                         \textcolor{keywordflow}{if}( ( root[this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type] ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high ) )    
+235                         \{
+236                         
+237 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+238                             
+239                             Serial.print(\textcolor{stringliteral}{"deactive "});
+240                             Serial.println(i);
+241                         
+242 \textcolor{preprocessor}{                        #endif  }
+243                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 0 ) ;    
+244                         \}
+245                         \textcolor{comment}{//time >= low : start actor}
+246                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ] ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low ) )
+247                         \{
+248                         
+249 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+250                         
+251                             Serial.print(\textcolor{stringliteral}{"active "});
+252                             Serial.println(i);
+253                         
+254 \textcolor{preprocessor}{                        #endif}
+255                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 1 ) ;                    
+256                         \}
+257                         
+258                     \}
+259                     \textcolor{comment}{//actor not of type hour}
+260                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type ) != ( \textcolor{stringliteral}{"hour"} ) )      
+261                     \{
+262                     
+263 \textcolor{preprocessor}{                    #if DEBUG == 1 }
+264                         
+265                         Serial.println(\textcolor{stringliteral}{"not hour temporal actor"});
+266                         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type);
+267                         Serial.println(i);
+268                         Serial.println();
+269                     
+270 \textcolor{preprocessor}{                    #endif}
+271                         \textcolor{comment}{//if the actor was actif for highTime or more :}
+272                         \textcolor{keywordflow}{if}( ( millis()- this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].actifTime  ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high  ) )
+273                         \{
+274                             \textcolor{comment}{//stop the actor}
+275                             bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 0) ;
+276 
+277                             \textcolor{comment}{//make the actor inactif:}
+278                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=0;
+279 
+280                             \textcolor{comment}{//start the low timer}
+281                             this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aaf817b1f9e7a4d65b9e3ca4726b281f6}{inactifTime}=millis();              
+282                         \}
+283                     \}           
+284                             
+285                 \}
+286             \}
+287             \textcolor{comment}{//check if actor is inactif}
+288             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].actif==0)
+289             \{   \textcolor{comment}{//check if actor is temporal}
+290                 \textcolor{keywordflow}{if}(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].temporal==1)
+291                 \{
+292                     \textcolor{comment}{//if the actor was inactif for lowTime or more :}
+293                     \textcolor{keywordflow}{if}( ( millis() - this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].inactifTime ) >= ( this->
+      \hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low  ) )
+294                     \{
+295                         \textcolor{comment}{//start the actor}
+296                         bitWrite( this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action} , i , 1) ;
+297 
+298                         \textcolor{comment}{//make the actor actif:}
+299                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_aa177541689bbaea21a4650a083b0df77}{actif}=1;
+300 
+301                         \textcolor{comment}{//start the low timer}
+302                         this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].\hyperlink{structJetpack_1_1state_af2e1cc323ef9ffcc3cf4d203f85d726b}{actifTime}=millis();
+303 
+304 \textcolor{preprocessor}{                    #if DEBUG == 1 }
+305                         
+306                         Serial.println(\textcolor{stringliteral}{"inactif temporal actor"});
+307                         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type);
+308                         Serial.print(\textcolor{stringliteral}{"temporal : "});
+309                         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].temporal);
+310                         Serial.println(i);
+311                         Serial.println();
+312                     
+313 \textcolor{preprocessor}{                    #endif}
+314                 
+315                     \}           
+316             
+317                 \}
+318             \}
+319         \}
+320     
+321 \textcolor{preprocessor}{    #if DEBUG == 1 }
+322 
+323         Serial.println( F(\textcolor{stringliteral}{"new action is : "}) );
+324         Serial.println(this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action},BIN);
+325         Serial.println();
+326     
+327 \textcolor{preprocessor}{    #endif }
+328 
+329         this->\hyperlink{classJetpack_a338f1af8cbc6504ac69b47c7328569b5}{write}(this->\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action});
+330 
+331     \} 
+332 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -480,7 +596,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{classJetpack_ac54a7bb4f9166bee32052253d9b1d306}{Jetpack\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 424 of file Jetpack.\+cpp.
+Definition at line 530 of file Jetpack.\+cpp.
 
 
 
@@ -492,50 +608,57 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-425 \{
-426 
-427 \textcolor{preprocessor}{#if DEBUG == 1 }
-428 
-429     Serial.println( F(\textcolor{stringliteral}{"Enter Jetpack.printConf() "}) );
-430     Serial.println();
-431 
-432 \textcolor{preprocessor}{#endif }
-433     Serial.println( \textcolor{stringliteral}{"Jetpack configuration "} ) ;
-434 
-435     Serial.print( \textcolor{stringliteral}{"actorsNumber : "} );
-436     Serial.println(this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber});
-437  
-438         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};i++)
-439     \{   
-440         Serial.print(\textcolor{stringliteral}{"actor N°"});
-441         Serial.print(i);
-442         Serial.print(\textcolor{stringliteral}{" actif :"});
-443         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[0].actif);
-444 
-445         Serial.print(\textcolor{stringliteral}{"actor N°"});
-446         Serial.print(i);
-447         Serial.print(\textcolor{stringliteral}{" low :"});
-448         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[0].low);
-449 
-450         Serial.print(\textcolor{stringliteral}{"actor N°"});
-451         Serial.print(i);
-452         Serial.print(\textcolor{stringliteral}{" high :"});
-453         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[0].high);
-454 
-455         Serial.print(\textcolor{stringliteral}{"actor N°"});
-456         Serial.print(i);
-457         Serial.print(\textcolor{stringliteral}{" type :"});
-458         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[0].type);
-459         
-460         Serial.print(\textcolor{stringliteral}{"actor N°"});
-461         Serial.print(i);
-462         Serial.print(\textcolor{stringliteral}{" temporal :"});
-463         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[0].temporal);
-464  
-465 
-466     \}
-467     Serial.println();
-468 \}
+531 \{
+532 
+533 \textcolor{preprocessor}{#if DEBUG == 1 }
+534 
+535     Serial.println( F(\textcolor{stringliteral}{"Enter Jetpack.printConf() "}) );
+536     Serial.println();
+537 
+538 \textcolor{preprocessor}{#endif }
+539     Serial.println( \textcolor{stringliteral}{"Jetpack configuration "} ) ;
+540 
+541     Serial.print( \textcolor{stringliteral}{"actorsNumber : "} );
+542     Serial.println(this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber});
+543  
+544         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<this->\hyperlink{classJetpack_a52c86319cb3f7f1ab744a64db18a7ba5}{actorsNumber};i++)
+545     \{   
+546         Serial.print(\textcolor{stringliteral}{"actor N°"});
+547         Serial.print(i);
+548         Serial.print(\textcolor{stringliteral}{" actif :"});
+549         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].actif);
+550 
+551         Serial.print(\textcolor{stringliteral}{"actor N°"});
+552         Serial.print(i);
+553         Serial.print(\textcolor{stringliteral}{" low :"});
+554         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].low);
+555 
+556         Serial.print(\textcolor{stringliteral}{"actor N°"});
+557         Serial.print(i);
+558         Serial.print(\textcolor{stringliteral}{" high :"});
+559         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].high);
+560 
+561         Serial.print(\textcolor{stringliteral}{"actor N°"});
+562         Serial.print(i);
+563         Serial.print(\textcolor{stringliteral}{" type :"});
+564         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].type);
+565         
+566         Serial.print(\textcolor{stringliteral}{"actor N°"});
+567         Serial.print(i);
+568         Serial.print(\textcolor{stringliteral}{" temporal :"});
+569         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].temporal);
+570 
+571         Serial.print(\textcolor{stringliteral}{"actor N°"});
+572         Serial.print(i);
+573         Serial.print(\textcolor{stringliteral}{" inverted :"});
+574         Serial.println(this->\hyperlink{classJetpack_a7e16d2f97837f9712a2e6de1c50d99db}{actors}[i].inverted);
+575 
+576  
+577 
+578     \}
+579 
+580     Serial.println();
+581 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -572,7 +695,7 @@ Referenced by do\+Action().
 65     Serial.println();
 66 
 67     Serial.println( F(\textcolor{stringliteral}{"writing this action : "}) );
-68     Serial.println(\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action},HEX);
+68     Serial.println(\hyperlink{classJetpack_aca3142925a7b0834b34ae91d26af7765}{action},BIN);
 69     Serial.println();
 70 
 71 \textcolor{preprocessor}{#endif }
@@ -685,7 +808,7 @@ Referenced by config(), and print\+Conf().
 
 
 
-Definition at line 61 of file Jetpack.\+h.
+Definition at line 63 of file Jetpack.\+h.
 
 
 
@@ -699,7 +822,7 @@ Referenced by begin(), write(), and write\+Bit().
 
 
 
-Definition at line 63 of file Jetpack.\+h.
+Definition at line 65 of file Jetpack.\+h.
 
 
 
@@ -713,7 +836,7 @@ Referenced by begin(), write(), and write\+Bit().
 
 
 
-Definition at line 65 of file Jetpack.\+h.
+Definition at line 67 of file Jetpack.\+h.
 
 
 
