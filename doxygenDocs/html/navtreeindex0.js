@@ -136,12 +136,13 @@ var NAVTREEINDEX0 =
 "classCoolBoardSensors.html#af5039ad760b0ff0aa7eee16c55e81702":[0,0,3,25],
 "classCoolBoardSensors.html#af6fd79505815b204c178617ecf54c873":[0,0,3,9],
 "classCoolFileSystem.html":[0,0,4],
-"classCoolFileSystem.html#a32dad79ae80182a83e2e8f52286b7c7b":[0,0,4,4],
+"classCoolFileSystem.html#a32dad79ae80182a83e2e8f52286b7c7b":[0,0,4,5],
 "classCoolFileSystem.html#a4c560c2ddd40b74b7758e6ceb2c58957":[0,0,4,3],
 "classCoolFileSystem.html#a5a7eaeea7a9fbf8aaef651d862fa3b5b":[0,0,4,2],
 "classCoolFileSystem.html#a5c58bca3735c0ed3efb268d70ef998ef":[0,0,4,1],
 "classCoolFileSystem.html#a6ba6f666ed4c530174f8569d2c636748":[0,0,4,0],
-"classCoolFileSystem.html#ad398e0c5c41a0c88acdf5d672aa71351":[0,0,4,5],
+"classCoolFileSystem.html#ad398e0c5c41a0c88acdf5d672aa71351":[0,0,4,6],
+"classCoolFileSystem.html#af5a51e2b9bb6e7e7edf75a508fe75f82":[0,0,4,4],
 "classCoolMQTT.html":[0,0,5],
 "classCoolMQTT.html#a109c786a17b463f9eeba046194279522":[0,0,5,19],
 "classCoolMQTT.html#a30d82ad665bfb603f46ecdbc290775df":[0,0,5,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX0 =
 "classIrene3000.html#ae73bd2ed14a199a7e83f4d6458476a7c":[0,0,12,10],
 "classIrene3000.html#af05612c78c758ce9db316c75ad937130":[0,0,12,23],
 "classIrene3000.html#afed5c35e4b23963c157847ef27c11e9c":[0,0,12,6],
-"classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34":[0,0,12,15],
-"classJetpack.html":[0,0,13]
+"classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34":[0,0,12,15]
 };

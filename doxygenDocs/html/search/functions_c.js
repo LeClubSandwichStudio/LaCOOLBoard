@@ -1,6 +1,7 @@
 var searchData=
 [
   ['savesensordata',['saveSensorData',['../classCoolFileSystem.html#a4c560c2ddd40b74b7758e6ceb2c58957',1,'CoolFileSystem']]],
+  ['savesensordatacsv',['saveSensorDataCSV',['../classCoolFileSystem.html#af5a51e2b9bb6e7e7edf75a508fe75f82',1,'CoolFileSystem']]],
   ['savetimesync',['saveTimeSync',['../classCoolTime.html#ae9658c9b377510d469e3b88edf33ee85',1,'CoolTime']]],
   ['sendntppacket',['sendNTPpacket',['../classCoolTime.html#a236a38d120dc53bc67456d763838c5a1',1,'CoolTime']]],
   ['setdatetime',['setDateTime',['../classCoolTime.html#ab81ea7fdaace111aa01cc1ec84c6d297',1,'CoolTime']]],
