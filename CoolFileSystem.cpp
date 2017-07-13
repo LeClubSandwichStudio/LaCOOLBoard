@@ -88,7 +88,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	if( root.success() )
 	{
 		root.printTo(sensorsData);
-		sensors.Data.println();
+		sensorsData.println();
 		sensorsData.close();
 
 	#if DEBUG == 1
