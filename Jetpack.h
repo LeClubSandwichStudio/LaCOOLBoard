@@ -47,8 +47,10 @@ private:
 	bool actif=0; 
 
 	int low=0;	//if temporal == 1 this is the time spent inactif in ms
+			//if type is hour/minute/second this is the deactivation time
 
 	int high=0;	//if temporal==1 this is the time spent actif in ms
+			//if type is hour/minute/second this is the activation time
 
 	bool temporal=0;
 	

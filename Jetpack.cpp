@@ -231,7 +231,7 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 					#endif
 
 						//time >= high : stop actor
-						if( ( root[this->actors[i].type] ) >= ( this->actors[i].high ) ) 	
+						if( ( root[this->actors[i].type] ) >= ( this->actors[i].low ) ) 	
 						{
 						
 						#if DEBUG == 1 
@@ -243,7 +243,7 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 							bitWrite( this->action , i , 0 ) ;	
 						}
 						//time >= low : start actor
-						else if( ( root[ this->actors[i].type ] ) >= ( this->actors[i].low ) )
+						else if( ( root[ this->actors[i].type ] ) >= ( this->actors[i].high ) )
 						{
 						
 						#if DEBUG == 1 
@@ -265,6 +265,12 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 						Serial.println("not hour temporal actor");
 						Serial.println(this->actors[i].type);
 						Serial.println(i);
+						Serial.println("actifTime : ");
+						Serial.println(this->actors[i].actifTime);
+						Serial.println("millis : ");
+						Serial.println(millis() );
+						Serial.println(" high : ");
+						Serial.println(this->actors[i].high );
 						Serial.println();
 					
 					#endif
@@ -308,6 +314,14 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 						Serial.print("temporal : ");
 						Serial.println(this->actors[i].temporal);
 						Serial.println(i);
+						Serial.println("inactifTime : ");
+						Serial.println(this->actors[i].inactifTime);
+						Serial.println("millis : ");
+						Serial.println(millis() );
+						Serial.println(" low : ");
+						Serial.println(this->actors[i].low );
+						Serial.println();
+
 						Serial.println();
 					
 					#endif

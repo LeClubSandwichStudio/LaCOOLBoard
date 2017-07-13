@@ -26,16 +26,16 @@
 
 
 /**
-*	CoolBoardLed::colorFade ( Red , Green , Blue, Time in seconds ):
-*	colorFade animation:	Fade In over T(seconds)
-*				Fade Out over T(seconds)
+*	CoolBoardLed::fade ( Red , Green , Blue, Time in seconds ):
+*	fade animation:	Fade In over T(seconds)
+*			Fade Out over T(seconds)
 */
-void CoolBoardLed::colorFade(int R, int G, int B, int T) 
+void CoolBoardLed::fade(int R, int G, int B, float T) 
 {
 
 #if DEBUG == 1
 
-	Serial.println( F("Entering CoolBoardLed.colorFade()") );
+	Serial.println( F("Entering CoolBoardLed.fade()") );
 	Serial.println();
 	Serial.print( F("R : ") );
 	Serial.println(R);
@@ -48,18 +48,21 @@ void CoolBoardLed::colorFade(int R, int G, int B, int T)
 	Serial.println();
 
 #endif	
-
-	for (int k = 0; k < 1000; k++) 
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
-	}
-	for (int k = 1000; k >= 0; k--) 
-	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 0; k < 1000; k++) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
+		
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
 }
 
@@ -68,7 +71,7 @@ void CoolBoardLed::colorFade(int R, int G, int B, int T)
 *	Blink animation:	Led On for T seconds
 				Led off
 */
-void CoolBoardLed::blink(int R, int G, int B, int T) 
+void CoolBoardLed::blink(int R, int G, int B, float T) 
 {
 
 #if DEBUG == 1
@@ -87,18 +90,21 @@ void CoolBoardLed::blink(int R, int G, int B, int T)
 
 #endif	
 
-	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-	neoPixelLed->Show();
-	delay(T);
-	neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-	neoPixelLed->Show();
+	if(this->ledActive == 1 )
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+		neoPixelLed->Show();
+		delay(T);
+		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+		neoPixelLed->Show();
+	}
 }
 
 /**
 *	CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
 *	Fade In animation:	gradual increase over T(seconds)
 */
-void CoolBoardLed::fadeIn(int R, int G, int B, int T) 
+void CoolBoardLed::fadeIn(int R, int G, int B, float T) 
 {
 
 #if DEBUG == 1
@@ -116,20 +122,24 @@ void CoolBoardLed::fadeIn(int R, int G, int B, int T)
 	Serial.println();
 
 #endif	
-
-	for (int k = 0; k < 1000; k++) 
+	
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 0; k < 1000; k++) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
+
 }
 
 /**
 *	CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
 *	Fade Out animation:	gradual decrease over T(seconds)
 */
-void CoolBoardLed::fadeOut(int R, int G, int B, int T) 
+void CoolBoardLed::fadeOut(int R, int G, int B, float T) 
 {
 
 #if DEBUG == 1 
@@ -148,12 +158,14 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T)
 
 #endif	
 
-
-	for (int k = 1000; k >= 0; k--) 
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
 }
 
@@ -161,7 +173,7 @@ void CoolBoardLed::fadeOut(int R, int G, int B, int T)
 *	CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
 *	Strobe animation:	blinks over T(seconds)	
 */
-void CoolBoardLed::strobe(int R, int G, int B, int T) 
+void CoolBoardLed::strobe(int R, int G, int B, float T) 
 {
 
 #if DEBUG == 1
@@ -180,15 +192,17 @@ void CoolBoardLed::strobe(int R, int G, int B, int T)
 
 #endif	
 
-	
-	for (int k = 1000; k >= 0; k--) 
-	{
-		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-		neoPixelLed->Show();
-		delay(T);
-		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-		neoPixelLed->Show();
-		delay(T);
+	if(this->ledActive == 1 )
+	{	
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+			neoPixelLed->Show();
+			delay(T);
+			neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
 }
 
@@ -224,11 +238,16 @@ void CoolBoardLed::begin( )
 
 #endif
 
-	pinMode(5,OUTPUT);
-	digitalWrite(5,HIGH);
-	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
-	neoPixelLed->Begin();
-	neoPixelLed->Show();
+	if(this->ledActive == 1 )
+	{
+		pinMode(5,OUTPUT);
+		digitalWrite(5,HIGH);
+		neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
+		neoPixelLed->Begin();
+		neoPixelLed->Show();
+
+	}
+
 } 
 
 /**
@@ -253,8 +272,12 @@ void CoolBoardLed::write(int R, int G, int B)
 
 #endif
 
-	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-	neoPixelLed->Show();
+	if(this->ledActive == 1 )
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+		neoPixelLed->Show();
+	}
+
 }
 
 /**

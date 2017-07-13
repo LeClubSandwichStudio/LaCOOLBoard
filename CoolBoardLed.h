@@ -34,15 +34,15 @@ public:
 
 
 	//Neo Pixel Led methods :
-	void colorFade(int R, int G, int B, int T);
+	void fade(int R, int G, int B, float T);
 
-	void blink(int R, int G, int B, int T);
+	void blink(int R, int G, int B, float T);
 
-	void fadeIn(int R, int G, int B, int T);
+	void fadeIn(int R, int G, int B, float T);
 
-	void fadeOut(int R, int G, int B, int T);
+	void fadeOut(int R, int G, int B, float T);
 
-	void strobe(int R, int G, int B, int T); 
+	void strobe(int R, int G, int B, float T); 
 
 
 

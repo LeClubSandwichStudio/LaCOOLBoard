@@ -47,14 +47,16 @@ void CoolBoard::begin()
 	fileSystem.begin();
 	delay(100);
 	
-	coolBoardSensors.config();
-	coolBoardSensors.begin();
-	coolBoardSensors.printConf();
-	delay(100);
-
 	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.printConf();
+	delay(100);
+	
+	coolBoardLed.write(255,128,0);//orange
+	
+	coolBoardSensors.config();
+	coolBoardSensors.begin();
+	coolBoardSensors.printConf();
 	delay(100);
 	
 	wifiManager.config();
@@ -91,6 +93,8 @@ void CoolBoard::begin()
 		delay(100);
 	}
 	
+	coolBoardLed.fadeOut(255,128,0,0.5);//orange
+
 	this->connect();
 	delay(100);
 
@@ -98,6 +102,8 @@ void CoolBoard::begin()
 	rtc.begin();
 	rtc.printConf();
 	delay(100);
+	
+	coolBoardLed.blink(0,255,0,0.5);//green
 
 }
 
@@ -119,6 +125,7 @@ int CoolBoard::connect()
 	delay(100);
 
 #endif
+	coolBoardLed.write(0,0,255);//blue
 
 	if (wifiManager.state() != WL_CONNECTED)
 	{		
@@ -161,6 +168,8 @@ int CoolBoard::connect()
 
 #endif
 
+	coolBoardLed.blink(0,0,255,0.5);//blue
+
 	return(mqtt.state());
 }
 
@@ -177,6 +186,8 @@ int CoolBoard::connect()
 void CoolBoard::onLineMode()
 {
 
+	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
+
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolBoard.onLineMode() ") );
@@ -190,7 +201,9 @@ void CoolBoard::onLineMode()
 	//send saved data if any
 	if(fileSystem.isDataSaved())
 	{
-	
+
+		coolBoardLed.fadeIn(128,128,255,0.5);//shade of blue
+
 	#if DEBUG == 1
 
 		Serial.println( F("There is data saved on the File System") );
@@ -198,7 +211,8 @@ void CoolBoard::onLineMode()
 		Serial.println();
 	
 	#endif	
-	
+		coolBoardLed.strobe(128,128,255,0.5);//shade of blue 
+
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
@@ -208,9 +222,13 @@ void CoolBoard::onLineMode()
 		String jsonData = "{\"state\":{\"reported\":";
 		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
 		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
-
+		
+		coolBoardLed.strobe(128,128,255,0.5);//shade of blue
+		
 		mqtt.publish( data.c_str() );
 		mqtt.mqttLoop();
+		
+		coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue		
 	
 	#if DEBUG == 1
 
@@ -221,12 +239,15 @@ void CoolBoard::onLineMode()
 
 	}
 
+	coolBoardLed.blink(128,255,50,0.5);//shade of green
+
 	//clock update
 	rtc.update();
 
 	//read user data if user is active
 	if(userActive)
 	{
+		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
 	
 	#if DEBUG == 1
 
@@ -235,7 +256,8 @@ void CoolBoard::onLineMode()
 		Serial.println();
 	
 	#endif	
-	
+		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
+
 		//reading user data
 		data=this->userData();//{"":"","":"","",""}
 
@@ -254,6 +276,8 @@ void CoolBoard::onLineMode()
 
 		//formatting json correctly
 		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+		
+		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
 				
 	}	
 	else
@@ -265,7 +289,7 @@ void CoolBoard::onLineMode()
 		Serial.println();
 	
 	#endif
-
+		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
 		data=this->readSensors();//{..,..,..}
 	}
 	
@@ -280,10 +304,12 @@ void CoolBoard::onLineMode()
 		Serial.println();
 
 	#endif
-
+		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
 		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
 	
+	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
+
 	//formatting data:
 	String jsonData = "{\"state\":{\"reported\":";
 	jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
@@ -292,8 +318,9 @@ void CoolBoard::onLineMode()
 	//mqtt client loop to allow data handling
 	mqtt.mqttLoop();
 
+	coolBoardLed.blink(128,255,50,0.5);//shade of green	
+
 	//read mqtt answer
-	
 	answer = mqtt.read();
 
 #if DEBUG == 1 
@@ -305,28 +332,33 @@ void CoolBoard::onLineMode()
 
 #endif	
 
+	coolBoardLed.fadeOut(128,255,50,0.5);//shade of green	
 
 	//check if the configuration needs update 
 	//and update it if needed 
 	this -> update(answer.c_str());
 	
+	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green	
 
 	//publishing data	
 	if( this->sleepActive==0)	
 	{	
-		
+		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
+	
 		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 		mqtt.mqttLoop();
 	
 	}
 	else
 	{
+		coolBoardLed.strobe(230,255,0,0.5);//shade of yellow	
+
 		mqtt.publish(jsonData.c_str());		
 		this->sleep( this->getLogInterval() ) ;
 		mqtt.mqttLoop();
 	}
 
-	
+	coolBoardLed.fadeOut(128,255,50,0.5);//shade of green		
 		
 		
 }
@@ -341,7 +373,7 @@ void CoolBoard::onLineMode()
 */
 void CoolBoard::offLineMode()
 {
-
+	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 #if DEBUG == 1	
 	
 	Serial.println( F("Entering off line mode ") );	
@@ -352,6 +384,8 @@ void CoolBoard::offLineMode()
 	if(userActive)
 	{
 
+		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
+
 	#if DEBUG == 1
 		
 		Serial.println( F("User is Active") );
@@ -359,6 +393,8 @@ void CoolBoard::offLineMode()
 		Serial.println();
 
 	#endif
+
+		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
 
 		//reading user data
 		data=this->userData();//{"":"","":"","",""}
@@ -381,6 +417,8 @@ void CoolBoard::offLineMode()
 
 		//formatting json correctly
 		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
+
+		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
 				
 	}	
 	else
@@ -393,8 +431,12 @@ void CoolBoard::offLineMode()
 
 	#endif
 
+		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
+
 		data=this->readSensors();//{..,..,..}
 	}
+
+	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
 	//do action
 	if (jetpackActive)
@@ -407,14 +449,19 @@ void CoolBoard::offLineMode()
 		Serial.println();
 	
 	#endif
-
+		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue	
+	
 		jetPack.doAction(data.c_str(), sensorJsonSize);
 	}
 	
+	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 	
 	//saving data in the file system
 	
 	fileSystem.saveSensorData(data.c_str(), sensorJsonSize);
+
+	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green	
+
 }
 
 /**
@@ -443,6 +490,11 @@ bool CoolBoard::config()
 
 	//open file system
 	fileSystem.begin();
+
+	coolBoardLed.config();
+	coolBoardLed.begin();
+	coolBoardLed.fadeIn(243,171,46,0.5);//shade of orange		
+
 	
 	//open configuration file
 	File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
@@ -456,7 +508,7 @@ bool CoolBoard::config()
 		Serial.println( F("failed to read /coolBoardConfig.json  ") );
 
 	#endif
-	
+		coolBoardLed.blink(255,0,0,0.5);//shade of red		
 		return(false);
 	}
 
@@ -481,7 +533,7 @@ bool CoolBoard::config()
 			Serial.println( F("failed to parse CoolBoard Config json object ") );
 	
 		#endif
-
+			coolBoardLed.blink(255,0,0,0.5);//shade of red		
 			return(false);
 		}
 
@@ -608,7 +660,7 @@ bool CoolBoard::config()
 				Serial.println();
 			
 			#endif
- 
+ 				coolBoardLed.blink(255,0,0,0.5);//shade of red		
 				return(false);
 			}
 
@@ -617,6 +669,10 @@ bool CoolBoard::config()
 			return(true);
 		}
 	}
+
+	coolBoardLed.strobe(243,171,46,0.5);//shade of orange
+	
+	coolBoardLed.fadeOut(243,171,46,0.5);//shade of orange				
 }
 
 /**
@@ -678,6 +734,7 @@ void CoolBoard::printConf()
 */
 void CoolBoard::update(const char * answer)
 {
+	coolBoardLed.fadeIn(153,76,0,0.5);//shade of brown		
 
 #if DEBUG == 1
 
@@ -801,7 +858,10 @@ void CoolBoard::update(const char * answer)
 	
 	#endif
 	
-	}		
+	}
+
+	coolBoardLed.strobe(153,76,0,0.5);//shade of brown
+	coolBoardLed.fadeOut(153,76,0,0.5);//shade of brown								
 }
 
 /**
@@ -838,12 +898,15 @@ uint16_t CoolBoard::getLogInterval()
 String CoolBoard::readSensors()
 {
 
+	coolBoardLed.fadeIn(128,255,0,0.5);//light shade of green
+				
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolBoard.readSensors()") );
 	Serial.println();
 
 #endif
+	coolBoardLed.strobe(128,255,0,0.5);//light shade of green
 
 	String sensorsData;
 
@@ -886,6 +949,7 @@ String CoolBoard::readSensors()
 	Serial.println();
 
 #endif
+	coolBoardLed.fadeOut(128,255,0,0.5);//light shade of green
 
 	return(sensorsData);
 
