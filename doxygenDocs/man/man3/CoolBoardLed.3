@@ -28,19 +28,19 @@ CoolBoardLed \- This class handles the led in the Sensor Board\&.
 .RI "void \fBprintConf\fP ()"
 .br
 .ti -1c
-.RI "void \fBcolorFade\fP (int R, int G, int B, int T)"
+.RI "void \fBfade\fP (int R, int G, int B, float T)"
 .br
 .ti -1c
-.RI "void \fBblink\fP (int R, int G, int B, int T)"
+.RI "void \fBblink\fP (int R, int G, int B, float T)"
 .br
 .ti -1c
-.RI "void \fBfadeIn\fP (int R, int G, int B, int T)"
+.RI "void \fBfadeIn\fP (int R, int G, int B, float T)"
 .br
 .ti -1c
-.RI "void \fBfadeOut\fP (int R, int G, int B, int T)"
+.RI "void \fBfadeOut\fP (int R, int G, int B, float T)"
 .br
 .ti -1c
-.RI "void \fBstrobe\fP (int R, int G, int B, int T)"
+.RI "void \fBstrobe\fP (int R, int G, int B, float T)"
 .br
 .in -1c
 .SS "Private Attributes"
@@ -63,74 +63,220 @@ Definition at line 20 of file CoolBoardLed\&.h\&.
 .SS "void CoolBoardLed::begin ()"
 \fBCoolBoardLed::begin()\fP: This method is provided to start the Led Object by setting the correct pin and creating a dynamic neoPixelBus 
 .PP
-Definition at line 218 of file CoolBoardLed\&.cpp\&.
+Definition at line 232 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
 .PP
-Referenced by CoolBoard::begin()\&.
+Referenced by CoolBoard::begin(), and CoolBoard::config()\&.
 .PP
 .nf
-219 {
-220 
-221 #if DEBUG == 1
-222 
-223     Serial\&.println( F("Entering CoolBoardLed\&.begin() ") );
-224 
-225 #endif
-226 
-227     pinMode(5,OUTPUT);
-228     digitalWrite(5,HIGH);
-229     neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
-230     neoPixelLed->Begin();
-231     neoPixelLed->Show();
-232 } 
+233 {
+234 
+235 #if DEBUG == 1
+236 
+237     Serial\&.println( F("Entering CoolBoardLed\&.begin() ") );
+238 
+239 #endif
+240 
+241     if(this->ledActive == 1 )
+242     {
+243         pinMode(5,OUTPUT);
+244         digitalWrite(5,HIGH);
+245         neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
+246         neoPixelLed->Begin();
+247         neoPixelLed->Show();
+248 
+249     }
+250 
+251 } 
 .fi
-.SS "void CoolBoardLed::blink (int R, int G, int B, int T)"
+.SS "void CoolBoardLed::blink (int R, int G, int B, float T)"
 CoolBoardLed::blink( Red , Green , Blue , Time in seconds ): Blink animation: Led On for T seconds Led off 
 .PP
-Definition at line 71 of file CoolBoardLed\&.cpp\&.
+Definition at line 74 of file CoolBoardLed\&.cpp\&.
+.PP
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::begin(), CoolBoard::config(), CoolBoard::connect(), CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
+.PP
+.nf
+75 {
+76 
+77 #if DEBUG == 1
+78 
+79     Serial\&.println( F("Entering CoolBoardLed\&.blink()"));
+80     Serial\&.println();
+81     Serial\&.print( F("R : "));
+82     Serial\&.println(R);
+83     Serial\&.print( F("G : ") );
+84     Serial\&.println(G);
+85     Serial\&.print( F("B : ") );
+86     Serial\&.println(B);
+87     Serial\&.print( F("Time :") );
+88     Serial\&.println(T);
+89     Serial\&.println();
+90 
+91 #endif  
+92 
+93     if(this->ledActive == 1 )
+94     {
+95         neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+96         neoPixelLed->Show();
+97         delay(T);
+98         neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+99         neoPixelLed->Show();
+100     }
+101 }
+.fi
+.SS "bool CoolBoardLed::config ()"
+\fBCoolBoardLed::config()\fP: This method is provided to configure the Led Object : -ledActive=0 : deactivated -ledActive=1 : activated 
+.PP
+\fBReturns:\fP
+.RS 4
+true if the configuration done, false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 291 of file CoolBoardLed\&.cpp\&.
+.PP
+References ledActive\&.
+.PP
+Referenced by CoolBoard::begin(), CoolBoard::config(), and CoolBoard::update()\&.
+.PP
+.nf
+292 {
+293 
+294 #if DEBUG == 1 
+295         
+296     Serial\&.println( F("Entering CoolBoardLed\&.config()") );
+297     Serial\&.println();
+298 
+299 #endif
+300     
+301     File coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "r");
+302 
+303     if (!coolBoardLedConfig) 
+304     {
+305     
+306     #if DEBUG == 1
+307 
+308         Serial\&.println( F("failed to read /coolBoardLedConfig\&.json") );
+309         Serial\&.println();
+310 
+311     #endif
+312 
+313         return(false);
+314     }
+315     else
+316     {
+317         size_t size = coolBoardLedConfig\&.size();
+318         // Allocate a buffer to store contents of the file\&.
+319         std::unique_ptr<char[]> buf(new char[size]);
+320 
+321         coolBoardLedConfig\&.readBytes(buf\&.get(), size);
+322         DynamicJsonBuffer jsonBuffer;
+323         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+324         if (!json\&.success()) 
+325         {
+326         
+327         #if DEBUG == 1
+328 
+329             Serial\&.println( F("failed to parse json") );
+330             Serial\&.println();
+331         
+332         #endif
+333 
+334             return(false);
+335         } 
+336         else
+337         {
+338         
+339         #if DEBUG == 1
+340     
+341             Serial\&.println( F("read configuration file : ") );
+342             json\&.printTo(Serial);
+343             Serial\&.println();
+344         
+345         #endif
+346   
+347             if(json["ledActive"]\&.success() )
+348             {
+349                 this->ledActive = json["ledActive"]; 
+350             }
+351             else
+352             {
+353                 this->ledActive=this->ledActive;            
+354             }
+355             
+356             json["ledActive"]=this->ledActive;
+357             coolBoardLedConfig\&.close();
+358             
+359             coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w");
+360             if(!coolBoardLedConfig)
+361             {
+362             
+363             #if DEBUG == 1 
+364 
+365                 Serial\&.println( F("failed to write to /coolBoardLedConfig\&.json") );
+366                 Serial\&.println();
+367 
+368             #endif
+369 
+370                 return(false);          
+371             }
+372 
+373             json\&.printTo(coolBoardLedConfig);
+374             coolBoardLedConfig\&.close();
+375 
+376         #if DEBUG == 1
+377     
+378             Serial\&.println( F("saved Led Config is : ") );
+379             json\&.printTo(Serial);
+380             Serial\&.println();
+381 
+382         #endif
+383 
+384             return(true); 
+385         }
+386     }   
+387 
+388 }               
+.fi
+.SS "void CoolBoardLed::end ()"
+\fBCoolBoardLed::end()\fP : this method is provided to delete the dynamically created neoPixelLed 
+.PP
+Definition at line 213 of file CoolBoardLed\&.cpp\&.
 .PP
 References neoPixelLed\&.
 .PP
 .nf
-72 {
-73 
-74 #if DEBUG == 1
-75 
-76     Serial\&.println( F("Entering CoolBoardLed\&.blink()"));
-77     Serial\&.println();
-78     Serial\&.print( F("R : "));
-79     Serial\&.println(R);
-80     Serial\&.print( F("G : ") );
-81     Serial\&.println(G);
-82     Serial\&.print( F("B : ") );
-83     Serial\&.println(B);
-84     Serial\&.print( F("Time :") );
-85     Serial\&.println(T);
-86     Serial\&.println();
-87 
-88 #endif  
-89 
-90     neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-91     neoPixelLed->Show();
-92     delay(T);
-93     neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-94     neoPixelLed->Show();
-95 }
+214 {
+215 
+216 #if DEBUG == 1 
+217     
+218     Serial\&.println( F("Entering CoolBoardLed\&.end()") );
+219 
+220 #endif
+221 
+222     delete neoPixelLed;
+223 }
 .fi
-.SS "void CoolBoardLed::colorFade (int R, int G, int B, int T)"
-\fBCoolBoardLed::colorFade\fP ( Red , Green , Blue, Time in seconds ): colorFade animation: Fade In over T(seconds) Fade Out over T(seconds) 
+.SS "void CoolBoardLed::fade (int R, int G, int B, float T)"
+\fBCoolBoardLed::fade\fP ( Red , Green , Blue, Time in seconds ): fade animation: Fade In over T(seconds) Fade Out over T(seconds) 
 .PP
 Definition at line 33 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
 .PP
 .nf
 34 {
 35 
 36 #if DEBUG == 1
 37 
-38     Serial\&.println( F("Entering CoolBoardLed\&.colorFade()") );
+38     Serial\&.println( F("Entering CoolBoardLed\&.fade()") );
 39     Serial\&.println();
 40     Serial\&.print( F("R : ") );
 41     Serial\&.println(R);
@@ -143,316 +289,205 @@ References neoPixelLed\&.
 48     Serial\&.println();
 49 
 50 #endif  
-51 
-52     for (int k = 0; k < 1000; k++) 
-53     {
-54         neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-55         neoPixelLed->Show();
-56         delay(T);
-57     }
-58     for (int k = 1000; k >= 0; k--) 
-59     {
-60         neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-61         neoPixelLed->Show();
-62         delay(T);
-63     }
-64 }
+51     if(this->ledActive == 1 )
+52     {
+53         for (int k = 0; k < 1000; k++) 
+54         {
+55             neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+56             neoPixelLed->Show();
+57             delay(T);
+58         }
+59         
+60         for (int k = 1000; k >= 0; k--) 
+61         {
+62             neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+63             neoPixelLed->Show();
+64             delay(T);
+65         }
+66     }
+67 }
 .fi
-.SS "bool CoolBoardLed::config ()"
-\fBCoolBoardLed::config()\fP: This method is provided to configure the Led Object : -ledActive=0 : deactivated -ledActive=1 : activated 
-.PP
-\fBReturns:\fP
-.RS 4
-true if the configuration done, false otherwise 
-.RE
-.PP
-
-.PP
-Definition at line 268 of file CoolBoardLed\&.cpp\&.
-.PP
-References ledActive\&.
-.PP
-Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
-.PP
-.nf
-269 {
-270 
-271 #if DEBUG == 1 
-272         
-273     Serial\&.println( F("Entering CoolBoardLed\&.config()") );
-274     Serial\&.println();
-275 
-276 #endif
-277     
-278     File coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "r");
-279 
-280     if (!coolBoardLedConfig) 
-281     {
-282     
-283     #if DEBUG == 1
-284 
-285         Serial\&.println( F("failed to read /coolBoardLedConfig\&.json") );
-286         Serial\&.println();
-287 
-288     #endif
-289 
-290         return(false);
-291     }
-292     else
-293     {
-294         size_t size = coolBoardLedConfig\&.size();
-295         // Allocate a buffer to store contents of the file\&.
-296         std::unique_ptr<char[]> buf(new char[size]);
-297 
-298         coolBoardLedConfig\&.readBytes(buf\&.get(), size);
-299         DynamicJsonBuffer jsonBuffer;
-300         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-301         if (!json\&.success()) 
-302         {
-303         
-304         #if DEBUG == 1
-305 
-306             Serial\&.println( F("failed to parse json") );
-307             Serial\&.println();
-308         
-309         #endif
-310 
-311             return(false);
-312         } 
-313         else
-314         {
-315         
-316         #if DEBUG == 1
-317     
-318             Serial\&.println( F("read configuration file : ") );
-319             json\&.printTo(Serial);
-320             Serial\&.println();
-321         
-322         #endif
-323   
-324             if(json["ledActive"]\&.success() )
-325             {
-326                 this->ledActive = json["ledActive"]; 
-327             }
-328             else
-329             {
-330                 this->ledActive=this->ledActive;            
-331             }
-332             
-333             json["ledActive"]=this->ledActive;
-334             coolBoardLedConfig\&.close();
-335             
-336             coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w");
-337             if(!coolBoardLedConfig)
-338             {
-339             
-340             #if DEBUG == 1 
-341 
-342                 Serial\&.println( F("failed to write to /coolBoardLedConfig\&.json") );
-343                 Serial\&.println();
-344 
-345             #endif
-346 
-347                 return(false);          
-348             }
-349 
-350             json\&.printTo(coolBoardLedConfig);
-351             coolBoardLedConfig\&.close();
-352 
-353         #if DEBUG == 1
-354     
-355             Serial\&.println( F("saved Led Config is : ") );
-356             json\&.printTo(Serial);
-357             Serial\&.println();
-358 
-359         #endif
-360 
-361             return(true); 
-362         }
-363     }   
-364 
-365 }               
-.fi
-.SS "void CoolBoardLed::end ()"
-\fBCoolBoardLed::end()\fP : this method is provided to delete the dynamically created neoPixelLed 
-.PP
-Definition at line 199 of file CoolBoardLed\&.cpp\&.
-.PP
-References neoPixelLed\&.
-.PP
-.nf
-200 {
-201 
-202 #if DEBUG == 1 
-203     
-204     Serial\&.println( F("Entering CoolBoardLed\&.end()") );
-205 
-206 #endif
-207 
-208     delete neoPixelLed;
-209 }
-.fi
-.SS "void CoolBoardLed::fadeIn (int R, int G, int B, int T)"
+.SS "void CoolBoardLed::fadeIn (int R, int G, int B, float T)"
 CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds) Fade In animation: gradual increase over T(seconds) 
 .PP
-Definition at line 101 of file CoolBoardLed\&.cpp\&.
+Definition at line 107 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::config(), CoolBoard::offLineMode(), CoolBoard::onLineMode(), CoolBoard::readSensors(), and CoolBoard::update()\&.
 .PP
 .nf
-102 {
-103 
-104 #if DEBUG == 1
-105 
-106     Serial\&.println( F("Entering CoolBoardLed\&.fadeIn()") );
-107     Serial\&.println();
-108     Serial\&.print( F("R : ") );
-109     Serial\&.println(R);
-110     Serial\&.print( F("G : ") );
-111     Serial\&.println(G);
-112     Serial\&.print( F("B : ") );
-113     Serial\&.println(B);
-114     Serial\&.print( F("Time :") );
-115     Serial\&.println(T);
-116     Serial\&.println();
-117 
-118 #endif  
-119 
-120     for (int k = 0; k < 1000; k++) 
-121     {
-122         neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-123         neoPixelLed->Show();
-124         delay(T);
-125     }
-126 }
+108 {
+109 
+110 #if DEBUG == 1
+111 
+112     Serial\&.println( F("Entering CoolBoardLed\&.fadeIn()") );
+113     Serial\&.println();
+114     Serial\&.print( F("R : ") );
+115     Serial\&.println(R);
+116     Serial\&.print( F("G : ") );
+117     Serial\&.println(G);
+118     Serial\&.print( F("B : ") );
+119     Serial\&.println(B);
+120     Serial\&.print( F("Time :") );
+121     Serial\&.println(T);
+122     Serial\&.println();
+123 
+124 #endif  
+125     
+126     if(this->ledActive == 1 )
+127     {
+128         for (int k = 0; k < 1000; k++) 
+129         {
+130             neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+131             neoPixelLed->Show();
+132             delay(T);
+133         }
+134     }
+135 
+136 }
 .fi
-.SS "void CoolBoardLed::fadeOut (int R, int G, int B, int T)"
+.SS "void CoolBoardLed::fadeOut (int R, int G, int B, float T)"
 CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds) Fade Out animation: gradual decrease over T(seconds) 
 .PP
-Definition at line 132 of file CoolBoardLed\&.cpp\&.
+Definition at line 142 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::begin(), CoolBoard::config(), CoolBoard::offLineMode(), CoolBoard::onLineMode(), CoolBoard::readSensors(), and CoolBoard::update()\&.
 .PP
 .nf
-133 {
-134 
-135 #if DEBUG == 1 
-136 
-137     Serial\&.println( F("Entering CoolBoardLed\&.fadeOut()" ) );
-138     Serial\&.println();
-139     Serial\&.print( F("R : ") );
-140     Serial\&.println(R);
-141     Serial\&.print( F("G : ") );
-142     Serial\&.println(G);
-143     Serial\&.print( F("B : ") );
-144     Serial\&.println(B);
-145     Serial\&.print( F("Time :") );
-146     Serial\&.println(T);
-147     Serial\&.println();
-148 
-149 #endif  
-150 
-151 
-152     for (int k = 1000; k >= 0; k--) 
-153     {
-154         neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-155         neoPixelLed->Show();
-156         delay(T);
-157     }
-158 }
+143 {
+144 
+145 #if DEBUG == 1 
+146 
+147     Serial\&.println( F("Entering CoolBoardLed\&.fadeOut()" ) );
+148     Serial\&.println();
+149     Serial\&.print( F("R : ") );
+150     Serial\&.println(R);
+151     Serial\&.print( F("G : ") );
+152     Serial\&.println(G);
+153     Serial\&.print( F("B : ") );
+154     Serial\&.println(B);
+155     Serial\&.print( F("Time :") );
+156     Serial\&.println(T);
+157     Serial\&.println();
+158 
+159 #endif  
+160 
+161     if(this->ledActive == 1 )
+162     {
+163         for (int k = 1000; k >= 0; k--) 
+164         {
+165             neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+166             neoPixelLed->Show();
+167             delay(T);
+168         }
+169     }
+170 }
 .fi
 .SS "void CoolBoardLed::printConf ()"
 \fBCoolBoardLed::printConf()\fP: This method is provided to print the Led Object Configuration to the Serial Monitor 
 .PP
-Definition at line 373 of file CoolBoardLed\&.cpp\&.
+Definition at line 396 of file CoolBoardLed\&.cpp\&.
 .PP
 References ledActive\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-374 {
-375 
-376 #if DEBUG == 1 
-377 
-378     Serial\&.println( F("Entering CoolBoardLed\&.printConf()") );
-379     Serial\&.println();
-380 
-381 #endif
-382 
-383     Serial\&.println("Led Configuration");
-384 
-385     Serial\&.print("ledActive : ");
-386     Serial\&.println(ledActive);
-387 
-388     Serial\&.println();    
-389 }
+397 {
+398 
+399 #if DEBUG == 1 
+400 
+401     Serial\&.println( F("Entering CoolBoardLed\&.printConf()") );
+402     Serial\&.println();
+403 
+404 #endif
+405 
+406     Serial\&.println("Led Configuration");
+407 
+408     Serial\&.print("ledActive : ");
+409     Serial\&.println(ledActive);
+410 
+411     Serial\&.println();    
+412 }
 .fi
-.SS "void CoolBoardLed::strobe (int R, int G, int B, int T)"
+.SS "void CoolBoardLed::strobe (int R, int G, int B, float T)"
 CoolBoardLed::strobe(Red , Green , Blue , Time in seconds) Strobe animation: blinks over T(seconds) 
 .PP
-Definition at line 164 of file CoolBoardLed\&.cpp\&.
+Definition at line 176 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::config(), CoolBoard::onLineMode(), CoolBoard::readSensors(), and CoolBoard::update()\&.
 .PP
 .nf
-165 {
-166 
-167 #if DEBUG == 1
-168 
-169     Serial\&.println( F("Entering CoolBoardLed\&.strobe()") );
-170     Serial\&.println();
-171     Serial\&.print( F("R : ") );
-172     Serial\&.println(R);
-173     Serial\&.print( F("G: ") );
-174     Serial\&.println(G);
-175     Serial\&.print( F("B : ") );
-176     Serial\&.println(B);
-177     Serial\&.print( F("Time :") );
-178     Serial\&.println(T);
-179     Serial\&.println();
+177 {
+178 
+179 #if DEBUG == 1
 180 
-181 #endif  
-182 
-183     
-184     for (int k = 1000; k >= 0; k--) 
-185     {
-186         neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-187         neoPixelLed->Show();
-188         delay(T);
-189         neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-190         neoPixelLed->Show();
-191         delay(T);
-192     }
-193 }
+181     Serial\&.println( F("Entering CoolBoardLed\&.strobe()") );
+182     Serial\&.println();
+183     Serial\&.print( F("R : ") );
+184     Serial\&.println(R);
+185     Serial\&.print( F("G: ") );
+186     Serial\&.println(G);
+187     Serial\&.print( F("B : ") );
+188     Serial\&.println(B);
+189     Serial\&.print( F("Time :") );
+190     Serial\&.println(T);
+191     Serial\&.println();
+192 
+193 #endif  
+194 
+195     if(this->ledActive == 1 )
+196     {   
+197         for (int k = 1000; k >= 0; k--) 
+198         {
+199             neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+200             neoPixelLed->Show();
+201             delay(T);
+202             neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+203             neoPixelLed->Show();
+204             delay(T);
+205         }
+206     }
+207 }
 .fi
 .SS "void CoolBoardLed::write (int R, int G, int B)"
 CoolBoardLed::write(Red,Green,Blue): This method is provided to set the Color of the Led 
 .PP
-Definition at line 239 of file CoolBoardLed\&.cpp\&.
+Definition at line 258 of file CoolBoardLed\&.cpp\&.
 .PP
-References neoPixelLed\&.
+References ledActive, and neoPixelLed\&.
+.PP
+Referenced by CoolBoard::begin(), and CoolBoard::connect()\&.
 .PP
 .nf
-240 {
-241 
-242 #if DEBUG == 1
-243 
-244     Serial\&.println( F("Entering CoolBoardLed\&.write()") );
-245     Serial\&.println();
-246     Serial\&.print( F("R : ") );
-247     Serial\&.println(R);
-248     Serial\&.print( F("G : ") );
-249     Serial\&.println(G);
-250     Serial\&.print( F("B : ") );
-251     Serial\&.println(B);
-252     Serial\&.println();    
-253 
-254 #endif
-255 
-256     neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-257     neoPixelLed->Show();
-258 }
+259 {
+260 
+261 #if DEBUG == 1
+262 
+263     Serial\&.println( F("Entering CoolBoardLed\&.write()") );
+264     Serial\&.println();
+265     Serial\&.print( F("R : ") );
+266     Serial\&.println(R);
+267     Serial\&.print( F("G : ") );
+268     Serial\&.println(G);
+269     Serial\&.print( F("B : ") );
+270     Serial\&.println(B);
+271     Serial\&.println();    
+272 
+273 #endif
+274 
+275     if(this->ledActive == 1 )
+276     {
+277         neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+278         neoPixelLed->Show();
+279     }
+280 
+281 }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -461,13 +496,13 @@ References neoPixelLed\&.
 .PP
 Definition at line 54 of file CoolBoardLed\&.h\&.
 .PP
-Referenced by config(), and printConf()\&.
+Referenced by begin(), blink(), config(), fade(), fadeIn(), fadeOut(), printConf(), strobe(), and write()\&.
 .SS "NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* CoolBoardLed::neoPixelLed = NULL\fC [private]\fP"
 
 .PP
 Definition at line 52 of file CoolBoardLed\&.h\&.
 .PP
-Referenced by begin(), blink(), colorFade(), end(), fadeIn(), fadeOut(), strobe(), and write()\&.
+Referenced by begin(), blink(), end(), fade(), fadeIn(), fadeOut(), strobe(), and write()\&.
 
 .SH "Author"
 .PP 

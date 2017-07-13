@@ -122,7 +122,7 @@ Definition at line 33 of file CoolBoard\&.h\&.
 .PP
 Definition at line 37 of file CoolBoard\&.cpp\&.
 .PP
-References Jetpack::begin(), CoolFileSystem::begin(), CoolBoardLed::begin(), CoolMQTT::begin(), ExternalSensors::begin(), CoolWifi::begin(), CoolBoardSensors::begin(), CoolTime::begin(), Irene3000::begin(), CoolBoardLed::config(), Jetpack::config(), CoolWifi::config(), ExternalSensors::config(), CoolMQTT::config(), CoolTime::config(), Irene3000::config(), CoolBoardSensors::config(), connect(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolBoardLed::printConf(), Jetpack::printConf(), ExternalSensors::printConf(), CoolMQTT::printConf(), Irene3000::printConf(), CoolTime::printConf(), CoolWifi::printConf(), CoolBoardSensors::printConf(), rtc, and wifiManager\&.
+References Jetpack::begin(), CoolFileSystem::begin(), CoolBoardLed::begin(), CoolMQTT::begin(), ExternalSensors::begin(), CoolWifi::begin(), CoolBoardSensors::begin(), CoolTime::begin(), Irene3000::begin(), CoolBoardLed::blink(), CoolBoardLed::config(), Jetpack::config(), ExternalSensors::config(), CoolWifi::config(), CoolMQTT::config(), CoolTime::config(), Irene3000::config(), CoolBoardSensors::config(), connect(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, CoolBoardLed::fadeOut(), fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolBoardLed::printConf(), Jetpack::printConf(), ExternalSensors::printConf(), CoolMQTT::printConf(), Irene3000::printConf(), CoolWifi::printConf(), CoolTime::printConf(), CoolBoardSensors::printConf(), rtc, wifiManager, and CoolBoardLed::write()\&.
 .PP
 .nf
 38 {
@@ -137,59 +137,65 @@ References Jetpack::begin(), CoolFileSystem::begin(), CoolBoardLed::begin(), Coo
 47     fileSystem\&.begin();
 48     delay(100);
 49     
-50     coolBoardSensors\&.config();
-51     coolBoardSensors\&.begin();
-52     coolBoardSensors\&.printConf();
+50     coolBoardLed\&.config();
+51     coolBoardLed\&.begin();
+52     coolBoardLed\&.printConf();
 53     delay(100);
-54 
-55     coolBoardLed\&.config();
-56     coolBoardLed\&.begin();
-57     coolBoardLed\&.printConf();
-58     delay(100);
-59     
-60     wifiManager\&.config();
-61     wifiManager\&.begin();
-62     wifiManager\&.printConf();
-63     delay(100);
-64 
-65     mqtt\&.config();
-66     mqtt\&.begin();
-67     mqtt\&.printConf();
-68     delay(100);
-69 
-70     if (jetpackActive)
-71     {
-72         jetPack\&.config();
-73         jetPack\&.begin();
-74         jetPack\&.printConf();
-75         delay(100);
-76     }
-77 
-78     if (ireneActive)
-79     {
-80         irene3000\&.config();
-81         irene3000\&.begin();
-82         irene3000\&.printConf();
-83         delay(100);
-84     }
-85 
-86     if (externalSensorsActive)
-87     {
-88         externalSensors\&.config();
-89         externalSensors\&.begin();
-90         externalSensors\&.printConf();
-91         delay(100);
-92     }
-93     
-94     this->connect();
-95     delay(100);
-96 
-97     rtc\&.config();
-98     rtc\&.begin();
-99     rtc\&.printConf();
-100     delay(100);
-101 
-102 }
+54     
+55     coolBoardLed\&.write(255,128,0);//orange
+56     
+57     coolBoardSensors\&.config();
+58     coolBoardSensors\&.begin();
+59     coolBoardSensors\&.printConf();
+60     delay(100);
+61     
+62     wifiManager\&.config();
+63     wifiManager\&.begin();
+64     wifiManager\&.printConf();
+65     delay(100);
+66 
+67     mqtt\&.config();
+68     mqtt\&.begin();
+69     mqtt\&.printConf();
+70     delay(100);
+71 
+72     if (jetpackActive)
+73     {
+74         jetPack\&.config();
+75         jetPack\&.begin();
+76         jetPack\&.printConf();
+77         delay(100);
+78     }
+79 
+80     if (ireneActive)
+81     {
+82         irene3000\&.config();
+83         irene3000\&.begin();
+84         irene3000\&.printConf();
+85         delay(100);
+86     }
+87 
+88     if (externalSensorsActive)
+89     {
+90         externalSensors\&.config();
+91         externalSensors\&.begin();
+92         externalSensors\&.printConf();
+93         delay(100);
+94     }
+95     
+96     coolBoardLed\&.fadeOut(255,128,0,0\&.5);//orange
+97 
+98     this->connect();
+99     delay(100);
+100 
+101     rtc\&.config();
+102     rtc\&.begin();
+103     rtc\&.printConf();
+104     delay(100);
+105     
+106     coolBoardLed\&.blink(0,255,0,0\&.5);//green
+107 
+108 }
 .fi
 .SS "bool CoolBoard::config ()"
 \fBCoolBoard::config()\fP: This method is provided to configure the \fBCoolBoard\fP : -log interval -Size of the data to write -Size of the data to read -irene3000 activated/deactivated -jetpack activated/deactivated -external Sensors activated/deactivated -mqtt server timeout
@@ -201,199 +207,208 @@ true if configuration is done, false otherwise
 .PP
 
 .PP
-Definition at line 434 of file CoolBoard\&.cpp\&.
+Definition at line 481 of file CoolBoard\&.cpp\&.
 .PP
-References answerJsonSize, CoolFileSystem::begin(), externalSensorsActive, fileSystem, ireneActive, jetpackActive, logInterval, sensorJsonSize, serverTimeOut, sleepActive, and userActive\&.
+References answerJsonSize, CoolFileSystem::begin(), CoolBoardLed::begin(), CoolBoardLed::blink(), CoolBoardLed::config(), coolBoardLed, externalSensorsActive, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, ireneActive, jetpackActive, logInterval, sensorJsonSize, serverTimeOut, sleepActive, CoolBoardLed::strobe(), and userActive\&.
 .PP
 Referenced by update()\&.
 .PP
 .nf
-435 {
-436 
-437 #if DEBUG == 1
-438 
-439     Serial\&.println( F("Entering CoolBoard\&.config() ") );
-440     Serial\&.println();
-441 
-442 #endif
-443 
-444     //open file system
-445     fileSystem\&.begin();
-446     
-447     //open configuration file
-448     File configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "r");
-449     
-450     if (!configFile)
-451 
-452     {
-453     
-454     #if DEBUG == 1
-455 
-456         Serial\&.println( F("failed to read /coolBoardConfig\&.json  ") );
-457 
-458     #endif
-459     
-460         return(false);
-461     }
-462 
-463     else
-464     {
-465         size_t size = configFile\&.size();
-466 
-467         // Allocate a buffer to store contents of the file\&.
-468         std::unique_ptr < char[] > buf(new char[size]);
-469 
-470         configFile\&.readBytes(buf\&.get(), size);
-471 
-472         DynamicJsonBuffer jsonBuffer;
-473 
-474         JsonObject & json = jsonBuffer\&.parseObject(buf\&.get());
-475 
-476         if (!json\&.success())
-477         {
-478         
-479         #if DEBUG == 1
-480 
-481             Serial\&.println( F("failed to parse CoolBoard Config json object ") );
-482     
-483         #endif
-484 
-485             return(false);
-486         }
-487 
-488         else
-489         {   
-490         
-491         #if DEBUG == 1
-492             
-493             Serial\&.println( F("configuration json : ") );
-494             json\&.printTo(Serial);
-495             Serial\&.println();
-496         
-497         #endif
-498             
-499             //parsing userActive Key
-500             if (json["userActive"]\&.success())
-501             {
-502                 this -> userActive = json["userActive"];
-503             }
-504 
-505             else
-506             {
-507                 this -> userActive = this -> userActive;
-508             }
-509             json["userActive"] = this -> userActive;
-510 
-511             //parsing logInterval key
-512             if (json["logInterval"]\&.success())
-513             {
-514                 this -> logInterval = json["logInterval"];
-515             }
-516             else
-517             {
-518                 this -> logInterval = this -> logInterval;
-519             }
-520             json["logInterval"] = this -> logInterval;
+482 {
+483 
+484 #if DEBUG == 1
+485 
+486     Serial\&.println( F("Entering CoolBoard\&.config() ") );
+487     Serial\&.println();
+488 
+489 #endif
+490 
+491     //open file system
+492     fileSystem\&.begin();
+493 
+494     coolBoardLed\&.config();
+495     coolBoardLed\&.begin();
+496     coolBoardLed\&.fadeIn(243,171,46,0\&.5);//shade of orange     
+497 
+498     
+499     //open configuration file
+500     File configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "r");
+501     
+502     if (!configFile)
+503 
+504     {
+505     
+506     #if DEBUG == 1
+507 
+508         Serial\&.println( F("failed to read /coolBoardConfig\&.json  ") );
+509 
+510     #endif
+511         coolBoardLed\&.blink(255,0,0,0\&.5);//shade of red        
+512         return(false);
+513     }
+514 
+515     else
+516     {
+517         size_t size = configFile\&.size();
+518 
+519         // Allocate a buffer to store contents of the file\&.
+520         std::unique_ptr < char[] > buf(new char[size]);
 521 
-522             //parsing sensorJsonSize key
-523             if (json["sensorJsonSize"]\&.success())
-524             {
-525                 this -> sensorJsonSize = json["sensorJsonSize"];
-526             }
-527             else
-528             {
-529                 this -> sensorJsonSize = this -> sensorJsonSize;
-530             }
-531             json["sensorJsonSize"] = this -> sensorJsonSize;
-532             
-533             //parsing answerJsonSize key            
-534             if (json["answerJsonSize"]\&.success())
-535             {
-536                 this -> answerJsonSize = json["answerJsonSize"];
-537             }
-538             else
-539             {
-540                 this -> answerJsonSize = this -> answerJsonSize;
-541             }
-542             json["answerJsonSize"] = this -> answerJsonSize;
-543             
-544             //parsing ireneActive key           
-545             if (json["ireneActive"]\&.success())
-546             {
-547                 this -> ireneActive = json["ireneActive"];
-548             }
-549             else
-550             {
-551                 this -> ireneActive = this -> ireneActive;
-552             }
-553             json["ireneActive"] = this -> ireneActive;
-554             
-555             //parsing jetpackActive key
-556             if (json["jetpackActive"]\&.success())
-557             {
-558                 this -> jetpackActive = json["jetpackActive"];
-559             }
-560             else
-561             {
-562                 this -> jetpackActive = this -> jetpackActive;
-563             }
-564             json["jetpackActive"] = this -> jetpackActive;
-565 
-566             //parsing externalSensorsActive key
-567             if (json["externalSensorsActive"]\&.success())
-568             {
-569                 this -> externalSensorsActive = json["externalSensorsActive"];
-570             }
-571             else
-572             {
-573                 this -> externalSensorsActive = this -> externalSensorsActive;
-574             }
-575             json["externalSensorsActive"] = this -> externalSensorsActive;
-576 
-577             //parsing serverTimeOut key
-578             if (json["serverTimeOut"]\&.success())
-579             {
-580                 this -> serverTimeOut = json["serverTimeOut"];
-581             }
-582             else
-583             {
-584                 this -> serverTimeOut = this -> serverTimeOut;
-585             }
-586             json["serverTimeOut"] = this -> serverTimeOut;
-587             
-588             //parsing sleepActive key
-589             if (json["sleepActive"]\&.success())
-590             {
-591                 this -> sleepActive = json["sleepActive"];
-592             }
-593             else
-594             {
-595                 this -> sleepActive = this -> sleepActive;
-596             }
-597             json["sleepActive"] = this -> sleepActive;
-598 
-599             //saving the current/correct configuration
-600             configFile\&.close();
-601             configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "w");
-602             if (!configFile)
-603             {
-604             
-605             #if DEBUG == 1
-606 
-607                 Serial\&.println( F("failed to write to /coolBoardConfig\&.json") );
-608                 Serial\&.println();
-609             
-610             #endif
-611  
-612                 return(false);
-613             }
-614 
-615             json\&.printTo(configFile);
-616             configFile\&.close();
-617             return(true);
-618         }
-619     }
-620 }
+522         configFile\&.readBytes(buf\&.get(), size);
+523 
+524         DynamicJsonBuffer jsonBuffer;
+525 
+526         JsonObject & json = jsonBuffer\&.parseObject(buf\&.get());
+527 
+528         if (!json\&.success())
+529         {
+530         
+531         #if DEBUG == 1
+532 
+533             Serial\&.println( F("failed to parse CoolBoard Config json object ") );
+534     
+535         #endif
+536             coolBoardLed\&.blink(255,0,0,0\&.5);//shade of red        
+537             return(false);
+538         }
+539 
+540         else
+541         {   
+542         
+543         #if DEBUG == 1
+544             
+545             Serial\&.println( F("configuration json : ") );
+546             json\&.printTo(Serial);
+547             Serial\&.println();
+548         
+549         #endif
+550             
+551             //parsing userActive Key
+552             if (json["userActive"]\&.success())
+553             {
+554                 this -> userActive = json["userActive"];
+555             }
+556 
+557             else
+558             {
+559                 this -> userActive = this -> userActive;
+560             }
+561             json["userActive"] = this -> userActive;
+562 
+563             //parsing logInterval key
+564             if (json["logInterval"]\&.success())
+565             {
+566                 this -> logInterval = json["logInterval"];
+567             }
+568             else
+569             {
+570                 this -> logInterval = this -> logInterval;
+571             }
+572             json["logInterval"] = this -> logInterval;
+573 
+574             //parsing sensorJsonSize key
+575             if (json["sensorJsonSize"]\&.success())
+576             {
+577                 this -> sensorJsonSize = json["sensorJsonSize"];
+578             }
+579             else
+580             {
+581                 this -> sensorJsonSize = this -> sensorJsonSize;
+582             }
+583             json["sensorJsonSize"] = this -> sensorJsonSize;
+584             
+585             //parsing answerJsonSize key            
+586             if (json["answerJsonSize"]\&.success())
+587             {
+588                 this -> answerJsonSize = json["answerJsonSize"];
+589             }
+590             else
+591             {
+592                 this -> answerJsonSize = this -> answerJsonSize;
+593             }
+594             json["answerJsonSize"] = this -> answerJsonSize;
+595             
+596             //parsing ireneActive key           
+597             if (json["ireneActive"]\&.success())
+598             {
+599                 this -> ireneActive = json["ireneActive"];
+600             }
+601             else
+602             {
+603                 this -> ireneActive = this -> ireneActive;
+604             }
+605             json["ireneActive"] = this -> ireneActive;
+606             
+607             //parsing jetpackActive key
+608             if (json["jetpackActive"]\&.success())
+609             {
+610                 this -> jetpackActive = json["jetpackActive"];
+611             }
+612             else
+613             {
+614                 this -> jetpackActive = this -> jetpackActive;
+615             }
+616             json["jetpackActive"] = this -> jetpackActive;
+617 
+618             //parsing externalSensorsActive key
+619             if (json["externalSensorsActive"]\&.success())
+620             {
+621                 this -> externalSensorsActive = json["externalSensorsActive"];
+622             }
+623             else
+624             {
+625                 this -> externalSensorsActive = this -> externalSensorsActive;
+626             }
+627             json["externalSensorsActive"] = this -> externalSensorsActive;
+628 
+629             //parsing serverTimeOut key
+630             if (json["serverTimeOut"]\&.success())
+631             {
+632                 this -> serverTimeOut = json["serverTimeOut"];
+633             }
+634             else
+635             {
+636                 this -> serverTimeOut = this -> serverTimeOut;
+637             }
+638             json["serverTimeOut"] = this -> serverTimeOut;
+639             
+640             //parsing sleepActive key
+641             if (json["sleepActive"]\&.success())
+642             {
+643                 this -> sleepActive = json["sleepActive"];
+644             }
+645             else
+646             {
+647                 this -> sleepActive = this -> sleepActive;
+648             }
+649             json["sleepActive"] = this -> sleepActive;
+650 
+651             //saving the current/correct configuration
+652             configFile\&.close();
+653             configFile = SPIFFS\&.open("/coolBoardConfig\&.json", "w");
+654             if (!configFile)
+655             {
+656             
+657             #if DEBUG == 1
+658 
+659                 Serial\&.println( F("failed to write to /coolBoardConfig\&.json") );
+660                 Serial\&.println();
+661             
+662             #endif
+663                 coolBoardLed\&.blink(255,0,0,0\&.5);//shade of red        
+664                 return(false);
+665             }
+666 
+667             json\&.printTo(configFile);
+668             configFile\&.close();
+669             return(true);
+670         }
+671     }
+672 
+673     coolBoardLed\&.strobe(243,171,46,0\&.5);//shade of orange
+674     
+675     coolBoardLed\&.fadeOut(243,171,46,0\&.5);//shade of orange                
+676 }
 .fi
 .SS "int CoolBoard::connect ()"
 \fBCoolBoard::connect()\fP: This method is provided to manage the network connection and the mqtt connection\&.
@@ -405,67 +420,70 @@ mqtt client state
 .PP
 
 .PP
-Definition at line 111 of file CoolBoard\&.cpp\&.
+Definition at line 117 of file CoolBoard\&.cpp\&.
 .PP
-References CoolMQTT::connect(), CoolWifi::connect(), getLogInterval(), mqtt, CoolWifi::state(), CoolMQTT::state(), and wifiManager\&.
+References CoolBoardLed::blink(), CoolMQTT::connect(), CoolWifi::connect(), coolBoardLed, getLogInterval(), mqtt, CoolWifi::state(), CoolMQTT::state(), wifiManager, and CoolBoardLed::write()\&.
 .PP
 Referenced by begin()\&.
 .PP
 .nf
-112 {
-113 
-114 #if DEBUG == 1  
-115 
-116     Serial\&.println( F("Entering CoolBoard\&.connect ") );
-117     Serial\&.println();
-118     Serial\&.println( F("Connecting the CoolBoard  ") );
-119     delay(100);
-120 
-121 #endif
-122 
-123     if (wifiManager\&.state() != WL_CONNECTED)
-124     {       
-125     
-126     #if DEBUG == 1      
-127 
-128         Serial\&.println( F("CoolBoard not connected to WiFi ") );
-129         Serial\&.println( F("Launching CoolWifi") );
-130         Serial\&.println();
-131 
-132     #endif
-133         wifiManager\&.connect();
-134         delay(100);
-135     }
-136 
-137 
-138     
-139     if (mqtt\&.state() != 0)
-140     {   
-141     
-142     #if DEBUG == 1  
-143     
-144         Serial\&.println( F("CoolBoard not connected to MQTT ") );
-145         Serial\&.println( F("Launching mqtt\&.connect()") );
-146         Serial\&.println();
-147 
-148     #endif  
-149     
-150         mqtt\&.connect(this -> getLogInterval());
-151         delay(100);
-152         
-153     }
-154     
-155 #if DEBUG == 1
-156 
-157     Serial\&.println( F("mqtt state is :") );
-158     Serial\&.println(mqtt\&.state());
-159     Serial\&.println();
-160     delay(100);
-161 
-162 #endif
+118 {
+119 
+120 #if DEBUG == 1  
+121 
+122     Serial\&.println( F("Entering CoolBoard\&.connect ") );
+123     Serial\&.println();
+124     Serial\&.println( F("Connecting the CoolBoard  ") );
+125     delay(100);
+126 
+127 #endif
+128     coolBoardLed\&.write(0,0,255);//blue
+129 
+130     if (wifiManager\&.state() != WL_CONNECTED)
+131     {       
+132     
+133     #if DEBUG == 1      
+134 
+135         Serial\&.println( F("CoolBoard not connected to WiFi ") );
+136         Serial\&.println( F("Launching CoolWifi") );
+137         Serial\&.println();
+138 
+139     #endif
+140         wifiManager\&.connect();
+141         delay(100);
+142     }
+143 
+144 
+145     
+146     if (mqtt\&.state() != 0)
+147     {   
+148     
+149     #if DEBUG == 1  
+150     
+151         Serial\&.println( F("CoolBoard not connected to MQTT ") );
+152         Serial\&.println( F("Launching mqtt\&.connect()") );
+153         Serial\&.println();
+154 
+155     #endif  
+156     
+157         mqtt\&.connect(this -> getLogInterval());
+158         delay(100);
+159         
+160     }
+161     
+162 #if DEBUG == 1
 163 
-164     return(mqtt\&.state());
-165 }
+164     Serial\&.println( F("mqtt state is :") );
+165     Serial\&.println(mqtt\&.state());
+166     Serial\&.println();
+167     delay(100);
+168 
+169 #endif
+170 
+171     coolBoardLed\&.blink(0,0,255,0\&.5);//blue
+172 
+173     return(mqtt\&.state());
+174 }
 .fi
 .SS "uint16_t CoolBoard::getLogInterval ()"
 \fBCoolBoard::getLogInterval()\fP: This method is provided to get the log interval
@@ -477,328 +495,366 @@ interval value in ms
 .PP
 
 .PP
-Definition at line 814 of file CoolBoard\&.cpp\&.
+Definition at line 874 of file CoolBoard\&.cpp\&.
 .PP
 References logInterval\&.
 .PP
 Referenced by connect(), and onLineMode()\&.
 .PP
 .nf
-815 {
-816 
-817 #if DEBUG == 1
-818 
-819     Serial\&.println( F("Entering CoolBoard\&.getLogInterval() ") );
-820     Serial\&.println();
-821     Serial\&.println( F("log Interval is :") );
-822     Serial\&.println(logInterval);
-823     Serial\&.println();
-824 
-825 #endif
-826 
-827     return(this -> logInterval);
-828 }
+875 {
+876 
+877 #if DEBUG == 1
+878 
+879     Serial\&.println( F("Entering CoolBoard\&.getLogInterval() ") );
+880     Serial\&.println();
+881     Serial\&.println( F("log Interval is :") );
+882     Serial\&.println(logInterval);
+883     Serial\&.println();
+884 
+885 #endif
+886 
+887     return(this -> logInterval);
+888 }
 .fi
 .SS "void CoolBoard::offLineMode ()"
 CoolBoard::offlineMode(): This method is provided to manage the offLine mode: -read sensors -do actions -save data in the file system 
 .PP
-Definition at line 342 of file CoolBoard\&.cpp\&.
+Definition at line 374 of file CoolBoard\&.cpp\&.
 .PP
-References data, Jetpack::doAction(), fileSystem, jetPack, jetpackActive, readSensors(), CoolFileSystem::saveSensorData(), sensorJsonSize, userActive, and userData()\&.
+References CoolBoardLed::blink(), coolBoardLed, data, Jetpack::doAction(), CoolBoardLed::fade(), CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, jetPack, jetpackActive, readSensors(), CoolFileSystem::saveSensorData(), sensorJsonSize, userActive, and userData()\&.
 .PP
 .nf
-343 {
-344 
-345 #if DEBUG == 1  
-346     
-347     Serial\&.println( F("Entering off line mode ") );  
-348     
-349 #endif
-350 
-351     //read user data if user is active
-352     if(userActive)
-353     {
-354 
-355     #if DEBUG == 1
-356         
-357         Serial\&.println( F("User is Active") );
-358         Serial\&.println( F("Collecting User's data ( mac,username,timeStamp )") );
-359         Serial\&.println();
-360 
-361     #endif
-362 
-363         //reading user data
-364         data=this->userData();//{"":"","":"","",""}
-365 
-366         //formatting json 
-367         data\&.setCharAt( data\&.lastIndexOf('}') , ',');//{"":"","":"","","",
-368         
-369                 
-370         //read sensors data
-371     #if DEBUG == 1
-372 
-373         Serial\&.println( F("Collecting sensors data ") );
-374         Serial\&.println();
-375 
-376     #endif
-377 
-378         data+=this->readSensors();//{"":"","":"","","",{\&.\&.\&.\&.\&.\&.\&.}
-379 
-380         
-381 
-382         //formatting json correctly
-383         data\&.remove(data\&.lastIndexOf('{'), 1);//{"":"","":"","","",\&.\&.\&.\&.\&.\&.\&.}
-384                 
-385     }   
-386     else
-387     {
-388         //read sensors data
+375 {
+376     coolBoardLed\&.fade(51,100,50,0\&.5);//dark shade of green    
+377 #if DEBUG == 1  
+378     
+379     Serial\&.println( F("Entering off line mode ") );  
+380     
+381 #endif
+382 
+383     //read user data if user is active
+384     if(userActive)
+385     {
+386 
+387         coolBoardLed\&.fadeIn(245,237,27,0\&.5);//shade of yellow
+388 
 389     #if DEBUG == 1
-390 
-391         Serial\&.println( F("Collecting sensors data ") );
-392         Serial\&.println();
-393 
-394     #endif
-395 
-396         data=this->readSensors();//{\&.\&.,\&.\&.,\&.\&.}
-397     }
+390         
+391         Serial\&.println( F("User is Active") );
+392         Serial\&.println( F("Collecting User's data ( mac,username,timeStamp )") );
+393         Serial\&.println();
+394 
+395     #endif
+396 
+397         coolBoardLed\&.blink(245,237,27,0\&.5);//shade of yellow  
 398 
-399     //do action
-400     if (jetpackActive)
-401     {
-402 
-403     #if DEBUG == 1
-404 
-405         Serial\&.println( F("jetpack is Active ") );
-406         Serial\&.println( F("jetpack doing action ") );
-407         Serial\&.println();
-408     
-409     #endif
-410 
-411         jetPack\&.doAction(data\&.c_str(), sensorJsonSize);
-412     }
-413     
-414     
-415     //saving data in the file system
-416     
-417     fileSystem\&.saveSensorData(data\&.c_str(), sensorJsonSize);
-418 }
+399         //reading user data
+400         data=this->userData();//{"":"","":"","",""}
+401 
+402         //formatting json 
+403         data\&.setCharAt( data\&.lastIndexOf('}') , ',');//{"":"","":"","","",
+404         
+405                 
+406         //read sensors data
+407     #if DEBUG == 1
+408 
+409         Serial\&.println( F("Collecting sensors data ") );
+410         Serial\&.println();
+411 
+412     #endif
+413 
+414         data+=this->readSensors();//{"":"","":"","","",{\&.\&.\&.\&.\&.\&.\&.}
+415 
+416         
+417 
+418         //formatting json correctly
+419         data\&.remove(data\&.lastIndexOf('{'), 1);//{"":"","":"","","",\&.\&.\&.\&.\&.\&.\&.}
+420 
+421         coolBoardLed\&.fadeOut(245,237,27,0\&.5);//shade of yellow
+422                 
+423     }   
+424     else
+425     {
+426         //read sensors data
+427     #if DEBUG == 1
+428 
+429         Serial\&.println( F("Collecting sensors data ") );
+430         Serial\&.println();
+431 
+432     #endif
+433 
+434         coolBoardLed\&.fade(190,100,150,0\&.5);//shade of violet      
+435 
+436         data=this->readSensors();//{\&.\&.,\&.\&.,\&.\&.}
+437     }
+438 
+439     coolBoardLed\&.fade(51,100,50,0\&.5);//dark shade of green    
+440 
+441     //do action
+442     if (jetpackActive)
+443     {
+444 
+445     #if DEBUG == 1
+446 
+447         Serial\&.println( F("jetpack is Active ") );
+448         Serial\&.println( F("jetpack doing action ") );
+449         Serial\&.println();
+450     
+451     #endif
+452         coolBoardLed\&.fade(100,100,150,0\&.5);//dark shade of blue   
+453     
+454         jetPack\&.doAction(data\&.c_str(), sensorJsonSize);
+455     }
+456     
+457     coolBoardLed\&.fade(51,100,50,0\&.5);//dark shade of green    
+458     
+459     //saving data in the file system
+460     
+461     fileSystem\&.saveSensorData(data\&.c_str(), sensorJsonSize);
+462 
+463     coolBoardLed\&.fadeOut(51,100,50,0\&.5);//dark shade of green 
+464 
+465 }
 .fi
 .SS "void CoolBoard::onLineMode ()"
 \fBCoolBoard::onLineMode()\fP: This method is provided to manage the online mode: -update clock -read sensor -do actions -publish data -read answer -update config 
 .PP
-Definition at line 177 of file CoolBoard\&.cpp\&.
+Definition at line 186 of file CoolBoard\&.cpp\&.
 .PP
-References answer, data, Jetpack::doAction(), fileSystem, getLogInterval(), CoolFileSystem::getSensorSavedData(), CoolFileSystem::isDataSaved(), jetPack, jetpackActive, mqtt, CoolMQTT::mqttLoop(), CoolMQTT::publish(), CoolMQTT::read(), readSensors(), rtc, sensorJsonSize, sleep(), sleepActive, CoolTime::update(), update(), userActive, and userData()\&.
+References answer, CoolBoardLed::blink(), coolBoardLed, data, Jetpack::doAction(), CoolBoardLed::fade(), CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, getLogInterval(), CoolFileSystem::getSensorSavedData(), CoolFileSystem::isDataSaved(), jetPack, jetpackActive, mqtt, CoolMQTT::mqttLoop(), CoolMQTT::publish(), CoolMQTT::read(), readSensors(), rtc, sensorJsonSize, sleep(), sleepActive, CoolBoardLed::strobe(), CoolTime::update(), update(), userActive, and userData()\&.
 .PP
 .nf
-178 {
-179 
-180 #if DEBUG == 1
-181 
-182     Serial\&.println( F("Entering CoolBoard\&.onLineMode() ") );
-183     Serial\&.println();
-184 
-185 #endif
-186 
-187     data="";
-188     answer="";
-189 
-190     //send saved data if any
-191     if(fileSystem\&.isDataSaved())
-192     {
-193     
-194     #if DEBUG == 1
+187 {
+188 
+189     coolBoardLed\&.fadeIn(128,255,50,0\&.5);//shade of green
+190 
+191 #if DEBUG == 1
+192 
+193     Serial\&.println( F("Entering CoolBoard\&.onLineMode() ") );
+194     Serial\&.println();
 195 
-196         Serial\&.println( F("There is data saved on the File System") );
-197         Serial\&.println( F("Sending saved data over MQTT ") );
-198         Serial\&.println();
-199     
-200     #endif  
-201     
-202         mqtt\&.publish("sending saved data");
-203         mqtt\&.mqttLoop();
+196 #endif
+197 
+198     data="";
+199     answer="";
+200 
+201     //send saved data if any
+202     if(fileSystem\&.isDataSaved())
+203     {
 204 
-205         data+=fileSystem\&.getSensorSavedData();//{\&.\&.,\&.\&.,\&.\&.}
+205         coolBoardLed\&.fadeIn(128,128,255,0\&.5);//shade of blue
 206 
-207         //formatting data:
-208         String jsonData = "{\"state\":{\"reported\":";
-209         jsonData += data; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
-210         jsonData += " } }"; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}  } }
-211 
-212         mqtt\&.publish( data\&.c_str() );
-213         mqtt\&.mqttLoop();
-214     
-215     #if DEBUG == 1
-216 
-217         Serial\&.println( F("Saved data sent ") );
-218         Serial\&.println();
-219     
-220     #endif
-221 
-222     }
-223 
-224     //clock update
-225     rtc\&.update();
-226 
-227     //read user data if user is active
-228     if(userActive)
-229     {
-230     
-231     #if DEBUG == 1
-232 
-233         Serial\&.println( F("User is Active") );
-234         Serial\&.println( F("Collecting User's data ( mac,username,timeStamp )") );
-235         Serial\&.println();
-236     
-237     #endif  
-238     
-239         //reading user data
-240         data=this->userData();//{"":"","":"","",""}
+207     #if DEBUG == 1
+208 
+209         Serial\&.println( F("There is data saved on the File System") );
+210         Serial\&.println( F("Sending saved data over MQTT ") );
+211         Serial\&.println();
+212     
+213     #endif  
+214         coolBoardLed\&.strobe(128,128,255,0\&.5);//shade of blue 
+215 
+216         mqtt\&.publish("sending saved data");
+217         mqtt\&.mqttLoop();
+218 
+219         data+=fileSystem\&.getSensorSavedData();//{\&.\&.,\&.\&.,\&.\&.}
+220 
+221         //formatting data:
+222         String jsonData = "{\"state\":{\"reported\":";
+223         jsonData += data; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+224         jsonData += " } }"; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}  } }
+225         
+226         coolBoardLed\&.strobe(128,128,255,0\&.5);//shade of blue
+227         
+228         mqtt\&.publish( data\&.c_str() );
+229         mqtt\&.mqttLoop();
+230         
+231         coolBoardLed\&.fadeOut(128,128,255,0\&.5);//shade of blue     
+232     
+233     #if DEBUG == 1
+234 
+235         Serial\&.println( F("Saved data sent ") );
+236         Serial\&.println();
+237     
+238     #endif
+239 
+240     }
 241 
-242         //formatting json 
-243         data\&.setCharAt( data\&.lastIndexOf('}') , ',');//{"":"","":"","","",
-244                 
-245         //read sensors data
-246     #if DEBUG == 1
-247 
-248         Serial\&.println( F("Collecting sensors data ") );
-249         Serial\&.println();
-250     
-251     #endif
-252 
-253         data+=this->readSensors();//{"":"","":"","","",{\&.\&.\&.\&.\&.\&.\&.}       
-254 
-255         //formatting json correctly
-256         data\&.remove(data\&.lastIndexOf('{'), 1);//{"":"","":"","","",\&.\&.\&.\&.\&.\&.\&.}
-257                 
-258     }   
-259     else
-260     {
-261         //read sensors data
-262     #if DEBUG == 1
+242     coolBoardLed\&.blink(128,255,50,0\&.5);//shade of green
+243 
+244     //clock update
+245     rtc\&.update();
+246 
+247     //read user data if user is active
+248     if(userActive)
+249     {
+250         coolBoardLed\&.fadeIn(245,237,27,0\&.5);//shade of yellow
+251     
+252     #if DEBUG == 1
+253 
+254         Serial\&.println( F("User is Active") );
+255         Serial\&.println( F("Collecting User's data ( mac,username,timeStamp )") );
+256         Serial\&.println();
+257     
+258     #endif  
+259         coolBoardLed\&.blink(245,237,27,0\&.5);//shade of yellow  
+260 
+261         //reading user data
+262         data=this->userData();//{"":"","":"","",""}
 263 
-264         Serial\&.println( F("Collecting sensors data ") );
-265         Serial\&.println();
-266     
-267     #endif
-268 
-269         data=this->readSensors();//{\&.\&.,\&.\&.,\&.\&.}
-270     }
-271     
-272     //do action
-273     if (jetpackActive)
-274     {
-275     
-276     #if DEBUG ==1
-277 
-278         Serial\&.println( F("jetpack is Active ") );
-279         Serial\&.println( F("jetpack doing action ") );
-280         Serial\&.println();
-281 
-282     #endif
-283 
-284         jetPack\&.doAction(data\&.c_str(), sensorJsonSize);
-285     }
-286     
-287     //formatting data:
-288     String jsonData = "{\"state\":{\"reported\":";
-289     jsonData += data; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
-290     jsonData += " } }"; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}  } }
-291     
-292     //mqtt client loop to allow data handling
-293     mqtt\&.mqttLoop();
-294 
-295     //read mqtt answer
-296     
-297     answer = mqtt\&.read();
-298 
-299 #if DEBUG == 1 
-300 
-301     Serial\&.println( F("checking if there's an MQTT message ")  );
-302     Serial\&.println( F("answer is : ") ); 
-303     Serial\&.println(answer);  
-304     Serial\&.println();
+264         //formatting json 
+265         data\&.setCharAt( data\&.lastIndexOf('}') , ',');//{"":"","":"","","",
+266                 
+267         //read sensors data
+268     #if DEBUG == 1
+269 
+270         Serial\&.println( F("Collecting sensors data ") );
+271         Serial\&.println();
+272     
+273     #endif
+274 
+275         data+=this->readSensors();//{"":"","":"","","",{\&.\&.\&.\&.\&.\&.\&.}       
+276 
+277         //formatting json correctly
+278         data\&.remove(data\&.lastIndexOf('{'), 1);//{"":"","":"","","",\&.\&.\&.\&.\&.\&.\&.}
+279         
+280         coolBoardLed\&.fadeOut(245,237,27,0\&.5);//shade of yellow
+281                 
+282     }   
+283     else
+284     {
+285         //read sensors data
+286     #if DEBUG == 1
+287 
+288         Serial\&.println( F("Collecting sensors data ") );
+289         Serial\&.println();
+290     
+291     #endif
+292         coolBoardLed\&.fade(190,100,150,0\&.5);//shade of violet      
+293         data=this->readSensors();//{\&.\&.,\&.\&.,\&.\&.}
+294     }
+295     
+296     //do action
+297     if (jetpackActive)
+298     {
+299     
+300     #if DEBUG ==1
+301 
+302         Serial\&.println( F("jetpack is Active ") );
+303         Serial\&.println( F("jetpack doing action ") );
+304         Serial\&.println();
 305 
-306 #endif  
-307 
-308 
-309     //check if the configuration needs update 
-310     //and update it if needed 
-311     this -> update(answer\&.c_str());
-312     
-313 
-314     //publishing data   
-315     if( this->sleepActive==0)   
-316     {   
-317         
-318         mqtt\&.publish( jsonData\&.c_str(), this->getLogInterval() );
-319         mqtt\&.mqttLoop();
-320     
-321     }
-322     else
-323     {
-324         mqtt\&.publish(jsonData\&.c_str());       
-325         this->sleep( this->getLogInterval() ) ;
-326         mqtt\&.mqttLoop();
-327     }
-328 
-329     
-330         
-331         
-332 }
+306     #endif
+307         coolBoardLed\&.fade(100,100,150,0\&.5);//dark shade of blue       
+308         jetPack\&.doAction(data\&.c_str(), sensorJsonSize);
+309     }
+310     
+311     coolBoardLed\&.fadeIn(128,255,50,0\&.5);//shade of green
+312 
+313     //formatting data:
+314     String jsonData = "{\"state\":{\"reported\":";
+315     jsonData += data; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+316     jsonData += " } }"; // {"state":{"reported":{\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}  } }
+317     
+318     //mqtt client loop to allow data handling
+319     mqtt\&.mqttLoop();
+320 
+321     coolBoardLed\&.blink(128,255,50,0\&.5);//shade of green   
+322 
+323     //read mqtt answer
+324     answer = mqtt\&.read();
+325 
+326 #if DEBUG == 1 
+327 
+328     Serial\&.println( F("checking if there's an MQTT message ")  );
+329     Serial\&.println( F("answer is : ") ); 
+330     Serial\&.println(answer);  
+331     Serial\&.println();
+332 
+333 #endif  
+334 
+335     coolBoardLed\&.fadeOut(128,255,50,0\&.5);//shade of green 
+336 
+337     //check if the configuration needs update 
+338     //and update it if needed 
+339     this -> update(answer\&.c_str());
+340     
+341     coolBoardLed\&.fadeIn(128,255,50,0\&.5);//shade of green  
+342 
+343     //publishing data   
+344     if( this->sleepActive==0)   
+345     {   
+346         coolBoardLed\&.strobe(255,0,230,0\&.5);//shade of pink
+347     
+348         mqtt\&.publish( jsonData\&.c_str(), this->getLogInterval() );
+349         mqtt\&.mqttLoop();
+350     
+351     }
+352     else
+353     {
+354         coolBoardLed\&.strobe(230,255,0,0\&.5);//shade of yellow  
+355 
+356         mqtt\&.publish(jsonData\&.c_str());       
+357         this->sleep( this->getLogInterval() ) ;
+358         mqtt\&.mqttLoop();
+359     }
+360 
+361     coolBoardLed\&.fadeOut(128,255,50,0\&.5);//shade of green     
+362         
+363         
+364 }
 .fi
 .SS "void CoolBoard::printConf ()"
 \fBCoolBoard::printConf()\fP: This method is provided to print the configuration to the Serial Monitor\&. 
 .PP
-Definition at line 629 of file CoolBoard\&.cpp\&.
+Definition at line 685 of file CoolBoard\&.cpp\&.
 .PP
 References answerJsonSize, externalSensorsActive, ireneActive, jetpackActive, logInterval, sensorJsonSize, serverTimeOut, sleepActive, and userActive\&.
 .PP
 .nf
-630 {
-631 
-632 #if DEBUG == 1
-633     
-634     Serial\&.println( F("Entering CoolBoard\&.printConf() ") );
-635     Serial\&.println();
-636 
-637 #endif
-638 
-639     Serial\&.println("Printing Cool Board Configuration ");
-640     Serial\&.print("log interval       : ");
-641     Serial\&.println(this->logInterval);
-642 
-643     Serial\&.print("sensor json size       : ");
-644     Serial\&.println(this->sensorJsonSize);
-645 
-646     Serial\&.print("answer json size       : ");
-647     Serial\&.println(this->answerJsonSize);
-648 
-649     Serial\&.print("irene active       : ");
-650     Serial\&.println(this->ireneActive);
-651 
-652     Serial\&.print("jetpack active     : ");
-653     Serial\&.println(this->jetpackActive);
-654 
-655     Serial\&.print("external sensors active    : ");
-656     Serial\&.println(this->externalSensorsActive);
-657 
-658     Serial\&.print("access point timeOut   : ");
-659     Serial\&.println(this->serverTimeOut);
-660 
-661     Serial\&.print("sleept active      : ");
-662     Serial\&.println(this->sleepActive);
-663 
-664     Serial\&.print("user active        : ");
-665     Serial\&.println(this->userActive);
-666 
-667     Serial\&.println();
-668 
-669 
-670 
-671 
-672 }
+686 {
+687 
+688 #if DEBUG == 1
+689     
+690     Serial\&.println( F("Entering CoolBoard\&.printConf() ") );
+691     Serial\&.println();
+692 
+693 #endif
+694 
+695     Serial\&.println("Printing Cool Board Configuration ");
+696     Serial\&.print("log interval       : ");
+697     Serial\&.println(this->logInterval);
+698 
+699     Serial\&.print("sensor json size       : ");
+700     Serial\&.println(this->sensorJsonSize);
+701 
+702     Serial\&.print("answer json size       : ");
+703     Serial\&.println(this->answerJsonSize);
+704 
+705     Serial\&.print("irene active       : ");
+706     Serial\&.println(this->ireneActive);
+707 
+708     Serial\&.print("jetpack active     : ");
+709     Serial\&.println(this->jetpackActive);
+710 
+711     Serial\&.print("external sensors active    : ");
+712     Serial\&.println(this->externalSensorsActive);
+713 
+714     Serial\&.print("access point timeOut   : ");
+715     Serial\&.println(this->serverTimeOut);
+716 
+717     Serial\&.print("sleept active      : ");
+718     Serial\&.println(this->sleepActive);
+719 
+720     Serial\&.print("user active        : ");
+721     Serial\&.println(this->userActive);
+722 
+723     Serial\&.println();
+724 
+725 
+726 
+727 
+728 }
 .fi
 .SS "String CoolBoard::readSensors ()"
 \fBCoolBoard::readSensors()\fP: This method is provided to read and format all the sensors data in a single json\&.
@@ -810,227 +866,235 @@ json string of all the sensors read\&.
 .PP
 
 .PP
-Definition at line 838 of file CoolBoard\&.cpp\&.
+Definition at line 898 of file CoolBoard\&.cpp\&.
 .PP
-References coolBoardSensors, externalSensors, externalSensorsActive, CoolTime::getTimeDate(), irene3000, ireneActive, ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), and rtc\&.
+References coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), CoolTime::getTimeDate(), irene3000, ireneActive, ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), rtc, and CoolBoardLed::strobe()\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
 .PP
 .nf
-839 {
-840 
-841 #if DEBUG == 1
-842 
-843     Serial\&.println( F("Entering CoolBoard\&.readSensors()") );
-844     Serial\&.println();
-845 
-846 #endif
-847 
-848     String sensorsData;
-849 
-850     sensorsData = coolBoardSensors\&.read(); // {\&.\&.,\&.\&.,\&.\&.}
-851     
-852     if (externalSensorsActive)
-853     {
-854         sensorsData += externalSensors\&.read(); // {\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.}
-855 
-856         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('}'), ','); // {\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,
-857         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('{'), ','); // {\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,
-858         sensorsData\&.remove(sensorsData\&.lastIndexOf('}'), 1); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
-859         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf(','), '}'); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
-860 
-861     }
-862     if (ireneActive)
-863     {
-864         sensorsData += irene3000\&.read(); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,\&.\&.}
-865 
-866         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('}'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.{\&.\&.,\&.\&.,\&.\&.,
-867         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('{'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,\&.\&.,
-868         sensorsData\&.remove(sensorsData\&.lastIndexOf('}'), 1); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
-869         
-870         
-871     }
-872 
-873     //getting Hour:
-874     tmElements_t tm;
-875     tm=rtc\&.getTimeDate();
-876     
-877     //adding Hour
-878     sensorsData+="\"hour\":";   
-879     sensorsData+=tm\&.Hour;
-880     sensorsData+="}";
-881     
-882 #if DEBUG == 1
-883     Serial\&.println();
-884     Serial\&.println( F("sensors data is ") );
-885     Serial\&.println(sensorsData);
-886     Serial\&.println();
-887 
-888 #endif
-889 
-890     return(sensorsData);
-891 
-892 }
+899 {
+900 
+901     coolBoardLed\&.fadeIn(128,255,0,0\&.5);//light shade of green
+902                 
+903 #if DEBUG == 1
+904 
+905     Serial\&.println( F("Entering CoolBoard\&.readSensors()") );
+906     Serial\&.println();
+907 
+908 #endif
+909     coolBoardLed\&.strobe(128,255,0,0\&.5);//light shade of green
+910 
+911     String sensorsData;
+912 
+913     sensorsData = coolBoardSensors\&.read(); // {\&.\&.,\&.\&.,\&.\&.}
+914     
+915     if (externalSensorsActive)
+916     {
+917         sensorsData += externalSensors\&.read(); // {\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.}
+918 
+919         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('}'), ','); // {\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,
+920         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('{'), ','); // {\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,
+921         sensorsData\&.remove(sensorsData\&.lastIndexOf('}'), 1); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
+922         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf(','), '}'); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}
+923 
+924     }
+925     if (ireneActive)
+926     {
+927         sensorsData += irene3000\&.read(); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.}{\&.\&.,\&.\&.,\&.\&.}
+928 
+929         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('}'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.{\&.\&.,\&.\&.,\&.\&.,
+930         sensorsData\&.setCharAt(sensorsData\&.lastIndexOf('{'), ','); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.},\&.\&.,\&.\&.,\&.\&.,
+931         sensorsData\&.remove(sensorsData\&.lastIndexOf('}'), 1); // {\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,\&.\&.,
+932         
+933         
+934     }
+935 
+936     //getting Hour:
+937     tmElements_t tm;
+938     tm=rtc\&.getTimeDate();
+939     
+940     //adding Hour
+941     sensorsData+="\"hour\":";   
+942     sensorsData+=tm\&.Hour;
+943     sensorsData+="}";
+944     
+945 #if DEBUG == 1
+946     Serial\&.println();
+947     Serial\&.println( F("sensors data is ") );
+948     Serial\&.println(sensorsData);
+949     Serial\&.println();
+950 
+951 #endif
+952     coolBoardLed\&.fadeOut(128,255,0,0\&.5);//light shade of green
+953 
+954     return(sensorsData);
+955 
+956 }
 .fi
 .SS "void CoolBoard::sleep (int interval)"
 \fBCoolBoard::sleep(int interval)\fP: This method is provided to allow the board to enter deepSleep mode for a period of time equal to interval in ms 
 .PP
-Definition at line 948 of file CoolBoard\&.cpp\&.
+Definition at line 1012 of file CoolBoard\&.cpp\&.
 .PP
 Referenced by onLineMode()\&.
 .PP
 .nf
-949 {
-950 
-951 #if DEBUG == 1
-952 
-953     Serial\&.println( F("Entering CoolBoard\&.sleep() ") );
-954     Serial\&.print( F("going to sleep for ") );
-955     Serial\&.print(interval);
-956     Serial\&.println(F("ms") );
-957     Serial\&.println();
-958 
-959 #endif
-960 
-961     ESP\&.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
-962 }
+1013 {
+1014 
+1015 #if DEBUG == 1
+1016 
+1017     Serial\&.println( F("Entering CoolBoard\&.sleep() ") );
+1018     Serial\&.print( F("going to sleep for ") );
+1019     Serial\&.print(interval);
+1020     Serial\&.println(F("ms") );
+1021     Serial\&.println();
+1022 
+1023 #endif
+1024 
+1025     ESP\&.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
+1026 }
 .fi
 .SS "void CoolBoard::update (const char * answer)"
 CoolBoard::update(mqtt answer): This method is provided to handle the configuration update of the different parts 
 .PP
-Definition at line 679 of file CoolBoard\&.cpp\&.
+Definition at line 735 of file CoolBoard\&.cpp\&.
 .PP
-References answerJsonSize, CoolMQTT::begin(), CoolWifi::begin(), CoolBoardLed::config(), Jetpack::config(), ExternalSensors::config(), CoolWifi::config(), CoolMQTT::config(), CoolTime::config(), config(), Irene3000::config(), CoolBoardSensors::config(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolMQTT::mqttLoop(), CoolMQTT::publish(), rtc, CoolFileSystem::updateConfigFiles(), and wifiManager\&.
+References answerJsonSize, CoolMQTT::begin(), CoolWifi::begin(), CoolBoardLed::config(), Jetpack::config(), ExternalSensors::config(), CoolWifi::config(), CoolMQTT::config(), CoolTime::config(), config(), Irene3000::config(), CoolBoardSensors::config(), coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, irene3000, ireneActive, jetPack, jetpackActive, mqtt, CoolMQTT::mqttLoop(), CoolMQTT::publish(), rtc, CoolBoardLed::strobe(), CoolFileSystem::updateConfigFiles(), and wifiManager\&.
 .PP
 Referenced by onLineMode()\&.
 .PP
 .nf
-680 {
-681 
-682 #if DEBUG == 1
-683 
-684     Serial\&.println( F("Entering CoolBoard\&.update() ") );
-685     Serial\&.println();
-686     Serial\&.println( F("message is : ") );
-687     Serial\&.println(answer);
-688     Serial\&.println();
-689 
-690 #endif
-691 
-692     DynamicJsonBuffer jsonBuffer(answerJsonSize);
-693     JsonObject & root = jsonBuffer\&.parseObject(answer);
-694     JsonObject & stateDesired = root["state"];
-695 
-696 #if DEBUG == 1
-697     
-698     root\&.printTo(Serial);
-699     stateDesired\&.printTo(Serial);
-700 
-701 #endif
-702 
-703     if (stateDesired\&.success())
-704     {
-705     
-706     #if DEBUG == 1
-707 
-708         Serial\&.println( F("update message parsing : success") );
-709         Serial\&.println();
-710     
-711     #endif
-712 
-713             String answerDesired;
-714         
-715             stateDesired\&.printTo(answerDesired);
-716             
-717         #if DEBUG == 1      
-718         
-719             Serial\&.println( F("update is ok ") );
-720             Serial\&.println( F("desired update is : ") );         
-721             Serial\&.println(answerDesired);
-722             Serial\&.println("json size is : ");
-723             Serial\&.println(jsonBuffer\&.size() ) ;              
-724             Serial\&.println();
-725 
-726         
-727         #endif
-728             
-729             fileSystem\&.updateConfigFiles(answerDesired, answerJsonSize);
-730 
-731             //applying the configuration    
-732             this -> config();
-733 
-734             coolBoardSensors\&.config();
-735 
-736             rtc\&.config();
-737 
-738             coolBoardLed\&.config();
-739             
-740             wifiManager\&.config();
-741 
-742             mqtt\&.config();
-743 
-744             if (jetpackActive)
-745             {
-746                 jetPack\&.config();
-747             }
+736 {
+737     coolBoardLed\&.fadeIn(153,76,0,0\&.5);//shade of brown        
+738 
+739 #if DEBUG == 1
+740 
+741     Serial\&.println( F("Entering CoolBoard\&.update() ") );
+742     Serial\&.println();
+743     Serial\&.println( F("message is : ") );
+744     Serial\&.println(answer);
+745     Serial\&.println();
+746 
+747 #endif
 748 
-749             if (ireneActive)
-750             {
-751                 irene3000\&.config();
-752             }
-753 
-754             if (externalSensorsActive)
-755             {
-756                 externalSensors\&.config();
-757             }
-758 
-759             delay(10);
-760             wifiManager\&.begin();
-761             delay(100);
-762             mqtt\&.begin();
-763 
-764                 //answering the update msg:
-765             //reported = received configuration
-766             //desired=null
-767         
-768             String updateAnswer;
-769             String tempString;
-770             
-771             stateDesired\&.printTo(tempString);
-772             updateAnswer="{\"state\":{\"reported\":";
-773             updateAnswer+=tempString;
-774             updateAnswer+=",\"desired\":null}}";
-775 
-776         #if DEBUG == 1
-777 
-778             Serial\&.println( F("preparing answer message ") );
-779             Serial\&.println();
-780             Serial\&.println( F("updateAnswer : ") );
-781             Serial\&.println(updateAnswer);
-782         
-783         #endif  
-784 
-785             mqtt\&.publish(updateAnswer\&.c_str());
-786             
-787             mqtt\&.mqttLoop();
-788 
-789             delay(10);
-790             
-791             //restart the esp
-792             ESP\&.restart();
-793     }
-794     else
-795     {
-796     
-797     #if DEBUG == 1
+749     DynamicJsonBuffer jsonBuffer(answerJsonSize);
+750     JsonObject & root = jsonBuffer\&.parseObject(answer);
+751     JsonObject & stateDesired = root["state"];
+752 
+753 #if DEBUG == 1
+754     
+755     root\&.printTo(Serial);
+756     stateDesired\&.printTo(Serial);
+757 
+758 #endif
+759 
+760     if (stateDesired\&.success())
+761     {
+762     
+763     #if DEBUG == 1
+764 
+765         Serial\&.println( F("update message parsing : success") );
+766         Serial\&.println();
+767     
+768     #endif
+769 
+770             String answerDesired;
+771         
+772             stateDesired\&.printTo(answerDesired);
+773             
+774         #if DEBUG == 1      
+775         
+776             Serial\&.println( F("update is ok ") );
+777             Serial\&.println( F("desired update is : ") );         
+778             Serial\&.println(answerDesired);
+779             Serial\&.println("json size is : ");
+780             Serial\&.println(jsonBuffer\&.size() ) ;              
+781             Serial\&.println();
+782 
+783         
+784         #endif
+785             
+786             fileSystem\&.updateConfigFiles(answerDesired, answerJsonSize);
+787 
+788             //applying the configuration    
+789             this -> config();
+790 
+791             coolBoardSensors\&.config();
+792 
+793             rtc\&.config();
+794 
+795             coolBoardLed\&.config();
+796             
+797             wifiManager\&.config();
 798 
-799         Serial\&.println( F("Failed to parse update message( OR no message received )") );
-800         Serial\&.println();
-801     
-802     #endif
-803     
-804     }       
-805 }
+799             mqtt\&.config();
+800 
+801             if (jetpackActive)
+802             {
+803                 jetPack\&.config();
+804             }
+805 
+806             if (ireneActive)
+807             {
+808                 irene3000\&.config();
+809             }
+810 
+811             if (externalSensorsActive)
+812             {
+813                 externalSensors\&.config();
+814             }
+815 
+816             delay(10);
+817             wifiManager\&.begin();
+818             delay(100);
+819             mqtt\&.begin();
+820 
+821                 //answering the update msg:
+822             //reported = received configuration
+823             //desired=null
+824         
+825             String updateAnswer;
+826             String tempString;
+827             
+828             stateDesired\&.printTo(tempString);
+829             updateAnswer="{\"state\":{\"reported\":";
+830             updateAnswer+=tempString;
+831             updateAnswer+=",\"desired\":null}}";
+832 
+833         #if DEBUG == 1
+834 
+835             Serial\&.println( F("preparing answer message ") );
+836             Serial\&.println();
+837             Serial\&.println( F("updateAnswer : ") );
+838             Serial\&.println(updateAnswer);
+839         
+840         #endif  
+841 
+842             mqtt\&.publish(updateAnswer\&.c_str());
+843             
+844             mqtt\&.mqttLoop();
+845 
+846             delay(10);
+847             
+848             //restart the esp
+849             ESP\&.restart();
+850     }
+851     else
+852     {
+853     
+854     #if DEBUG == 1
+855 
+856         Serial\&.println( F("Failed to parse update message( OR no message received )") );
+857         Serial\&.println();
+858     
+859     #endif
+860     
+861     }
+862 
+863     coolBoardLed\&.strobe(153,76,0,0\&.5);//shade of brown
+864     coolBoardLed\&.fadeOut(153,76,0,0\&.5);//shade of brown                               
+865 }
 .fi
 .SS "String CoolBoard::userData ()"
 \fBCoolBoard::userData()\fP: This method is provided to return the user's data\&.
@@ -1042,51 +1106,51 @@ json string of the user's data
 .PP
 
 .PP
-Definition at line 901 of file CoolBoard\&.cpp\&.
+Definition at line 965 of file CoolBoard\&.cpp\&.
 .PP
 References CoolTime::getESDate(), CoolMQTT::getUser(), mqtt, and rtc\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
 .PP
 .nf
-902 {
-903 
-904 #if DEBUG == 1
-905 
-906     Serial\&.println( F("Entering CoolBoard\&.userData() ") );
-907     Serial\&.println();
-908 
-909 #endif
-910 
-911     String tempMAC = WiFi\&.macAddress();
-912 
-913     tempMAC\&.replace(":", "");
-914 
-915     String userJson = "{\"user\":\"";
-916 
-917     userJson += mqtt\&.getUser();
-918 
-919     userJson += "\",\"timestamp\":\"";
-920 
-921     userJson += rtc\&.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
-922 
-923     userJson += "\",\"mac\":\"";
-924 
-925     userJson += tempMAC;
-926 
-927     userJson += "\"}";
-928 
-929 #if DEBUG == 1
-930 
-931     Serial\&.println( F("userData is : ") );
-932     Serial\&.println(userJson);
-933     Serial\&.println();
-934 
-935 #endif  
-936     
-937     return(userJson);
-938     
-939 }
+966 {
+967 
+968 #if DEBUG == 1
+969 
+970     Serial\&.println( F("Entering CoolBoard\&.userData() ") );
+971     Serial\&.println();
+972 
+973 #endif
+974 
+975     String tempMAC = WiFi\&.macAddress();
+976 
+977     tempMAC\&.replace(":", "");
+978 
+979     String userJson = "{\"user\":\"";
+980 
+981     userJson += mqtt\&.getUser();
+982 
+983     userJson += "\",\"timestamp\":\"";
+984 
+985     userJson += rtc\&.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+986 
+987     userJson += "\",\"mac\":\"";
+988 
+989     userJson += tempMAC;
+990 
+991     userJson += "\"}";
+992 
+993 #if DEBUG == 1
+994 
+995     Serial\&.println( F("userData is : ") );
+996     Serial\&.println(userJson);
+997     Serial\&.println();
+998 
+999 #endif  
+1000     
+1001     return(userJson);
+1002     
+1003 }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -1107,7 +1171,7 @@ Referenced by config(), printConf(), and update()\&.
 .PP
 Definition at line 67 of file CoolBoard\&.h\&.
 .PP
-Referenced by begin(), and update()\&.
+Referenced by begin(), config(), connect(), offLineMode(), onLineMode(), readSensors(), and update()\&.
 .SS "\fBCoolBoardSensors\fP CoolBoard::coolBoardSensors\fC [private]\fP"
 
 .PP

@@ -11,7 +11,8 @@ This class handles the led in the Sensor Board.
 
 
 
-Collaboration diagram for Cool\+Board\+Led\+:\nopagebreak
+Collaboration diagram for Cool\+Board\+Led\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -31,15 +32,15 @@ bool \hyperlink{classCoolBoardLed_a1b60e5e30bea96c49ed62ed1bf1ffc8b}{config} ()
 \item 
 void \hyperlink{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61}{print\+Conf} ()
 \item 
-void \hyperlink{classCoolBoardLed_a6dbfe23988f43e1242cd05e69b13ff30}{color\+Fade} (int R, int G, int B, int T)
+void \hyperlink{classCoolBoardLed_af1cacbaa88db8bcf6042c1083ba41155}{fade} (int R, int G, int B, float T)
 \item 
-void \hyperlink{classCoolBoardLed_a27706bc029f6a126c55d0b91624ad7fa}{blink} (int R, int G, int B, int T)
+void \hyperlink{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426}{blink} (int R, int G, int B, float T)
 \item 
-void \hyperlink{classCoolBoardLed_aec915442a8441c7cd45c3279d3ff8821}{fade\+In} (int R, int G, int B, int T)
+void \hyperlink{classCoolBoardLed_ab778f5e7bed0ab74e3906d82110493c3}{fade\+In} (int R, int G, int B, float T)
 \item 
-void \hyperlink{classCoolBoardLed_a27c4e14fa2cd3639c0844152cea98887}{fade\+Out} (int R, int G, int B, int T)
+void \hyperlink{classCoolBoardLed_a93d545679237e8cc858324367149775c}{fade\+Out} (int R, int G, int B, float T)
 \item 
-void \hyperlink{classCoolBoardLed_adc08c0ac07473499971c503d300f0413}{strobe} (int R, int G, int B, int T)
+void \hyperlink{classCoolBoardLed_ad5f0de4c628cbfbf49896042831c64ad}{strobe} (int R, int G, int B, float T)
 \end{DoxyCompactItemize}
 \subsection*{Private Attributes}
 \begin{DoxyCompactItemize}
@@ -66,129 +67,102 @@ Definition at line 20 of file Cool\+Board\+Led.\+h.
 
 \hyperlink{classCoolBoardLed_ae3cbde8affcc6f011cbd698c8ef911f6}{Cool\+Board\+Led\+::begin()}\+: This method is provided to start the Led Object by setting the correct pin and creating a dynamic neo\+Pixel\+Bus 
 
-Definition at line 218 of file Cool\+Board\+Led.\+cpp.
+Definition at line 232 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
+References led\+Active, and neo\+Pixel\+Led.
 
 
 
-Referenced by Cool\+Board\+::begin().
+Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
 
 
 \begin{DoxyCode}
-219 \{
-220 
-221 \textcolor{preprocessor}{#if DEBUG == 1}
-222 
-223     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.begin() "}) );
-224 
-225 \textcolor{preprocessor}{#endif}
-226 
-227     pinMode(5,OUTPUT);
-228     digitalWrite(5,HIGH);
-229     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed} = \textcolor{keyword}{new} NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
-230     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Begin();
-231     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-232 \} 
+233 \{
+234 
+235 \textcolor{preprocessor}{#if DEBUG == 1}
+236 
+237     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.begin() "}) );
+238 
+239 \textcolor{preprocessor}{#endif}
+240 
+241     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+242     \{
+243         pinMode(5,OUTPUT);
+244         digitalWrite(5,HIGH);
+245         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed} = \textcolor{keyword}{new} NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
+246         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Begin();
+247         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+248 
+249     \}
+250 
+251 \} 
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=315pt]{classCoolBoardLed_ae3cbde8affcc6f011cbd698c8ef911f6_icgraph}
+\includegraphics[width=350pt]{classCoolBoardLed_ae3cbde8affcc6f011cbd698c8ef911f6_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{classCoolBoardLed_a27706bc029f6a126c55d0b91624ad7fa}\label{classCoolBoardLed_a27706bc029f6a126c55d0b91624ad7fa}} 
+\mbox{\Hypertarget{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426}\label{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!blink@{blink}}
 \index{blink@{blink}!Cool\+Board\+Led@{Cool\+Board\+Led}}
 \subsubsection{\texorpdfstring{blink()}{blink()}}
-{\footnotesize\ttfamily void Cool\+Board\+Led\+::blink (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{int}]{T }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void Cool\+Board\+Led\+::blink (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{float}]{T }\end{DoxyParamCaption})}
 
 Cool\+Board\+Led\+::blink( Red , Green , Blue , Time in seconds )\+: Blink animation\+: Led On for T seconds Led off 
 
-Definition at line 71 of file Cool\+Board\+Led.\+cpp.
+Definition at line 74 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
-
-
-\begin{DoxyCode}
-72 \{
-73 
-74 \textcolor{preprocessor}{#if DEBUG == 1}
-75 
-76     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.blink()"}));
-77     Serial.println();
-78     Serial.print( F(\textcolor{stringliteral}{"R : "}));
-79     Serial.println(R);
-80     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
-81     Serial.println(G);
-82     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-83     Serial.println(B);
-84     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
-85     Serial.println(T);
-86     Serial.println();
-87 
-88 \textcolor{preprocessor}{#endif  }
-89 
-90     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
-91     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-92     delay(T);
-93     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(0, 0, 0));
-94     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-95 \}
-\end{DoxyCode}
-\mbox{\Hypertarget{classCoolBoardLed_a6dbfe23988f43e1242cd05e69b13ff30}\label{classCoolBoardLed_a6dbfe23988f43e1242cd05e69b13ff30}} 
-\index{Cool\+Board\+Led@{Cool\+Board\+Led}!color\+Fade@{color\+Fade}}
-\index{color\+Fade@{color\+Fade}!Cool\+Board\+Led@{Cool\+Board\+Led}}
-\subsubsection{\texorpdfstring{color\+Fade()}{colorFade()}}
-{\footnotesize\ttfamily void Cool\+Board\+Led\+::color\+Fade (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{int}]{T }\end{DoxyParamCaption})}
-
-\hyperlink{classCoolBoardLed_a6dbfe23988f43e1242cd05e69b13ff30}{Cool\+Board\+Led\+::color\+Fade} ( Red , Green , Blue, Time in seconds )\+: color\+Fade animation\+: Fade In over T(seconds) Fade Out over T(seconds) 
-
-Definition at line 33 of file Cool\+Board\+Led.\+cpp.
+References led\+Active, and neo\+Pixel\+Led.
 
 
 
-References neo\+Pixel\+Led.
+Referenced by Cool\+Board\+::begin(), Cool\+Board\+::config(), Cool\+Board\+::connect(), Cool\+Board\+::off\+Line\+Mode(), and Cool\+Board\+::on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-34 \{
-35 
-36 \textcolor{preprocessor}{#if DEBUG == 1}
-37 
-38     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.colorFade()"}) );
-39     Serial.println();
-40     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
-41     Serial.println(R);
-42     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
-43     Serial.println(G);
-44     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-45     Serial.println(B);
-46     Serial.print( F(\textcolor{stringliteral}{"Time : "}) );
-47     Serial.println(T);
-48     Serial.println();
-49 
-50 \textcolor{preprocessor}{#endif  }
-51 
-52     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 0; k < 1000; k++) 
-53     \{
-54         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-55         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-56         delay(T);
-57     \}
-58     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
-59     \{
-60         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-61         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-62         delay(T);
-63     \}
-64 \}
+75 \{
+76 
+77 \textcolor{preprocessor}{#if DEBUG == 1}
+78 
+79     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.blink()"}));
+80     Serial.println();
+81     Serial.print( F(\textcolor{stringliteral}{"R : "}));
+82     Serial.println(R);
+83     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
+84     Serial.println(G);
+85     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+86     Serial.println(B);
+87     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
+88     Serial.println(T);
+89     Serial.println();
+90 
+91 \textcolor{preprocessor}{#endif  }
+92 
+93     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+94     \{
+95         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
+96         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+97         delay(T);
+98         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(0, 0, 0));
+99         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+100     \}
+101 \}
 \end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classCoolBoardLed_a1b60e5e30bea96c49ed62ed1bf1ffc8b}\label{classCoolBoardLed_a1b60e5e30bea96c49ed62ed1bf1ffc8b}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!config@{config}}
 \index{config@{config}!Cool\+Board\+Led@{Cool\+Board\+Led}}
@@ -200,7 +174,7 @@ true if the configuration done, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 268 of file Cool\+Board\+Led.\+cpp.
+Definition at line 291 of file Cool\+Board\+Led.\+cpp.
 
 
 
@@ -208,109 +182,110 @@ References led\+Active.
 
 
 
-Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
+Referenced by Cool\+Board\+::begin(), Cool\+Board\+::config(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-269 \{
-270 
-271 \textcolor{preprocessor}{#if DEBUG == 1 }
-272         
-273     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.config()"}) );
-274     Serial.println();
-275 
-276 \textcolor{preprocessor}{#endif}
-277     
-278     File coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"r"});
-279 
-280     \textcolor{keywordflow}{if} (!coolBoardLedConfig) 
-281     \{
-282     
-283 \textcolor{preprocessor}{    #if DEBUG == 1}
-284 
-285         Serial.println( F(\textcolor{stringliteral}{"failed to read /coolBoardLedConfig.json"}) );
-286         Serial.println();
-287 
-288 \textcolor{preprocessor}{    #endif}
-289 
-290         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-291     \}
-292     \textcolor{keywordflow}{else}
-293     \{
-294         \textcolor{keywordtype}{size\_t} size = coolBoardLedConfig.size();
-295         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-296         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-297 
-298         coolBoardLedConfig.readBytes(buf.get(), size);
-299         DynamicJsonBuffer jsonBuffer;
-300         JsonObject& json = jsonBuffer.parseObject(buf.get());
-301         \textcolor{keywordflow}{if} (!json.success()) 
-302         \{
-303         
-304 \textcolor{preprocessor}{        #if DEBUG == 1}
-305 
-306             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-307             Serial.println();
-308         
-309 \textcolor{preprocessor}{        #endif}
+292 \{
+293 
+294 \textcolor{preprocessor}{#if DEBUG == 1 }
+295         
+296     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.config()"}) );
+297     Serial.println();
+298 
+299 \textcolor{preprocessor}{#endif}
+300     
+301     File coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"r"});
+302 
+303     \textcolor{keywordflow}{if} (!coolBoardLedConfig) 
+304     \{
+305     
+306 \textcolor{preprocessor}{    #if DEBUG == 1}
+307 
+308         Serial.println( F(\textcolor{stringliteral}{"failed to read /coolBoardLedConfig.json"}) );
+309         Serial.println();
 310 
-311             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-312         \} 
-313         \textcolor{keywordflow}{else}
-314         \{
-315         
-316 \textcolor{preprocessor}{        #if DEBUG == 1}
-317     
-318             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
-319             json.printTo(Serial);
-320             Serial.println();
-321         
-322 \textcolor{preprocessor}{        #endif}
-323   
-324             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ledActive"}].success() )
-325             \{
-326                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} = json[\textcolor{stringliteral}{"ledActive"}]; 
-327             \}
-328             \textcolor{keywordflow}{else}
-329             \{
-330                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive}=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};          
-331             \}
-332             
-333             json[\textcolor{stringliteral}{"ledActive"}]=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};
-334             coolBoardLedConfig.close();
-335             
-336             coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"});
-337             \textcolor{keywordflow}{if}(!coolBoardLedConfig)
-338             \{
-339             
-340 \textcolor{preprocessor}{            #if DEBUG == 1 }
-341 
-342                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardLedConfig.json"}) );
-343                 Serial.println();
-344 
-345 \textcolor{preprocessor}{            #endif}
-346 
-347                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
-348             \}
-349 
-350             json.printTo(coolBoardLedConfig);
-351             coolBoardLedConfig.close();
-352 
-353 \textcolor{preprocessor}{        #if DEBUG == 1}
-354     
-355             Serial.println( F(\textcolor{stringliteral}{"saved Led Config is : "}) );
-356             json.printTo(Serial);
-357             Serial.println();
-358 
-359 \textcolor{preprocessor}{        #endif}
-360 
-361             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-362         \}
-363     \}   
+311 \textcolor{preprocessor}{    #endif}
+312 
+313         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+314     \}
+315     \textcolor{keywordflow}{else}
+316     \{
+317         \textcolor{keywordtype}{size\_t} size = coolBoardLedConfig.size();
+318         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+319         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+320 
+321         coolBoardLedConfig.readBytes(buf.get(), size);
+322         DynamicJsonBuffer jsonBuffer;
+323         JsonObject& json = jsonBuffer.parseObject(buf.get());
+324         \textcolor{keywordflow}{if} (!json.success()) 
+325         \{
+326         
+327 \textcolor{preprocessor}{        #if DEBUG == 1}
+328 
+329             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+330             Serial.println();
+331         
+332 \textcolor{preprocessor}{        #endif}
+333 
+334             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+335         \} 
+336         \textcolor{keywordflow}{else}
+337         \{
+338         
+339 \textcolor{preprocessor}{        #if DEBUG == 1}
+340     
+341             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
+342             json.printTo(Serial);
+343             Serial.println();
+344         
+345 \textcolor{preprocessor}{        #endif}
+346   
+347             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ledActive"}].success() )
+348             \{
+349                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} = json[\textcolor{stringliteral}{"ledActive"}]; 
+350             \}
+351             \textcolor{keywordflow}{else}
+352             \{
+353                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive}=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};          
+354             \}
+355             
+356             json[\textcolor{stringliteral}{"ledActive"}]=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};
+357             coolBoardLedConfig.close();
+358             
+359             coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"});
+360             \textcolor{keywordflow}{if}(!coolBoardLedConfig)
+361             \{
+362             
+363 \textcolor{preprocessor}{            #if DEBUG == 1 }
 364 
-365 \}               
+365                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardLedConfig.json"}) );
+366                 Serial.println();
+367 
+368 \textcolor{preprocessor}{            #endif}
+369 
+370                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
+371             \}
+372 
+373             json.printTo(coolBoardLedConfig);
+374             coolBoardLedConfig.close();
+375 
+376 \textcolor{preprocessor}{        #if DEBUG == 1}
+377     
+378             Serial.println( F(\textcolor{stringliteral}{"saved Led Config is : "}) );
+379             json.printTo(Serial);
+380             Serial.println();
+381 
+382 \textcolor{preprocessor}{        #endif}
+383 
+384             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+385         \}
+386     \}   
+387 
+388 \}               
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -325,7 +300,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{classCoolBoardLed_a69f323359e0c9f797422f2152b5d41ef}{Cool\+Board\+Led\+::end()} \+: this method is provided to delete the dynamically created neo\+Pixel\+Led 
 
-Definition at line 199 of file Cool\+Board\+Led.\+cpp.
+Definition at line 213 of file Cool\+Board\+Led.\+cpp.
 
 
 
@@ -333,102 +308,195 @@ References neo\+Pixel\+Led.
 
 
 \begin{DoxyCode}
-200 \{
-201 
-202 \textcolor{preprocessor}{#if DEBUG == 1 }
-203     
-204     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.end()"}) );
-205 
-206 \textcolor{preprocessor}{#endif}
-207 
-208     \textcolor{keyword}{delete} \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed};
-209 \}
+214 \{
+215 
+216 \textcolor{preprocessor}{#if DEBUG == 1 }
+217     
+218     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.end()"}) );
+219 
+220 \textcolor{preprocessor}{#endif}
+221 
+222     \textcolor{keyword}{delete} \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed};
+223 \}
 \end{DoxyCode}
-\mbox{\Hypertarget{classCoolBoardLed_aec915442a8441c7cd45c3279d3ff8821}\label{classCoolBoardLed_aec915442a8441c7cd45c3279d3ff8821}} 
+\mbox{\Hypertarget{classCoolBoardLed_af1cacbaa88db8bcf6042c1083ba41155}\label{classCoolBoardLed_af1cacbaa88db8bcf6042c1083ba41155}} 
+\index{Cool\+Board\+Led@{Cool\+Board\+Led}!fade@{fade}}
+\index{fade@{fade}!Cool\+Board\+Led@{Cool\+Board\+Led}}
+\subsubsection{\texorpdfstring{fade()}{fade()}}
+{\footnotesize\ttfamily void Cool\+Board\+Led\+::fade (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{float}]{T }\end{DoxyParamCaption})}
+
+\hyperlink{classCoolBoardLed_af1cacbaa88db8bcf6042c1083ba41155}{Cool\+Board\+Led\+::fade} ( Red , Green , Blue, Time in seconds )\+: fade animation\+: Fade In over T(seconds) Fade Out over T(seconds) 
+
+Definition at line 33 of file Cool\+Board\+Led.\+cpp.
+
+
+
+References led\+Active, and neo\+Pixel\+Led.
+
+
+
+Referenced by Cool\+Board\+::off\+Line\+Mode(), and Cool\+Board\+::on\+Line\+Mode().
+
+
+\begin{DoxyCode}
+34 \{
+35 
+36 \textcolor{preprocessor}{#if DEBUG == 1}
+37 
+38     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.fade()"}) );
+39     Serial.println();
+40     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
+41     Serial.println(R);
+42     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
+43     Serial.println(G);
+44     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+45     Serial.println(B);
+46     Serial.print( F(\textcolor{stringliteral}{"Time : "}) );
+47     Serial.println(T);
+48     Serial.println();
+49 
+50 \textcolor{preprocessor}{#endif  }
+51     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+52     \{
+53         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 0; k < 1000; k++) 
+54         \{
+55             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+56             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+57             delay(T);
+58         \}
+59         
+60         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
+61         \{
+62             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+63             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+64             delay(T);
+65         \}
+66     \}
+67 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=341pt]{classCoolBoardLed_af1cacbaa88db8bcf6042c1083ba41155_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classCoolBoardLed_ab778f5e7bed0ab74e3906d82110493c3}\label{classCoolBoardLed_ab778f5e7bed0ab74e3906d82110493c3}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!fade\+In@{fade\+In}}
 \index{fade\+In@{fade\+In}!Cool\+Board\+Led@{Cool\+Board\+Led}}
 \subsubsection{\texorpdfstring{fade\+In()}{fadeIn()}}
-{\footnotesize\ttfamily void Cool\+Board\+Led\+::fade\+In (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{int}]{T }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void Cool\+Board\+Led\+::fade\+In (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{float}]{T }\end{DoxyParamCaption})}
 
 Cool\+Board\+Led\+::fade\+In(\+Red , Green , Blue , Time in seconds) Fade In animation\+: gradual increase over T(seconds) 
 
-Definition at line 101 of file Cool\+Board\+Led.\+cpp.
+Definition at line 107 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
+References led\+Active, and neo\+Pixel\+Led.
+
+
+
+Referenced by Cool\+Board\+::config(), Cool\+Board\+::off\+Line\+Mode(), Cool\+Board\+::on\+Line\+Mode(), Cool\+Board\+::read\+Sensors(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-102 \{
-103 
-104 \textcolor{preprocessor}{#if DEBUG == 1}
-105 
-106     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.fadeIn()"}) );
-107     Serial.println();
-108     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
-109     Serial.println(R);
-110     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
-111     Serial.println(G);
-112     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-113     Serial.println(B);
-114     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
-115     Serial.println(T);
-116     Serial.println();
-117 
-118 \textcolor{preprocessor}{#endif  }
-119 
-120     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 0; k < 1000; k++) 
-121     \{
-122         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-123         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-124         delay(T);
-125     \}
-126 \}
+108 \{
+109 
+110 \textcolor{preprocessor}{#if DEBUG == 1}
+111 
+112     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.fadeIn()"}) );
+113     Serial.println();
+114     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
+115     Serial.println(R);
+116     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
+117     Serial.println(G);
+118     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+119     Serial.println(B);
+120     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
+121     Serial.println(T);
+122     Serial.println();
+123 
+124 \textcolor{preprocessor}{#endif  }
+125     
+126     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+127     \{
+128         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 0; k < 1000; k++) 
+129         \{
+130             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+131             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+132             delay(T);
+133         \}
+134     \}
+135 
+136 \}
 \end{DoxyCode}
-\mbox{\Hypertarget{classCoolBoardLed_a27c4e14fa2cd3639c0844152cea98887}\label{classCoolBoardLed_a27c4e14fa2cd3639c0844152cea98887}} 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolBoardLed_ab778f5e7bed0ab74e3906d82110493c3_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classCoolBoardLed_a93d545679237e8cc858324367149775c}\label{classCoolBoardLed_a93d545679237e8cc858324367149775c}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!fade\+Out@{fade\+Out}}
 \index{fade\+Out@{fade\+Out}!Cool\+Board\+Led@{Cool\+Board\+Led}}
 \subsubsection{\texorpdfstring{fade\+Out()}{fadeOut()}}
-{\footnotesize\ttfamily void Cool\+Board\+Led\+::fade\+Out (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{int}]{T }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void Cool\+Board\+Led\+::fade\+Out (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{float}]{T }\end{DoxyParamCaption})}
 
 Cool\+Board\+Led\+::fade\+Out( Red , Green , Blue , Time in seconds) Fade Out animation\+: gradual decrease over T(seconds) 
 
-Definition at line 132 of file Cool\+Board\+Led.\+cpp.
+Definition at line 142 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
+References led\+Active, and neo\+Pixel\+Led.
+
+
+
+Referenced by Cool\+Board\+::begin(), Cool\+Board\+::config(), Cool\+Board\+::off\+Line\+Mode(), Cool\+Board\+::on\+Line\+Mode(), Cool\+Board\+::read\+Sensors(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-133 \{
-134 
-135 \textcolor{preprocessor}{#if DEBUG == 1 }
-136 
-137     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.fadeOut()"} ) );
-138     Serial.println();
-139     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
-140     Serial.println(R);
-141     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
-142     Serial.println(G);
-143     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-144     Serial.println(B);
-145     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
-146     Serial.println(T);
-147     Serial.println();
-148 
-149 \textcolor{preprocessor}{#endif  }
-150 
-151 
-152     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
-153     \{
-154         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-155         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-156         delay(T);
-157     \}
-158 \}
+143 \{
+144 
+145 \textcolor{preprocessor}{#if DEBUG == 1 }
+146 
+147     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.fadeOut()"} ) );
+148     Serial.println();
+149     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
+150     Serial.println(R);
+151     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
+152     Serial.println(G);
+153     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+154     Serial.println(B);
+155     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
+156     Serial.println(T);
+157     Serial.println();
+158 
+159 \textcolor{preprocessor}{#endif  }
+160 
+161     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+162     \{
+163         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
+164         \{
+165             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+166             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+167             delay(T);
+168         \}
+169     \}
+170 \}
 \end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolBoardLed_a93d545679237e8cc858324367149775c_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61}\label{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!print\+Conf@{print\+Conf}}
 \index{print\+Conf@{print\+Conf}!Cool\+Board\+Led@{Cool\+Board\+Led}}
@@ -437,7 +505,7 @@ References neo\+Pixel\+Led.
 
 \hyperlink{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61}{Cool\+Board\+Led\+::print\+Conf()}\+: This method is provided to print the Led Object Configuration to the Serial Monitor 
 
-Definition at line 373 of file Cool\+Board\+Led.\+cpp.
+Definition at line 396 of file Cool\+Board\+Led.\+cpp.
 
 
 
@@ -449,76 +517,91 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-374 \{
-375 
-376 \textcolor{preprocessor}{#if DEBUG == 1 }
-377 
-378     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.printConf()"}) );
-379     Serial.println();
-380 
-381 \textcolor{preprocessor}{#endif}
-382 
-383     Serial.println(\textcolor{stringliteral}{"Led Configuration"});
-384 
-385     Serial.print(\textcolor{stringliteral}{"ledActive : "});
-386     Serial.println(\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive});
-387 
-388     Serial.println();   
-389 \}
+397 \{
+398 
+399 \textcolor{preprocessor}{#if DEBUG == 1 }
+400 
+401     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.printConf()"}) );
+402     Serial.println();
+403 
+404 \textcolor{preprocessor}{#endif}
+405 
+406     Serial.println(\textcolor{stringliteral}{"Led Configuration"});
+407 
+408     Serial.print(\textcolor{stringliteral}{"ledActive : "});
+409     Serial.println(\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive});
+410 
+411     Serial.println();   
+412 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=332pt]{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{classCoolBoardLed_adc08c0ac07473499971c503d300f0413}\label{classCoolBoardLed_adc08c0ac07473499971c503d300f0413}} 
+\mbox{\Hypertarget{classCoolBoardLed_ad5f0de4c628cbfbf49896042831c64ad}\label{classCoolBoardLed_ad5f0de4c628cbfbf49896042831c64ad}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!strobe@{strobe}}
 \index{strobe@{strobe}!Cool\+Board\+Led@{Cool\+Board\+Led}}
 \subsubsection{\texorpdfstring{strobe()}{strobe()}}
-{\footnotesize\ttfamily void Cool\+Board\+Led\+::strobe (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{int}]{T }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void Cool\+Board\+Led\+::strobe (\begin{DoxyParamCaption}\item[{int}]{R,  }\item[{int}]{G,  }\item[{int}]{B,  }\item[{float}]{T }\end{DoxyParamCaption})}
 
 Cool\+Board\+Led\+::strobe(\+Red , Green , Blue , Time in seconds) Strobe animation\+: blinks over T(seconds) 
 
-Definition at line 164 of file Cool\+Board\+Led.\+cpp.
+Definition at line 176 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
+References led\+Active, and neo\+Pixel\+Led.
+
+
+
+Referenced by Cool\+Board\+::config(), Cool\+Board\+::on\+Line\+Mode(), Cool\+Board\+::read\+Sensors(), and Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-165 \{
-166 
-167 \textcolor{preprocessor}{#if DEBUG == 1}
-168 
-169     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.strobe()"}) );
-170     Serial.println();
-171     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
-172     Serial.println(R);
-173     Serial.print( F(\textcolor{stringliteral}{"G: "}) );
-174     Serial.println(G);
-175     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-176     Serial.println(B);
-177     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
-178     Serial.println(T);
-179     Serial.println();
+177 \{
+178 
+179 \textcolor{preprocessor}{#if DEBUG == 1}
 180 
-181 \textcolor{preprocessor}{#endif  }
-182 
-183     
-184     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
-185     \{
-186         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
-187         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-188         delay(T);
-189         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(0, 0, 0));
-190         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-191         delay(T);
-192     \}
-193 \}
+181     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.strobe()"}) );
+182     Serial.println();
+183     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
+184     Serial.println(R);
+185     Serial.print( F(\textcolor{stringliteral}{"G: "}) );
+186     Serial.println(G);
+187     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+188     Serial.println(B);
+189     Serial.print( F(\textcolor{stringliteral}{"Time :"}) );
+190     Serial.println(T);
+191     Serial.println();
+192 
+193 \textcolor{preprocessor}{#endif  }
+194 
+195     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+196     \{   
+197         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 1000; k >= 0; k--) 
+198         \{
+199             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
+200             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+201             delay(T);
+202             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(0, 0, 0));
+203             \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+204             delay(T);
+205         \}
+206     \}
+207 \}
 \end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolBoardLed_ad5f0de4c628cbfbf49896042831c64ad_icgraph}
+\end{center}
+\end{figure}
 \mbox{\Hypertarget{classCoolBoardLed_a30fadd4cbec17ceea428bf7a32207e87}\label{classCoolBoardLed_a30fadd4cbec17ceea428bf7a32207e87}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!write@{write}}
 \index{write@{write}!Cool\+Board\+Led@{Cool\+Board\+Led}}
@@ -527,34 +610,50 @@ References neo\+Pixel\+Led.
 
 Cool\+Board\+Led\+::write(\+Red,\+Green,\+Blue)\+: This method is provided to set the Color of the Led 
 
-Definition at line 239 of file Cool\+Board\+Led.\+cpp.
+Definition at line 258 of file Cool\+Board\+Led.\+cpp.
 
 
 
-References neo\+Pixel\+Led.
+References led\+Active, and neo\+Pixel\+Led.
+
+
+
+Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::connect().
 
 
 \begin{DoxyCode}
-240 \{
-241 
-242 \textcolor{preprocessor}{#if DEBUG == 1}
-243 
-244     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.write()"}) );
-245     Serial.println();
-246     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
-247     Serial.println(R);
-248     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
-249     Serial.println(G);
-250     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
-251     Serial.println(B);
-252     Serial.println();   
-253 
-254 \textcolor{preprocessor}{#endif}
-255 
-256     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
-257     \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
-258 \}
+259 \{
+260 
+261 \textcolor{preprocessor}{#if DEBUG == 1}
+262 
+263     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.write()"}) );
+264     Serial.println();
+265     Serial.print( F(\textcolor{stringliteral}{"R : "}) );
+266     Serial.println(R);
+267     Serial.print( F(\textcolor{stringliteral}{"G : "}) );
+268     Serial.println(G);
+269     Serial.print( F(\textcolor{stringliteral}{"B : "}) );
+270     Serial.println(B);
+271     Serial.println();   
+272 
+273 \textcolor{preprocessor}{#endif}
+274 
+275     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
+276     \{
+277         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->SetPixelColor(0, RgbColor(R, G, B));
+278         \hyperlink{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}{neoPixelLed}->Show();
+279     \}
+280 
+281 \}
 \end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classCoolBoardLed_a30fadd4cbec17ceea428bf7a32207e87_icgraph}
+\end{center}
+\end{figure}
 
 
 \subsection{Member Data Documentation}
@@ -570,7 +669,7 @@ Definition at line 54 of file Cool\+Board\+Led.\+h.
 
 
 
-Referenced by config(), and print\+Conf().
+Referenced by begin(), blink(), config(), fade(), fade\+In(), fade\+Out(), print\+Conf(), strobe(), and write().
 
 \mbox{\Hypertarget{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}\label{classCoolBoardLed_ac2c13fa462a010cd9242bf297c013923}} 
 \index{Cool\+Board\+Led@{Cool\+Board\+Led}!neo\+Pixel\+Led@{neo\+Pixel\+Led}}
@@ -584,7 +683,7 @@ Definition at line 52 of file Cool\+Board\+Led.\+h.
 
 
 
-Referenced by begin(), blink(), color\+Fade(), end(), fade\+In(), fade\+Out(), strobe(), and write().
+Referenced by begin(), blink(), end(), fade(), fade\+In(), fade\+Out(), strobe(), and write().
 
 
 

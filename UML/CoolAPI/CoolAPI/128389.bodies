@@ -7,11 +7,16 @@ class CoolBoardLed
 
 #endif
 
-	pinMode(5,OUTPUT);
-	digitalWrite(5,HIGH);
-	neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
-	neoPixelLed->Begin();
-	neoPixelLed->Show();
+	if(this->ledActive == 1 )
+	{
+		pinMode(5,OUTPUT);
+		digitalWrite(5,HIGH);
+		neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1,2); 
+		neoPixelLed->Begin();
+		neoPixelLed->Show();
+
+	}
+
 !!!129157.cpp!!!	write(in R : int, in G : int, in B : int) : void
 
 #if DEBUG == 1
@@ -28,8 +33,12 @@ class CoolBoardLed
 
 #endif
 
-	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-	neoPixelLed->Show();
+	if(this->ledActive == 1 )
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+		neoPixelLed->Show();
+	}
+
 !!!129285.cpp!!!	end() : void
 
 #if DEBUG == 1 
@@ -150,11 +159,11 @@ class CoolBoardLed
 	Serial.println(ledActive);
 
 	Serial.println();	
-!!!129669.cpp!!!	colorFade(in R : int, in G : int, in B : int, in T : int) : void
+!!!187653.cpp!!!	fade(in R : int, in G : int, in B : int, in T : float) : void
 
 #if DEBUG == 1
 
-	Serial.println( F("Entering CoolBoardLed.colorFade()") );
+	Serial.println( F("Entering CoolBoardLed.fade()") );
 	Serial.println();
 	Serial.print( F("R : ") );
 	Serial.println(R);
@@ -167,20 +176,23 @@ class CoolBoardLed
 	Serial.println();
 
 #endif	
-
-	for (int k = 0; k < 1000; k++) 
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 0; k < 1000; k++) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
+		
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
-	for (int k = 1000; k >= 0; k--) 
-	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
-	}
-!!!129797.cpp!!!	blink(in R : int, in G : int, in B : int, in T : int) : void
+!!!129797.cpp!!!	blink(in R : int, in G : int, in B : int, in T : float) : void
 
 #if DEBUG == 1
 
@@ -198,12 +210,15 @@ class CoolBoardLed
 
 #endif	
 
-	neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-	neoPixelLed->Show();
-	delay(T);
-	neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-	neoPixelLed->Show();
-!!!129925.cpp!!!	fadeIn(in R : int, in G : int, in B : int, in T : int) : void
+	if(this->ledActive == 1 )
+	{
+		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+		neoPixelLed->Show();
+		delay(T);
+		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+		neoPixelLed->Show();
+	}
+!!!129925.cpp!!!	fadeIn(in R : int, in G : int, in B : int, in T : float) : void
 
 #if DEBUG == 1
 
@@ -220,14 +235,18 @@ class CoolBoardLed
 	Serial.println();
 
 #endif	
-
-	for (int k = 0; k < 1000; k++) 
+	
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 0; k < 1000; k++) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
-!!!130053.cpp!!!	fadeOut(in R : int, in G : int, in B : int, in T : int) : void
+
+!!!130053.cpp!!!	fadeOut(in R : int, in G : int, in B : int, in T : float) : void
 
 #if DEBUG == 1 
 
@@ -245,14 +264,16 @@ class CoolBoardLed
 
 #endif	
 
-
-	for (int k = 1000; k >= 0; k--) 
+	if(this->ledActive == 1 )
 	{
-		neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-		neoPixelLed->Show();
-		delay(T);
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}
-!!!130181.cpp!!!	strobe(in R : int, in G : int, in B : int, in T : int) : void
+!!!130181.cpp!!!	strobe(in R : int, in G : int, in B : int, in T : float) : void
 
 #if DEBUG == 1
 
@@ -270,13 +291,15 @@ class CoolBoardLed
 
 #endif	
 
-	
-	for (int k = 1000; k >= 0; k--) 
-	{
-		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-		neoPixelLed->Show();
-		delay(T);
-		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-		neoPixelLed->Show();
-		delay(T);
+	if(this->ledActive == 1 )
+	{	
+		for (int k = 1000; k >= 0; k--) 
+		{
+			neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
+			neoPixelLed->Show();
+			delay(T);
+			neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
+			neoPixelLed->Show();
+			delay(T);
+		}
 	}

@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 13
+  revision 14
   modified_by 5 "ashiroji"
   // class settings
   
@@ -1368,18 +1368,18 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	
       end
 
-      operation 129669 "colorFade"
+      operation 187653 "fade"
 	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 4
 	  param in name "R" explicit_type "int"
 	  param in name "G" explicit_type "int"
 	  param in name "B" explicit_type "int"
-	  param in name "T" explicit_type "int"
+	  param in name "T" explicit_type "float"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}, ${t3} ${p3}${v3}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolBoardLed::colorFade ( Red , Green , Blue, Time in seconds ):
-//	colorFade animation:	Fade In over T(seconds)
-//				Fade Out over T(seconds)
+	cpp_def "//	CoolBoardLed::fade ( Red , Green , Blue, Time in seconds ):
+//	fade animation:	Fade In over T(seconds)
+//			Fade Out over T(seconds)
 //
 
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t3} ${p3}${)}${const}${throw}${staticnl}{
@@ -1398,7 +1398,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
 	  param in name "R" explicit_type "int"
 	  param in name "G" explicit_type "int"
 	  param in name "B" explicit_type "int"
-	  param in name "T" explicit_type "int"
+	  param in name "T" explicit_type "float"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}, ${t3} ${p3}${v3}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoardLed::blink( Red , Green , Blue , Time in seconds ):
@@ -1421,7 +1421,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
 	  param in name "R" explicit_type "int"
 	  param in name "G" explicit_type "int"
 	  param in name "B" explicit_type "int"
-	  param in name "T" explicit_type "int"
+	  param in name "T" explicit_type "float"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}, ${t3} ${p3}${v3}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
@@ -1443,7 +1443,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
 	  param in name "R" explicit_type "int"
 	  param in name "G" explicit_type "int"
 	  param in name "B" explicit_type "int"
-	  param in name "T" explicit_type "int"
+	  param in name "T" explicit_type "float"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}, ${t3} ${p3}${v3}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
@@ -1465,7 +1465,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
 	  param in name "R" explicit_type "int"
 	  param in name "G" explicit_type "int"
 	  param in name "B" explicit_type "int"
-	  param in name "T" explicit_type "int"
+	  param in name "T" explicit_type "float"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}, ${t2} ${p2}${v2}, ${t3} ${p3}${v3}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
@@ -2597,7 +2597,8 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
-	  comment "if temporal==1 this is the time spent actif in ms"
+	  comment "if type is hour/minute/second this is the deactivation time
+if temporal==1 this is the time spent actif in ms"
 	end
 
 	attribute 151429 "temporal"
@@ -2611,6 +2612,8 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "if type is hour/minute/second this is the activation time
+"
 	end
 
 	attribute 151557 "actifTime"
@@ -4012,6 +4015,12 @@ ${inlines}
 //	wifiManager time out 
 //
 
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4027,6 +4036,16 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::config():
+//	This method is provided to set
+//	the wifi parameters :	-ssid
+//				-pass
+//				-AP timeOut
+//				-wifiCount	
+//
+//	\\return true if successful,false otherwise
+//
+
+//	CoolWifi::config():
 //	This method is provided to set
 //	the wifi parameters :	-ssid
 //				-pass
@@ -4140,6 +4159,12 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	\\return true if successfull, false otherwise
 //
 
+//	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout );
+//	This method is provided to configure the Wifi without SPIFFS
+//	
+//	\\return true if successfull, false otherwise
+//
+
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2}, ${t3} ${p3}${)}${const}${throw}${staticnl}{
   ${body}}
 "
@@ -4155,6 +4180,14 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2},
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
+//	CoolWifi::connect( ):
 //	This method is provided to connect to the strongest WiFi
 //	in the provided list of wiFis.
 //	If none are found , it starts the AP mode.
@@ -4300,6 +4333,20 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //		WL_DISCONNECTED = 6
 //
 
+//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4315,6 +4362,11 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
+//	CoolWifi::printConf():
 //	This method is provided to print the
 //	configuration to the Serial Monitor
 //
@@ -4362,6 +4414,14 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
 //	This method is provided to add new WiFi
 //	detected by the WiFiManager to 
 //	the jsonConfig(if used ) 

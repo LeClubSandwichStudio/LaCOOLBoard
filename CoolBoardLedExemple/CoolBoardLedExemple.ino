@@ -9,7 +9,7 @@ void setup()
 void loop()
 {
 
-	led.colorFade(255, 255, 255,  1);
+	led.fade(255, 255, 255,  1);
 	
 	led.write(0,0,0);
 	delay(1000);		
