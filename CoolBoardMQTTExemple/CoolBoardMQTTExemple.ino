@@ -4,14 +4,14 @@
 CoolWifi wifiManager;
 CoolMQTT mqtt;
 
-String ssid[] = {"lapaillasse","ssid"};
-String pass[]={"biohacking","pass"};
+String ssid[] = {"ssid1","ssid2"};//put up to 50 ssids
+String pass[]={"pass1","pass2"};//put up to 50 passwords
 
 
-const char mqttServer[]="broker.mqtt-dashboard.com";
-const char inTopic[]="inTopic";
-const char outTopic[]="outTopic";
-const char clientId[]="espAshiroji";
+const char mqttServer[]="----------";//the mqtt server you're going to use
+const char inTopic[]="--------";//the topic you're going to subscribe to (receive from)
+const char outTopic[]="-------";//the topic you're going to publish to (send to )
+const char clientId[]="------";//your user name
 int bufferSize = 128;//bytes
 int keepAlive=15; //seconds
 
@@ -35,9 +35,9 @@ void setup()
 
 void loop()
 {
-mqtt.publish("hello world by CoolBoard");
+mqtt.publish("hello world by CoolBoard");//publish this message to the outTopic
 delay(1000);
-Serial.println(mqtt.read());
+Serial.println(mqtt.read());//print answer if answer is received
 delay(1000);
 mqtt.mqttLoop();
 delay(1000);

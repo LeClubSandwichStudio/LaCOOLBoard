@@ -926,9 +926,10 @@ String CoolBoard::readSensors()
 	{
 		sensorsData += irene3000.read(); // {..,..,..,..,..}{..,..,..}
 
-		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..}{..,..,..,
 		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
 		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}		
 		
 		
 	}
@@ -938,7 +939,8 @@ String CoolBoard::readSensors()
 	tm=rtc.getTimeDate();
 	
 	//adding Hour
-	sensorsData+="\"hour\":";	
+	sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,	
+	sensorsData+=",\"hour\":";	
 	sensorsData+=tm.Hour;
 	sensorsData+="}";
 	
