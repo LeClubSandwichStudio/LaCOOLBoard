@@ -29,12 +29,10 @@ public:
 
 	void begin(); 
 
-
 	String read ();
 
 	bool config();
 
-	int getJsonSize();
 	void printConf();
 
 private:
@@ -42,14 +40,11 @@ private:
 	{		
 		String reference="";
 		String type="";
-		String connection="";
-		int dataSize=0;
 		uint8_t address=0;	
 		BaseExternalSensor *exSensor=NULL;
 	}sensors[50];
 
 int sensorsNumber=0;
-int jsonSize=100;
 
 };
 

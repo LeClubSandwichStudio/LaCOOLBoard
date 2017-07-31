@@ -25,6 +25,7 @@ class CoolMQTT
 public:
 
 	void begin();
+
 	int connect(uint16_t keepAlive);
 
 	bool publish(const char* data);
@@ -34,6 +35,7 @@ public:
 	String read();
 
 	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize);
+
 	bool config();
 
 	void callback(char* topic, byte* payload, unsigned int length);
@@ -49,14 +51,23 @@ public:
 private:
 	
 	char mqttServer[50]={'0'};
+
 	String msg="";
+
 	char inTopic[50]={'0'};
+
 	char outTopic[50]={'0'};
+
 	char user[50]={'0'};
+
 	int bufferSize=3000;	
+
 	WiFiClient espClient;
+
 	PubSubClient client;
+
 	bool newMsg=0;
+
 	unsigned long previousLogTime=0;
 
 

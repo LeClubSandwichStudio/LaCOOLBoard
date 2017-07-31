@@ -28,7 +28,7 @@ public:
  
 	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
  
-	void doAction(const char* data, int JSON_SIZE);
+	void doAction(const char* data );
        
 	bool config();
 
@@ -37,8 +37,6 @@ public:
 private:
 
 	byte action= B00000000; 
-	
-	byte actorsNumber=0;
 
 	struct state{
 	

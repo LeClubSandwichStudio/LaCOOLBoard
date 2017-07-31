@@ -475,6 +475,11 @@ bool CoolTime::config()
 			json.printTo(Serial);
 			Serial.println();
 
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+
 		#endif
 
 			String ip;
@@ -582,16 +587,29 @@ bool CoolTime::saveTimeSync()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
+		#if DEBUG == 1
+
 			Serial.println( F("failed to parse json") );
 			Serial.println();
+		
+		#endif
 
 			return(false);
 		} 
 		else
-		{  	
+		{
+
+		#if DEBUG == 1
+  	
 			Serial.println( F("configuration json is :") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+		#endif
 
 			String ip;
 					
@@ -634,19 +652,26 @@ bool CoolTime::saveTimeSync()
 			
 			if(!rtcConfig)
 			{
+			#if DEBUG == 1
+
 				Serial.println( F("failed to write timeSync to /rtcConfig.json") );
 				Serial.println();
+			
+			#endif
 
 				return(false);
 			}
 			
 			json.printTo(rtcConfig);
 			rtcConfig.close();
+	
+		#if DEBUG == 1
 
 			Serial.println( F("configuration is :") );
 			json.printTo(Serial);
 			Serial.println();
 		
+		#endif
 			return(true); 
 		}
 	}	

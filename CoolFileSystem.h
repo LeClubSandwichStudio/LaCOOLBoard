@@ -25,11 +25,11 @@ class CoolFileSystem
 public:
 	bool begin(); 
 
-	bool updateConfigFiles(String answer,int JSON_SIZE);	
+	bool updateConfigFiles(String answer );	
 	
-	bool saveSensorData(const char* data,int Sensor_JSON_SIZE);
+	bool saveSensorData(const char* data );
 	
-	bool saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE);
+	bool saveSensorDataCSV(const char* data );
 	
 	bool isDataSaved();
 	

@@ -94,7 +94,7 @@ String ExternalSensors::read()
 #endif 
 
 	String data;
-	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
+	DynamicJsonBuffer  jsonBuffer ;
 	JsonObject& root = jsonBuffer.createObject();
 
 	if(!root.success() )
@@ -126,37 +126,17 @@ String ExternalSensors::read()
 		Serial.println( F("sensors data :") );
 		Serial.println(data);
 		Serial.println();
+
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 	
 	#endif
 	
 		return(data);
 	}
 
-}
-
-/**
-*	ExternalSensors::getJsonSize():
-*	This method is provided to return
-*	the size of the json data as a way
-*	to control memory usage
-*
-*	\return the json data size
-*/
-int ExternalSensors::getJsonSize()
-{
-	
-#if DEBUG == 1
-
-	Serial.println( F("Enter ExternalSensors.getJsonSize") );
-	Serial.println();
-	
-	Serial.print( F("jsonSize : ") );
-	Serial.println(this->jsonSize);
-	Serial.println();
-
-#endif 
-
-	return(this->jsonSize );
 }
 
 /**
@@ -212,23 +192,16 @@ bool ExternalSensors::config()
 		
 		#if DEBUG == 1 
 	
-			Serial.println( F("read configuration json : ") );
+			Serial.println( F("configuration json is : ") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 		
-		#endif
-
-			if(json["jsonSize"]!=NULL )
-			{			
-				this->jsonSize=json["jsonSize"];
-			}
-			else
-			{
-				this->jsonSize=this->jsonSize;
-			}
-			json["jsonSize"]=this->jsonSize;			
-
-			
+		#endif			
 			if(json["sensorsNumber"]!=NULL)
 			{
 				this->sensorsNumber = json["sensorsNumber"];
@@ -249,7 +222,7 @@ bool ExternalSensors::config()
 						else
 						{
 							this->sensors[i].reference=this->sensors[i].reference;							
-							Serial.println("Not Found Name " );		
+									
 						}
 						sensorJson["reference"]=this->sensors[i].reference;
 
@@ -261,34 +234,9 @@ bool ExternalSensors::config()
 						else
 						{
 							this->sensors[i].type=this->sensors[i].type;
-							Serial.println("Not Found Name " ) ;						
+
 						}
 						sensorJson["type"]=this->sensors[i].type;
-					
-					
-						if(sensorJson["connection"].success() )
-						{
-							this->sensors[i].connection=sensorJson["connection"].as<String>();
-						}
-						else
-						{
-							this->sensors[i].connection=this->sensors[i].connection;
-							Serial.println("Not Found Name " ) ;						
-						}
-						sensorJson["connection"]=this->sensors[i].connection;
-
-					
-						if(sensorJson["dataSize"].success() )
-						{				
-							this->sensors[i].dataSize=sensorJson["dataSize"];
-						}
-						else
-						{
-							this->sensors[i].dataSize=this->sensors[i].dataSize;
-							Serial.println("Not Found Name " ) ;						
-						}
-						sensorJson["dataSize"]=this->sensors[i].dataSize;
-
 					
 						if(sensorJson["address"].success() )
 						{					
@@ -297,7 +245,7 @@ bool ExternalSensors::config()
 						else
 						{	
 							this->sensors[i].address=this->sensors[i].address;
-							Serial.println("Not Found Name " ) ;						
+
 						}
 						sensorJson["address"]=this->sensors[i].address;
 					
@@ -310,8 +258,6 @@ bool ExternalSensors::config()
 								        	
 					json[name]["reference"]=this->sensors[i].reference;
 					json[name]["type"]=this->sensors[i].type;
-					json[name]["connection"]=this->sensors[i].connection;
-					json[name]["dataSize"]=this->sensors[i].dataSize;
 					json[name]["address"]=this->sensors[i].address;
 				}
  
@@ -378,9 +324,6 @@ void ExternalSensors::printConf()
 	Serial.print("sensorsNumber : ");
 	Serial.println(sensorsNumber);
 
-	Serial.println("jsonSize : ");
-	Serial.println(jsonSize);
-
 	for(int i=0;i<sensorsNumber;i++)
 	{
 		Serial.print("sensor ");
@@ -392,17 +335,7 @@ void ExternalSensors::printConf()
 		Serial.print(i);
 		Serial.print(" type : ");
 		Serial.println(this->sensors[i].type);
-
-		Serial.print("sensor ");
-		Serial.print(i);
-		Serial.print(" connection : ");
-		Serial.println(this->sensors[i].connection);
-		
-		Serial.print("sensor ");
-		Serial.print(i);
-		Serial.print(" dataSize : ");
-		Serial.println(this->sensors[i].dataSize);
-		
+				
 		Serial.print("sensor ");
 		Serial.print(i);
 		Serial.print(" address : ");

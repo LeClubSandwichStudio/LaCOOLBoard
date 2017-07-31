@@ -293,7 +293,7 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 	#if DEBUG == 1
 
 		Serial.println( F("received temp msg : ") );
-
+		
 	#endif
 		
 		for (int i = 0; i < length; i++) 
@@ -312,6 +312,12 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 
 		Serial.println();
 		Serial.println( F("storing new message : ") );
+
+		Serial.print(F("length : "));
+		Serial.println(length);
+		
+		Serial.print(F("size : "));
+		Serial.print(sizeof(payload));
 		Serial.println();
 	
 	#endif
@@ -445,6 +451,11 @@ bool CoolMQTT::config()
 			Serial.println( F("configuration json is ") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 
 		#endif
 

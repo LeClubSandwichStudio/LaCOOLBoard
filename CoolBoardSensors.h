@@ -38,8 +38,6 @@ public:
 	//data is in json
 	String read();
 
-	int getJsonSize();
-	void setJsonSize(int jsonSize);
 	void allActive();
 
 	void initReadI2C();
@@ -50,9 +48,8 @@ public:
 	void end();
 
 	bool config();
+
 	void printConf();
-
-
 
 	//environment sensor methods
 
@@ -101,7 +98,6 @@ private:
         byte vbatActive=0;
 	byte soilMoistureActive=0;
 
-	int jsonSize=500;//for the json output
 };
 
 #endif

@@ -67,7 +67,7 @@ String Irene3000::read()
 #endif 
 
 	String data;
-	DynamicJsonBuffer jsonBuffer(ireneJsonSize);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.createObject();
 	if( !( root.success()) )
 	{
@@ -105,6 +105,11 @@ String Irene3000::read()
 	Serial.println( F("Irene data : ") );
 	Serial.println(data);
 	Serial.println();
+
+	Serial.print(F("jsonBuffer size: "));
+	Serial.println(jsonBuffer.size());
+	Serial.println();
+
 
 #endif
 	
@@ -174,20 +179,14 @@ bool Irene3000::config()
 			Serial.println( F("read configuration file ") );
 			json.printTo(Serial);
 			Serial.println();
-		
-		#endif 
-			
-			if(json["ireneJsonSize"].success() )
-			{
-				this->ireneJsonSize=json["ireneJsonSize"];
-			}
-			else
-			{
-				this->ireneJsonSize=this->ireneJsonSize;
-			}
-			json["ireneJsonSize"]=this->ireneJsonSize;
 
-			
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+		
+
+		#endif 			
 			if(json["waterTemp"]["active"].success() )
 			{			
 				this->waterTemp.active = json["waterTemp"]["active"]; 

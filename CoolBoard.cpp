@@ -42,13 +42,7 @@ void CoolBoard::begin()
 	Serial.println( F("Starting the CoolBoard  ")  );
 	Serial.println( F("Entering CoolBoard.begin() ")  );
 	Serial.println();
-#endif
-	
-	fileSystem.begin();
-	delay(100);
-	
-	coolBoardLed.config();
-	coolBoardLed.begin();
+#endif	
 	coolBoardLed.printConf();
 	delay(100);
 	
@@ -305,7 +299,7 @@ void CoolBoard::onLineMode()
 
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
-		jetPack.doAction(data.c_str(), sensorJsonSize);
+		jetPack.doAction(data.c_str());
 	}
 	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
@@ -451,14 +445,14 @@ void CoolBoard::offLineMode()
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue	
 	
-		jetPack.doAction(data.c_str(), sensorJsonSize);
+		jetPack.doAction( data.c_str() );
 	}
 	
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 	
 	//saving data in the file system
 	
-	fileSystem.saveSensorData(data.c_str(), sensorJsonSize);
+	fileSystem.saveSensorData( data.c_str() );
 
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green	
 
@@ -468,8 +462,6 @@ void CoolBoard::offLineMode()
 *	CoolBoard::config():
 *	This method is provided to configure
 *	the CoolBoard :	-log interval
-*			-Size of the data to write
-*			-Size of the data to read
 *			-irene3000 activated/deactivated
 *			-jetpack activated/deactivated
 *			-external Sensors activated/deactivated
@@ -490,7 +482,8 @@ bool CoolBoard::config()
 
 	//open file system
 	fileSystem.begin();
-
+	
+	//start the led
 	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.fadeIn(243,171,46,0.5);//shade of orange		
@@ -545,7 +538,11 @@ bool CoolBoard::config()
 			Serial.println( F("configuration json : ") );
 			json.printTo(Serial);
 			Serial.println();
-		
+			
+			Serial.print(F("jsonBuffer size : "));
+			Serial.print(jsonBuffer.size());
+			Serial.println();
+
 		#endif
 			
 			//parsing userActive Key
@@ -570,28 +567,6 @@ bool CoolBoard::config()
 				this -> logInterval = this -> logInterval;
 			}
 			json["logInterval"] = this -> logInterval;
-
-			//parsing sensorJsonSize key
-			if (json["sensorJsonSize"].success())
-			{
-				this -> sensorJsonSize = json["sensorJsonSize"];
-			}
-			else
-			{
-				this -> sensorJsonSize = this -> sensorJsonSize;
-			}
-			json["sensorJsonSize"] = this -> sensorJsonSize;
-			
-			//parsing answerJsonSize key			
-			if (json["answerJsonSize"].success())
-			{
-				this -> answerJsonSize = json["answerJsonSize"];
-			}
-			else
-			{
-				this -> answerJsonSize = this -> answerJsonSize;
-			}
-			json["answerJsonSize"] = this -> answerJsonSize;
 			
 			//parsing ireneActive key			
 			if (json["ireneActive"].success())
@@ -696,12 +671,6 @@ void CoolBoard::printConf()
 	Serial.print("log interval 		: ");
 	Serial.println(this->logInterval);
 
-	Serial.print("sensor json size 		: ");
-	Serial.println(this->sensorJsonSize);
-
-	Serial.print("answer json size 		: ");
-	Serial.println(this->answerJsonSize);
-
 	Serial.print("irene active 		: ");
 	Serial.println(this->ireneActive);
 
@@ -746,14 +715,22 @@ void CoolBoard::update(const char * answer)
 
 #endif
 
-	DynamicJsonBuffer jsonBuffer(answerJsonSize);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject & root = jsonBuffer.parseObject(answer);
 	JsonObject & stateDesired = root["state"];
 
 #if DEBUG == 1
-	
+
+	Serial.println( F("root json : ") );
 	root.printTo(Serial);
+	Serial.println();
+
+	Serial.println(F("stateDesired json : "));
 	stateDesired.printTo(Serial);
+	Serial.println();
+	
+	Serial.print(F("jsonBuffer size : "));
+	Serial.println(jsonBuffer.size());
 
 #endif
 
@@ -782,11 +759,11 @@ void CoolBoard::update(const char * answer)
 
 		
 		#endif
-			
-			fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
+			//saving the new configuration
+			fileSystem.updateConfigFiles(answerDesired);
 
 			//applying the configuration	
-			this -> config();
+			/*this -> config();
 
 			coolBoardSensors.config();
 
@@ -816,7 +793,7 @@ void CoolBoard::update(const char * answer)
 			delay(10);
 			wifiManager.begin();
 			delay(100);
-			mqtt.begin();
+			mqtt.begin();*/
 
 		        //answering the update msg:
 			//reported = received configuration
@@ -845,7 +822,7 @@ void CoolBoard::update(const char * answer)
 
 			delay(10);
 			
-			//restart the esp
+			//restart the esp to apply the config
 			ESP.restart();
 	}
 	else

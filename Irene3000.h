@@ -39,6 +39,7 @@ public:
 	void begin();
 
 	bool config();
+
 	void printConf();
 
 	String read();
@@ -82,8 +83,6 @@ private:
 		adsGain_t gain=GAIN_ONE;
 		String type="";
 	} waterTemp, phProbe,adc2;
-
-	int ireneJsonSize=100;
 
 	const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exa
 

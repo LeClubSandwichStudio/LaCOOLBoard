@@ -245,6 +245,11 @@ bool CoolWifi::config()
 			json.printTo(Serial);
 			Serial.println();
 
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+
 		#endif
 			//wifiCount
 			if(json["wifiCount"].success() )
@@ -504,6 +509,11 @@ bool CoolWifi::addWifi( String ssid , String pass )
 			Serial.println( F("configuration json is ") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 
 		#endif
 			//wifiCount

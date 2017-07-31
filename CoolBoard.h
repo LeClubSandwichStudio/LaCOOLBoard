@@ -90,10 +90,6 @@ private:
 
 	uint16_t logInterval=1000;//ms
 
-	int answerJsonSize=3000;
-	
-	int sensorJsonSize=1000;
-
 	int serverTimeOut=180;
 
 	String data="";

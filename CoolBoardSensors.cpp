@@ -51,55 +51,6 @@ CoolBoardSensors::CoolBoardSensors()
 
 }
 
-/**
-*	CoolBoardSensors::getJsonSize():
-*	This method is provided to get
-*	the sensor board answer size
-*	
-*	\return json data size
-*/
-int CoolBoardSensors::getJsonSize()
-{
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.getJsonSize()") );
-	Serial.println();
-	Serial.print( F("json size is : ") );
-	Serial.println(this->jsonSize);
-	Serial.println();
-
-#endif
-
-	return(this->jsonSize );
-}
-
-/**
-*	CoolBoardSensors::setJsonSize( JSON size):
-*	This method is provided to set the
-*	sensor board answer size
-*/
-void CoolBoardSensors::setJsonSize(int jsonSize)
-{
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.setJsonSize()") );
-	Serial.println();	
-	Serial.print( F("old json Size is : ") );
-	Serial.println(this->jsonSize);
-#endif
-		
-	this->jsonSize=jsonSize;
-
-#if DEBUG == 1 
-	
-	Serial.print( F("new json Size is : ") );
-	Serial.println(this->jsonSize);
-
-#endif
-	
-}
 
 /**
 *	CoolBoardSensors::allActive():
@@ -216,7 +167,7 @@ String CoolBoardSensors::read()
 #endif
 
 	String data;
-	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
+	DynamicJsonBuffer  jsonBuffer ;
 	JsonObject& root = jsonBuffer.createObject();
 	
 	initReadI2C();
@@ -274,6 +225,10 @@ String CoolBoardSensors::read()
 
 	Serial.println( F("CoolBoardSensors data is :") );
 	root.printTo(Serial);
+	Serial.println();
+	
+	Serial.print(F("jsonBuffer size: "));
+	Serial.println(jsonBuffer.size());
 	Serial.println();
 
 #endif
@@ -386,19 +341,14 @@ bool CoolBoardSensors::config()
 			Serial.println( F("Configuration Json is :") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+			
 		
 		#endif
-  	  
-			if(json["jsonSize"].success() )
-			{
-				this->jsonSize = json["jsonSize"]; 
-			}
-			else
-			{
-				this->jsonSize=this->jsonSize;			
-			}
-			json["jsonSize"]=this->jsonSize;
-
 			
 			if(json["BME280"]["temperature"].success() )
 			{			
@@ -538,9 +488,6 @@ void CoolBoardSensors::printConf()
 
 	Serial.println("Sensors Configuration : ");
 	
-	Serial.print("json size : ");
-	Serial.println(this->jsonSize);
-
 	Serial.print("airDataActive.temperature : ");
 	Serial.println(this->airDataActive.temperature);
 

@@ -113,7 +113,7 @@ void Jetpack::writeBit(byte pin,bool state)
 }
 
 /**
-*	Jetpack::doAction(sensor data, sensor data size):
+*	Jetpack::doAction(sensor data ):
 *	This method is provided to automate the Jetpack.
 *	exemple:
 *	initial state:
@@ -124,14 +124,14 @@ void Jetpack::writeBit(byte pin,bool state)
 *		actors[0].type="Temperature"
 *		
 *	condition verified:		
-*		root["Temperature"]<actors[0].low
+*		root["Temperature"] < actors[0].low
 *
 *	action: invert the state of actors[0]:
 *		bitWrite( action,0,!( bitRead ( action,0 ) ) )
 *		write(action)
 *	
 */
-void Jetpack::doAction(const char* data,int JSON_SIZE)
+void Jetpack::doAction( const char* data )
 {
 
 #if DEBUG == 1 
@@ -143,13 +143,9 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 	Serial.println(data);
 	Serial.println();
 
-	Serial.println( F("input size is :") );	
-	Serial.println(JSON_SIZE);
-	Serial.println();
-
 #endif 
 
-	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
 	
 	if (!root.success()) 
@@ -171,6 +167,11 @@ void Jetpack::doAction(const char* data,int JSON_SIZE)
 		Serial.println( F("created Json object :") );
 		root.printTo(Serial);
 		Serial.println();
+
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 	
 	#endif 
 
@@ -405,102 +406,99 @@ bool Jetpack::config()
 			Serial.println( F("read configuration file : ") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 		
 		#endif
   
-			if(json["ActorsNumber"].success() )
-			{
-				this->actorsNumber = json["ActorsNumber"]; 
-			
-				for(int i=0;i<8;i++)
-				{	if(json[String("Act")+String(i)].success())
+			for(int i=0;i<8;i++)
+			{	
+				if(json[String("Act")+String(i)].success())
+				{
+					if(json[String("Act")+String(i)]["actif"].success() )
 					{
-						if(json[String("Act")+String(i)]["actif"].success() )
-						{
-							this->actors[i].actif=json[String("Act")+String(i)]["actif"];
-						}
-						else
-						{
-							this->actors[i].actif=this->actors[i].actif;
-						}
-						json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
-
-
-						if(json[String("Act")+String(i)]["low"].success() )
-						{					
-							this->actors[i].low=json[String("Act")+String(i)]["low"];
-						}
-						else
-						{
-							this->actors[i].low=this->actors[i].low;					
-						}
-						json[String("Act")+String(i)]["low"]=this->actors[i].low;
-	
-					
-						if(json[String("Act")+String(i)]["high"].success() )
-						{				
-							this->actors[i].high=json[String("Act")+String(i)]["high"];
-						}
-						else
-						{
-							this->actors[i].high=this->actors[i].high;
-						}
-						json[String("Act")+String(i)]["high"]=this->actors[i].high;
-
-					
-						if(json[String("Act")+String(i)]["type"].success() )
-						{				
-							this->actors[i].type=String( json[String("Act")+String(i)]["type"].as<const char*>() ); 
-						}
-						else
-						{
-							this->actors[i].type=this->actors[i].type;
-						}
-						json[String("Act")+String(i)]["type"]=this->actors[i].type.c_str();
-
-
-						if(json[String("Act")+String(i)]["temporal"].success() )
-						{
-							this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
-						}
-						else
-						{
-							this->actors[i].temporal=this->actors[i].temporal; 
-						}	
-						json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal;
-
-						
-						if(json[String("Act")+String(i)]["inverted"].success() )
-						{
-							this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 													
-						}
-						else
-						{
-							this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 
-						}	
-						json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted;
-
-						
-						 
+						this->actors[i].actif=json[String("Act")+String(i)]["actif"];
 					}
 					else
 					{
-						this->actors[i]=this->actors[i];
+						this->actors[i].actif=this->actors[i].actif;
 					}
-					
 					json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
+
+
+					if(json[String("Act")+String(i)]["low"].success() )
+					{					
+						this->actors[i].low=json[String("Act")+String(i)]["low"];
+					}
+					else
+					{
+						this->actors[i].low=this->actors[i].low;					
+					}
 					json[String("Act")+String(i)]["low"]=this->actors[i].low;
+
+				
+					if(json[String("Act")+String(i)]["high"].success() )
+					{				
+						this->actors[i].high=json[String("Act")+String(i)]["high"];
+					}
+					else
+					{
+						this->actors[i].high=this->actors[i].high;
+					}
 					json[String("Act")+String(i)]["high"]=this->actors[i].high;
-					json[String("Act")+String(i)]["type"]=this->actors[i].type;
+
+				
+					if(json[String("Act")+String(i)]["type"].success() )
+					{				
+						this->actors[i].type=String( json[String("Act")+String(i)]["type"].as<const char*>() ); 
+					}
+					else
+					{
+						this->actors[i].type=this->actors[i].type;
+					}
+					json[String("Act")+String(i)]["type"]=this->actors[i].type.c_str();
+
+
+					if(json[String("Act")+String(i)]["temporal"].success() )
+					{
+						this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
+					}
+					else
+					{
+						this->actors[i].temporal=this->actors[i].temporal; 
+					}	
 					json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal;
-					json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted; 
+
+					
+					if(json[String("Act")+String(i)]["inverted"].success() )
+					{
+						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 													
+					}
+					else
+					{
+						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 
+					}	
+					json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted;
+
+					
+					 
 				}
+				else
+				{
+					this->actors[i]=this->actors[i];
+				}
+				
+				json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
+				json[String("Act")+String(i)]["low"]=this->actors[i].low;
+				json[String("Act")+String(i)]["high"]=this->actors[i].high;
+				json[String("Act")+String(i)]["type"]=this->actors[i].type;
+				json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal;
+				json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted; 
 			}
-			else
-			{
-				this->actorsNumber=this->actorsNumber;
-			}
-			json["actorsNumber"]=this->actorsNumber;
+			
 
 			jetPackConfig.close();			
 			jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");			
@@ -551,11 +549,8 @@ void Jetpack::printConf()
 
 #endif 
 	Serial.println( "Jetpack configuration " ) ;
-
-	Serial.print( "actorsNumber : " );
-	Serial.println(this->actorsNumber);
  
-        for(int i=0;i<this->actorsNumber;i++)
+        for(int i=0;i<8;i++)
 	{	
 		Serial.print("actor N°");
 		Serial.print(i);

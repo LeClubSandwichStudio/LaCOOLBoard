@@ -48,7 +48,7 @@ bool CoolFileSystem::begin()
 }
 
 /**
-*	CoolFileSystem::saveSensorData( data, data size ):
+*	CoolFileSystem::saveSensorData( data ):
 *	This method is provided to save the data on the local
 *	memory when there is no internet available
 *
@@ -57,7 +57,7 @@ bool CoolFileSystem::begin()
 *	\return true if the data was saved,
 *	false otherwise
 */
-bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
+bool CoolFileSystem::saveSensorData(const char* data )
 {
 
 #if DEBUG == 1
@@ -68,6 +68,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 #endif
 	
 	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
+
 	if(!sensorsData)
 	{
 	
@@ -82,7 +83,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 		return (false);	
 	}	
 
-	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
 
 	if( root.success() )
@@ -91,13 +92,20 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 		sensorsData.println();
 		sensorsData.close();
 
+
 	#if DEBUG == 1
+		
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 		sensorsData=SPIFFS.open("/sensorsData.json","r");
 		
 		if(!sensorsData)
 		{
+			
 			Serial.println(F("failed to reopen /sensorsData.json"));
-			return(false);				
+						
 		}
 	
 		Serial.println( F("saved data is : ") );
@@ -116,7 +124,7 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 	
 	#endif
 
-		this->saveSensorDataCSV(data,Sensor_JSON_SIZE);		
+		this->saveSensorDataCSV(data);		
 
 		this->savedData=true;
 		return (true);		
@@ -139,14 +147,14 @@ bool CoolFileSystem::saveSensorData(const char* data,int Sensor_JSON_SIZE)
 
 
 /**
-*	CoolFileSystem::saveSensorDataCSV( data, data size ):
+*	CoolFileSystem::saveSensorDataCSV( data ):
 *	This method is provided to save the data on the local
 *	memory in CSV format.
 *
 *	\return true if the data was saved,
 *	false otherwise
 */
-bool CoolFileSystem::saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE)
+bool CoolFileSystem::saveSensorDataCSV(const char* data )
 {
 #if DEBUG == 1
 
@@ -155,7 +163,7 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE)
 
 #endif
 	//parsing json
-	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
 	String header="",values="";
 	
@@ -186,6 +194,11 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE)
 		Serial.println(header);
 		Serial.println(F(" values are : "));
 		Serial.println(values);
+		
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 	
 	#endif
 	
@@ -339,14 +352,14 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data,int Sensor_JSON_SIZE)
 
 
 /**
-*	CoolFileSystem::updateConfigFiles( mqtt answer, answer size):
+*	CoolFileSystem::updateConfigFiles( mqtt answer ):
 *	This method is provided to update the configuration files when
 *	the appropriate mqtt answer is received:	-update : 1
 *
 *	\return true if the files are updated correctly,
 *	false otherwise
 */
-bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
+bool CoolFileSystem::updateConfigFiles(String answer )
 {
 
 #if DEBUG == 1
@@ -357,17 +370,21 @@ bool CoolFileSystem::updateConfigFiles(String answer,int JSON_SIZE)
 	Serial.println( F("input answer : ") );
 	Serial.println(answer);
 #endif
-	//test
-	char buffer[ answer.length()+2 ];
-	answer.toCharArray( buffer, answer.length()+2  );
+
 	//total json object	
-	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
-	JsonObject& root = jsonBuffer.parseObject( buffer );
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject& root = jsonBuffer.parseObject( answer.c_str() );
 
 #if DEBUG == 1
-
+	
 	Serial.println( F("json object : ") );	
 	root.printTo(Serial);
+	Serial.println();
+	
+	Serial.print(F("jsonBuffer size: "));
+	Serial.println(jsonBuffer.size());
+	Serial.println();
+
 
 #endif
 
@@ -973,6 +990,11 @@ String CoolFileSystem::getSensorSavedData()
 			Serial.println( F("saved data : ") );
 			Serial.println(sensorDataString);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 		
 		#endif
 

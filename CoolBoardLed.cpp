@@ -237,7 +237,7 @@ void CoolBoardLed::begin( )
 	Serial.println( F("Entering CoolBoardLed.begin() ") );
 
 #endif
-
+	yield();
 	if(this->ledActive == 1 )
 	{
 		pinMode(5,OUTPUT);
@@ -341,7 +341,11 @@ bool CoolBoardLed::config()
 			Serial.println( F("read configuration file : ") );
 			json.printTo(Serial);
 			Serial.println();
-		
+			
+			Serial.print(F("jsonBuffer size :"));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 		#endif
   
 			if(json["ledActive"].success() )
