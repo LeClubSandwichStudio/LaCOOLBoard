@@ -54,10 +54,10 @@ void ExternalSensors::begin()
 	{
 		if( (sensors[i].reference) == "NDIR_I2C" )
 		{	
-			std::unique_ptr< ExternalSensor<NDIR_I2C> > sensorCO2(new ExternalSensor<NDIR_I2C> (77));
+			std::unique_ptr< ExternalSensor<NDIR_I2C> > sensorCO2(new ExternalSensor<NDIR_I2C>( this->sensors[i].address) );
 
 
-			sensors[i].exSensor= sensorCO2.release();                       // using std::move;
+			sensors[i].exSensor= sensorCO2.release();
 			sensors[i].exSensor->begin();
 
 		}
@@ -114,8 +114,17 @@ String ExternalSensors::read()
 		{
 			for(int i=0;i<sensorsNumber;i++)
 			{
+				if(sensors[i].exSensor != NULL )
+				{
+					root[sensors[i].type]=sensors[i].exSensor->read();	 	
+				}
 			
-				root[sensors[i].type]=sensors[i].exSensor->read();	 	
+			#if DEBUG == 1
+				else
+				{
+					Serial.println(F("null pointer "));
+				}
+			#endif	
 			}
 		}	
 		

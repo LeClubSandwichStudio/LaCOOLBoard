@@ -27,6 +27,7 @@ public:
 
 
 	void write(int R, int G, int B);       
+
 	void end();				//delete the dynamic led;
 
 	bool config();
