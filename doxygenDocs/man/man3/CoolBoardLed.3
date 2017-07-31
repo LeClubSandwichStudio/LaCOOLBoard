@@ -1,4 +1,4 @@
-.TH "CoolBoardLed" 3 "Thu Jul 13 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolBoardLed" 3 "Mon Jul 31 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -67,7 +67,7 @@ Definition at line 232 of file CoolBoardLed\&.cpp\&.
 .PP
 References ledActive, and neoPixelLed\&.
 .PP
-Referenced by CoolBoard::begin(), and CoolBoard::config()\&.
+Referenced by CoolBoard::config()\&.
 .PP
 .nf
 233 {
@@ -77,7 +77,7 @@ Referenced by CoolBoard::begin(), and CoolBoard::config()\&.
 237     Serial\&.println( F("Entering CoolBoardLed\&.begin() ") );
 238 
 239 #endif
-240 
+240     yield();
 241     if(this->ledActive == 1 )
 242     {
 243         pinMode(5,OUTPUT);
@@ -142,7 +142,7 @@ Definition at line 291 of file CoolBoardLed\&.cpp\&.
 .PP
 References ledActive\&.
 .PP
-Referenced by CoolBoard::begin(), CoolBoard::config(), and CoolBoard::update()\&.
+Referenced by CoolBoard::config()\&.
 .PP
 .nf
 292 {
@@ -197,51 +197,55 @@ Referenced by CoolBoard::begin(), CoolBoard::config(), and CoolBoard::update()\&
 341             Serial\&.println( F("read configuration file : ") );
 342             json\&.printTo(Serial);
 343             Serial\&.println();
-344         
-345         #endif
-346   
-347             if(json["ledActive"]\&.success() )
-348             {
-349                 this->ledActive = json["ledActive"]; 
-350             }
-351             else
+344             
+345             Serial\&.print(F("jsonBuffer size :"));
+346             Serial\&.println(jsonBuffer\&.size());
+347             Serial\&.println();
+348 
+349         #endif
+350   
+351             if(json["ledActive"]\&.success() )
 352             {
-353                 this->ledActive=this->ledActive;            
+353                 this->ledActive = json["ledActive"]; 
 354             }
-355             
-356             json["ledActive"]=this->ledActive;
-357             coolBoardLedConfig\&.close();
-358             
-359             coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w");
-360             if(!coolBoardLedConfig)
-361             {
+355             else
+356             {
+357                 this->ledActive=this->ledActive;            
+358             }
+359             
+360             json["ledActive"]=this->ledActive;
+361             coolBoardLedConfig\&.close();
 362             
-363             #if DEBUG == 1 
-364 
-365                 Serial\&.println( F("failed to write to /coolBoardLedConfig\&.json") );
-366                 Serial\&.println();
-367 
-368             #endif
-369 
-370                 return(false);          
-371             }
-372 
-373             json\&.printTo(coolBoardLedConfig);
-374             coolBoardLedConfig\&.close();
-375 
-376         #if DEBUG == 1
-377     
-378             Serial\&.println( F("saved Led Config is : ") );
-379             json\&.printTo(Serial);
-380             Serial\&.println();
-381 
-382         #endif
-383 
-384             return(true); 
-385         }
-386     }   
+363             coolBoardLedConfig = SPIFFS\&.open("/coolBoardLedConfig\&.json", "w");
+364             if(!coolBoardLedConfig)
+365             {
+366             
+367             #if DEBUG == 1 
+368 
+369                 Serial\&.println( F("failed to write to /coolBoardLedConfig\&.json") );
+370                 Serial\&.println();
+371 
+372             #endif
+373 
+374                 return(false);          
+375             }
+376 
+377             json\&.printTo(coolBoardLedConfig);
+378             coolBoardLedConfig\&.close();
+379 
+380         #if DEBUG == 1
+381     
+382             Serial\&.println( F("saved Led Config is : ") );
+383             json\&.printTo(Serial);
+384             Serial\&.println();
+385 
+386         #endif
 387 
-388 }               
+388             return(true); 
+389         }
+390     }   
+391 
+392 }               
 .fi
 .SS "void CoolBoardLed::end ()"
 \fBCoolBoardLed::end()\fP : this method is provided to delete the dynamically created neoPixelLed 
@@ -389,29 +393,29 @@ Referenced by CoolBoard::begin(), CoolBoard::config(), CoolBoard::offLineMode(),
 .SS "void CoolBoardLed::printConf ()"
 \fBCoolBoardLed::printConf()\fP: This method is provided to print the Led Object Configuration to the Serial Monitor 
 .PP
-Definition at line 396 of file CoolBoardLed\&.cpp\&.
+Definition at line 400 of file CoolBoardLed\&.cpp\&.
 .PP
 References ledActive\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-397 {
-398 
-399 #if DEBUG == 1 
-400 
-401     Serial\&.println( F("Entering CoolBoardLed\&.printConf()") );
-402     Serial\&.println();
-403 
-404 #endif
-405 
-406     Serial\&.println("Led Configuration");
+401 {
+402 
+403 #if DEBUG == 1 
+404 
+405     Serial\&.println( F("Entering CoolBoardLed\&.printConf()") );
+406     Serial\&.println();
 407 
-408     Serial\&.print("ledActive : ");
-409     Serial\&.println(ledActive);
-410 
-411     Serial\&.println();    
-412 }
+408 #endif
+409 
+410     Serial\&.println("Led Configuration");
+411 
+412     Serial\&.print("ledActive : ");
+413     Serial\&.println(ledActive);
+414 
+415     Serial\&.println();    
+416 }
 .fi
 .SS "void CoolBoardLed::strobe (int R, int G, int B, float T)"
 CoolBoardLed::strobe(Red , Green , Blue , Time in seconds) Strobe animation: blinks over T(seconds) 
@@ -494,13 +498,13 @@ Referenced by CoolBoard::begin(), and CoolBoard::connect()\&.
 .SS "byte CoolBoardLed::ledActive =0\fC [private]\fP"
 
 .PP
-Definition at line 54 of file CoolBoardLed\&.h\&.
+Definition at line 55 of file CoolBoardLed\&.h\&.
 .PP
 Referenced by begin(), blink(), config(), fade(), fadeIn(), fadeOut(), printConf(), strobe(), and write()\&.
 .SS "NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* CoolBoardLed::neoPixelLed = NULL\fC [private]\fP"
 
 .PP
-Definition at line 52 of file CoolBoardLed\&.h\&.
+Definition at line 53 of file CoolBoardLed\&.h\&.
 .PP
 Referenced by begin(), blink(), end(), fade(), fadeIn(), fadeOut(), strobe(), and write()\&.
 

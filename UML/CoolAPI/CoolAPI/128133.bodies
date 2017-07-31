@@ -13,7 +13,7 @@ class CoolFileSystem
 
 	return( SPIFFS.begin() );                                   //Initialize Filesystem
 
-!!!132229.cpp!!!	updateConfigFiles(in answer : String, in JSON_SIZE : int) : bool
+!!!132229.cpp!!!	updateConfigFiles(in answer : String) : bool
 
 #if DEBUG == 1
 
@@ -23,17 +23,21 @@ class CoolFileSystem
 	Serial.println( F("input answer : ") );
 	Serial.println(answer);
 #endif
-	//test
-	char buffer[ answer.length()+2 ];
-	answer.toCharArray( buffer, answer.length()+2  );
+
 	//total json object	
-	DynamicJsonBuffer jsonBuffer(JSON_SIZE);
-	JsonObject& root = jsonBuffer.parseObject( buffer );
+	DynamicJsonBuffer jsonBuffer;
+	JsonObject& root = jsonBuffer.parseObject( answer.c_str() );
 
 #if DEBUG == 1
-
+	
 	Serial.println( F("json object : ") );	
 	root.printTo(Serial);
+	Serial.println();
+	
+	Serial.print(F("jsonBuffer size: "));
+	Serial.println(jsonBuffer.size());
+	Serial.println();
+
 
 #endif
 
@@ -520,7 +524,7 @@ class CoolFileSystem
 		
 	return true;
 
-!!!132357.cpp!!!	saveSensorData(in data : char, in Sensor_JSON_SIZE : int) : bool
+!!!132357.cpp!!!	saveSensorData(in data : char) : bool
 
 #if DEBUG == 1
 
@@ -530,6 +534,7 @@ class CoolFileSystem
 #endif
 	
 	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
+
 	if(!sensorsData)
 	{
 	
@@ -544,7 +549,7 @@ class CoolFileSystem
 		return (false);	
 	}	
 
-	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
 
 	if( root.success() )
@@ -553,13 +558,20 @@ class CoolFileSystem
 		sensorsData.println();
 		sensorsData.close();
 
+
 	#if DEBUG == 1
+		
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 		sensorsData=SPIFFS.open("/sensorsData.json","r");
 		
 		if(!sensorsData)
 		{
+			
 			Serial.println(F("failed to reopen /sensorsData.json"));
-			return(false);				
+						
 		}
 	
 		Serial.println( F("saved data is : ") );
@@ -578,7 +590,7 @@ class CoolFileSystem
 	
 	#endif
 
-		this->saveSensorDataCSV(data,Sensor_JSON_SIZE);		
+		this->saveSensorDataCSV(data);		
 
 		this->savedData=true;
 		return (true);		
@@ -597,7 +609,7 @@ class CoolFileSystem
 	}
 	
 
-!!!181125.cpp!!!	saveSensorDataCSV(in data : char, in Sensor_JSON_SIZE : int) : bool
+!!!181125.cpp!!!	saveSensorDataCSV(in data : char) : bool
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolFileSystem.saveSensorDataCSV()") );
@@ -605,7 +617,7 @@ class CoolFileSystem
 
 #endif
 	//parsing json
-	DynamicJsonBuffer jsonBuffer(Sensor_JSON_SIZE);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
 	String header="",values="";
 	
@@ -636,6 +648,11 @@ class CoolFileSystem
 		Serial.println(header);
 		Serial.println(F(" values are : "));
 		Serial.println(values);
+		
+		Serial.print(F("jsonBuffer size: "));
+		Serial.println(jsonBuffer.size());
+		Serial.println();
+
 	
 	#endif
 	
@@ -881,6 +898,11 @@ class CoolFileSystem
 			Serial.println( F("saved data : ") );
 			Serial.println(sensorDataString);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
 		
 		#endif
 

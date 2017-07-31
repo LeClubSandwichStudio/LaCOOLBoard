@@ -18,7 +18,6 @@ var classIrene3000 =
     [ "setGain", "classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34", null ],
     [ "adc2", "classIrene3000.html#aae3a95a1c83c766cd2f299ce471c337e", null ],
     [ "ads", "classIrene3000.html#a1215e77ba761c9908d80d691f149e135", null ],
-    [ "ireneJsonSize", "classIrene3000.html#a6534710e4c81669dcc828d2c5450fabe", null ],
     [ "opampGain", "classIrene3000.html#a4e588985ca74e5076029d5dee81034f2", null ],
     [ "params", "classIrene3000.html#a136585a5ee7f9ac6ab52175fa153f8e3", null ],
     [ "phProbe", "classIrene3000.html#a997a4ee466fa1d5416e07e444965dc9e", null ],

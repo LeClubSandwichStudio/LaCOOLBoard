@@ -23,11 +23,11 @@ Collaboration diagram for Cool\+File\+System\+:\nopagebreak
 \item 
 bool \hyperlink{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748}{begin} ()
 \item 
-bool \hyperlink{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}{update\+Config\+Files} (String answer, int J\+S\+O\+N\+\_\+\+S\+I\+ZE)
+bool \hyperlink{classCoolFileSystem_adfa8e2e80641ae6f0cceabd348a9b841}{update\+Config\+Files} (String answer)
 \item 
-bool \hyperlink{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}{save\+Sensor\+Data} (const char $\ast$data, int Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE)
+bool \hyperlink{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67}{save\+Sensor\+Data} (const char $\ast$data)
 \item 
-bool \hyperlink{classCoolFileSystem_af5a51e2b9bb6e7e7edf75a508fe75f82}{save\+Sensor\+Data\+C\+SV} (const char $\ast$data, int Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE)
+bool \hyperlink{classCoolFileSystem_ab78704d5d21ce10fc6f1138ab5ab46c8}{save\+Sensor\+Data\+C\+SV} (const char $\ast$data)
 \item 
 bool \hyperlink{classCoolFileSystem_a5a7eaeea7a9fbf8aaef651d862fa3b5b}{is\+Data\+Saved} ()
 \item 
@@ -65,7 +65,7 @@ Definition at line 33 of file Cool\+File\+System.\+cpp.
 
 
 
-Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
+Referenced by Cool\+Board\+::config().
 
 
 \begin{DoxyCode}
@@ -85,11 +85,12 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
 47 
 48 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748_icgraph}
+\includegraphics[width=327pt]{classCoolFileSystem_a6ba6f666ed4c530174f8569d2c636748_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{classCoolFileSystem_a5c58bca3735c0ed3efb268d70ef998ef}\label{classCoolFileSystem_a5c58bca3735c0ed3efb268d70ef998ef}} 
@@ -105,7 +106,7 @@ string json of the saved sensor data file
 \end{DoxyReturn}
 
 
-Definition at line 891 of file Cool\+File\+System.\+cpp.
+Definition at line 908 of file Cool\+File\+System.\+cpp.
 
 
 
@@ -117,103 +118,109 @@ Referenced by Cool\+Board\+::on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-892 \{
-893 
-894 \textcolor{preprocessor}{#if DEBUG == 1 }
-895 
-896     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.getSensorSavedData()"}) );
-897     Serial.println();
-898 
-899 \textcolor{preprocessor}{#endif}
-900 
-901     \textcolor{comment}{//open sensors data file}
-902     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-903     
-904     \textcolor{keywordflow}{if} (!sensorsData)
-905     \{
-906 
-907 \textcolor{preprocessor}{    #if DEBUG == 1 }
-908 
-909         Serial.println( F(\textcolor{stringliteral}{"Failed to read /sensorsData.json"}) );
+909 \{
 910 
-911 \textcolor{preprocessor}{    #endif}
-912  
-913         \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to open file"});
-914     \}
+911 \textcolor{preprocessor}{#if DEBUG == 1 }
+912 
+913     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.getSensorSavedData()"}) );
+914     Serial.println();
 915 
-916     \textcolor{keywordflow}{else}
-917     \{
-918         \textcolor{keywordtype}{size\_t} size = sensorsData.size();
-919 
-920         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-921         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-922 
-923         sensorsData.readBytes(buf.get(), size);
-924 
-925         DynamicJsonBuffer jsonBuffer;
-926 
-927         JsonObject & json = jsonBuffer.parseObject(buf.get());
-928         
-929         \textcolor{keywordflow}{if} (!json.success())
-930         \{
-931 
-932 \textcolor{preprocessor}{        #if DEBUG == 1}
-933         
-934             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-935         
-936 \textcolor{preprocessor}{        #endif}
-937         
-938             \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to parse json"});
-939         \}
-940         \textcolor{keywordflow}{else}
-941         \{   
-942             \textcolor{comment}{//the return string}
-943             String sensorDataString;
-944             
-945             \textcolor{comment}{//print the json to the string}
-946             json.printTo(sensorDataString);
-947             
-948             \textcolor{comment}{//close the file}
-949             sensorsData.close();
-950 
-951             \textcolor{comment}{//delete data in the file}
-952             File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"w"});
-953             File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsDataCSV.json"},\textcolor{stringliteral}{"w"});
-954             \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
-955             \{
-956 \textcolor{preprocessor}{            #if DEBUG == 1}
-957         
-958                 Serial.println( F(\textcolor{stringliteral}{"failed to delete data in the file"}) );
-959         
-960 \textcolor{preprocessor}{            #endif}
-961 
-962                 \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to delete data in the file"});
-963             \}
-964 
-965             sensorsData.close();
-966             sensorsDataCSV.close();
+916 \textcolor{preprocessor}{#endif}
+917 
+918     \textcolor{comment}{//open sensors data file}
+919     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
+920     
+921     \textcolor{keywordflow}{if} (!sensorsData)
+922     \{
+923 
+924 \textcolor{preprocessor}{    #if DEBUG == 1 }
+925 
+926         Serial.println( F(\textcolor{stringliteral}{"Failed to read /sensorsData.json"}) );
+927 
+928 \textcolor{preprocessor}{    #endif}
+929  
+930         \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to open file"});
+931     \}
+932 
+933     \textcolor{keywordflow}{else}
+934     \{
+935         \textcolor{keywordtype}{size\_t} size = sensorsData.size();
+936 
+937         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+938         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+939 
+940         sensorsData.readBytes(buf.get(), size);
+941 
+942         DynamicJsonBuffer jsonBuffer;
+943 
+944         JsonObject & json = jsonBuffer.parseObject(buf.get());
+945         
+946         \textcolor{keywordflow}{if} (!json.success())
+947         \{
+948 
+949 \textcolor{preprocessor}{        #if DEBUG == 1}
+950         
+951             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+952         
+953 \textcolor{preprocessor}{        #endif}
+954         
+955             \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to parse json"});
+956         \}
+957         \textcolor{keywordflow}{else}
+958         \{   
+959             \textcolor{comment}{//the return string}
+960             String sensorDataString;
+961             
+962             \textcolor{comment}{//print the json to the string}
+963             json.printTo(sensorDataString);
+964             
+965             \textcolor{comment}{//close the file}
+966             sensorsData.close();
 967 
-968             \textcolor{comment}{//position the saved data flag to false}
-969             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false}; 
-970             
-971 \textcolor{preprocessor}{        #if DEBUG == 1 }
-972 
-973             Serial.println( F(\textcolor{stringliteral}{"saved data : "}) );
-974             Serial.println(sensorDataString);
-975             Serial.println();
+968             \textcolor{comment}{//delete data in the file}
+969             File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"w"});
+970             File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsDataCSV.json"},\textcolor{stringliteral}{"w"});
+971             \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
+972             \{
+973 \textcolor{preprocessor}{            #if DEBUG == 1}
+974         
+975                 Serial.println( F(\textcolor{stringliteral}{"failed to delete data in the file"}) );
 976         
-977 \textcolor{preprocessor}{        #endif}
+977 \textcolor{preprocessor}{            #endif}
 978 
-979             \textcolor{comment}{//return the string}
-980             \textcolor{keywordflow}{return}(sensorDataString);       
-981         \}
-982         
-983         
-984     \}
-985 
-986 \}
+979                 \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to delete data in the file"});
+980             \}
+981 
+982             sensorsData.close();
+983             sensorsDataCSV.close();
+984 
+985             \textcolor{comment}{//position the saved data flag to false}
+986             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false}; 
+987             
+988 \textcolor{preprocessor}{        #if DEBUG == 1 }
+989 
+990             Serial.println( F(\textcolor{stringliteral}{"saved data : "}) );
+991             Serial.println(sensorDataString);
+992             Serial.println();
+993 
+994             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+995             Serial.println(jsonBuffer.size());
+996             Serial.println();
+997 
+998         
+999 \textcolor{preprocessor}{        #endif}
+1000 
+1001             \textcolor{comment}{//return the string}
+1002             \textcolor{keywordflow}{return}(sensorDataString);       
+1003         \}
+1004         
+1005         
+1006     \}
+1007 
+1008 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -233,7 +240,7 @@ true if there is data saved, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 868 of file Cool\+File\+System.\+cpp.
+Definition at line 885 of file Cool\+File\+System.\+cpp.
 
 
 
@@ -245,34 +252,35 @@ Referenced by Cool\+Board\+::on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-869 \{
-870 
-871 \textcolor{preprocessor}{#if DEBUG == 1 }
-872 
-873     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.isDataSaved()"}) );
-874     Serial.println();
-875     Serial.print( F(\textcolor{stringliteral}{"savedData : "}) );
-876     Serial.println(this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData});
-877 
-878 \textcolor{preprocessor}{#endif}
-879 
-880     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData} );
-881 \}
+886 \{
+887 
+888 \textcolor{preprocessor}{#if DEBUG == 1 }
+889 
+890     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.isDataSaved()"}) );
+891     Serial.println();
+892     Serial.print( F(\textcolor{stringliteral}{"savedData : "}) );
+893     Serial.println(this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData});
+894 
+895 \textcolor{preprocessor}{#endif}
+896 
+897     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData} );
+898 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolFileSystem_a5a7eaeea7a9fbf8aaef651d862fa3b5b_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}\label{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957}} 
+\mbox{\Hypertarget{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67}\label{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67}} 
 \index{Cool\+File\+System@{Cool\+File\+System}!save\+Sensor\+Data@{save\+Sensor\+Data}}
 \index{save\+Sensor\+Data@{save\+Sensor\+Data}!Cool\+File\+System@{Cool\+File\+System}}
 \subsubsection{\texorpdfstring{save\+Sensor\+Data()}{saveSensorData()}}
-{\footnotesize\ttfamily bool Cool\+File\+System\+::save\+Sensor\+Data (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data,  }\item[{int}]{Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::save\+Sensor\+Data (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data }\end{DoxyParamCaption})}
 
-Cool\+File\+System\+::save\+Sensor\+Data( data, data size )\+: This method is provided to save the data on the local memory when there is no internet available
+Cool\+File\+System\+::save\+Sensor\+Data( data )\+: This method is provided to save the data on the local memory when there is no internet available
 
 sets the saved data flag to T\+R\+UE when successful
 
@@ -303,103 +311,113 @@ Referenced by Cool\+Board\+::off\+Line\+Mode().
 68 \textcolor{preprocessor}{#endif}
 69     
 70     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"a+"});
-71     \textcolor{keywordflow}{if}(!sensorsData)
-72     \{
-73     
-74 \textcolor{preprocessor}{    #if DEBUG == 1}
-75     
-76         Serial.println( F(\textcolor{stringliteral}{"failed to append to /sensorsData.json"}) );
-77         Serial.println();
-78     
-79 \textcolor{preprocessor}{    #endif}
-80 
-81         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};
-82         \textcolor{keywordflow}{return} (\textcolor{keyword}{false}); 
-83     \}   
-84 
-85     DynamicJsonBuffer jsonBuffer(Sensor\_JSON\_SIZE);
-86     JsonObject& root = jsonBuffer.parseObject(data);
-87 
-88     \textcolor{keywordflow}{if}( root.success() )
-89     \{
-90         root.printTo(sensorsData);
-91         sensorsData.println();
-92         sensorsData.close();
-93 
-94 \textcolor{preprocessor}{    #if DEBUG == 1}
-95         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-96         
-97         \textcolor{keywordflow}{if}(!sensorsData)
-98         \{
-99             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.json"}));
-100             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});              
-101         \}
-102     
-103         Serial.println( F(\textcolor{stringliteral}{"saved data is : "}) );
-104         root.printTo(Serial);
-105         Serial.println();
-106 
-107         Serial.println(F(\textcolor{stringliteral}{"/sensorsData.json"}) );
-108         \textcolor{keywordflow}{while} (sensorsData.available()) 
-109         \{
-110             Serial.println(sensorsData.readString()) ;
-111         \}
-112         
+71 
+72     \textcolor{keywordflow}{if}(!sensorsData)
+73     \{
+74     
+75 \textcolor{preprocessor}{    #if DEBUG == 1}
+76     
+77         Serial.println( F(\textcolor{stringliteral}{"failed to append to /sensorsData.json"}) );
+78         Serial.println();
+79     
+80 \textcolor{preprocessor}{    #endif}
+81 
+82         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};
+83         \textcolor{keywordflow}{return} (\textcolor{keyword}{false}); 
+84     \}   
+85 
+86     DynamicJsonBuffer jsonBuffer;
+87     JsonObject& root = jsonBuffer.parseObject(data);
+88 
+89     \textcolor{keywordflow}{if}( root.success() )
+90     \{
+91         root.printTo(sensorsData);
+92         sensorsData.println();
+93         sensorsData.close();
+94 
+95 
+96 \textcolor{preprocessor}{    #if DEBUG == 1}
+97         
+98         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+99         Serial.println(jsonBuffer.size());
+100         Serial.println();
+101 
+102         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
+103         
+104         \textcolor{keywordflow}{if}(!sensorsData)
+105         \{
+106             
+107             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.json"}));
+108                         
+109         \}
+110     
+111         Serial.println( F(\textcolor{stringliteral}{"saved data is : "}) );
+112         root.printTo(Serial);
 113         Serial.println();
-114         
-115         sensorsData.close();
-116     
-117 \textcolor{preprocessor}{    #endif}
-118 
-119         this->\hyperlink{classCoolFileSystem_af5a51e2b9bb6e7e7edf75a508fe75f82}{saveSensorDataCSV}(data,Sensor\_JSON\_SIZE);        
-120 
-121         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{true};
-122         \textcolor{keywordflow}{return} (\textcolor{keyword}{true});      
-123     \}
-124     \textcolor{keywordflow}{else}
-125     \{
-126     
-127 \textcolor{preprocessor}{    #if DEBUG == 1}
+114 
+115         Serial.println(F(\textcolor{stringliteral}{"/sensorsData.json"}) );
+116         \textcolor{keywordflow}{while} (sensorsData.available()) 
+117         \{
+118             Serial.println(sensorsData.readString()) ;
+119         \}
+120         
+121         Serial.println();
+122         
+123         sensorsData.close();
+124     
+125 \textcolor{preprocessor}{    #endif}
+126 
+127         this->\hyperlink{classCoolFileSystem_ab78704d5d21ce10fc6f1138ab5ab46c8}{saveSensorDataCSV}(data);     
 128 
-129         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-130     
-131 \textcolor{preprocessor}{    #endif}
-132 
-133         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};
-134         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-135     \}
-136     
-137 
-138 \}
+129         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{true};
+130         \textcolor{keywordflow}{return} (\textcolor{keyword}{true});      
+131     \}
+132     \textcolor{keywordflow}{else}
+133     \{
+134     
+135 \textcolor{preprocessor}{    #if DEBUG == 1}
+136 
+137         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+138     
+139 \textcolor{preprocessor}{    #endif}
+140 
+141         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};
+142         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+143     \}
+144     
+145 
+146 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957_cgraph}
+\includegraphics[width=350pt]{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolFileSystem_a4c560c2ddd40b74b7758e6ceb2c58957_icgraph}
+\includegraphics[width=350pt]{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{classCoolFileSystem_af5a51e2b9bb6e7e7edf75a508fe75f82}\label{classCoolFileSystem_af5a51e2b9bb6e7e7edf75a508fe75f82}} 
+\mbox{\Hypertarget{classCoolFileSystem_ab78704d5d21ce10fc6f1138ab5ab46c8}\label{classCoolFileSystem_ab78704d5d21ce10fc6f1138ab5ab46c8}} 
 \index{Cool\+File\+System@{Cool\+File\+System}!save\+Sensor\+Data\+C\+SV@{save\+Sensor\+Data\+C\+SV}}
 \index{save\+Sensor\+Data\+C\+SV@{save\+Sensor\+Data\+C\+SV}!Cool\+File\+System@{Cool\+File\+System}}
 \subsubsection{\texorpdfstring{save\+Sensor\+Data\+C\+S\+V()}{saveSensorDataCSV()}}
-{\footnotesize\ttfamily bool Cool\+File\+System\+::save\+Sensor\+Data\+C\+SV (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data,  }\item[{int}]{Sensor\+\_\+\+J\+S\+O\+N\+\_\+\+S\+I\+ZE }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::save\+Sensor\+Data\+C\+SV (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data }\end{DoxyParamCaption})}
 
-Cool\+File\+System\+::save\+Sensor\+Data\+C\+S\+V( data, data size )\+: This method is provided to save the data on the local memory in C\+SV format.
+Cool\+File\+System\+::save\+Sensor\+Data\+C\+S\+V( data )\+: This method is provided to save the data on the local memory in C\+SV format.
 
 \begin{DoxyReturn}{Returns}
 true if the data was saved, false otherwise 
 \end{DoxyReturn}
 
 
-Definition at line 149 of file Cool\+File\+System.\+cpp.
+Definition at line 157 of file Cool\+File\+System.\+cpp.
 
 
 
@@ -407,217 +425,223 @@ Referenced by save\+Sensor\+Data().
 
 
 \begin{DoxyCode}
-150 \{
-151 \textcolor{preprocessor}{#if DEBUG == 1}
-152 
-153     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.saveSensorDataCSV()"}) );
-154     Serial.println();
-155 
-156 \textcolor{preprocessor}{#endif}
-157     \textcolor{comment}{//parsing json}
-158     DynamicJsonBuffer jsonBuffer(Sensor\_JSON\_SIZE);
-159     JsonObject& root = jsonBuffer.parseObject(data);
-160     String header=\textcolor{stringliteral}{""},values=\textcolor{stringliteral}{""};
-161     
-162     \textcolor{comment}{//if json parse success}
-163     \textcolor{keywordflow}{if}( root.success() )
-164     \{       
-165         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} kv : root) 
-166         \{
-167             \textcolor{comment}{//print the header(json keys ) to header string}
-168             header+=kv.key;
-169             header+=\textcolor{charliteral}{','};
-170             
-171             \textcolor{comment}{//print the values to header string}
-172             values+=( kv.value.as<\textcolor{keywordtype}{char}*>() );
-173             values+=\textcolor{charliteral}{','};
-174         \}
-175 
-176         header.remove(header.lastIndexOf(\textcolor{charliteral}{','}), 1);
-177         values.remove(values.lastIndexOf(\textcolor{charliteral}{','}), 1);      
-178     
-179 \textcolor{preprocessor}{    #if DEBUG == 1}
-180     
-181         Serial.println( F(\textcolor{stringliteral}{" data is : "}) );
-182         root.printTo(Serial);
-183         Serial.println();
-184         
-185         Serial.println(F(\textcolor{stringliteral}{" header is :"} ) ) ;
-186         Serial.println(header);
-187         Serial.println(F(\textcolor{stringliteral}{" values are : "}));
-188         Serial.println(values);
-189     
-190 \textcolor{preprocessor}{    #endif}
-191     
-192     \}
-193     \textcolor{comment}{//failed to parse json}
-194     \textcolor{keywordflow}{else}
-195     \{
-196     
-197 \textcolor{preprocessor}{    #if DEBUG == 1}
-198 
-199         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-200     
-201 \textcolor{preprocessor}{    #endif}
-202 
-203         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-204     \}
-205 
-206     \textcolor{comment}{//check if file exists}
-207     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-208     
-209     \textcolor{comment}{//file doesn't exist}
-210     \textcolor{keywordflow}{if}(!sensorsData)
-211     \{
-212     
-213 \textcolor{preprocessor}{    #if DEBUG == 1}
-214     
-215         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv not found"}) );
-216         Serial.println( F(\textcolor{stringliteral}{"creating /sensorsData.csv"}) );
-217         Serial.println();
-218     
-219 \textcolor{preprocessor}{    #endif}
-220         \textcolor{comment}{//create file}
-221         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"w"});
-222         
-223         \textcolor{keywordflow}{if}(!sensorsData)
-224         \{
-225 
-226 \textcolor{preprocessor}{        #if DEBUG == 1}
-227         
-228             Serial.println( F(\textcolor{stringliteral}{"failed to create /sensorsData.csv"}) );
-229             Serial.println();
-230         
-231 \textcolor{preprocessor}{        #endif}
-232         
-233             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-234 
-235         \}
-236         
-237         \textcolor{comment}{//print the header(json keys ) to the CSV file}
-238         sensorsData.println(header);
-239 
-240         \textcolor{comment}{//print the values to the CSV file}
-241         sensorsData.println(values);
-242         
-243         sensorsData.close();
-244     
-245 \textcolor{preprocessor}{    #if DEBUG == 1}
-246 
-247         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-248         
-249         \textcolor{keywordflow}{if}(!sensorsData)
-250         \{
-251             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
-252             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
-253         \}
-254 
-255         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
-256 
-257         \textcolor{keywordflow}{while} (sensorsData.available()) 
-258         \{
-259             Serial.print(sensorsData.readString()) ;
-260         \}
-261         Serial.println();
-262 
-263         \textcolor{comment}{//close the file}
-264         sensorsData.close();
-265 
-266 \textcolor{preprocessor}{    #endif}
-267         
-268 
-269         
-270         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-271         
-272     \}
-273 
-274     \textcolor{comment}{//file exist}
-275     \textcolor{keywordflow}{else}
-276     \{
-277 
-278 \textcolor{preprocessor}{    #if DEBUG == 1}
-279     
-280         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv  found"}) );
-281         Serial.println( F(\textcolor{stringliteral}{"appending to /sensorsData.csv"}) );
-282         Serial.println();
-283     
-284 \textcolor{preprocessor}{    #endif}
-285 
-286         \textcolor{comment}{//append to file}
-287         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"a"});
-288         
-289         \textcolor{keywordflow}{if}(!sensorsData)
-290         \{
-291         
-292 \textcolor{preprocessor}{        #if DEBUG == 1}
-293             
-294             Serial.println( F(\textcolor{stringliteral}{"failed to open /sensorsData.csv"}) );
-295             Serial.println();
-296 
-297 \textcolor{preprocessor}{        #endif}
-298             
-299             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-300         
-301         \}
-302 
-303         \textcolor{comment}{//print the values to the CSV file}
-304         sensorsData.println(values);
-305         
-306         sensorsData.close();
-307 
-308 \textcolor{preprocessor}{    #if DEBUG == 1}
+158 \{
+159 \textcolor{preprocessor}{#if DEBUG == 1}
+160 
+161     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.saveSensorDataCSV()"}) );
+162     Serial.println();
+163 
+164 \textcolor{preprocessor}{#endif}
+165     \textcolor{comment}{//parsing json}
+166     DynamicJsonBuffer jsonBuffer;
+167     JsonObject& root = jsonBuffer.parseObject(data);
+168     String header=\textcolor{stringliteral}{""},values=\textcolor{stringliteral}{""};
+169     
+170     \textcolor{comment}{//if json parse success}
+171     \textcolor{keywordflow}{if}( root.success() )
+172     \{       
+173         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} kv : root) 
+174         \{
+175             \textcolor{comment}{//print the header(json keys ) to header string}
+176             header+=kv.key;
+177             header+=\textcolor{charliteral}{','};
+178             
+179             \textcolor{comment}{//print the values to header string}
+180             values+=( kv.value.as<\textcolor{keywordtype}{char}*>() );
+181             values+=\textcolor{charliteral}{','};
+182         \}
+183 
+184         header.remove(header.lastIndexOf(\textcolor{charliteral}{','}), 1);
+185         values.remove(values.lastIndexOf(\textcolor{charliteral}{','}), 1);      
+186     
+187 \textcolor{preprocessor}{    #if DEBUG == 1}
+188     
+189         Serial.println( F(\textcolor{stringliteral}{" data is : "}) );
+190         root.printTo(Serial);
+191         Serial.println();
+192         
+193         Serial.println(F(\textcolor{stringliteral}{" header is :"} ) ) ;
+194         Serial.println(header);
+195         Serial.println(F(\textcolor{stringliteral}{" values are : "}));
+196         Serial.println(values);
+197         
+198         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+199         Serial.println(jsonBuffer.size());
+200         Serial.println();
+201 
+202     
+203 \textcolor{preprocessor}{    #endif}
+204     
+205     \}
+206     \textcolor{comment}{//failed to parse json}
+207     \textcolor{keywordflow}{else}
+208     \{
+209     
+210 \textcolor{preprocessor}{    #if DEBUG == 1}
+211 
+212         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+213     
+214 \textcolor{preprocessor}{    #endif}
+215 
+216         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+217     \}
+218 
+219     \textcolor{comment}{//check if file exists}
+220     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
+221     
+222     \textcolor{comment}{//file doesn't exist}
+223     \textcolor{keywordflow}{if}(!sensorsData)
+224     \{
+225     
+226 \textcolor{preprocessor}{    #if DEBUG == 1}
+227     
+228         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv not found"}) );
+229         Serial.println( F(\textcolor{stringliteral}{"creating /sensorsData.csv"}) );
+230         Serial.println();
+231     
+232 \textcolor{preprocessor}{    #endif}
+233         \textcolor{comment}{//create file}
+234         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"w"});
+235         
+236         \textcolor{keywordflow}{if}(!sensorsData)
+237         \{
+238 
+239 \textcolor{preprocessor}{        #if DEBUG == 1}
+240         
+241             Serial.println( F(\textcolor{stringliteral}{"failed to create /sensorsData.csv"}) );
+242             Serial.println();
+243         
+244 \textcolor{preprocessor}{        #endif}
+245         
+246             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+247 
+248         \}
+249         
+250         \textcolor{comment}{//print the header(json keys ) to the CSV file}
+251         sensorsData.println(header);
+252 
+253         \textcolor{comment}{//print the values to the CSV file}
+254         sensorsData.println(values);
+255         
+256         sensorsData.close();
+257     
+258 \textcolor{preprocessor}{    #if DEBUG == 1}
+259 
+260         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
+261         
+262         \textcolor{keywordflow}{if}(!sensorsData)
+263         \{
+264             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
+265             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
+266         \}
+267 
+268         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
+269 
+270         \textcolor{keywordflow}{while} (sensorsData.available()) 
+271         \{
+272             Serial.print(sensorsData.readString()) ;
+273         \}
+274         Serial.println();
+275 
+276         \textcolor{comment}{//close the file}
+277         sensorsData.close();
+278 
+279 \textcolor{preprocessor}{    #endif}
+280         
+281 
+282         
+283         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+284         
+285     \}
+286 
+287     \textcolor{comment}{//file exist}
+288     \textcolor{keywordflow}{else}
+289     \{
+290 
+291 \textcolor{preprocessor}{    #if DEBUG == 1}
+292     
+293         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv  found"}) );
+294         Serial.println( F(\textcolor{stringliteral}{"appending to /sensorsData.csv"}) );
+295         Serial.println();
+296     
+297 \textcolor{preprocessor}{    #endif}
+298 
+299         \textcolor{comment}{//append to file}
+300         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"a"});
+301         
+302         \textcolor{keywordflow}{if}(!sensorsData)
+303         \{
+304         
+305 \textcolor{preprocessor}{        #if DEBUG == 1}
+306             
+307             Serial.println( F(\textcolor{stringliteral}{"failed to open /sensorsData.csv"}) );
+308             Serial.println();
 309 
-310         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-311         
-312         \textcolor{keywordflow}{if}(!sensorsData)
-313         \{
-314             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
-315             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
-316         \}
-317 
+310 \textcolor{preprocessor}{        #endif}
+311             
+312             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+313         
+314         \}
+315 
+316         \textcolor{comment}{//print the values to the CSV file}
+317         sensorsData.println(values);
 318         
-319         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
+319         sensorsData.close();
 320 
-321         \textcolor{keywordflow}{while} (sensorsData.available()) 
-322         \{
-323             Serial.println(sensorsData.readString()) ;
-324         \}
-325         
-326         Serial.println();
-327         
-328         sensorsData.close();
-329         
-330 \textcolor{preprocessor}{    #endif      }
+321 \textcolor{preprocessor}{    #if DEBUG == 1}
+322 
+323         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
+324         
+325         \textcolor{keywordflow}{if}(!sensorsData)
+326         \{
+327             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
+328             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
+329         \}
+330 
 331         
-332         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-333     
-334     \}   
-335 
-336 
-337 
-338 \}
+332         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
+333 
+334         \textcolor{keywordflow}{while} (sensorsData.available()) 
+335         \{
+336             Serial.println(sensorsData.readString()) ;
+337         \}
+338         
+339         Serial.println();
+340         
+341         sensorsData.close();
+342         
+343 \textcolor{preprocessor}{    #endif      }
+344         
+345         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+346     
+347     \}   
+348 
+349 
+350 
+351 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolFileSystem_af5a51e2b9bb6e7e7edf75a508fe75f82_icgraph}
+\includegraphics[width=350pt]{classCoolFileSystem_ab78704d5d21ce10fc6f1138ab5ab46c8_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}\label{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b}} 
+\mbox{\Hypertarget{classCoolFileSystem_adfa8e2e80641ae6f0cceabd348a9b841}\label{classCoolFileSystem_adfa8e2e80641ae6f0cceabd348a9b841}} 
 \index{Cool\+File\+System@{Cool\+File\+System}!update\+Config\+Files@{update\+Config\+Files}}
 \index{update\+Config\+Files@{update\+Config\+Files}!Cool\+File\+System@{Cool\+File\+System}}
 \subsubsection{\texorpdfstring{update\+Config\+Files()}{updateConfigFiles()}}
-{\footnotesize\ttfamily bool Cool\+File\+System\+::update\+Config\+Files (\begin{DoxyParamCaption}\item[{String}]{answer,  }\item[{int}]{J\+S\+O\+N\+\_\+\+S\+I\+ZE }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::update\+Config\+Files (\begin{DoxyParamCaption}\item[{String}]{answer }\end{DoxyParamCaption})}
 
-Cool\+File\+System\+::update\+Config\+Files( mqtt answer, answer size)\+: This method is provided to update the configuration files when the appropriate mqtt answer is received\+: -\/update \+: 1
+Cool\+File\+System\+::update\+Config\+Files( mqtt answer )\+: This method is provided to update the configuration files when the appropriate mqtt answer is received\+: -\/update \+: 1
 
 \begin{DoxyReturn}{Returns}
 true if the files are updated correctly, false otherwise 
 \end{DoxyReturn}
 
 
-Definition at line 349 of file Cool\+File\+System.\+cpp.
+Definition at line 362 of file Cool\+File\+System.\+cpp.
 
 
 
@@ -629,520 +653,525 @@ Referenced by Cool\+Board\+::update().
 
 
 \begin{DoxyCode}
-350 \{
-351 
-352 \textcolor{preprocessor}{#if DEBUG == 1}
-353 
-354     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.updateConfigFiles"}) );
-355     Serial.println();
-356     
-357     Serial.println( F(\textcolor{stringliteral}{"input answer : "}) );
-358     Serial.println(answer);
-359 \textcolor{preprocessor}{#endif}
-360     \textcolor{comment}{//test}
-361     \textcolor{keywordtype}{char} buffer[ answer.length()+2 ];
-362     answer.toCharArray( buffer, answer.length()+2  );
-363     \textcolor{comment}{//total json object }
-364     DynamicJsonBuffer jsonBuffer(JSON\_SIZE);
-365     JsonObject& root = jsonBuffer.parseObject( buffer );
+363 \{
+364 
+365 \textcolor{preprocessor}{#if DEBUG == 1}
 366 
-367 \textcolor{preprocessor}{#if DEBUG == 1}
-368 
-369     Serial.println( F(\textcolor{stringliteral}{"json object : "}) );  
-370     root.printTo(Serial);
-371 
+367     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.updateConfigFiles"}) );
+368     Serial.println();
+369     
+370     Serial.println( F(\textcolor{stringliteral}{"input answer : "}) );
+371     Serial.println(answer);
 372 \textcolor{preprocessor}{#endif}
 373 
-374     \textcolor{keywordflow}{if}(! ( root.success() ))
-375     \{
-376     
-377 \textcolor{preprocessor}{    #if DEBUG == 1}
-378 
-379         Serial.println( F(\textcolor{stringliteral}{"failed to parse root "}) );
-380         Serial.println();
-381     
-382 \textcolor{preprocessor}{    #endif}
-383 
-384         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-385     \}
-386     \textcolor{keywordflow}{else}
-387     \{
-388 \textcolor{preprocessor}{    #if DEBUG == 1}
-389         
-390         Serial.println( F(\textcolor{stringliteral}{"success to parse root "}) );
-391         Serial.println();
-392         
-393 \textcolor{preprocessor}{    #endif  }
-394     \}
-395     
-396 \textcolor{preprocessor}{#if DEBUG == 1}
-397 
-398     Serial.println( F(\textcolor{stringliteral}{"input message is : "}) );
-399     root.printTo(Serial);
-400     Serial.println();
-401 
-402 \textcolor{preprocessor}{#endif}
-403     \textcolor{comment}{//temp string}
-404     String \hyperlink{Irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
-405 
-406     \textcolor{comment}{//CoolBoard Configuration File}
-407 
-408         JsonObject& jsonCoolBoard=root[\textcolor{stringliteral}{"CoolBoard"}];
-409 
-410 \textcolor{preprocessor}{#if DEBUG == 1}
-411 
-412     Serial.println( F(\textcolor{stringliteral}{"before config CoolBoard json"}) );
-413     jsonCoolBoard.printTo(Serial);
+374     \textcolor{comment}{//total json object }
+375     DynamicJsonBuffer jsonBuffer;
+376     JsonObject& root = jsonBuffer.parseObject( answer.c\_str() );
+377 
+378 \textcolor{preprocessor}{#if DEBUG == 1}
+379     
+380     Serial.println( F(\textcolor{stringliteral}{"json object : "}) );  
+381     root.printTo(Serial);
+382     Serial.println();
+383     
+384     Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+385     Serial.println(jsonBuffer.size());
+386     Serial.println();
+387 
+388 
+389 \textcolor{preprocessor}{#endif}
+390 
+391     \textcolor{keywordflow}{if}(! ( root.success() ))
+392     \{
+393     
+394 \textcolor{preprocessor}{    #if DEBUG == 1}
+395 
+396         Serial.println( F(\textcolor{stringliteral}{"failed to parse root "}) );
+397         Serial.println();
+398     
+399 \textcolor{preprocessor}{    #endif}
+400 
+401         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+402     \}
+403     \textcolor{keywordflow}{else}
+404     \{
+405 \textcolor{preprocessor}{    #if DEBUG == 1}
+406         
+407         Serial.println( F(\textcolor{stringliteral}{"success to parse root "}) );
+408         Serial.println();
+409         
+410 \textcolor{preprocessor}{    #endif  }
+411     \}
+412     
+413 \textcolor{preprocessor}{#if DEBUG == 1}
 414 
-415 \textcolor{preprocessor}{#endif}
-416 
-417     \textcolor{keywordflow}{if}(jsonCoolBoard.success())
-418     \{
-419         File coolBoardConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w"});   
-420         \textcolor{keywordflow}{if}(!coolBoardConfig)
-421         \{   
-422 \textcolor{preprocessor}{        #if DEBUG == 1}
-423             
-424             Serial.println( F(\textcolor{stringliteral}{"failed to write to coolBoardConfig.json"}) );
-425 
-426 \textcolor{preprocessor}{        #endif}
-427             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-428         \}
-429         
-430         jsonCoolBoard.printTo(coolBoardConfig);
-431         
-432         coolBoardConfig.close();
+415     Serial.println( F(\textcolor{stringliteral}{"input message is : "}) );
+416     root.printTo(Serial);
+417     Serial.println();
+418 
+419 \textcolor{preprocessor}{#endif}
+420     \textcolor{comment}{//temp string}
+421     String \hyperlink{Irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
+422 
+423     \textcolor{comment}{//CoolBoard Configuration File}
+424 
+425         JsonObject& jsonCoolBoard=root[\textcolor{stringliteral}{"CoolBoard"}];
+426 
+427 \textcolor{preprocessor}{#if DEBUG == 1}
+428 
+429     Serial.println( F(\textcolor{stringliteral}{"before config CoolBoard json"}) );
+430     jsonCoolBoard.printTo(Serial);
+431 
+432 \textcolor{preprocessor}{#endif}
 433 
-434 
-435 \textcolor{preprocessor}{    #if DEBUG == 1}
-436 
-437         Serial.println( F(\textcolor{stringliteral}{"CoolBoard Config"}) );
-438         jsonCoolBoard.printTo(Serial);
-439         Serial.println();
-440     
-441 \textcolor{preprocessor}{    #endif}
-442         
-443     \}
-444     \textcolor{keywordflow}{else}
-445     \{
-446     
-447 \textcolor{preprocessor}{    #if DEBUG == 1 }
-448 
-449         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoard "}) );
-450     
-451 \textcolor{preprocessor}{    #endif}
-452 
-453     \}       
-454 
-455     
-456     \textcolor{comment}{//Cool Board Sensors Configuration File}
-457         JsonObject& jsonSensorsBoard=root[\textcolor{stringliteral}{"CoolSensorsBoard"}];
-458 
-459 \textcolor{preprocessor}{#if DEBUG == 1 }
-460 
-461     Serial.println( F(\textcolor{stringliteral}{"before config CoolSensorsBoard json"}) );
-462     jsonSensorsBoard.printTo(Serial);
-463 
-464 \textcolor{preprocessor}{#endif }
-465     
-466     \textcolor{keywordflow}{if}(jsonSensorsBoard.success())
-467     \{   
-468         File coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"w"}); 
-469         \textcolor{keywordflow}{if}(!coolBoardSensorsConfig)
-470         \{
-471 \textcolor{preprocessor}{        #if DEBUG == 1 }
-472         
-473             Serial.println( F(\textcolor{stringliteral}{"failed to write coolBoardSensors.json"}) );
-474 
-475 \textcolor{preprocessor}{        #endif}
-476 
-477             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-478         \}
-479         
-480         jsonSensorsBoard.printTo(coolBoardSensorsConfig);
-481         coolBoardSensorsConfig.close();
-482 
-483 \textcolor{preprocessor}{    #if DEBUG == 1}
-484 
-485         Serial.println(\textcolor{stringliteral}{"CoolBoardSensors Config"});
-486         jsonSensorsBoard.printTo(Serial);
-487         Serial.println();
-488 
-489 \textcolor{preprocessor}{    #endif}
-490 
-491     \}
-492     \textcolor{keywordflow}{else}
-493     \{
-494 
-495 \textcolor{preprocessor}{    #if DEBUG == 1}
-496 
-497         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolSensorsBoard sensors "}) );   
-498     
-499 \textcolor{preprocessor}{    #endif}
-500 
-501     \}
-502     
-503     
-504     
-505     \textcolor{comment}{//rtc configuration file}
-506         JsonObject& jsonRTC=root[\textcolor{stringliteral}{"rtc"}];
+434     \textcolor{keywordflow}{if}(jsonCoolBoard.success())
+435     \{
+436         File coolBoardConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w"});   
+437         \textcolor{keywordflow}{if}(!coolBoardConfig)
+438         \{   
+439 \textcolor{preprocessor}{        #if DEBUG == 1}
+440             
+441             Serial.println( F(\textcolor{stringliteral}{"failed to write to coolBoardConfig.json"}) );
+442 
+443 \textcolor{preprocessor}{        #endif}
+444             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+445         \}
+446         
+447         jsonCoolBoard.printTo(coolBoardConfig);
+448         
+449         coolBoardConfig.close();
+450 
+451 
+452 \textcolor{preprocessor}{    #if DEBUG == 1}
+453 
+454         Serial.println( F(\textcolor{stringliteral}{"CoolBoard Config"}) );
+455         jsonCoolBoard.printTo(Serial);
+456         Serial.println();
+457     
+458 \textcolor{preprocessor}{    #endif}
+459         
+460     \}
+461     \textcolor{keywordflow}{else}
+462     \{
+463     
+464 \textcolor{preprocessor}{    #if DEBUG == 1 }
+465 
+466         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoard "}) );
+467     
+468 \textcolor{preprocessor}{    #endif}
+469 
+470     \}       
+471 
+472     
+473     \textcolor{comment}{//Cool Board Sensors Configuration File}
+474         JsonObject& jsonSensorsBoard=root[\textcolor{stringliteral}{"CoolSensorsBoard"}];
+475 
+476 \textcolor{preprocessor}{#if DEBUG == 1 }
+477 
+478     Serial.println( F(\textcolor{stringliteral}{"before config CoolSensorsBoard json"}) );
+479     jsonSensorsBoard.printTo(Serial);
+480 
+481 \textcolor{preprocessor}{#endif }
+482     
+483     \textcolor{keywordflow}{if}(jsonSensorsBoard.success())
+484     \{   
+485         File coolBoardSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"}, \textcolor{stringliteral}{"w"}); 
+486         \textcolor{keywordflow}{if}(!coolBoardSensorsConfig)
+487         \{
+488 \textcolor{preprocessor}{        #if DEBUG == 1 }
+489         
+490             Serial.println( F(\textcolor{stringliteral}{"failed to write coolBoardSensors.json"}) );
+491 
+492 \textcolor{preprocessor}{        #endif}
+493 
+494             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+495         \}
+496         
+497         jsonSensorsBoard.printTo(coolBoardSensorsConfig);
+498         coolBoardSensorsConfig.close();
+499 
+500 \textcolor{preprocessor}{    #if DEBUG == 1}
+501 
+502         Serial.println(\textcolor{stringliteral}{"CoolBoardSensors Config"});
+503         jsonSensorsBoard.printTo(Serial);
+504         Serial.println();
+505 
+506 \textcolor{preprocessor}{    #endif}
 507 
-508 \textcolor{preprocessor}{#if DEBUG == 1 }
-509     
-510     Serial.println( F(\textcolor{stringliteral}{"before config rtc json"}) );
-511     jsonRTC.printTo(Serial);
-512 
-513 \textcolor{preprocessor}{#endif}
-514     \textcolor{keywordflow}{if}(jsonRTC.success() )
-515     \{
-516         File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});   
-517         \textcolor{keywordflow}{if}(!rtcConfig)
-518         \{
-519         
-520 \textcolor{preprocessor}{        #if DEBUG == 1 }
-521 
-522             Serial.println( F(\textcolor{stringliteral}{"failed to write rtcConfig.json"}) );
-523 
-524 \textcolor{preprocessor}{        #endif}
-525 
-526             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-527         \}
-528 
-529         jsonRTC.printTo(rtcConfig);
-530         rtcConfig.close();
-531 
-532 \textcolor{preprocessor}{    #if DEBUG == 1 }
-533 
-534         Serial.println( F(\textcolor{stringliteral}{"RTC Config"}) );
-535         jsonRTC.printTo(Serial);
-536         Serial.println();
-537     
-538 \textcolor{preprocessor}{    #endif}
-539 
-540     
-541     \}
-542     \textcolor{keywordflow}{else}
-543     \{
-544     
-545 \textcolor{preprocessor}{    #if DEBUG == 1 }
-546 
-547         Serial.println( F(\textcolor{stringliteral}{"failed to parse rtc "}) );
-548     
-549 \textcolor{preprocessor}{    #endif}
+508     \}
+509     \textcolor{keywordflow}{else}
+510     \{
+511 
+512 \textcolor{preprocessor}{    #if DEBUG == 1}
+513 
+514         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolSensorsBoard sensors "}) );   
+515     
+516 \textcolor{preprocessor}{    #endif}
+517 
+518     \}
+519     
+520     
+521     
+522     \textcolor{comment}{//rtc configuration file}
+523         JsonObject& jsonRTC=root[\textcolor{stringliteral}{"rtc"}];
+524 
+525 \textcolor{preprocessor}{#if DEBUG == 1 }
+526     
+527     Serial.println( F(\textcolor{stringliteral}{"before config rtc json"}) );
+528     jsonRTC.printTo(Serial);
+529 
+530 \textcolor{preprocessor}{#endif}
+531     \textcolor{keywordflow}{if}(jsonRTC.success() )
+532     \{
+533         File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});   
+534         \textcolor{keywordflow}{if}(!rtcConfig)
+535         \{
+536         
+537 \textcolor{preprocessor}{        #if DEBUG == 1 }
+538 
+539             Serial.println( F(\textcolor{stringliteral}{"failed to write rtcConfig.json"}) );
+540 
+541 \textcolor{preprocessor}{        #endif}
+542 
+543             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+544         \}
+545 
+546         jsonRTC.printTo(rtcConfig);
+547         rtcConfig.close();
+548 
+549 \textcolor{preprocessor}{    #if DEBUG == 1 }
 550 
-551     \}
-552 
-553     
+551         Serial.println( F(\textcolor{stringliteral}{"RTC Config"}) );
+552         jsonRTC.printTo(Serial);
+553         Serial.println();
 554     
-555     
-556     
-557         \textcolor{comment}{//cool board led configuration}
-558         JsonObject& jsonLedBoard=root[\textcolor{stringliteral}{"led"}];
-559     
-560 \textcolor{preprocessor}{#if DEBUG == 1 }
-561 
-562     Serial.println( F(\textcolor{stringliteral}{"before config Led json"}) );
-563     jsonLedBoard.printTo(Serial);
-564 
-565 \textcolor{preprocessor}{#endif}
-566 
-567     \textcolor{keywordflow}{if}(jsonLedBoard.success())
-568     \{   
-569         File coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"}); 
-570         \textcolor{keywordflow}{if}(!coolBoardLedConfig)
-571         \{
-572         
-573 \textcolor{preprocessor}{        #if DEBUG == 1 }
-574         
-575             Serial.println( F(\textcolor{stringliteral}{"failed to write led config"}) );
-576         
-577 \textcolor{preprocessor}{        #endif}
+555 \textcolor{preprocessor}{    #endif}
+556 
+557     
+558     \}
+559     \textcolor{keywordflow}{else}
+560     \{
+561     
+562 \textcolor{preprocessor}{    #if DEBUG == 1 }
+563 
+564         Serial.println( F(\textcolor{stringliteral}{"failed to parse rtc "}) );
+565     
+566 \textcolor{preprocessor}{    #endif}
+567 
+568     \}
+569 
+570     
+571     
+572     
+573     
+574         \textcolor{comment}{//cool board led configuration}
+575         JsonObject& jsonLedBoard=root[\textcolor{stringliteral}{"led"}];
+576     
+577 \textcolor{preprocessor}{#if DEBUG == 1 }
 578 
-579             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-580         \}
-581         
-582         jsonLedBoard.printTo(coolBoardLedConfig);
-583         coolBoardLedConfig.close();
-584 
-585 
-586 \textcolor{preprocessor}{    #if DEBUG == 1 }
-587 
-588         Serial.println( F(\textcolor{stringliteral}{"CoolBoardLed Config"}) );     
-589         jsonLedBoard.printTo(Serial);
-590         Serial.println();
-591     
-592 \textcolor{preprocessor}{    #endif}
-593 
-594     
-595     \}
-596     \textcolor{keywordflow}{else}
-597     \{
-598     
-599 \textcolor{preprocessor}{    #if DEBUG == 1 }
-600 
-601         Serial.println( F(\textcolor{stringliteral}{"failed to parse led"}) );
-602     
-603 \textcolor{preprocessor}{    #endif }
+579     Serial.println( F(\textcolor{stringliteral}{"before config Led json"}) );
+580     jsonLedBoard.printTo(Serial);
+581 
+582 \textcolor{preprocessor}{#endif}
+583 
+584     \textcolor{keywordflow}{if}(jsonLedBoard.success())
+585     \{   
+586         File coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"}); 
+587         \textcolor{keywordflow}{if}(!coolBoardLedConfig)
+588         \{
+589         
+590 \textcolor{preprocessor}{        #if DEBUG == 1 }
+591         
+592             Serial.println( F(\textcolor{stringliteral}{"failed to write led config"}) );
+593         
+594 \textcolor{preprocessor}{        #endif}
+595 
+596             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+597         \}
+598         
+599         jsonLedBoard.printTo(coolBoardLedConfig);
+600         coolBoardLedConfig.close();
+601 
+602 
+603 \textcolor{preprocessor}{    #if DEBUG == 1 }
 604 
-605     \}
-606         
-607 
+605         Serial.println( F(\textcolor{stringliteral}{"CoolBoardLed Config"}) );     
+606         jsonLedBoard.printTo(Serial);
+607         Serial.println();
 608     
-609 
-610     \textcolor{comment}{//jetpack configuration}
-611         JsonObject& jsonJetpack=root[\textcolor{stringliteral}{"jetPack"}];
-612 
-613 \textcolor{preprocessor}{#if DEBUG == 1 }
-614 
-615     Serial.println( F(\textcolor{stringliteral}{"before config jetpack json"}) );
-616     jsonJetpack.printTo(Serial);
+609 \textcolor{preprocessor}{    #endif}
+610 
+611     
+612     \}
+613     \textcolor{keywordflow}{else}
+614     \{
+615     
+616 \textcolor{preprocessor}{    #if DEBUG == 1 }
 617 
-618 \textcolor{preprocessor}{#endif}
-619 
-620     \textcolor{keywordflow}{if}(jsonJetpack.success())
-621     \{   
-622         File jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"w"});   
-623         \textcolor{keywordflow}{if}(!jetPackConfig)
-624         \{
-625 \textcolor{preprocessor}{        #if DEBUG == 1}
+618         Serial.println( F(\textcolor{stringliteral}{"failed to parse led"}) );
+619     
+620 \textcolor{preprocessor}{    #endif }
+621 
+622     \}
+623         
+624 
+625     
 626 
-627             Serial.println( F(\textcolor{stringliteral}{"failed to write jetpack file"}) );
-628         
-629 \textcolor{preprocessor}{        #endif}
-630 
-631             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-632         \}
-633 
-634         jsonJetpack.printTo(jetPackConfig);
-635         jetPackConfig.close();
+627     \textcolor{comment}{//jetpack configuration}
+628         JsonObject& jsonJetpack=root[\textcolor{stringliteral}{"jetPack"}];
+629 
+630 \textcolor{preprocessor}{#if DEBUG == 1 }
+631 
+632     Serial.println( F(\textcolor{stringliteral}{"before config jetpack json"}) );
+633     jsonJetpack.printTo(Serial);
+634 
+635 \textcolor{preprocessor}{#endif}
 636 
-637 \textcolor{preprocessor}{    #if DEBUG == 1}
-638 
-639         Serial.println( F(\textcolor{stringliteral}{"jetpack Config"}) );  
-640         jsonJetpack.printTo(Serial);
-641         Serial.println();
-642     
-643 \textcolor{preprocessor}{    #endif}
-644 
-645     \}
-646 
-647     \textcolor{keywordflow}{else}
-648     \{
-649     
-650 \textcolor{preprocessor}{    #if DEBUG == 1 }
-651 
-652         Serial.println( F(\textcolor{stringliteral}{"failed to parse jetpack"}) ); 
-653     
-654 \textcolor{preprocessor}{    #endif}
+637     \textcolor{keywordflow}{if}(jsonJetpack.success())
+638     \{   
+639         File jetPackConfig = SPIFFS.open(\textcolor{stringliteral}{"/jetPackConfig.json"}, \textcolor{stringliteral}{"w"});   
+640         \textcolor{keywordflow}{if}(!jetPackConfig)
+641         \{
+642 \textcolor{preprocessor}{        #if DEBUG == 1}
+643 
+644             Serial.println( F(\textcolor{stringliteral}{"failed to write jetpack file"}) );
+645         
+646 \textcolor{preprocessor}{        #endif}
+647 
+648             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+649         \}
+650 
+651         jsonJetpack.printTo(jetPackConfig);
+652         jetPackConfig.close();
+653 
+654 \textcolor{preprocessor}{    #if DEBUG == 1}
 655 
-656     \}
-657     
-658     \textcolor{comment}{//irene configuration   }
-659         JsonObject& jsonIrene=root[\textcolor{stringliteral}{"irene3000"}];
-660     
-661 \textcolor{preprocessor}{#if DEBUG == 1 }
-662 
-663     Serial.println( F(\textcolor{stringliteral}{"before config irene json"}) );    
-664     jsonIrene.printTo(Serial);
-665 
-666 \textcolor{preprocessor}{#endif }
-667 
-668     \textcolor{keywordflow}{if}(jsonIrene.success())
-669     \{
-670         File irene3000Config = SPIFFS.open(\textcolor{stringliteral}{"/irene3000Config.json"}, \textcolor{stringliteral}{"w"});   
-671         \textcolor{keywordflow}{if}(!irene3000Config)
-672         \{
-673 
-674 \textcolor{preprocessor}{        #if DEBUG == 1 }
-675 
-676             Serial.println( F(\textcolor{stringliteral}{"failed to write irene file"}) );
-677         
-678 \textcolor{preprocessor}{        #endif}
+656         Serial.println( F(\textcolor{stringliteral}{"jetpack Config"}) );  
+657         jsonJetpack.printTo(Serial);
+658         Serial.println();
+659     
+660 \textcolor{preprocessor}{    #endif}
+661 
+662     \}
+663 
+664     \textcolor{keywordflow}{else}
+665     \{
+666     
+667 \textcolor{preprocessor}{    #if DEBUG == 1 }
+668 
+669         Serial.println( F(\textcolor{stringliteral}{"failed to parse jetpack"}) ); 
+670     
+671 \textcolor{preprocessor}{    #endif}
+672 
+673     \}
+674     
+675     \textcolor{comment}{//irene configuration   }
+676         JsonObject& jsonIrene=root[\textcolor{stringliteral}{"irene3000"}];
+677     
+678 \textcolor{preprocessor}{#if DEBUG == 1 }
 679 
-680             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-681         \}
+680     Serial.println( F(\textcolor{stringliteral}{"before config irene json"}) );    
+681     jsonIrene.printTo(Serial);
 682 
-683         jsonIrene.printTo(irene3000Config);
-684         irene3000Config.close();
-685     
-686 \textcolor{preprocessor}{    #if DEBUG == 1 }
-687         
-688         Serial.println( F(\textcolor{stringliteral}{"irene3000 Config"}) );
-689         jsonIrene.printTo(Serial);
-690         Serial.println();
-691     
-692 \textcolor{preprocessor}{    #endif}
-693     
-694     \}
-695     \textcolor{keywordflow}{else}
-696     \{
-697     
-698 \textcolor{preprocessor}{    #if DEBUG == 1 }
+683 \textcolor{preprocessor}{#endif }
+684 
+685     \textcolor{keywordflow}{if}(jsonIrene.success())
+686     \{
+687         File irene3000Config = SPIFFS.open(\textcolor{stringliteral}{"/irene3000Config.json"}, \textcolor{stringliteral}{"w"});   
+688         \textcolor{keywordflow}{if}(!irene3000Config)
+689         \{
+690 
+691 \textcolor{preprocessor}{        #if DEBUG == 1 }
+692 
+693             Serial.println( F(\textcolor{stringliteral}{"failed to write irene file"}) );
+694         
+695 \textcolor{preprocessor}{        #endif}
+696 
+697             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+698         \}
 699 
-700         Serial.println( F(\textcolor{stringliteral}{"failed to parse irene"}) );   
-701     
-702 \textcolor{preprocessor}{    #endif }
-703 
-704 
-705     \}
-706     
-707     \textcolor{comment}{//external sensors}
-708         JsonObject& jsonExternalSensors=root[\textcolor{stringliteral}{"externalSensors"}];
-709 
-710 \textcolor{preprocessor}{#if DEBUG == 1 }
-711 
-712     Serial.println( F(\textcolor{stringliteral}{"before config external Sensors json"}) );
-713     jsonExternalSensors.printTo(Serial);
-714 
-715 \textcolor{preprocessor}{#endif}
+700         jsonIrene.printTo(irene3000Config);
+701         irene3000Config.close();
+702     
+703 \textcolor{preprocessor}{    #if DEBUG == 1 }
+704         
+705         Serial.println( F(\textcolor{stringliteral}{"irene3000 Config"}) );
+706         jsonIrene.printTo(Serial);
+707         Serial.println();
+708     
+709 \textcolor{preprocessor}{    #endif}
+710     
+711     \}
+712     \textcolor{keywordflow}{else}
+713     \{
+714     
+715 \textcolor{preprocessor}{    #if DEBUG == 1 }
 716 
-717     \textcolor{keywordflow}{if}(jsonExternalSensors.success())
-718     \{
-719         File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});   
-720         \textcolor{keywordflow}{if}(!externalSensorsConfig)
-721         \{
-722         
-723 \textcolor{preprocessor}{        #if DEBUG == 1 }
-724 
-725             Serial.println( F(\textcolor{stringliteral}{"failed to open external sensors file "}) );
-726         
-727 \textcolor{preprocessor}{        #endif }
+717         Serial.println( F(\textcolor{stringliteral}{"failed to parse irene"}) );   
+718     
+719 \textcolor{preprocessor}{    #endif }
+720 
+721 
+722     \}
+723     
+724     \textcolor{comment}{//external sensors}
+725         JsonObject& jsonExternalSensors=root[\textcolor{stringliteral}{"externalSensors"}];
+726 
+727 \textcolor{preprocessor}{#if DEBUG == 1 }
 728 
-729             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-730         \}
+729     Serial.println( F(\textcolor{stringliteral}{"before config external Sensors json"}) );
+730     jsonExternalSensors.printTo(Serial);
 731 
-732         jsonExternalSensors.printTo(externalSensorsConfig); 
-733         externalSensorsConfig.close();
-734 
-735 \textcolor{preprocessor}{#if DEBUG == 1 }
-736         
-737         Serial.println( F(\textcolor{stringliteral}{"externalSensors Config"}) );
-738         jsonExternalSensors.printTo(Serial);
-739         Serial.println();
-740 
-741 \textcolor{preprocessor}{#endif }
-742 
-743 
-744     \}
+732 \textcolor{preprocessor}{#endif}
+733 
+734     \textcolor{keywordflow}{if}(jsonExternalSensors.success())
+735     \{
+736         File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});   
+737         \textcolor{keywordflow}{if}(!externalSensorsConfig)
+738         \{
+739         
+740 \textcolor{preprocessor}{        #if DEBUG == 1 }
+741 
+742             Serial.println( F(\textcolor{stringliteral}{"failed to open external sensors file "}) );
+743         
+744 \textcolor{preprocessor}{        #endif }
 745 
-746     \textcolor{keywordflow}{else}
-747     \{   
+746             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+747         \}
 748 
-749 \textcolor{preprocessor}{    #if DEBUG == 1}
-750         
-751         Serial.println( F(\textcolor{stringliteral}{"failed to parse external sensors"}) );
-752 
-753 \textcolor{preprocessor}{    #endif}
-754 
-755 
-756     \}
+749         jsonExternalSensors.printTo(externalSensorsConfig); 
+750         externalSensorsConfig.close();
+751 
+752 \textcolor{preprocessor}{#if DEBUG == 1 }
+753         
+754         Serial.println( F(\textcolor{stringliteral}{"externalSensors Config"}) );
+755         jsonExternalSensors.printTo(Serial);
+756         Serial.println();
 757 
-758     
-759     \textcolor{comment}{//mqtt config}
-760         JsonObject& jsonMQTT=root[\textcolor{stringliteral}{"mqtt"}];
-761     
-762 \textcolor{preprocessor}{#if DEBUG == 1 }
-763 
-764     Serial.println( F(\textcolor{stringliteral}{"before config mqtt json"}) );
-765     jsonMQTT.printTo(Serial);
-766 
-767 \textcolor{preprocessor}{#endif}
-768 
-769     \textcolor{keywordflow}{if}(jsonMQTT.success())
-770     \{
-771         File mqttConfig = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"w"}); 
-772         \textcolor{keywordflow}{if}(!mqttConfig)
-773         \{
-774         
-775 \textcolor{preprocessor}{        #if DEBUG == 1 }
-776 
-777             Serial.println( F(\textcolor{stringliteral}{"failed to open mqtt file "}) );
-778         
-779 \textcolor{preprocessor}{        #endif}
-780         
-781             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-782         \}
-783             
-784         jsonMQTT.printTo(mqttConfig);
-785         mqttConfig.close();
-786 
-787 \textcolor{preprocessor}{#if DEBUG == 1 }
-788 
-789         Serial.println( F(\textcolor{stringliteral}{"mqtt config"}) );
-790         jsonMQTT.printTo(Serial);
-791         Serial.println();
-792 
-793 \textcolor{preprocessor}{#endif}
-794 
-795     \}
-796     \textcolor{keywordflow}{else}
-797     \{
-798 
-799 \textcolor{preprocessor}{    #if DEBUG == 1 }
-800 
-801         Serial.println( F(\textcolor{stringliteral}{"failed to parse mqtt"}) );
-802     
-803 \textcolor{preprocessor}{    #endif}
-804 
-805     
-806     \}   
-807 
-808     \textcolor{comment}{//wifi config}
-809         JsonObject& jsonWifi=root[\textcolor{stringliteral}{"wifi"}];
-810     
-811 \textcolor{preprocessor}{#if DEBUG == 1 }
-812 
-813     Serial.println( F(\textcolor{stringliteral}{"before config wifi json"}) );
-814     jsonWifi.printTo(Serial);
+758 \textcolor{preprocessor}{#endif }
+759 
+760 
+761     \}
+762 
+763     \textcolor{keywordflow}{else}
+764     \{   
+765 
+766 \textcolor{preprocessor}{    #if DEBUG == 1}
+767         
+768         Serial.println( F(\textcolor{stringliteral}{"failed to parse external sensors"}) );
+769 
+770 \textcolor{preprocessor}{    #endif}
+771 
+772 
+773     \}
+774 
+775     
+776     \textcolor{comment}{//mqtt config}
+777         JsonObject& jsonMQTT=root[\textcolor{stringliteral}{"mqtt"}];
+778     
+779 \textcolor{preprocessor}{#if DEBUG == 1 }
+780 
+781     Serial.println( F(\textcolor{stringliteral}{"before config mqtt json"}) );
+782     jsonMQTT.printTo(Serial);
+783 
+784 \textcolor{preprocessor}{#endif}
+785 
+786     \textcolor{keywordflow}{if}(jsonMQTT.success())
+787     \{
+788         File mqttConfig = SPIFFS.open(\textcolor{stringliteral}{"/mqttConfig.json"}, \textcolor{stringliteral}{"w"}); 
+789         \textcolor{keywordflow}{if}(!mqttConfig)
+790         \{
+791         
+792 \textcolor{preprocessor}{        #if DEBUG == 1 }
+793 
+794             Serial.println( F(\textcolor{stringliteral}{"failed to open mqtt file "}) );
+795         
+796 \textcolor{preprocessor}{        #endif}
+797         
+798             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+799         \}
+800             
+801         jsonMQTT.printTo(mqttConfig);
+802         mqttConfig.close();
+803 
+804 \textcolor{preprocessor}{#if DEBUG == 1 }
+805 
+806         Serial.println( F(\textcolor{stringliteral}{"mqtt config"}) );
+807         jsonMQTT.printTo(Serial);
+808         Serial.println();
+809 
+810 \textcolor{preprocessor}{#endif}
+811 
+812     \}
+813     \textcolor{keywordflow}{else}
+814     \{
 815 
-816 \textcolor{preprocessor}{#endif}
+816 \textcolor{preprocessor}{    #if DEBUG == 1 }
 817 
-818     \textcolor{keywordflow}{if}(jsonWifi.success())
-819     \{
-820         File wifiConfig = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"}); 
-821         \textcolor{keywordflow}{if}(!wifiConfig)
-822         \{
-823         
-824 \textcolor{preprocessor}{        #if DEBUG == 1 }
-825 
-826             Serial.println( F(\textcolor{stringliteral}{"failed to open wifi file "}) );
-827         
-828 \textcolor{preprocessor}{        #endif}
-829         
-830             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-831         \}
+818         Serial.println( F(\textcolor{stringliteral}{"failed to parse mqtt"}) );
+819     
+820 \textcolor{preprocessor}{    #endif}
+821 
+822     
+823     \}   
+824 
+825     \textcolor{comment}{//wifi config}
+826         JsonObject& jsonWifi=root[\textcolor{stringliteral}{"wifi"}];
+827     
+828 \textcolor{preprocessor}{#if DEBUG == 1 }
+829 
+830     Serial.println( F(\textcolor{stringliteral}{"before config wifi json"}) );
+831     jsonWifi.printTo(Serial);
 832 
-833         jsonWifi.printTo(wifiConfig);
-834         wifiConfig.close();
-835 
-836 \textcolor{preprocessor}{#if DEBUG == 1 }
-837 
-838         Serial.println( F(\textcolor{stringliteral}{"wifi config"}) );
-839         jsonWifi.printTo(Serial);
-840 
-841 \textcolor{preprocessor}{#endif}
-842     \}
-843     \textcolor{keywordflow}{else}
-844     \{
-845 
-846 \textcolor{preprocessor}{    #if DEBUG == 1 }
-847 
-848         Serial.println( F(\textcolor{stringliteral}{"failed to parse wifi"}) );
-849     
-850 \textcolor{preprocessor}{    #endif}
-851 
-852     
-853     \}   
-854         
-855     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
-856 
-857 \}   
+833 \textcolor{preprocessor}{#endif}
+834 
+835     \textcolor{keywordflow}{if}(jsonWifi.success())
+836     \{
+837         File wifiConfig = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"}); 
+838         \textcolor{keywordflow}{if}(!wifiConfig)
+839         \{
+840         
+841 \textcolor{preprocessor}{        #if DEBUG == 1 }
+842 
+843             Serial.println( F(\textcolor{stringliteral}{"failed to open wifi file "}) );
+844         
+845 \textcolor{preprocessor}{        #endif}
+846         
+847             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+848         \}
+849 
+850         jsonWifi.printTo(wifiConfig);
+851         wifiConfig.close();
+852 
+853 \textcolor{preprocessor}{#if DEBUG == 1 }
+854 
+855         Serial.println( F(\textcolor{stringliteral}{"wifi config"}) );
+856         jsonWifi.printTo(Serial);
+857 
+858 \textcolor{preprocessor}{#endif}
+859     \}
+860     \textcolor{keywordflow}{else}
+861     \{
+862 
+863 \textcolor{preprocessor}{    #if DEBUG == 1 }
+864 
+865         Serial.println( F(\textcolor{stringliteral}{"failed to parse wifi"}) );
+866     
+867 \textcolor{preprocessor}{    #endif}
+868 
+869     
+870     \}   
+871         
+872     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+873 
+874 \}   
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolFileSystem_a32dad79ae80182a83e2e8f52286b7c7b_icgraph}
+\includegraphics[width=350pt]{classCoolFileSystem_adfa8e2e80641ae6f0cceabd348a9b841_icgraph}
 \end{center}
 \end{figure}
 

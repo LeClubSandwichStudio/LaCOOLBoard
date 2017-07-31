@@ -11,8 +11,7 @@ This class handles the led in the Sensor Board.
 
 
 
-Collaboration diagram for Cool\+Board\+Led\+:
-\nopagebreak
+Collaboration diagram for Cool\+Board\+Led\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -75,7 +74,7 @@ References led\+Active, and neo\+Pixel\+Led.
 
 
 
-Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
+Referenced by Cool\+Board\+::config().
 
 
 \begin{DoxyCode}
@@ -86,7 +85,7 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::config().
 237     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.begin() "}) );
 238 
 239 \textcolor{preprocessor}{#endif}
-240 
+240     yield();
 241     \textcolor{keywordflow}{if}(this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} == 1 )
 242     \{
 243         pinMode(5,OUTPUT);
@@ -104,7 +103,7 @@ Here is the caller graph for this function\+:
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolBoardLed_ae3cbde8affcc6f011cbd698c8ef911f6_icgraph}
+\includegraphics[width=318pt]{classCoolBoardLed_ae3cbde8affcc6f011cbd698c8ef911f6_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426}\label{classCoolBoardLed_a96e1ea13003eee34c9dbcef340404426}} 
@@ -182,7 +181,7 @@ References led\+Active.
 
 
 
-Referenced by Cool\+Board\+::begin(), Cool\+Board\+::config(), and Cool\+Board\+::update().
+Referenced by Cool\+Board\+::config().
 
 
 \begin{DoxyCode}
@@ -238,58 +237,62 @@ Referenced by Cool\+Board\+::begin(), Cool\+Board\+::config(), and Cool\+Board\+
 341             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
 342             json.printTo(Serial);
 343             Serial.println();
-344         
-345 \textcolor{preprocessor}{        #endif}
-346   
-347             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ledActive"}].success() )
-348             \{
-349                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} = json[\textcolor{stringliteral}{"ledActive"}]; 
-350             \}
-351             \textcolor{keywordflow}{else}
+344             
+345             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size :"}));
+346             Serial.println(jsonBuffer.size());
+347             Serial.println();
+348 
+349 \textcolor{preprocessor}{        #endif}
+350   
+351             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"ledActive"}].success() )
 352             \{
-353                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive}=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};          
+353                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive} = json[\textcolor{stringliteral}{"ledActive"}]; 
 354             \}
-355             
-356             json[\textcolor{stringliteral}{"ledActive"}]=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};
-357             coolBoardLedConfig.close();
-358             
-359             coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"});
-360             \textcolor{keywordflow}{if}(!coolBoardLedConfig)
-361             \{
+355             \textcolor{keywordflow}{else}
+356             \{
+357                 this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive}=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};          
+358             \}
+359             
+360             json[\textcolor{stringliteral}{"ledActive"}]=this->\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive};
+361             coolBoardLedConfig.close();
 362             
-363 \textcolor{preprocessor}{            #if DEBUG == 1 }
-364 
-365                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardLedConfig.json"}) );
-366                 Serial.println();
-367 
-368 \textcolor{preprocessor}{            #endif}
-369 
-370                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
-371             \}
-372 
-373             json.printTo(coolBoardLedConfig);
-374             coolBoardLedConfig.close();
-375 
-376 \textcolor{preprocessor}{        #if DEBUG == 1}
-377     
-378             Serial.println( F(\textcolor{stringliteral}{"saved Led Config is : "}) );
-379             json.printTo(Serial);
-380             Serial.println();
-381 
-382 \textcolor{preprocessor}{        #endif}
-383 
-384             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-385         \}
-386     \}   
+363             coolBoardLedConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardLedConfig.json"}, \textcolor{stringliteral}{"w"});
+364             \textcolor{keywordflow}{if}(!coolBoardLedConfig)
+365             \{
+366             
+367 \textcolor{preprocessor}{            #if DEBUG == 1 }
+368 
+369                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardLedConfig.json"}) );
+370                 Serial.println();
+371 
+372 \textcolor{preprocessor}{            #endif}
+373 
+374                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
+375             \}
+376 
+377             json.printTo(coolBoardLedConfig);
+378             coolBoardLedConfig.close();
+379 
+380 \textcolor{preprocessor}{        #if DEBUG == 1}
+381     
+382             Serial.println( F(\textcolor{stringliteral}{"saved Led Config is : "}) );
+383             json.printTo(Serial);
+384             Serial.println();
+385 
+386 \textcolor{preprocessor}{        #endif}
 387 
-388 \}               
+388             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+389         \}
+390     \}   
+391 
+392 \}               
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolBoardLed_a1b60e5e30bea96c49ed62ed1bf1ffc8b_icgraph}
+\includegraphics[width=321pt]{classCoolBoardLed_a1b60e5e30bea96c49ed62ed1bf1ffc8b_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{classCoolBoardLed_a69f323359e0c9f797422f2152b5d41ef}\label{classCoolBoardLed_a69f323359e0c9f797422f2152b5d41ef}} 
@@ -505,7 +508,7 @@ Here is the caller graph for this function\+:
 
 \hyperlink{classCoolBoardLed_a8ed3053a36f0ed4a131f43b5b17efb61}{Cool\+Board\+Led\+::print\+Conf()}\+: This method is provided to print the Led Object Configuration to the Serial Monitor 
 
-Definition at line 396 of file Cool\+Board\+Led.\+cpp.
+Definition at line 400 of file Cool\+Board\+Led.\+cpp.
 
 
 
@@ -517,22 +520,22 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-397 \{
-398 
-399 \textcolor{preprocessor}{#if DEBUG == 1 }
-400 
-401     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.printConf()"}) );
-402     Serial.println();
-403 
-404 \textcolor{preprocessor}{#endif}
-405 
-406     Serial.println(\textcolor{stringliteral}{"Led Configuration"});
+401 \{
+402 
+403 \textcolor{preprocessor}{#if DEBUG == 1 }
+404 
+405     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardLed.printConf()"}) );
+406     Serial.println();
 407 
-408     Serial.print(\textcolor{stringliteral}{"ledActive : "});
-409     Serial.println(\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive});
-410 
-411     Serial.println();   
-412 \}
+408 \textcolor{preprocessor}{#endif}
+409 
+410     Serial.println(\textcolor{stringliteral}{"Led Configuration"});
+411 
+412     Serial.print(\textcolor{stringliteral}{"ledActive : "});
+413     Serial.println(\hyperlink{classCoolBoardLed_a5f17c135516fcf4b44ea8a096ba0177a}{ledActive});
+414 
+415     Serial.println();   
+416 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -665,7 +668,7 @@ Here is the caller graph for this function\+:
 
 
 
-Definition at line 54 of file Cool\+Board\+Led.\+h.
+Definition at line 55 of file Cool\+Board\+Led.\+h.
 
 
 
@@ -679,7 +682,7 @@ Referenced by begin(), blink(), config(), fade(), fade\+In(), fade\+Out(), print
 
 
 
-Definition at line 52 of file Cool\+Board\+Led.\+h.
+Definition at line 53 of file Cool\+Board\+Led.\+h.
 
 
 

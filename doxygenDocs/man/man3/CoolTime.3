@@ -1,4 +1,4 @@
-.TH "CoolTime" 3 "Thu Jul 13 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolTime" 3 "Mon Jul 31 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -127,7 +127,7 @@ Definition at line 424 of file CoolTime\&.cpp\&.
 .PP
 References localPort, timeServer, and timeSync\&.
 .PP
-Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
+Referenced by CoolBoard::begin()\&.
 .PP
 .nf
 425 {
@@ -183,78 +183,83 @@ Referenced by CoolBoard::begin(), and CoolBoard::update()\&.
 475             json\&.printTo(Serial);
 476             Serial\&.println();
 477 
-478         #endif
-479 
-480             String ip;
-481             
-482             if(json["timeServer"]\&.success() )
-483             {           
-484                  ip=json["timeServer"]\&.as<String>();
-485                 this->timeServer\&.fromString(ip);
-486                 
-487             }
-488             else
-489             {
-490                 this->timeServer=this->timeServer;
-491             }
-492             json["timeServer"]=ip;
-493             
-494             if(json["localPort"]\&.success() )
-495             {                       
-496                 this->localPort=json["localPort"];
-497             }
-498             else
-499             {
-500                 this->localPort=this->localPort;
-501             }
-502             json["localPort"]=this->localPort;
-503 
-504 
-505             if( json["timeSync"]\&.success() )
-506             {
-507 
-508                 this->timeSync=json["timeSync"];
-509             }
-510             else
+478             Serial\&.print(F("jsonBuffer size: "));
+479             Serial\&.println(jsonBuffer\&.size());
+480             Serial\&.println();
+481 
+482 
+483         #endif
+484 
+485             String ip;
+486             
+487             if(json["timeServer"]\&.success() )
+488             {           
+489                  ip=json["timeServer"]\&.as<String>();
+490                 this->timeServer\&.fromString(ip);
+491                 
+492             }
+493             else
+494             {
+495                 this->timeServer=this->timeServer;
+496             }
+497             json["timeServer"]=ip;
+498             
+499             if(json["localPort"]\&.success() )
+500             {                       
+501                 this->localPort=json["localPort"];
+502             }
+503             else
+504             {
+505                 this->localPort=this->localPort;
+506             }
+507             json["localPort"]=this->localPort;
+508 
+509 
+510             if( json["timeSync"]\&.success() )
 511             {
-512                 this->timeSync=this->timeSync;
-513             }
-514             json["timeSync"]=this->timeSync;
-515 
-516             rtcConfig\&.close();
-517             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
-518             
-519             if(!rtcConfig)
-520             {
-521             
-522             #if DEBUG == 1
-523 
-524                 Serial\&.println( F("failed to write to /rtcConfig\&.json") );
-525                 Serial\&.println();
+512 
+513                 this->timeSync=json["timeSync"];
+514             }
+515             else
+516             {
+517                 this->timeSync=this->timeSync;
+518             }
+519             json["timeSync"]=this->timeSync;
+520 
+521             rtcConfig\&.close();
+522             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
+523             
+524             if(!rtcConfig)
+525             {
 526             
-527             #endif
+527             #if DEBUG == 1
 528 
-529                 return(false);
-530             }
+529                 Serial\&.println( F("failed to write to /rtcConfig\&.json") );
+530                 Serial\&.println();
 531             
-532             json\&.printTo(rtcConfig);
-533             rtcConfig\&.close();
-534 
-535         #if DEBUG == 1 
-536 
-537             Serial\&.println( F("configuration is :") );
-538             json\&.printTo(Serial);
-539             Serial\&.println();
-540         
-541         #endif
-542         
-543             return(true); 
-544         }
-545     }   
-546 
-547 
-548 
-549 }
+532             #endif
+533 
+534                 return(false);
+535             }
+536             
+537             json\&.printTo(rtcConfig);
+538             rtcConfig\&.close();
+539 
+540         #if DEBUG == 1 
+541 
+542             Serial\&.println( F("configuration is :") );
+543             json\&.printTo(Serial);
+544             Serial\&.println();
+545         
+546         #endif
+547         
+548             return(true); 
+549         }
+550     }   
+551 
+552 
+553 
+554 }
 .fi
 .SS "void CoolTime::config (IPAddress timeServer, unsigned int localPort)"
 CoolTime::config(Time server IP , udp Port): This method is provided to do manual configuration\&. 
@@ -290,42 +295,42 @@ formatted string of the input digit
 .PP
 
 .PP
-Definition at line 691 of file CoolTime\&.cpp\&.
+Definition at line 716 of file CoolTime\&.cpp\&.
 .PP
 Referenced by getESDate(), getTimeDate(), and setDateTime()\&.
 .PP
 .nf
-692 {
-693 
-694 #if DEBUG == 1 
-695 
-696     Serial\&.println( F("Entering CoolTime\&.formatDigits()") );
-697     Serial\&.println();
-698 
-699 #endif 
-700 
-701     if(digits < 10)
-702     {
-703     
-704     #if DEBUG == 1
-705 
-706         Serial\&.println( F("output digit : ") );
-707         Serial\&.println( String("0") + String(digits) );
-708 
-709     #endif
-710 
-711         return( String("0") + String(digits) );
-712     }
-713     
-714 #if DEBUG == 1 
-715 
-716     Serial\&.println( F("output digit : ") );
-717     Serial\&.println(digits);
+717 {
 718 
-719 #endif
+719 #if DEBUG == 1 
 720 
-721     return( String(digits) );
-722 }
+721     Serial\&.println( F("Entering CoolTime\&.formatDigits()") );
+722     Serial\&.println();
+723 
+724 #endif 
+725 
+726     if(digits < 10)
+727     {
+728     
+729     #if DEBUG == 1
+730 
+731         Serial\&.println( F("output digit : ") );
+732         Serial\&.println( String("0") + String(digits) );
+733 
+734     #endif
+735 
+736         return( String("0") + String(digits) );
+737     }
+738     
+739 #if DEBUG == 1 
+740 
+741     Serial\&.println( F("output digit : ") );
+742     Serial\&.println(digits);
+743 
+744 #endif
+745 
+746     return( String(digits) );
+747 }
 .fi
 .SS "String CoolTime::getESDate ()"
 CoolTime::getESD(): This method is provided to return an Elastic Search compatible date Format
@@ -587,30 +592,30 @@ Referenced by update()\&.
 .SS "void CoolTime::printConf ()"
 \fBCoolTime::printConf()\fP: This method is provided to print the \fBCoolTime\fP configuration to the Serial Monitor 
 .PP
-Definition at line 664 of file CoolTime\&.cpp\&.
+Definition at line 689 of file CoolTime\&.cpp\&.
 .PP
 References localPort, and timeServer\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-665 {
-666 
-667 #if DEBUG == 1
-668 
-669     Serial\&.println( F("Entering CoolTime\&.printConf()") );
-670     Serial\&.println();
-671 
-672 #endif 
-673 
-674     Serial\&.println("RTC Configuration") ;
-675 
-676     Serial\&.print("timeServer : ");
-677     Serial\&.println(timeServer);
-678     
-679     Serial\&.print("localPort : :");
-680     Serial\&.println(localPort);
-681 }
+690 {
+691 
+692 #if DEBUG == 1
+693 
+694     Serial\&.println( F("Entering CoolTime\&.printConf()") );
+695     Serial\&.println();
+696 
+697 #endif 
+698 
+699     Serial\&.println("RTC Configuration") ;
+700 
+701     Serial\&.print("timeServer : ");
+702     Serial\&.println(timeServer);
+703     
+704     Serial\&.print("localPort : :");
+705     Serial\&.println(localPort);
+706 }
 .fi
 .SS "bool CoolTime::saveTimeSync ()"
 \fBCoolTime::saveTimeSync()\fP This method is provided to save the last sync time in the SPIFFS\&.
@@ -622,109 +627,129 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 560 of file CoolTime\&.cpp\&.
+Definition at line 565 of file CoolTime\&.cpp\&.
 .PP
 References localPort, timeServer, and timeSync\&.
 .PP
 Referenced by update()\&.
 .PP
 .nf
-561 {
-562     Serial\&.println( F("Enter CoolTime\&.saveTimeSync()") );
-563     Serial\&.println();
-564 
-565     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
-566 
-567     if (!rtcConfig) 
-568     {
-569         Serial\&.println( F("failed to read /rtcConfig\&.json") );
-570         Serial\&.println();
+566 {
+567     Serial\&.println( F("Enter CoolTime\&.saveTimeSync()") );
+568     Serial\&.println();
+569 
+570     File rtcConfig = SPIFFS\&.open("/rtcConfig\&.json", "r");
 571 
-572         return(false);
-573     }
-574     else
-575     {
-576         size_t size = rtcConfig\&.size();
-577         // Allocate a buffer to store contents of the file\&.
-578         std::unique_ptr<char[]> buf(new char[size]);
-579 
-580         rtcConfig\&.readBytes(buf\&.get(), size);
-581         DynamicJsonBuffer jsonBuffer;
-582         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-583         if (!json\&.success()) 
-584         {
-585             Serial\&.println( F("failed to parse json") );
-586             Serial\&.println();
-587 
-588             return(false);
-589         } 
-590         else
-591         {   
-592             Serial\&.println( F("configuration json is :") );
-593             json\&.printTo(Serial);
-594             Serial\&.println();
-595 
-596             String ip;
-597                     
-598             if(json["timeServer"]\&.success() )
-599             {           
-600                  ip=json["timeServer"]\&.as<String>();
-601                 this->timeServer\&.fromString(ip);
-602                 
-603             }
-604             else
-605             {
-606                 this->timeServer=this->timeServer;
-607             }
-608             json["timeServer"]=ip;
-609             
-610             if(json["localPort"]\&.success() )
-611             {                       
-612                 this->localPort=json["localPort"];
-613             }
-614             else
-615             {
-616                 this->localPort=this->localPort;
-617             }
-618             json["localPort"]=this->localPort;
-619 
-620 
-621             if( json["timeSync"]\&.success() )
-622             {
-623                 json["timeSync"]=this->timeSync;
-624             }
-625             else
-626             {
-627                 this->timeSync=this->timeSync;
-628             }
-629             json["timeSync"]=this->timeSync;
-630 
-631 
-632             rtcConfig\&.close();
-633             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
-634             
-635             if(!rtcConfig)
-636             {
-637                 Serial\&.println( F("failed to write timeSync to /rtcConfig\&.json") );
-638                 Serial\&.println();
-639 
-640                 return(false);
-641             }
-642             
-643             json\&.printTo(rtcConfig);
-644             rtcConfig\&.close();
-645 
-646             Serial\&.println( F("configuration is :") );
-647             json\&.printTo(Serial);
-648             Serial\&.println();
-649         
-650             return(true); 
-651         }
-652     }   
-653 
-654 
-655 
-656 }
+572     if (!rtcConfig) 
+573     {
+574         Serial\&.println( F("failed to read /rtcConfig\&.json") );
+575         Serial\&.println();
+576 
+577         return(false);
+578     }
+579     else
+580     {
+581         size_t size = rtcConfig\&.size();
+582         // Allocate a buffer to store contents of the file\&.
+583         std::unique_ptr<char[]> buf(new char[size]);
+584 
+585         rtcConfig\&.readBytes(buf\&.get(), size);
+586         DynamicJsonBuffer jsonBuffer;
+587         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+588         if (!json\&.success()) 
+589         {
+590         #if DEBUG == 1
+591 
+592             Serial\&.println( F("failed to parse json") );
+593             Serial\&.println();
+594         
+595         #endif
+596 
+597             return(false);
+598         } 
+599         else
+600         {
+601 
+602         #if DEBUG == 1
+603     
+604             Serial\&.println( F("configuration json is :") );
+605             json\&.printTo(Serial);
+606             Serial\&.println();
+607 
+608             Serial\&.print(F("jsonBuffer size: "));
+609             Serial\&.println(jsonBuffer\&.size());
+610             Serial\&.println();
+611 
+612         #endif
+613 
+614             String ip;
+615                     
+616             if(json["timeServer"]\&.success() )
+617             {           
+618                  ip=json["timeServer"]\&.as<String>();
+619                 this->timeServer\&.fromString(ip);
+620                 
+621             }
+622             else
+623             {
+624                 this->timeServer=this->timeServer;
+625             }
+626             json["timeServer"]=ip;
+627             
+628             if(json["localPort"]\&.success() )
+629             {                       
+630                 this->localPort=json["localPort"];
+631             }
+632             else
+633             {
+634                 this->localPort=this->localPort;
+635             }
+636             json["localPort"]=this->localPort;
+637 
+638 
+639             if( json["timeSync"]\&.success() )
+640             {
+641                 json["timeSync"]=this->timeSync;
+642             }
+643             else
+644             {
+645                 this->timeSync=this->timeSync;
+646             }
+647             json["timeSync"]=this->timeSync;
+648 
+649 
+650             rtcConfig\&.close();
+651             rtcConfig= SPIFFS\&.open("/rtcConfig\&.json", "w");
+652             
+653             if(!rtcConfig)
+654             {
+655             #if DEBUG == 1
+656 
+657                 Serial\&.println( F("failed to write timeSync to /rtcConfig\&.json") );
+658                 Serial\&.println();
+659             
+660             #endif
+661 
+662                 return(false);
+663             }
+664             
+665             json\&.printTo(rtcConfig);
+666             rtcConfig\&.close();
+667     
+668         #if DEBUG == 1
+669 
+670             Serial\&.println( F("configuration is :") );
+671             json\&.printTo(Serial);
+672             Serial\&.println();
+673         
+674         #endif
+675             return(true); 
+676         }
+677     }   
+678 
+679 
+680 
+681 }
 .fi
 .SS "void CoolTime::sendNTPpacket (IPAddress & address)"
 CoolTime::sendNTPpacket( Time Server IP address): This method is provided to send an NTP request to the time server at the given address 

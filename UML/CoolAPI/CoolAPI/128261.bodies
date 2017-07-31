@@ -62,7 +62,7 @@ class CoolBoardSensors
 #endif
 
 	String data;
-	DynamicJsonBuffer  jsonBuffer(jsonSize) ;
+	DynamicJsonBuffer  jsonBuffer ;
 	JsonObject& root = jsonBuffer.createObject();
 	
 	initReadI2C();
@@ -121,44 +121,16 @@ class CoolBoardSensors
 	Serial.println( F("CoolBoardSensors data is :") );
 	root.printTo(Serial);
 	Serial.println();
+	
+	Serial.print(F("jsonBuffer size: "));
+	Serial.println(jsonBuffer.size());
+	Serial.println();
 
 #endif
 
 	return(data);	
 	
 
-!!!130693.cpp!!!	getJsonSize() : int
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.getJsonSize()") );
-	Serial.println();
-	Serial.print( F("json size is : ") );
-	Serial.println(this->jsonSize);
-	Serial.println();
-
-#endif
-
-	return(this->jsonSize );
-!!!130821.cpp!!!	setJsonSize(in jsonSize : int) : void
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.setJsonSize()") );
-	Serial.println();	
-	Serial.print( F("old json Size is : ") );
-	Serial.println(this->jsonSize);
-#endif
-		
-	this->jsonSize=jsonSize;
-
-#if DEBUG == 1 
-	
-	Serial.print( F("new json Size is : ") );
-	Serial.println(this->jsonSize);
-
-#endif
-	
 !!!130949.cpp!!!	allActive() : void
 
 #if DEBUG == 1 
@@ -269,19 +241,14 @@ class CoolBoardSensors
 			Serial.println( F("Configuration Json is :") );
 			json.printTo(Serial);
 			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+			
 		
 		#endif
-  	  
-			if(json["jsonSize"].success() )
-			{
-				this->jsonSize = json["jsonSize"]; 
-			}
-			else
-			{
-				this->jsonSize=this->jsonSize;			
-			}
-			json["jsonSize"]=this->jsonSize;
-
 			
 			if(json["BME280"]["temperature"].success() )
 			{			
@@ -412,9 +379,6 @@ class CoolBoardSensors
 
 	Serial.println("Sensors Configuration : ");
 	
-	Serial.print("json size : ");
-	Serial.println(this->jsonSize);
-
 	Serial.print("airDataActive.temperature : ");
 	Serial.println(this->airDataActive.temperature);
 

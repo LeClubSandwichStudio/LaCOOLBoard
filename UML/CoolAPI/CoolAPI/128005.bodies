@@ -6,13 +6,7 @@ class CoolBoard
 	Serial.println( F("Starting the CoolBoard  ")  );
 	Serial.println( F("Entering CoolBoard.begin() ")  );
 	Serial.println();
-#endif
-	
-	fileSystem.begin();
-	delay(100);
-	
-	coolBoardLed.config();
-	coolBoardLed.begin();
+#endif	
 	coolBoardLed.printConf();
 	delay(100);
 	
@@ -80,7 +74,8 @@ class CoolBoard
 
 	//open file system
 	fileSystem.begin();
-
+	
+	//start the led
 	coolBoardLed.config();
 	coolBoardLed.begin();
 	coolBoardLed.fadeIn(243,171,46,0.5);//shade of orange		
@@ -135,7 +130,11 @@ class CoolBoard
 			Serial.println( F("configuration json : ") );
 			json.printTo(Serial);
 			Serial.println();
-		
+			
+			Serial.print(F("jsonBuffer size : "));
+			Serial.print(jsonBuffer.size());
+			Serial.println();
+
 		#endif
 			
 			//parsing userActive Key
@@ -160,28 +159,6 @@ class CoolBoard
 				this -> logInterval = this -> logInterval;
 			}
 			json["logInterval"] = this -> logInterval;
-
-			//parsing sensorJsonSize key
-			if (json["sensorJsonSize"].success())
-			{
-				this -> sensorJsonSize = json["sensorJsonSize"];
-			}
-			else
-			{
-				this -> sensorJsonSize = this -> sensorJsonSize;
-			}
-			json["sensorJsonSize"] = this -> sensorJsonSize;
-			
-			//parsing answerJsonSize key			
-			if (json["answerJsonSize"].success())
-			{
-				this -> answerJsonSize = json["answerJsonSize"];
-			}
-			else
-			{
-				this -> answerJsonSize = this -> answerJsonSize;
-			}
-			json["answerJsonSize"] = this -> answerJsonSize;
 			
 			//parsing ireneActive key			
 			if (json["ireneActive"].success())
@@ -276,14 +253,22 @@ class CoolBoard
 
 #endif
 
-	DynamicJsonBuffer jsonBuffer(answerJsonSize);
+	DynamicJsonBuffer jsonBuffer;
 	JsonObject & root = jsonBuffer.parseObject(answer);
 	JsonObject & stateDesired = root["state"];
 
 #if DEBUG == 1
-	
+
+	Serial.println( F("root json : ") );
 	root.printTo(Serial);
+	Serial.println();
+
+	Serial.println(F("stateDesired json : "));
 	stateDesired.printTo(Serial);
+	Serial.println();
+	
+	Serial.print(F("jsonBuffer size : "));
+	Serial.println(jsonBuffer.size());
 
 #endif
 
@@ -312,11 +297,11 @@ class CoolBoard
 
 		
 		#endif
-			
-			fileSystem.updateConfigFiles(answerDesired, answerJsonSize);
+			//saving the new configuration
+			fileSystem.updateConfigFiles(answerDesired);
 
 			//applying the configuration	
-			this -> config();
+			/*this -> config();
 
 			coolBoardSensors.config();
 
@@ -346,7 +331,7 @@ class CoolBoard
 			delay(10);
 			wifiManager.begin();
 			delay(100);
-			mqtt.begin();
+			mqtt.begin();*/
 
 		        //answering the update msg:
 			//reported = received configuration
@@ -375,7 +360,7 @@ class CoolBoard
 
 			delay(10);
 			
-			//restart the esp
+			//restart the esp to apply the config
 			ESP.restart();
 	}
 	else
@@ -471,14 +456,14 @@ class CoolBoard
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue	
 	
-		jetPack.doAction(data.c_str(), sensorJsonSize);
+		jetPack.doAction( data.c_str() );
 	}
 	
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 	
 	//saving data in the file system
 	
-	fileSystem.saveSensorData(data.c_str(), sensorJsonSize);
+	fileSystem.saveSensorData( data.c_str() );
 
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green	
 
@@ -603,7 +588,7 @@ class CoolBoard
 
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
-		jetPack.doAction(data.c_str(), sensorJsonSize);
+		jetPack.doAction(data.c_str());
 	}
 	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
@@ -741,12 +726,6 @@ class CoolBoard
 	Serial.print("log interval 		: ");
 	Serial.println(this->logInterval);
 
-	Serial.print("sensor json size 		: ");
-	Serial.println(this->sensorJsonSize);
-
-	Serial.print("answer json size 		: ");
-	Serial.println(this->answerJsonSize);
-
 	Serial.print("irene active 		: ");
 	Serial.println(this->ireneActive);
 
@@ -813,9 +792,10 @@ class CoolBoard
 	{
 		sensorsData += irene3000.read(); // {..,..,..,..,..}{..,..,..}
 
-		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..{..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..,..,..}{..,..,..,
 		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..,..,..},..,..,..,
 		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,
+		sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}'); // {..,..,..,..,..,..,..,..}		
 		
 		
 	}
@@ -825,7 +805,8 @@ class CoolBoard
 	tm=rtc.getTimeDate();
 	
 	//adding Hour
-	sensorsData+="\"hour\":";	
+	sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,	
+	sensorsData+=",\"hour\":";	
 	sensorsData+=tm.Hour;
 	sensorsData+="}";
 	

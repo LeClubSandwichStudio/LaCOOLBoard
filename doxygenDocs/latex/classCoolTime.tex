@@ -147,7 +147,7 @@ References local\+Port, time\+Server, and time\+Sync.
 
 
 
-Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
+Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
@@ -204,84 +204,90 @@ Referenced by Cool\+Board\+::begin(), and Cool\+Board\+::update().
 475             json.printTo(Serial);
 476             Serial.println();
 477 
-478 \textcolor{preprocessor}{        #endif}
-479 
-480             String ip;
-481             
-482             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
-483             \{           
-484                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
-485                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
-486                 
-487             \}
-488             \textcolor{keywordflow}{else}
-489             \{
-490                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer};
-491             \}
-492             json[\textcolor{stringliteral}{"timeServer"}]=ip;
-493             
-494             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
-495             \{                       
-496                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
-497             \}
-498             \textcolor{keywordflow}{else}
-499             \{
-500                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-501             \}
-502             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-503 
-504 
-505             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
-506             \{
-507 
-508                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=json[\textcolor{stringliteral}{"timeSync"}];
-509             \}
-510             \textcolor{keywordflow}{else}
+478             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+479             Serial.println(jsonBuffer.size());
+480             Serial.println();
+481 
+482 
+483 \textcolor{preprocessor}{        #endif}
+484 
+485             String ip;
+486             
+487             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
+488             \{           
+489                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
+490                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
+491                 
+492             \}
+493             \textcolor{keywordflow}{else}
+494             \{
+495                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer};
+496             \}
+497             json[\textcolor{stringliteral}{"timeServer"}]=ip;
+498             
+499             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
+500             \{                       
+501                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
+502             \}
+503             \textcolor{keywordflow}{else}
+504             \{
+505                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
+506             \}
+507             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
+508 
+509 
+510             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
 511             \{
-512                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-513             \}
-514             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-515 
-516             rtcConfig.close();
-517             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
-518             
-519             \textcolor{keywordflow}{if}(!rtcConfig)
-520             \{
-521             
-522 \textcolor{preprocessor}{            #if DEBUG == 1}
-523 
-524                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /rtcConfig.json"}) );
-525                 Serial.println();
+512 
+513                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=json[\textcolor{stringliteral}{"timeSync"}];
+514             \}
+515             \textcolor{keywordflow}{else}
+516             \{
+517                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
+518             \}
+519             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
+520 
+521             rtcConfig.close();
+522             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
+523             
+524             \textcolor{keywordflow}{if}(!rtcConfig)
+525             \{
 526             
-527 \textcolor{preprocessor}{            #endif}
+527 \textcolor{preprocessor}{            #if DEBUG == 1}
 528 
-529                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-530             \}
+529                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /rtcConfig.json"}) );
+530                 Serial.println();
 531             
-532             json.printTo(rtcConfig);
-533             rtcConfig.close();
-534 
-535 \textcolor{preprocessor}{        #if DEBUG == 1 }
-536 
-537             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
-538             json.printTo(Serial);
-539             Serial.println();
-540         
-541 \textcolor{preprocessor}{        #endif}
-542         
-543             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-544         \}
-545     \}   
-546 
-547 
-548 
-549 \}
+532 \textcolor{preprocessor}{            #endif}
+533 
+534                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+535             \}
+536             
+537             json.printTo(rtcConfig);
+538             rtcConfig.close();
+539 
+540 \textcolor{preprocessor}{        #if DEBUG == 1 }
+541 
+542             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
+543             json.printTo(Serial);
+544             Serial.println();
+545         
+546 \textcolor{preprocessor}{        #endif}
+547         
+548             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+549         \}
+550     \}   
+551 
+552 
+553 
+554 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{classCoolTime_a87c28260c1bc77091162cbcf1ee2e129_icgraph}
+\includegraphics[width=299pt]{classCoolTime_a87c28260c1bc77091162cbcf1ee2e129_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{classCoolTime_a014656d0d3f74d6391364b92b13e0780}\label{classCoolTime_a014656d0d3f74d6391364b92b13e0780}} 
@@ -329,7 +335,7 @@ formatted string of the input digit
 \end{DoxyReturn}
 
 
-Definition at line 691 of file Cool\+Time.\+cpp.
+Definition at line 716 of file Cool\+Time.\+cpp.
 
 
 
@@ -337,39 +343,40 @@ Referenced by get\+E\+S\+Date(), get\+Time\+Date(), and set\+Date\+Time().
 
 
 \begin{DoxyCode}
-692 \{
-693 
-694 \textcolor{preprocessor}{#if DEBUG == 1 }
-695 
-696     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.formatDigits()"}) );
-697     Serial.println();
-698 
-699 \textcolor{preprocessor}{#endif }
-700 
-701     \textcolor{keywordflow}{if}(digits < 10)
-702     \{
-703     
-704 \textcolor{preprocessor}{    #if DEBUG == 1}
-705 
-706         Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
-707         Serial.println( String(\textcolor{stringliteral}{"0"}) + String(digits) );
-708 
-709 \textcolor{preprocessor}{    #endif}
-710 
-711         \textcolor{keywordflow}{return}( String(\textcolor{stringliteral}{"0"}) + String(digits) );
-712     \}
-713     
-714 \textcolor{preprocessor}{#if DEBUG == 1 }
-715 
-716     Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
-717     Serial.println(digits);
+717 \{
 718 
-719 \textcolor{preprocessor}{#endif}
+719 \textcolor{preprocessor}{#if DEBUG == 1 }
 720 
-721     \textcolor{keywordflow}{return}( String(digits) );
-722 \}
+721     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.formatDigits()"}) );
+722     Serial.println();
+723 
+724 \textcolor{preprocessor}{#endif }
+725 
+726     \textcolor{keywordflow}{if}(digits < 10)
+727     \{
+728     
+729 \textcolor{preprocessor}{    #if DEBUG == 1}
+730 
+731         Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
+732         Serial.println( String(\textcolor{stringliteral}{"0"}) + String(digits) );
+733 
+734 \textcolor{preprocessor}{    #endif}
+735 
+736         \textcolor{keywordflow}{return}( String(\textcolor{stringliteral}{"0"}) + String(digits) );
+737     \}
+738     
+739 \textcolor{preprocessor}{#if DEBUG == 1 }
+740 
+741     Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
+742     Serial.println(digits);
+743 
+744 \textcolor{preprocessor}{#endif}
+745 
+746     \textcolor{keywordflow}{return}( String(digits) );
+747 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -432,14 +439,16 @@ Referenced by set\+Date\+Time(), and Cool\+Board\+::user\+Data().
 220     \textcolor{keywordflow}{return} (elasticSearchString);
 221 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolTime_ac4f32ee513c1328d984306645e8785a4_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -486,7 +495,8 @@ Referenced by is\+Time\+Sync().
 244     \textcolor{keywordflow}{return}(this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync});
 245 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -581,14 +591,16 @@ Referenced by update().
 359     \textcolor{keywordflow}{return} 0; \textcolor{comment}{// return 0 if unable to get the time}
 360 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolTime_a41fbbbfd651c2079f54d4b2911e4c705_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -654,14 +666,16 @@ Referenced by get\+E\+S\+Date(), and Cool\+Board\+::read\+Sensors().
 182     \textcolor{keywordflow}{return}(tm);
 183 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolTime_a7a7501c5ca77dd1248bea704c44f986c_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -725,14 +739,16 @@ Referenced by update().
 287     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
 288 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolTime_a5ae038a4498602b189f76a10bf02adf8_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -747,7 +763,7 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{classCoolTime_af355e7f9b3898211cd2ff25eab5933b1}{Cool\+Time\+::print\+Conf()}\+: This method is provided to print the \hyperlink{classCoolTime}{Cool\+Time} configuration to the Serial Monitor 
 
-Definition at line 664 of file Cool\+Time.\+cpp.
+Definition at line 689 of file Cool\+Time.\+cpp.
 
 
 
@@ -759,25 +775,26 @@ Referenced by Cool\+Board\+::begin().
 
 
 \begin{DoxyCode}
-665 \{
-666 
-667 \textcolor{preprocessor}{#if DEBUG == 1}
-668 
-669     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.printConf()"}) );
-670     Serial.println();
-671 
-672 \textcolor{preprocessor}{#endif }
-673 
-674     Serial.println(\textcolor{stringliteral}{"RTC Configuration"}) ;
-675 
-676     Serial.print(\textcolor{stringliteral}{"timeServer : "});
-677     Serial.println(\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer});
-678     
-679     Serial.print(\textcolor{stringliteral}{"localPort : :"});
-680     Serial.println(\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort});
-681 \}
+690 \{
+691 
+692 \textcolor{preprocessor}{#if DEBUG == 1}
+693 
+694     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.printConf()"}) );
+695     Serial.println();
+696 
+697 \textcolor{preprocessor}{#endif }
+698 
+699     Serial.println(\textcolor{stringliteral}{"RTC Configuration"}) ;
+700 
+701     Serial.print(\textcolor{stringliteral}{"timeServer : "});
+702     Serial.println(\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer});
+703     
+704     Serial.print(\textcolor{stringliteral}{"localPort : :"});
+705     Serial.println(\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort});
+706 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -797,7 +814,7 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 560 of file Cool\+Time.\+cpp.
+Definition at line 565 of file Cool\+Time.\+cpp.
 
 
 
@@ -809,104 +826,125 @@ Referenced by update().
 
 
 \begin{DoxyCode}
-561 \{
-562     Serial.println( F(\textcolor{stringliteral}{"Enter CoolTime.saveTimeSync()"}) );
-563     Serial.println();
-564 
-565     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
-566 
-567     \textcolor{keywordflow}{if} (!rtcConfig) 
-568     \{
-569         Serial.println( F(\textcolor{stringliteral}{"failed to read /rtcConfig.json"}) );
-570         Serial.println();
+566 \{
+567     Serial.println( F(\textcolor{stringliteral}{"Enter CoolTime.saveTimeSync()"}) );
+568     Serial.println();
+569 
+570     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
 571 
-572         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-573     \}
-574     \textcolor{keywordflow}{else}
-575     \{
-576         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
-577         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-578         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-579 
-580         rtcConfig.readBytes(buf.get(), size);
-581         DynamicJsonBuffer jsonBuffer;
-582         JsonObject& json = jsonBuffer.parseObject(buf.get());
-583         \textcolor{keywordflow}{if} (!json.success()) 
-584         \{
-585             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-586             Serial.println();
-587 
-588             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-589         \} 
-590         \textcolor{keywordflow}{else}
-591         \{   
-592             Serial.println( F(\textcolor{stringliteral}{"configuration json is :"}) );
-593             json.printTo(Serial);
-594             Serial.println();
-595 
-596             String ip;
-597                     
-598             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
-599             \{           
-600                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
-601                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
-602                 
-603             \}
-604             \textcolor{keywordflow}{else}
-605             \{
-606                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer};
-607             \}
-608             json[\textcolor{stringliteral}{"timeServer"}]=ip;
-609             
-610             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
-611             \{                       
-612                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
-613             \}
-614             \textcolor{keywordflow}{else}
-615             \{
-616                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-617             \}
-618             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-619 
-620 
-621             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
-622             \{
-623                 json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-624             \}
-625             \textcolor{keywordflow}{else}
-626             \{
-627                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-628             \}
-629             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-630 
-631 
-632             rtcConfig.close();
-633             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
-634             
-635             \textcolor{keywordflow}{if}(!rtcConfig)
-636             \{
-637                 Serial.println( F(\textcolor{stringliteral}{"failed to write timeSync to /rtcConfig.json"}) );
-638                 Serial.println();
-639 
-640                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-641             \}
-642             
-643             json.printTo(rtcConfig);
-644             rtcConfig.close();
-645 
-646             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
-647             json.printTo(Serial);
-648             Serial.println();
-649         
-650             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-651         \}
-652     \}   
-653 
-654 
-655 
-656 \}
+572     \textcolor{keywordflow}{if} (!rtcConfig) 
+573     \{
+574         Serial.println( F(\textcolor{stringliteral}{"failed to read /rtcConfig.json"}) );
+575         Serial.println();
+576 
+577         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+578     \}
+579     \textcolor{keywordflow}{else}
+580     \{
+581         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
+582         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+583         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+584 
+585         rtcConfig.readBytes(buf.get(), size);
+586         DynamicJsonBuffer jsonBuffer;
+587         JsonObject& json = jsonBuffer.parseObject(buf.get());
+588         \textcolor{keywordflow}{if} (!json.success()) 
+589         \{
+590 \textcolor{preprocessor}{        #if DEBUG == 1}
+591 
+592             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+593             Serial.println();
+594         
+595 \textcolor{preprocessor}{        #endif}
+596 
+597             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+598         \} 
+599         \textcolor{keywordflow}{else}
+600         \{
+601 
+602 \textcolor{preprocessor}{        #if DEBUG == 1}
+603     
+604             Serial.println( F(\textcolor{stringliteral}{"configuration json is :"}) );
+605             json.printTo(Serial);
+606             Serial.println();
+607 
+608             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+609             Serial.println(jsonBuffer.size());
+610             Serial.println();
+611 
+612 \textcolor{preprocessor}{        #endif}
+613 
+614             String ip;
+615                     
+616             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
+617             \{           
+618                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
+619                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
+620                 
+621             \}
+622             \textcolor{keywordflow}{else}
+623             \{
+624                 this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{classCoolTime_ad2b9858f399108cb440dd1e908916f04}{timeServer};
+625             \}
+626             json[\textcolor{stringliteral}{"timeServer"}]=ip;
+627             
+628             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
+629             \{                       
+630                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
+631             \}
+632             \textcolor{keywordflow}{else}
+633             \{
+634                 this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
+635             \}
+636             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{classCoolTime_a2f777da44d7ba678be8185299e9b49d1}{localPort};
+637 
+638 
+639             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
+640             \{
+641                 json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
+642             \}
+643             \textcolor{keywordflow}{else}
+644             \{
+645                 this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
+646             \}
+647             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{classCoolTime_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
+648 
+649 
+650             rtcConfig.close();
+651             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
+652             
+653             \textcolor{keywordflow}{if}(!rtcConfig)
+654             \{
+655 \textcolor{preprocessor}{            #if DEBUG == 1}
+656 
+657                 Serial.println( F(\textcolor{stringliteral}{"failed to write timeSync to /rtcConfig.json"}) );
+658                 Serial.println();
+659             
+660 \textcolor{preprocessor}{            #endif}
+661 
+662                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+663             \}
+664             
+665             json.printTo(rtcConfig);
+666             rtcConfig.close();
+667     
+668 \textcolor{preprocessor}{        #if DEBUG == 1}
+669 
+670             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
+671             json.printTo(Serial);
+672             Serial.println();
+673         
+674 \textcolor{preprocessor}{        #endif}
+675             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+676         \}
+677     \}   
+678 
+679 
+680 
+681 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -961,7 +999,8 @@ Referenced by get\+Ntp\+Time().
 393     \hyperlink{classCoolTime_a4e23216a8121ca79d0fb019f30884b92}{Udp}.endPacket(); 
 394 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1030,7 +1069,8 @@ References format\+Digits(), get\+E\+S\+Date(), and rtc.
 140 
 141 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1084,14 +1124,16 @@ Referenced by begin(), and Cool\+Board\+::on\+Line\+Mode().
 88     
 89 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolTime_aae601f795452cfa48d9fb337aed483a8_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
