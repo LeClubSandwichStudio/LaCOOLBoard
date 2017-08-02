@@ -354,7 +354,7 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data )
 /**
 *	CoolFileSystem::updateConfigFiles( mqtt answer ):
 *	This method is provided to update the configuration files when
-*	the appropriate mqtt answer is received:	-update : 1
+*	the appropriate mqtt answer is received
 *
 *	\return true if the files are updated correctly,
 *	false otherwise

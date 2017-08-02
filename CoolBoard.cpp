@@ -147,7 +147,7 @@ int CoolBoard::connect()
 		Serial.println();
 
 	#endif	
-	
+		//logInterval in seconds
 		mqtt.connect(this -> getLogInterval());
 		delay(100);
 		
@@ -338,7 +338,8 @@ void CoolBoard::onLineMode()
 	if( this->sleepActive==0)	
 	{	
 		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
-	
+		
+		//logInterval in seconds
 		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 		mqtt.mqttLoop();
 	
@@ -351,6 +352,8 @@ void CoolBoard::onLineMode()
 		mqtt.mqttLoop();
 		answer = mqtt.read();
 		this ->update(answer.c_str());
+
+		//logInterval in seconds
 		this->sleep( this->getLogInterval() ) ;
 	}
 
@@ -996,7 +999,7 @@ String CoolBoard::userData()
 *	CoolBoard::sleep(int interval):
 *	This method is provided to allow the
 *	board to enter deepSleep mode for
-*	a period of time equal to interval in ms 
+*	a period of time equal to interval in s 
 */
 void CoolBoard::sleep(int interval)
 {
@@ -1010,6 +1013,6 @@ void CoolBoard::sleep(int interval)
 	Serial.println();
 
 #endif
-
-	ESP.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
+	//interval is in seconds , interval*1000*1000 in µS
+	ESP.deepSleep ( ( interval * 1000 * 1000 ), WAKE_RF_DEFAULT) ;
 }

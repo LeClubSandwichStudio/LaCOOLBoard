@@ -15,7 +15,7 @@ void setup()
   	coolBoard.printConf();	
 
 	Serial.print("one log every ");
-	Serial.print(coolBoard.getLogInterval()/1000);
+	Serial.print(coolBoard.getLogInterval());
 	Serial.println(" s " );
 }
 

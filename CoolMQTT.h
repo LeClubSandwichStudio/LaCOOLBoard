@@ -26,7 +26,7 @@ public:
 
 	void begin();
 
-	int connect(unsigned long keepAlive);
+	int connect(unsigned long keepAlive); //keepAlive in seconds
 
 	bool publish(const char* data);
 

@@ -85,7 +85,7 @@ int CoolMQTT::state()
 }
 
 /**
-*	CoolMQTT::connect( time to keep the connection alive ):
+*	CoolMQTT::connect( time to keep the connection alive in seconds ):
 *	This method is provided to connect the client to the server,
 *	publish to the out topic , subscribe to the in topic and set
 *	the keepAlive time.
@@ -97,8 +97,6 @@ int CoolMQTT::connect(unsigned long keepAlive)
 
 	int i=0;
 
-	uint16_t keepAliveSeconds = keepAlive/1000;
-
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolMQTT.connect()") );
@@ -109,7 +107,7 @@ int CoolMQTT::connect(unsigned long keepAlive)
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user,keepAliveSeconds  ) )
+		if( this->client.connect( this-> user,keepAlive*10  ) )
 		{
 			client.subscribe( this->inTopic );
 
@@ -186,7 +184,7 @@ bool CoolMQTT::publish(const char* data)
 /**
 *	CoolMQTT::publish(data):
 *	This method is provided to publish data
-*	to the out topic every logInterval ms
+*	to the out topic every logInterval in seconds
 *
 *	\return true if publish successful,
 *	false otherwise
@@ -200,8 +198,8 @@ bool CoolMQTT::publish(const char* data,unsigned long logInterval)
 	Serial.println();
 
 #endif 
-	
-	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval ) )
+	//log interval is passed in seconds, logInteral*1000 = logInterval in ms
+	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval*1000 ) )
 	{
 	
 	#if DEBUG == 1
