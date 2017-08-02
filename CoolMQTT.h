@@ -26,11 +26,11 @@ public:
 
 	void begin();
 
-	int connect(uint16_t keepAlive);
+	int connect(unsigned long keepAlive);
 
 	bool publish(const char* data);
 
-	bool publish(const char* data,int logInterval);
+	bool publish(const char* data,unsigned long logInterval);
 
 	String read();
 

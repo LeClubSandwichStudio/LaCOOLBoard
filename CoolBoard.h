@@ -88,7 +88,7 @@ private:
 
 	bool sleepActive=0;	
 
-	uint16_t logInterval=1000;//ms
+	unsigned long logInterval=1000;//ms
 
 	int serverTimeOut=180;
 

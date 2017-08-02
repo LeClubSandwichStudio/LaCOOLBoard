@@ -92,10 +92,12 @@ int CoolMQTT::state()
 *	
 *	\return mqtt client state
 */
-int CoolMQTT::connect(uint16_t keepAlive)
+int CoolMQTT::connect(unsigned long keepAlive)
 {       
 
 	int i=0;
+
+	uint16_t keepAliveSeconds = keepAlive/1000;
 
 #if DEBUG == 1 
 
@@ -103,11 +105,11 @@ int CoolMQTT::connect(uint16_t keepAlive)
 	Serial.println( F("MQTT connecting...") );
 
 #endif
-
+	
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user, keepAlive ) )
+		if( this->client.connect( this-> user,keepAliveSeconds  ) )
 		{
 			client.subscribe( this->inTopic );
 
@@ -189,7 +191,7 @@ bool CoolMQTT::publish(const char* data)
 *	\return true if publish successful,
 *	false otherwise
 */
-bool CoolMQTT::publish(const char* data,int logInterval)
+bool CoolMQTT::publish(const char* data,unsigned long logInterval)
 {
 
 #if DEBUG == 1 
@@ -296,7 +298,7 @@ void CoolMQTT::callback(char* topic, byte* payload, unsigned int length)
 		
 	#endif
 		
-		for (int i = 0; i < length; i++) 
+		for (unsigned int i = 0; i < length; i++) 
 		{
 			temp[i]=(char)payload[i];
 		
