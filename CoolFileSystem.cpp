@@ -889,6 +889,48 @@ bool CoolFileSystem::isDataSaved()
 
 	Serial.println( F("Entering CoolFileSystem.isDataSaved()") );
 	Serial.println();
+#endif
+
+	File sensorsData=SPIFFS.open("/sensorsData.json","r");
+	File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","r");
+	
+	if( (!sensorsData)||(!sensorsDataCSV) )	
+	{
+	#if DEBUG == 1
+
+		Serial.println( F("failed to open files") );
+
+	#endif
+		
+		this->savedData=false;
+	}
+	else
+	{		
+		#if DEBUG == 1
+
+			Serial.print(F("sensors Data file size : "));
+			Serial.println(sensorsData.size());
+			Serial.println();
+			
+			Serial.print(F("sensors Data CSV file size : "));				
+			Serial.println(sensorsDataCSV.size());
+			Serial.println();
+		#endif	
+
+		if( (sensorsData.size()!=0) || (sensorsDataCSV.size()!=0) )
+		{
+			this->savedData=true;
+		}
+		else
+		{
+
+			this->savedData=false;		
+		
+		}	
+	}
+
+#if DEBUG == 1 
+
 	Serial.print( F("savedData : ") );
 	Serial.println(this->savedData);
 
@@ -967,7 +1009,7 @@ String CoolFileSystem::getSensorSavedData()
 
 			//delete data in the file
 			File sensorsData=SPIFFS.open("/sensorsData.json","w");
-			File sensorsDataCSV=SPIFFS.open("/sensorsDataCSV.json","w");
+			File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","w");
 			if( (!sensorsData)||(!sensorsDataCSV) )	
 			{
 			#if DEBUG == 1

@@ -47,7 +47,8 @@ void CoolWifi::begin()
 	{
 		 this->wifiMulti.addAP(this->ssid[i].c_str() , this->pass[i].c_str() );	
 	}
-	
+
+	this->wifiManager.setRemoveDuplicateAPs(true);
 	this->wifiManager.setTimeout(this->timeOut);	
 	
 }
