@@ -11,6 +11,5 @@ var classCoolWifi =
     [ "ssid", "classCoolWifi.html#a893b21d0fed821438733bba2e73fb4c2", null ],
     [ "timeOut", "classCoolWifi.html#a952111605f25156588b5632caaba1c6f", null ],
     [ "wifiCount", "classCoolWifi.html#ab133bd92fcb895b884deecd6678592e4", null ],
-    [ "wifiManager", "classCoolWifi.html#a80dd24fdc56e863f5eb9947dd65a433a", null ],
     [ "wifiMulti", "classCoolWifi.html#a7862a8c0d7239877e2956c14a368aab8", null ]
 ];

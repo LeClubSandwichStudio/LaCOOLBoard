@@ -189,8 +189,7 @@ var NAVTREEINDEX0 =
 "classCoolWifi.html#a1c7b4d82a4098d346e7593dce92039fa":[0,0,7,6],
 "classCoolWifi.html#a46942fed90e475112cc10b78a32e7aaa":[0,0,7,1],
 "classCoolWifi.html#a4eb2f6b9b09dd588964b88b6c70122c0":[0,0,7,2],
-"classCoolWifi.html#a7862a8c0d7239877e2956c14a368aab8":[0,0,7,12],
-"classCoolWifi.html#a80dd24fdc56e863f5eb9947dd65a433a":[0,0,7,11],
+"classCoolWifi.html#a7862a8c0d7239877e2956c14a368aab8":[0,0,7,11],
 "classCoolWifi.html#a871d4a0d9978f17fdf6d874fc2958b6c":[0,0,7,3],
 "classCoolWifi.html#a893b21d0fed821438733bba2e73fb4c2":[0,0,7,8],
 "classCoolWifi.html#a914d7a1df14dd6b75345fb614c34e9d6":[0,0,7,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX0 =
 "classJetpack.html#a58ebb991f358f3ae94e82148b0221b5a":[0,0,13,9],
 "classJetpack.html#a5a53e1ebf7aaf3bf3e0d37ea64ca09a7":[0,0,13,1],
 "classJetpack.html#a79ae7bc3c1828a0551a7c005c4f8bd00":[0,0,13,6],
-"classJetpack.html#a7e16d2f97837f9712a2e6de1c50d99db":[0,0,13,8]
+"classJetpack.html#a7e16d2f97837f9712a2e6de1c50d99db":[0,0,13,8],
+"classJetpack.html#a81df984fb4cea98c71aa1a1cfcdfe814":[0,0,13,11]
 };
