@@ -348,12 +348,18 @@ void CoolBoard::onLineMode()
 		coolBoardLed.strobe(230,255,0,0.5);//shade of yellow	
 
 		mqtt.publish(jsonData.c_str());		
-		this->sleep( this->getLogInterval() ) ;
 		mqtt.mqttLoop();
+		answer = mqtt.read();
+		this->sleep( this->getLogInterval() ) ;
 	}
 
 	coolBoardLed.fadeOut(128,255,50,0.5);//shade of green		
-		
+	mqtt.mqttLoop();
+
+	coolBoardLed.blink(128,255,50,0.5);//shade of green	
+
+	//read mqtt answer
+	answer = mqtt.read();
 		
 }
 
