@@ -25,7 +25,9 @@ class CoolFileSystem
 public:
 	bool begin(); 
 
-	bool updateConfigFiles(String answer );	
+	bool updateConfigFiles(String answer );
+	
+	bool fileUpdate(String update,const char* path);	
 	
 	bool saveSensorData(const char* data );
 	

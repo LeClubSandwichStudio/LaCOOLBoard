@@ -47,11 +47,11 @@ public:
 
 	int connect();
 
-	uint16_t getLogInterval();
+	unsigned long getLogInterval();
 
 	void printConf();
 
-	void sleep(int interval);
+	void sleep(unsigned long interval);
 
 	String readSensors();
 	

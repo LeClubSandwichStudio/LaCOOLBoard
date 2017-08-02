@@ -67,7 +67,7 @@ bool CoolFileSystem::saveSensorData(const char* data )
 
 #endif
 	
-	File sensorsData=SPIFFS.open("/sensorsData.json","a+");
+	File sensorsData=SPIFFS.open("/sensorsData.json","a");
 
 	if(!sensorsData)
 	{
@@ -433,29 +433,11 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonCoolBoard.success())
 	{
-		File coolBoardConfig = SPIFFS.open("/coolBoardConfig.json", "w");	
-		if(!coolBoardConfig)
-		{	
-		#if DEBUG == 1
-			
-			Serial.println( F("failed to write to coolBoardConfig.json") );
-
-		#endif
-			return(false);
-		}
-		
-		jsonCoolBoard.printTo(coolBoardConfig);
-		
-		coolBoardConfig.close();
-
-
-	#if DEBUG == 1
-
-		Serial.println( F("CoolBoard Config") );
-		jsonCoolBoard.printTo(Serial);
-		Serial.println();
+		String update;
 	
-	#endif
+		jsonCoolBoard.printTo(update);
+
+		this->fileUpdate(update,"/coolBoardConfig.json");		
 		
 	}
 	else
@@ -482,28 +464,11 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 	
 	if(jsonSensorsBoard.success())
 	{	
-		File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");	
-		if(!coolBoardSensorsConfig)
-		{
-		#if DEBUG == 1 
-		
-			Serial.println( F("failed to write coolBoardSensors.json") );
+		String update;
+	
+		jsonSensorsBoard.printTo(update);
 
-		#endif
-
-			return(false);
-		}
-		
-		jsonSensorsBoard.printTo(coolBoardSensorsConfig);
-		coolBoardSensorsConfig.close();
-
-	#if DEBUG == 1
-
-		Serial.println("CoolBoardSensors Config");
-		jsonSensorsBoard.printTo(Serial);
-		Serial.println();
-
-	#endif
+		this->fileUpdate(update,"/coolBoardSensorsConfig.json");		
 
 	}
 	else
@@ -516,8 +481,7 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 	#endif
 
 	}
-	
-	
+
 	
 	//rtc configuration file
     	JsonObject& jsonRTC=root["rtc"];
@@ -530,31 +494,11 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 #endif
 	if(jsonRTC.success() )
 	{
-		File rtcConfig = SPIFFS.open("/rtcConfig.json", "w");	
-		if(!rtcConfig)
-		{
-		
-		#if DEBUG == 1 
+		String update;
 
-			Serial.println( F("failed to write rtcConfig.json") );
+		jsonRTC.printTo(update);
 
-		#endif
-
-			return(false);
-		}
-
-		jsonRTC.printTo(rtcConfig);
-		rtcConfig.close();
-
-	#if DEBUG == 1 
-
-		Serial.println( F("RTC Config") );
-		jsonRTC.printTo(Serial);
-		Serial.println();
-	
-	#endif
-
-	
+		this->fileUpdate(update,"/rtcConfig.json");			
 	}
 	else
 	{
@@ -566,9 +510,6 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 	#endif
 
 	}
-
-	
-	
 	
 	
         //cool board led configuration
@@ -583,30 +524,11 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonLedBoard.success())
 	{	
-		File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");	
-		if(!coolBoardLedConfig)
-		{
-		
-		#if DEBUG == 1 
-		
-			Serial.println( F("failed to write led config") );
-		
-		#endif
-
-			return(false);
-		}
-		
-		jsonLedBoard.printTo(coolBoardLedConfig);
-		coolBoardLedConfig.close();
-
-
-	#if DEBUG == 1 
-
-		Serial.println( F("CoolBoardLed Config") );		
-		jsonLedBoard.printTo(Serial);
-		Serial.println();
+		String update;
 	
-	#endif
+		jsonLedBoard.printTo(update);
+
+		this->fileUpdate(update,"/coolBoardLedConfig.json");		
 
 	
 	}
@@ -635,29 +557,13 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 #endif
 
 	if(jsonJetpack.success())
-	{	
-		File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");	
-		if(!jetPackConfig)
-		{
-		#if DEBUG == 1
-
-			Serial.println( F("failed to write jetpack file") );
-		
-		#endif
-
-			return(false);
-		}
-
-		jsonJetpack.printTo(jetPackConfig);
-		jetPackConfig.close();
-
-	#if DEBUG == 1
-
-		Serial.println( F("jetpack Config") );	
-		jsonJetpack.printTo(Serial);
-		Serial.println();
+	{
 	
-	#endif
+		String update;
+	
+		jsonJetpack.printTo(update);
+
+		this->fileUpdate(update,"/jetPackConfig.json");		
 
 	}
 
@@ -684,29 +590,12 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonIrene.success())
 	{
-		File irene3000Config = SPIFFS.open("/irene3000Config.json", "w");	
-		if(!irene3000Config)
-		{
 
-		#if DEBUG == 1 
-
-			Serial.println( F("failed to write irene file") );
-		
-		#endif
-
-			return(false);
-		}
-
-		jsonIrene.printTo(irene3000Config);
-		irene3000Config.close();
+		String update;
 	
-	#if DEBUG == 1 
-		
-		Serial.println( F("irene3000 Config") );
-		jsonIrene.printTo(Serial);
-		Serial.println();
-	
-	#endif
+		jsonIrene.printTo(update);
+
+		this->fileUpdate(update,"/irene3000Config.json");		
 	
 	}
 	else
@@ -733,30 +622,12 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonExternalSensors.success())
 	{
-		File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");	
-		if(!externalSensorsConfig)
-		{
-		
-		#if DEBUG == 1 
 
-			Serial.println( F("failed to open external sensors file ") );
-		
-		#endif 
+		String update;
+	
+		jsonExternalSensors.printTo(update);
 
-			return(false);
-		}
-
-		jsonExternalSensors.printTo(externalSensorsConfig);	
-		externalSensorsConfig.close();
-
-#if DEBUG == 1 
-		
-		Serial.println( F("externalSensors Config") );
-		jsonExternalSensors.printTo(Serial);
-		Serial.println();
-
-#endif 
-
+		this->fileUpdate(update,"/externalSensorsConfig.json");		
 
 	}
 
@@ -785,29 +656,12 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonMQTT.success())
 	{
-		File mqttConfig = SPIFFS.open("/mqttConfig.json", "w");	
-		if(!mqttConfig)
-		{
-		
-		#if DEBUG == 1 
 
-			Serial.println( F("failed to open mqtt file ") );
-		
-		#endif
-		
-			return(false);
-		}
-			
-		jsonMQTT.printTo(mqttConfig);
-		mqttConfig.close();
+		String update;
+	
+		jsonMQTT.printTo(update);
 
-#if DEBUG == 1 
-
-		Serial.println( F("mqtt config") );
-		jsonMQTT.printTo(Serial);
-		Serial.println();
-
-#endif
+		this->fileUpdate(update,"/mqttConfig.json");		
 
 	}
 	else
@@ -834,28 +688,13 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 
 	if(jsonWifi.success())
 	{
-		File wifiConfig = SPIFFS.open("/wifiConfig.json", "w");	
-		if(!wifiConfig)
-		{
-		
-		#if DEBUG == 1 
 
-			Serial.println( F("failed to open wifi file ") );
-		
-		#endif
-		
-			return(false);
-		}
+		String update;
+	
+		jsonWifi.printTo(update);
 
-		jsonWifi.printTo(wifiConfig);
-		wifiConfig.close();
+		this->fileUpdate(update,"/wifiConfig.json");		
 
-#if DEBUG == 1 
-
-		Serial.println( F("wifi config") );
-		jsonWifi.printTo(Serial);
-
-#endif
 	}
 	else
 	{
@@ -1049,3 +888,150 @@ String CoolFileSystem::getSensorSavedData()
 
 }
 
+/**
+*	CoolFileSystem::fileUpdate( update msg, file path):
+*	This method is provided to ensure the 
+*	correct update for each configuration file in the
+*	File system
+*
+*	\return true if successful , false otherwise
+*
+*/
+bool CoolFileSystem::fileUpdate(String update,const char* path)
+{
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolFileSystem.fileUpdate()") );
+	Serial.println();
+	
+	Serial.println(F("update msg is :"));
+	Serial.println(update);
+	
+	Serial.println(F("file path is : "));
+	Serial.println(path);	
+
+#endif
+	//transfer update String to json
+	DynamicJsonBuffer updateBuffer;
+	JsonObject& updateJson = updateBuffer.parseObject(update.c_str() );
+	
+	if(updateJson.success())
+	{
+	
+	#if DEBUG ==1
+		
+		Serial.println(F("root parsing success :"));
+		updateJson.printTo(Serial);
+	
+	#endif
+
+	}
+	else
+	{
+	
+	#if DEBUG == 1 
+	
+		Serial.println(F("root parsing failure "));
+	
+	#endif
+		
+		return(false);	
+
+	}
+	
+	//open file in read mode
+	File configFile = SPIFFS.open( path , "r");
+	
+	if(!configFile)
+	{	
+	#if DEBUG == 1
+		
+		Serial.print( F("failed to read ") );
+		Serial.println(path);
+
+	#endif
+		return(false);
+	}
+
+	//copy file to a json
+	size_t size = configFile.size();
+
+	// Allocate a buffer to store contents of the file.
+	std::unique_ptr < char[] > buf(new char[size]);
+
+	configFile.readBytes(buf.get(), size);
+
+	DynamicJsonBuffer fileBuffer;
+
+	JsonObject & fileJson = fileBuffer.parseObject(buf.get());
+
+	if (!fileJson.success())
+	{
+
+	#if DEBUG == 1
+
+		Serial.println( F("failed to parse json") );
+
+	#endif
+
+		return(false);
+	}
+	
+	//modify root to contain all the json keys: updated ones and non updated ones
+	for (auto kv : fileJson) 
+	{
+		if( updateJson[kv.key].success() )
+		{
+			fileJson[kv.key]=updateJson[kv.key];			
+		}
+		else
+		{
+			fileJson[kv.key]=fileJson[kv.key];
+		}
+
+				
+	}
+
+#if DEBUG == 1
+
+	Serial.println(F("fileJson is now : "));
+	fileJson.printTo(Serial);
+
+#endif
+
+	//close the file
+	configFile.close();
+
+	//open file in w mode
+	configFile = SPIFFS.open( path , "w");
+	
+	if(!configFile)
+	{	
+	#if DEBUG == 1
+		
+		Serial.print( F("failed to open ") );
+		Serial.println(path);
+
+	#endif
+		return(false);
+	}
+	//print json to file	
+	
+	fileJson.printTo(configFile);
+	
+	//close file
+	configFile.close();
+
+
+#if DEBUG == 1
+
+	Serial.println( F("config is") );
+	fileJson.printTo(Serial);
+	Serial.println();
+
+#endif
+	
+	return(true);
+	
+}

@@ -859,9 +859,9 @@ void CoolBoard::update(const char * answer)
 *	This method is provided to get
 *	the log interval
 *
-*	\return interval value in ms
+*	\return interval value in s
 */
-uint16_t CoolBoard::getLogInterval()
+unsigned long CoolBoard::getLogInterval()
 {
 
 #if DEBUG == 1
@@ -1001,7 +1001,7 @@ String CoolBoard::userData()
 *	board to enter deepSleep mode for
 *	a period of time equal to interval in s 
 */
-void CoolBoard::sleep(int interval)
+void CoolBoard::sleep(unsigned long interval)
 {
 
 #if DEBUG == 1
@@ -1009,7 +1009,7 @@ void CoolBoard::sleep(int interval)
 	Serial.println( F("Entering CoolBoard.sleep() ") );
 	Serial.print( F("going to sleep for ") );
 	Serial.print(interval);
-	Serial.println(F("ms") );
+	Serial.println(F("s") );
 	Serial.println();
 
 #endif
