@@ -47,9 +47,6 @@ void CoolWifi::begin()
 	{
 		 this->wifiMulti.addAP(this->ssid[i].c_str() , this->pass[i].c_str() );	
 	}
-
-	this->wifiManager.setRemoveDuplicateAPs(true);
-	this->wifiManager.setTimeout(this->timeOut);	
 	
 }
 
@@ -139,7 +136,18 @@ wl_status_t CoolWifi::connect()
 		Serial.println();
 	
 	#endif
-		if(!wifiManager.autoConnect("CoolBoardAP")) 
+		WiFiManager wifiManager;
+		
+		wifiManager.setRemoveDuplicateAPs(true);
+	
+		wifiManager.setTimeout(this->timeOut);
+		
+		String tempMAC = WiFi.macAddress();
+		tempMAC.replace(":","");
+	
+		String name="CoolBoardAP"+tempMAC;	
+
+		if(!wifiManager.autoConnect(name.c_str())) 
 		{
 		
 		#if DEBUG == 1

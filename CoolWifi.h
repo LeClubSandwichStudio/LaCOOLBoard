@@ -45,9 +45,7 @@ public:
 	bool addWifi( String ssid , String pass="" );
 
 private:
-	
-	WiFiManager wifiManager;
-	
+		
 	ESP8266WiFiMulti wifiMulti;
 	
 	int wifiCount=0;
