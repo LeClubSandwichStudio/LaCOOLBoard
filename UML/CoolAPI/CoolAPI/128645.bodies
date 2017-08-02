@@ -19,8 +19,6 @@ class CoolMQTT
 
 	int i=0;
 
-	uint16_t keepAliveSeconds = keepAlive/1000;
-
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolMQTT.connect()") );
@@ -31,7 +29,7 @@ class CoolMQTT
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user,keepAliveSeconds  ) )
+		if( this->client.connect( this-> user,keepAlive*10  ) )
 		{
 			client.subscribe( this->inTopic );
 
@@ -100,8 +98,8 @@ class CoolMQTT
 	Serial.println();
 
 #endif 
-	
-	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval ) )
+	//log interval is passed in seconds, logInteral*1000 = logInterval in ms
+	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval*1000 ) )
 	{
 	
 	#if DEBUG == 1
@@ -492,9 +490,10 @@ class CoolMQTT
 
 #endif	
 
-	while( ( millis() - lastTime ) < 5000)
+	while( ( millis() - lastTime ) < 1000)
 	{
-		this->client.loop();	
+		this->client.loop();
+		yield();
 	}
 
 #if DEBUG == 1 

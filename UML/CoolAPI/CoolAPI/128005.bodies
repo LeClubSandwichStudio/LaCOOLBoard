@@ -627,7 +627,8 @@ class CoolBoard
 	if( this->sleepActive==0)	
 	{	
 		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
-	
+		
+		//logInterval in seconds
 		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 		mqtt.mqttLoop();
 	
@@ -640,6 +641,8 @@ class CoolBoard
 		mqtt.mqttLoop();
 		answer = mqtt.read();
 		this ->update(answer.c_str());
+
+		//logInterval in seconds
 		this->sleep( this->getLogInterval() ) ;
 	}
 
@@ -692,7 +695,7 @@ class CoolBoard
 		Serial.println();
 
 	#endif	
-	
+		//logInterval in seconds
 		mqtt.connect(this -> getLogInterval());
 		delay(100);
 		
@@ -710,7 +713,7 @@ class CoolBoard
 	coolBoardLed.blink(0,0,255,0.5);//blue
 
 	return(mqtt.state());
-!!!152965.cpp!!!	getLogInterval() : uint16_t
+!!!152965.cpp!!!	getLogInterval() : ulong
 
 #if DEBUG == 1
 
@@ -759,19 +762,19 @@ class CoolBoard
 
 
 
-!!!146437.cpp!!!	sleep(in interval : int) : void
+!!!146437.cpp!!!	sleep(in interval : ulong) : void
 
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolBoard.sleep() ") );
 	Serial.print( F("going to sleep for ") );
 	Serial.print(interval);
-	Serial.println(F("ms") );
+	Serial.println(F("s") );
 	Serial.println();
 
 #endif
-
-	ESP.deepSleep ( ( interval * 1000 ), WAKE_RF_DEFAULT) ;
+	//interval is in seconds , interval*1000*1000 in µS
+	ESP.deepSleep ( ( interval * 1000 * 1000 ), WAKE_RF_DEFAULT) ;
 !!!153093.cpp!!!	readSensors() : String
 
 	coolBoardLed.fadeIn(128,255,0,0.5);//light shade of green

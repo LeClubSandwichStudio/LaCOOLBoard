@@ -12,7 +12,7 @@ var searchData=
   ['setdatetime',['setDateTime',['../classCoolTime.html#ab81ea7fdaace111aa01cc1ec84c6d297',1,'CoolTime']]],
   ['setenvsensorsettings',['setEnvSensorSettings',['../classCoolBoardSensors.html#a406307ffd70272282d91479c7ed8d66f',1,'CoolBoardSensors']]],
   ['setgain',['setGain',['../classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34',1,'Irene3000']]],
-  ['sleep',['sleep',['../classCoolBoard.html#a5d0c8ff93b615efd676be432de9f164a',1,'CoolBoard']]],
+  ['sleep',['sleep',['../classCoolBoard.html#a069952cdcb2e7f68518aa429eceadb6e',1,'CoolBoard']]],
   ['sleepactive',['sleepActive',['../classCoolBoard.html#a0a51b2287139f66c738101fb53139230',1,'CoolBoard']]],
   ['soilmoistureactive',['soilMoistureActive',['../classCoolBoardSensors.html#a31983eecc0f9cd000e1f912206ea4dc8',1,'CoolBoardSensors']]],
   ['ssid',['ssid',['../classCoolWifi.html#a893b21d0fed821438733bba2e73fb4c2',1,'CoolWifi']]],

@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 18
+  revision 19
   modified_by 5 "ashiroji"
   // class settings
   
@@ -197,7 +197,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       end
 
       operation 152965 "getLogInterval"
-	preserve_cpp_body_indent public explicit_return_type "uint16_t"
+	preserve_cpp_body_indent public explicit_return_type "ulong"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
@@ -205,7 +205,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	This method is provided to get
 //	the log interval
 //
-//	\\return interval value in ms
+//	\\return interval value in s
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
@@ -241,13 +241,13 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       operation 146437 "sleep"
 	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 1
-	  param in name "interval" explicit_type "int"
+	  param in name "interval" explicit_type "ulong"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoard::sleep(int interval):
 //	This method is provided to allow the
 //	board to enter deepSleep mode for
-//	a period of time equal to interval in ms 
+//	a period of time equal to interval in s 
 //
 
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
@@ -450,7 +450,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 
       attribute 150789 "logInterval"
 	private explicit_type "ulong"
-	init_value "= 1000"
+	init_value "= 1"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
 	java_decl ""
@@ -459,7 +459,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	idl_decl ""
 	mysql_decl ""
 	MysqlColumn
-	comment "ms"
+	comment "s"
       end
 
       attribute 128901 "serverTimeOut"
@@ -550,13 +550,38 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 "
 	cpp_def "//	CoolFileSystem::updateConfigFiles( mqtt answer ):
 //	This method is provided to update the configuration files when
-//	the appropriate mqtt answer is received:	-update : 1
+//	the appropriate mqtt answer is received
 //
 //	\\return true if the files are updated correctly,
 //	false otherwise
 //
 
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 194181 "fileUpdate"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 2
+	  param in name "update" explicit_type "String"
+	  param in name "path" explicit_type "char"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, const ${t1} * ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolFileSystem::fileUpdate( update msg, file path):
+//	This method is provided to ensure the 
+//	correct update for each configuration file in the
+//	File system
+//
+//	\\return true if successful , false otherwise
+//
+//
+
+${inline}${type} ${class}::${name}${(}${t0} ${p0}, const ${t1} * ${p1}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -1882,7 +1907,7 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	  param in name "keepAlive" explicit_type "ulong"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolMQTT::connect( time to keep the connection alive ):
+	cpp_def "//	CoolMQTT::connect( time to keep the connection alive in seconds ):
 //	This method is provided to connect the client to the server,
 //	publish to the out topic , subscribe to the in topic and set
 //	the keepAlive time.
@@ -1920,6 +1945,7 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}
 	
 	
 	
+	comment "keepAlive in seconds"
       end
 
       operation 153605 "publish"
@@ -1931,7 +1957,7 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}
 "
 	cpp_def "//	CoolMQTT::publish(data):
 //	This method is provided to publish data
-//	to the out topic every logInterval ms
+//	to the out topic every logInterval in seconds
 //
 //	\\return true if publish successful,
 //	false otherwise
@@ -3859,6 +3885,18 @@ ${inlines}
 //	wifiManager time out 
 //
 
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -3874,6 +3912,26 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::config():
+//	This method is provided to set
+//	the wifi parameters :	-ssid
+//				-pass
+//				-AP timeOut
+//				-wifiCount	
+//
+//	\\return true if successful,false otherwise
+//
+
+//	CoolWifi::config():
+//	This method is provided to set
+//	the wifi parameters :	-ssid
+//				-pass
+//				-AP timeOut
+//				-wifiCount	
+//
+//	\\return true if successful,false otherwise
+//
+
+//	CoolWifi::config():
 //	This method is provided to set
 //	the wifi parameters :	-ssid
 //				-pass
@@ -4035,6 +4093,18 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	\\return true if successfull, false otherwise
 //
 
+//	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout );
+//	This method is provided to configure the Wifi without SPIFFS
+//	
+//	\\return true if successfull, false otherwise
+//
+
+//	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout );
+//	This method is provided to configure the Wifi without SPIFFS
+//	
+//	\\return true if successfull, false otherwise
+//
+
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2}, ${t3} ${p3}${)}${const}${throw}${staticnl}{
   ${body}}
 "
@@ -4050,6 +4120,22 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2},
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
+//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
+//	CoolWifi::connect( ):
 //	This method is provided to connect to the strongest WiFi
 //	in the provided list of wiFis.
 //	If none are found , it starts the AP mode.
@@ -4261,6 +4347,34 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //		WL_DISCONNECTED = 6
 //
 
+//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
+//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4276,6 +4390,16 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
+//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
+//	CoolWifi::printConf():
 //	This method is provided to print the
 //	configuration to the Serial Monitor
 //
@@ -4338,6 +4462,22 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
 //	This method is provided to add new WiFi
 //	detected by the WiFiManager to 
 //	the jsonConfig(if used ) 
