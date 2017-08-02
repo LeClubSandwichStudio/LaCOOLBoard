@@ -1,1 +1,409 @@
-.so man3/CoolBoard.3
+.TH "ExternalSensors" 3 "Mon Jul 31 2017" "CoolAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ExternalSensors \- This class handles the external sensors run time defintion , configuartion and actions\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <ExternalSensors\&.h>\fP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBsensor\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "String \fBread\fP ()"
+.br
+.ti -1c
+.RI "bool \fBconfig\fP ()"
+.br
+.ti -1c
+.RI "void \fBprintConf\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBExternalSensors::sensor\fP \fBsensors\fP [50]"
+.br
+.ti -1c
+.RI "int \fBsensorsNumber\fP =0"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This class handles the external sensors run time defintion , configuartion and actions\&. 
+.PP
+Definition at line 26 of file ExternalSensors\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "void ExternalSensors::begin (void)"
+\fBExternalSensors::begin()\fP: This method is provided to initialise the external sensors\&. 
+.PP
+Definition at line 43 of file ExternalSensors\&.cpp\&.
+.PP
+References BaseExternalSensor::begin(), ExternalSensors::sensor::exSensor, sensors, and sensorsNumber\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+44 {
+45 
+46 #if DEBUG == 1
+47 
+48     Serial\&.println( F("Enter ExternalSensors\&.begin()") );
+49     Serial\&.println();
+50 
+51 #endif 
+52 
+53     for(int i=0;i< this->sensorsNumber ; i++)
+54     {
+55         if( (sensors[i]\&.reference) == "NDIR_I2C" )
+56         {   
+57             std::unique_ptr< ExternalSensor<NDIR_I2C> > sensorCO2(new ExternalSensor<NDIR_I2C>( this->sensors[i]\&.address) );
+58 
+59 
+60             sensors[i]\&.exSensor= sensorCO2\&.release();
+61             sensors[i]\&.exSensor->begin();
+62 
+63         }
+64         if( (sensors[i]\&.reference) == "DallasTemperature")
+65         {
+66             OneWire oneWire(0);
+67             std::unique_ptr< ExternalSensor<DallasTemperature> > dallasTemp(new ExternalSensor<DallasTemperature> ());
+68              ;
+69             sensors[i]\&.exSensor=dallasTemp\&.release();
+70             sensors[i]\&.exSensor->begin();
+71             
+72         }
+73         
+74         
+75     }
+76 }
+.fi
+.SS "bool ExternalSensors::config ()"
+\fBExternalSensors::config()\fP: This method is provided to configure the externalSensors through a configuration file
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful,false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 159 of file ExternalSensors\&.cpp\&.
+.PP
+References ExternalSensors::sensor::address, ExternalSensors::sensor::reference, sensors, sensorsNumber, and ExternalSensors::sensor::type\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+160 {
+161     //read config file
+162     //update data
+163     File externalSensorsConfig = SPIFFS\&.open("/externalSensorsConfig\&.json", "r");
+164 
+165     if (!externalSensorsConfig) 
+166     {
+167     
+168     #if DEBUG == 1
+169         
+170         Serial\&.println( F("failed to read /externalSensorsConfig\&.json") );
+171         Serial\&.println();
+172     
+173     #endif
+174         
+175         return(false);
+176     }
+177     else
+178     {
+179         size_t size = externalSensorsConfig\&.size();
+180         // Allocate a buffer to store contents of the file\&.
+181         std::unique_ptr<char[]> buf(new char[size]);
+182 
+183         externalSensorsConfig\&.readBytes(buf\&.get(), size);
+184         DynamicJsonBuffer jsonBuffer;
+185         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+186 
+187         if (!json\&.success()) 
+188         {
+189         
+190         #if DEBUG == 1 
+191 
+192             Serial\&.println( F("failed to parse json") );
+193             Serial\&.println();
+194         
+195         #endif
+196 
+197             return(false);
+198         } 
+199         else
+200         {
+201         
+202         #if DEBUG == 1 
+203     
+204             Serial\&.println( F("configuration json is : ") );
+205             json\&.printTo(Serial);
+206             Serial\&.println();
+207 
+208             Serial\&.print(F("jsonBuffer size: "));
+209             Serial\&.println(jsonBuffer\&.size());
+210             Serial\&.println();
+211 
+212         
+213         #endif          
+214             if(json["sensorsNumber"]!=NULL)
+215             {
+216                 this->sensorsNumber = json["sensorsNumber"];
+217                 
+218                 
+219 
+220                 for(int i=0;i<sensorsNumber;i++)
+221                 {   String name="sensor"+String(i);
+222                     
+223                     if(json[name]\&.success())
+224                     {  
+225                         JsonObject& sensorJson=json[name];
+226                         
+227                         if(sensorJson["reference"]\&.success() )
+228                         {  
+229                             this->sensors[i]\&.reference =sensorJson["reference"]\&.as<String>();
+230                         }
+231                         else
+232                         {
+233                             this->sensors[i]\&.reference=this->sensors[i]\&.reference;                            
+234                                     
+235                         }
+236                         sensorJson["reference"]=this->sensors[i]\&.reference;
+237 
+238                     
+239                         if(sensorJson["type"]\&.success() )
+240                         {                   
+241                             this->sensors[i]\&.type=sensorJson["type"]\&.as<String>();
+242                         }
+243                         else
+244                         {
+245                             this->sensors[i]\&.type=this->sensors[i]\&.type;
+246 
+247                         }
+248                         sensorJson["type"]=this->sensors[i]\&.type;
+249                     
+250                         if(sensorJson["address"]\&.success() )
+251                         {                   
+252                             this->sensors[i]\&.address=sensorJson["address"];
+253                         }
+254                         else
+255                         {   
+256                             this->sensors[i]\&.address=this->sensors[i]\&.address;
+257 
+258                         }
+259                         sensorJson["address"]=this->sensors[i]\&.address;
+260                     
+261     
+262                     }
+263                     else
+264                     {
+265                         this->sensors[i]=this->sensors[i];                  
+266                     }
+267                                             
+268                     json[name]["reference"]=this->sensors[i]\&.reference;
+269                     json[name]["type"]=this->sensors[i]\&.type;
+270                     json[name]["address"]=this->sensors[i]\&.address;
+271                 }
+272  
+273             }
+274             else
+275             {
+276                 this->sensorsNumber=this->sensorsNumber;
+277             }
+278             json["sensorsNumber"]=this->sensorsNumber;
+279 
+280             externalSensorsConfig\&.close();
+281             externalSensorsConfig = SPIFFS\&.open("/externalSensorsConfig\&.json", "w");
+282 
+283             if(!externalSensorsConfig)
+284             {
+285             
+286             #if DEBUG == 1 
+287 
+288                 Serial\&.println( F("failed to write to /externalSensorsConfig\&.json") );
+289                 Serial\&.println();
+290             
+291             #endif
+292 
+293                 return(false);
+294             }
+295             
+296             json\&.printTo(externalSensorsConfig);
+297             externalSensorsConfig\&.close();
+298             
+299         #if DEBUG == 1 
+300 
+301             Serial\&.println( F("saved configuration is : ") );
+302             json\&.printTo(Serial);
+303             Serial\&.println();
+304         
+305         #endif
+306 
+307             return(true); 
+308         }
+309     }   
+310     
+311 
+312 
+313 
+314 }
+.fi
+.SS "void ExternalSensors::printConf ()"
+\fBExternalSensors::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
+.PP
+Definition at line 321 of file ExternalSensors\&.cpp\&.
+.PP
+References sensors, and sensorsNumber\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+322 {
+323 
+324 #if DEBUG == 1
+325 
+326     Serial\&.println( F("Entering ExternalSensors\&.printConf()") );
+327     Serial\&.println();
+328 
+329 #endif 
+330 
+331     Serial\&.println("External Sensors configuration ");
+332 
+333     Serial\&.print("sensorsNumber : ");
+334     Serial\&.println(sensorsNumber);
+335 
+336     for(int i=0;i<sensorsNumber;i++)
+337     {
+338         Serial\&.print("sensor ");
+339         Serial\&.print(i);
+340         Serial\&.print(" reference : ");
+341         Serial\&.println(this->sensors[i]\&.reference);
+342 
+343         Serial\&.print("sensor ");
+344         Serial\&.print(i);
+345         Serial\&.print(" type : ");
+346         Serial\&.println(this->sensors[i]\&.type);
+347                 
+348         Serial\&.print("sensor ");
+349         Serial\&.print(i);
+350         Serial\&.print(" address : ");
+351         Serial\&.println(this->sensors[i]\&.address);
+352     
+353     }
+354 }
+.fi
+.SS "String ExternalSensors::read (void)"
+\fBExternalSensors::read()\fP: This method is provided to read the data from the external sensors
+.PP
+\fBReturns:\fP
+.RS 4
+json string that contains the sensors data 
+.RE
+.PP
+
+.PP
+Definition at line 86 of file ExternalSensors\&.cpp\&.
+.PP
+References sensors, sensorsNumber, and ExternalSensors::sensor::type\&.
+.PP
+Referenced by CoolBoard::readSensors()\&.
+.PP
+.nf
+87 {
+88 
+89 #if DEBUG == 1
+90 
+91     Serial\&.println( F("Entering ExternalSensors\&.read()") );
+92     Serial\&.println();
+93 
+94 #endif 
+95 
+96     String data;
+97     DynamicJsonBuffer  jsonBuffer ;
+98     JsonObject& root = jsonBuffer\&.createObject();
+99 
+100     if(!root\&.success() )
+101     {
+102  
+103     #if DEBUG == 1
+104 
+105         Serial\&.println( F("failed to create json ") );
+106     
+107     #endif 
+108 
+109         return("00");
+110     }
+111     else
+112     {
+113         if(sensorsNumber>0)
+114         {
+115             for(int i=0;i<sensorsNumber;i++)
+116             {
+117                 if(sensors[i]\&.exSensor != NULL )
+118                 {
+119                     root[sensors[i]\&.type]=sensors[i]\&.exSensor->read();        
+120                 }
+121             
+122             #if DEBUG == 1
+123                 else
+124                 {
+125                     Serial\&.println(F("null pointer "));
+126                 }
+127             #endif  
+128             }
+129         }   
+130         
+131         root\&.printTo(data);
+132     
+133     #if DEBUG == 1
+134 
+135         Serial\&.println( F("sensors data :") );
+136         Serial\&.println(data);
+137         Serial\&.println();
+138 
+139         Serial\&.print(F("jsonBuffer size: "));
+140         Serial\&.println(jsonBuffer\&.size());
+141         Serial\&.println();
+142 
+143     
+144     #endif
+145     
+146         return(data);
+147     }
+148 
+149 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "struct \fBExternalSensors::sensor\fP ExternalSensors::sensors[50]\fC [private]\fP"
+
+.PP
+Referenced by begin(), config(), printConf(), and read()\&.
+.SS "int ExternalSensors::sensorsNumber =0\fC [private]\fP"
+
+.PP
+Definition at line 47 of file ExternalSensors\&.h\&.
+.PP
+Referenced by begin(), config(), printConf(), and read()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolAPI from the source code\&.

@@ -1,1 +1,677 @@
-.so man3/CoolBoard.3
+.TH "Jetpack" 3 "Mon Jul 31 2017" "CoolAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Jetpack \- This class manages the \fBJetpack\fP shield\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <Jetpack\&.h>\fP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBstate\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "void \fBwrite\fP (byte \fBaction\fP)"
+.br
+.ti -1c
+.RI "void \fBwriteBit\fP (byte pin, bool \fBstate\fP)"
+.br
+.ti -1c
+.RI "void \fBdoAction\fP (const char *data)"
+.br
+.ti -1c
+.RI "bool \fBconfig\fP ()"
+.br
+.ti -1c
+.RI "void \fBprintConf\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "byte \fBaction\fP = B00000000"
+.br
+.ti -1c
+.RI "struct \fBJetpack::state\fP \fBactors\fP [8]"
+.br
+.ti -1c
+.RI "const int \fBclockPin\fP = 4"
+.br
+.ti -1c
+.RI "const int \fBdataPin\fP = 15"
+.br
+.ti -1c
+.RI "const int \fBEnI2C\fP =5"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This class manages the \fBJetpack\fP shield\&. 
+.PP
+Definition at line 21 of file Jetpack\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "void Jetpack::begin (void)"
+\fBJetpack::begin()\fP: This method is provided to initialise the pin that control the \fBJetpack\fP shield 
+.PP
+Definition at line 32 of file Jetpack\&.cpp\&.
+.PP
+References clockPin, dataPin, and EnI2C\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+33 {
+34 
+35 #if DEBUG == 1 
+36  
+37     Serial\&.println( F("Entering Jetpack\&.begin() ") );
+38     Serial\&.println();
+39 
+40 #endif
+41 
+42     pinMode(EnI2C,OUTPUT);
+43     pinMode(dataPin,OUTPUT);
+44     pinMode(clockPin,OUTPUT);
+45     
+46     
+47 
+48 }
+.fi
+.SS "bool Jetpack::config ()"
+\fBJetpack::config()\fP: This method is provided to configure the \fBJetpack\fP with a configuration file
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful,false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 356 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, actors, Jetpack::state::high, Jetpack::state::inverted, Jetpack::state::low, Jetpack::state::temporal, and Jetpack::state::type\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+357 {
+358 
+359 #if DEBUG == 1 
+360 
+361     Serial\&.println( F("Entering Jetpack\&.config() ") );
+362     Serial\&.println();
+363 
+364 #endif
+365 
+366     File jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "r");
+367 
+368     if (!jetPackConfig) 
+369     {
+370 
+371     #if DEBUG == 1 
+372 
+373         Serial\&.println( F("failed to read /jetPackConfig\&.json ") );
+374         Serial\&.println();
+375 
+376     #endif
+377 
+378         return(false);
+379     }
+380     else
+381     {
+382         size_t size = jetPackConfig\&.size();
+383         // Allocate a buffer to store contents of the file\&.
+384         std::unique_ptr<char[]> buf(new char[size]);
+385 
+386         jetPackConfig\&.readBytes(buf\&.get(), size);
+387         DynamicJsonBuffer jsonBuffer;
+388         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+389         if (!json\&.success()) 
+390         {
+391         
+392         #if DEBUG == 1 
+393 
+394             Serial\&.println( F("failed to parse jetpack config json from file ") );
+395             Serial\&.println();
+396 
+397         #endif
+398 
+399             return(false);
+400         } 
+401         else
+402         { 
+403         
+404         #if DEBUG == 1 
+405 
+406             Serial\&.println( F("read configuration file : ") );
+407             json\&.printTo(Serial);
+408             Serial\&.println();
+409 
+410             Serial\&.print(F("jsonBuffer size: "));
+411             Serial\&.println(jsonBuffer\&.size());
+412             Serial\&.println();
+413 
+414         
+415         #endif
+416   
+417             for(int i=0;i<8;i++)
+418             {   
+419                 if(json[String("Act")+String(i)]\&.success())
+420                 {
+421                     if(json[String("Act")+String(i)]["actif"]\&.success() )
+422                     {
+423                         this->actors[i]\&.actif=json[String("Act")+String(i)]["actif"];
+424                     }
+425                     else
+426                     {
+427                         this->actors[i]\&.actif=this->actors[i]\&.actif;
+428                     }
+429                     json[String("Act")+String(i)]["actif"]=this->actors[i]\&.actif;
+430 
+431 
+432                     if(json[String("Act")+String(i)]["low"]\&.success() )
+433                     {                   
+434                         this->actors[i]\&.low=json[String("Act")+String(i)]["low"];
+435                     }
+436                     else
+437                     {
+438                         this->actors[i]\&.low=this->actors[i]\&.low;                  
+439                     }
+440                     json[String("Act")+String(i)]["low"]=this->actors[i]\&.low;
+441 
+442                 
+443                     if(json[String("Act")+String(i)]["high"]\&.success() )
+444                     {               
+445                         this->actors[i]\&.high=json[String("Act")+String(i)]["high"];
+446                     }
+447                     else
+448                     {
+449                         this->actors[i]\&.high=this->actors[i]\&.high;
+450                     }
+451                     json[String("Act")+String(i)]["high"]=this->actors[i]\&.high;
+452 
+453                 
+454                     if(json[String("Act")+String(i)]["type"]\&.success() )
+455                     {               
+456                         this->actors[i]\&.type=String( json[String("Act")+String(i)]["type"]\&.as<const char*>() ); 
+457                     }
+458                     else
+459                     {
+460                         this->actors[i]\&.type=this->actors[i]\&.type;
+461                     }
+462                     json[String("Act")+String(i)]["type"]=this->actors[i]\&.type\&.c_str();
+463 
+464 
+465                     if(json[String("Act")+String(i)]["temporal"]\&.success() )
+466                     {
+467                         this->actors[i]\&.temporal=json[String("Act")+String(i)]["temporal"];                                                  
+468                     }
+469                     else
+470                     {
+471                         this->actors[i]\&.temporal=this->actors[i]\&.temporal; 
+472                     }   
+473                     json[String("Act")+String(i)]["temporal"]=this->actors[i]\&.temporal;
+474 
+475                     
+476                     if(json[String("Act")+String(i)]["inverted"]\&.success() )
+477                     {
+478                         this->actors[i]\&.inverted=json[String("Act")+String(i)]["inverted"];                                                  
+479                     }
+480                     else
+481                     {
+482                         this->actors[i]\&.inverted=json[String("Act")+String(i)]["inverted"]; 
+483                     }   
+484                     json[String("Act")+String(i)]["inverted"]=this->actors[i]\&.inverted;
+485 
+486                     
+487                      
+488                 }
+489                 else
+490                 {
+491                     this->actors[i]=this->actors[i];
+492                 }
+493                 
+494                 json[String("Act")+String(i)]["actif"]=this->actors[i]\&.actif;
+495                 json[String("Act")+String(i)]["low"]=this->actors[i]\&.low;
+496                 json[String("Act")+String(i)]["high"]=this->actors[i]\&.high;
+497                 json[String("Act")+String(i)]["type"]=this->actors[i]\&.type;
+498                 json[String("Act")+String(i)]["temporal"]=this->actors[i]\&.temporal;
+499                 json[String("Act")+String(i)]["inverted"]=this->actors[i]\&.inverted; 
+500             }
+501             
+502 
+503             jetPackConfig\&.close();           
+504             jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "w");          
+505             if(!jetPackConfig)
+506             {
+507             
+508             #if DEBUG == 1 
+509 
+510                 Serial\&.println( F("failed to write to /jetPackConfig\&.json ") );
+511                 Serial\&.println();
+512             
+513             #endif
+514                 
+515                 return(false);          
+516             }  
+517 
+518             json\&.printTo(jetPackConfig);
+519             jetPackConfig\&.close();
+520 
+521         #if DEBUG == 1 
+522             
+523             Serial\&.println(F("saved configuration : "));
+524             json\&.printTo(Serial );
+525             Serial\&.println();        
+526         
+527         #endif
+528 
+529             return(true); 
+530         }
+531     }   
+532     
+533 
+534 }
+.fi
+.SS "void Jetpack::doAction (const char * data)"
+Jetpack::doAction(sensor data ): This method is provided to automate the \fBJetpack\fP\&. exemple: initial state: current Temperature = 23 °C actors[0]\&.actif=1 actors[0]\&.low=25 °C actors[0]\&.high=30 °C actors[0]\&.type='Temperature'
+.PP
+condition verified: root['Temperature'] < actors[0]\&.low
+.PP
+action: invert the state of actors[0]: bitWrite( action,0,!( bitRead ( action,0 ) ) ) write(action) 
+.PP
+Definition at line 134 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, Jetpack::state::actifTime, action, actors, Jetpack::state::inactifTime, and write()\&.
+.PP
+Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
+.PP
+.nf
+135 {
+136 
+137 #if DEBUG == 1 
+138 
+139     Serial\&.println( F("Entering Jetpack\&.doAction()") );
+140     Serial\&.println();
+141 
+142     Serial\&.println( F("input data is :") );
+143     Serial\&.println(data);
+144     Serial\&.println();
+145 
+146 #endif 
+147 
+148     DynamicJsonBuffer jsonBuffer;
+149     JsonObject& root = jsonBuffer\&.parseObject(data);
+150     
+151     if (!root\&.success()) 
+152     {
+153     
+154     #if DEBUG == 1 
+155 
+156         Serial\&.println( F("failed to parse json object ") );
+157         Serial\&.println();
+158     
+159     #endif 
+160 
+161     }
+162     else
+163     {
+164     
+165     #if DEBUG == 1 
+166 
+167         Serial\&.println( F("created Json object :") );
+168         root\&.printTo(Serial);
+169         Serial\&.println();
+170 
+171         Serial\&.print(F("jsonBuffer size: "));
+172         Serial\&.println(jsonBuffer\&.size());
+173         Serial\&.println();
+174 
+175     
+176     #endif 
+177 
+178         //invert the current action state for each actor
+179         //if the value is outside the limits
+180         for(int i=0;i<8;i++)
+181         {
+182             //check if the actor is actif 
+183             if(this->actors[i]\&.actif==1)
+184             {   
+185                 //if the actor is not temporal
+186                 if( this->actors[i]\&.temporal==0 ) 
+187                 {   
+188                     //regular actor
+189                     if( (this->actors[i]\&.inverted) == 0 )
+190                     {
+191                         //measure >= high limit : stop actor
+192                         if( ( root[this->actors[i]\&.type] ) >= ( this->actors[i]\&.high ) )  
+193                         {   
+194                             bitWrite( this->action , i , 0 ) ;  
+195                         }
+196                         //measure <= low limit : start actor
+197                         else if( ( root[ this->actors[i]\&.type ] ) <= ( this->actors[i]\&.low ) )
+198                         {
+199                             bitWrite( this->action , i , 1 ) ;                  
+200                         }
+201                     }
+202                     //inverted actor
+203                     else if( (this->actors[i]\&.inverted) == 1 )
+204                     {
+205                         //measure >= high limit : start actor
+206                         if( ( root[this->actors[i]\&.type] ) >= ( this->actors[i]\&.high ) )  
+207                         {   
+208                             bitWrite( this->action , i , 1 ) ;  
+209                         }
+210                         //measure <= low limit : stop actor
+211                         else if( ( root[ this->actors[i]\&.type ] ) <= ( this->actors[i]\&.low ) )
+212                         {
+213                             bitWrite( this->action , i , 0 ) ;                  
+214                         }
+215 
+216                     
+217                     }
+218                 }
+219 
+220                 //if the actor is temporal
+221                 else
+222                 {
+223                     //actor of type hour
+224                     if( ( this->actors[i]\&.type ) == ( "hour" ) )     
+225                     {
+226                     
+227                     #if DEBUG == 1
+228                         
+229                         Serial\&.println("hour actor ");
+230                         Serial\&.println(i);
+231                         Serial\&.println();
+232                     #endif
+233 
+234                         //time >= high : stop actor
+235                         if( ( root[this->actors[i]\&.type] ) >= ( this->actors[i]\&.low ) )   
+236                         {
+237                         
+238                         #if DEBUG == 1 
+239                             
+240                             Serial\&.print("deactive ");
+241                             Serial\&.println(i);
+242                         
+243                         #endif  
+244                             bitWrite( this->action , i , 0 ) ;  
+245                         }
+246                         //time >= low : start actor
+247                         else if( ( root[ this->actors[i]\&.type ] ) >= ( this->actors[i]\&.high ) )
+248                         {
+249                         
+250                         #if DEBUG == 1 
+251                         
+252                             Serial\&.print("active ");
+253                             Serial\&.println(i);
+254                         
+255                         #endif
+256                             bitWrite( this->action , i , 1 ) ;                  
+257                         }
+258                         
+259                     }
+260                     //actor not of type hour
+261                     else if( ( this->actors[i]\&.type ) != ( "hour" ) )     
+262                     {
+263                     
+264                     #if DEBUG == 1 
+265                         
+266                         Serial\&.println("not hour temporal actor");
+267                         Serial\&.println(this->actors[i]\&.type);
+268                         Serial\&.println(i);
+269                         Serial\&.println("actifTime : ");
+270                         Serial\&.println(this->actors[i]\&.actifTime);
+271                         Serial\&.println("millis : ");
+272                         Serial\&.println(millis() );
+273                         Serial\&.println(" high : ");
+274                         Serial\&.println(this->actors[i]\&.high );
+275                         Serial\&.println();
+276                     
+277                     #endif
+278                         //if the actor was actif for highTime or more :
+279                         if( ( millis()- this->actors[i]\&.actifTime  ) >= ( this->actors[i]\&.high  ) )
+280                         {
+281                             //stop the actor
+282                             bitWrite( this->action , i , 0) ;
+283 
+284                             //make the actor inactif:
+285                             this->actors[i]\&.actif=0;
+286 
+287                             //start the low timer
+288                             this->actors[i]\&.inactifTime=millis();                
+289                         }
+290                     }           
+291                             
+292                 }
+293             }
+294             //check if actor is inactif
+295             else if(this->actors[i]\&.actif==0)
+296             {   //check if actor is temporal
+297                 if(this->actors[i]\&.temporal==1)
+298                 {
+299                     //if the actor was inactif for lowTime or more :
+300                     if( ( millis() - this->actors[i]\&.inactifTime ) >= ( this->actors[i]\&.low  ) )
+301                     {
+302                         //start the actor
+303                         bitWrite( this->action , i , 1) ;
+304 
+305                         //make the actor actif:
+306                         this->actors[i]\&.actif=1;
+307 
+308                         //start the low timer
+309                         this->actors[i]\&.actifTime=millis();
+310 
+311                     #if DEBUG == 1 
+312                         
+313                         Serial\&.println("inactif temporal actor");
+314                         Serial\&.println(this->actors[i]\&.type);
+315                         Serial\&.print("temporal : ");
+316                         Serial\&.println(this->actors[i]\&.temporal);
+317                         Serial\&.println(i);
+318                         Serial\&.println("inactifTime : ");
+319                         Serial\&.println(this->actors[i]\&.inactifTime);
+320                         Serial\&.println("millis : ");
+321                         Serial\&.println(millis() );
+322                         Serial\&.println(" low : ");
+323                         Serial\&.println(this->actors[i]\&.low );
+324                         Serial\&.println();
+325 
+326                         Serial\&.println();
+327                     
+328                     #endif
+329                 
+330                     }           
+331             
+332                 }
+333             }
+334         }
+335     
+336     #if DEBUG == 1 
+337 
+338         Serial\&.println( F("new action is : ") );
+339         Serial\&.println(this->action,BIN);
+340         Serial\&.println();
+341     
+342     #endif 
+343 
+344         this->write(this->action);
+345 
+346     } 
+347 }
+.fi
+.SS "void Jetpack::printConf ()"
+\fBJetpack::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
+.PP
+Definition at line 542 of file Jetpack\&.cpp\&.
+.PP
+References actors\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.PP
+.nf
+543 {
+544 
+545 #if DEBUG == 1 
+546 
+547     Serial\&.println( F("Enter Jetpack\&.printConf() ") );
+548     Serial\&.println();
+549 
+550 #endif 
+551     Serial\&.println( "Jetpack configuration " ) ;
+552  
+553         for(int i=0;i<8;i++)
+554     {   
+555         Serial\&.print("actor N°");
+556         Serial\&.print(i);
+557         Serial\&.print(" actif :");
+558         Serial\&.println(this->actors[i]\&.actif);
+559 
+560         Serial\&.print("actor N°");
+561         Serial\&.print(i);
+562         Serial\&.print(" low :");
+563         Serial\&.println(this->actors[i]\&.low);
+564 
+565         Serial\&.print("actor N°");
+566         Serial\&.print(i);
+567         Serial\&.print(" high :");
+568         Serial\&.println(this->actors[i]\&.high);
+569 
+570         Serial\&.print("actor N°");
+571         Serial\&.print(i);
+572         Serial\&.print(" type :");
+573         Serial\&.println(this->actors[i]\&.type);
+574         
+575         Serial\&.print("actor N°");
+576         Serial\&.print(i);
+577         Serial\&.print(" temporal :");
+578         Serial\&.println(this->actors[i]\&.temporal);
+579 
+580         Serial\&.print("actor N°");
+581         Serial\&.print(i);
+582         Serial\&.print(" inverted :");
+583         Serial\&.println(this->actors[i]\&.inverted);
+584 
+585  
+586 
+587     }
+588 
+589     Serial\&.println();
+590 }
+.fi
+.SS "void Jetpack::write (byte action)"
+Jetpack::write(action): This method is provided to write the given action to the entire \fBJetpack\fP action is a Byte (8 bits ), each bit goes to an output\&. MSBFirst 
+.PP
+Definition at line 59 of file Jetpack\&.cpp\&.
+.PP
+References action, clockPin, dataPin, and EnI2C\&.
+.PP
+Referenced by doAction()\&.
+.PP
+.nf
+60 {
+61 
+62 #if DEBUG == 1
+63 
+64     Serial\&.println( F("Entering Jetpack\&.write()") );
+65     Serial\&.println();
+66 
+67     Serial\&.println( F("writing this action : ") );
+68     Serial\&.println(action,BIN);
+69     Serial\&.println();
+70 
+71 #endif 
+72 
+73     this->action=action;
+74 
+75     
+76     digitalWrite(EnI2C, LOW);
+77     
+78     shiftOut(dataPin, clockPin, MSBFIRST, this->action);
+79 
+80     digitalWrite(EnI2C, HIGH);
+81 
+82 }   
+.fi
+.SS "void Jetpack::writeBit (byte pin, bool state)"
+Jetpack::writeBit(pin,state): This method is provided to write the given state to the given pin 
+.PP
+Definition at line 89 of file Jetpack\&.cpp\&.
+.PP
+References action, clockPin, dataPin, and EnI2C\&.
+.PP
+.nf
+90 {
+91 
+92 #if DEBUG == 1 
+93 
+94     Serial\&.println( F("Entering Jetpack\&.writeBit() ") );
+95 
+96     Serial\&.print( F("Writing ") );
+97     Serial\&.print(state);
+98 
+99     Serial\&.print( F("to pin N°") );
+100     Serial\&.print(pin);
+101 
+102     Serial\&.println();
+103 
+104 #endif
+105 
+106     bitWrite(this->action, pin, state);
+107     digitalWrite(EnI2C, LOW);
+108     
+109     shiftOut(dataPin, clockPin, MSBFIRST, this->action);
+110 
+111     digitalWrite(EnI2C, HIGH);
+112 
+113 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "byte Jetpack::action = B00000000\fC [private]\fP"
+
+.PP
+Definition at line 39 of file Jetpack\&.h\&.
+.PP
+Referenced by doAction(), write(), and writeBit()\&.
+.SS "struct \fBJetpack::state\fP Jetpack::actors[8]\fC [private]\fP"
+
+.PP
+Referenced by config(), doAction(), and printConf()\&.
+.SS "const int Jetpack::clockPin = 4\fC [private]\fP"
+
+.PP
+Definition at line 63 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
+.SS "const int Jetpack::dataPin = 15\fC [private]\fP"
+
+.PP
+Definition at line 65 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
+.SS "const int Jetpack::EnI2C =5\fC [private]\fP"
+
+.PP
+Definition at line 67 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolAPI from the source code\&.
