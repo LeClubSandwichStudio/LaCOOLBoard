@@ -22,7 +22,7 @@ var classCoolBoard =
     [ "ireneActive", "classCoolBoard.html#a9c3f7ac625481ee2ae802a25d97a4ae0", null ],
     [ "jetPack", "classCoolBoard.html#a30b1357881b01ccbec676856a91e48e9", null ],
     [ "jetpackActive", "classCoolBoard.html#a9be03a913d26e558328935ca3b59a75e", null ],
-    [ "logInterval", "classCoolBoard.html#a4de0096d575d66b472c4c1f0111fd452", null ],
+    [ "logInterval", "classCoolBoard.html#a84bc94413b64973e4aba8c467c97006c", null ],
     [ "mqtt", "classCoolBoard.html#a2399f44d7c23c1149a335cb3b46d90f1", null ],
     [ "rtc", "classCoolBoard.html#a50d2a6716879d64a85f3c6b44ad63275", null ],
     [ "serverTimeOut", "classCoolBoard.html#a7a8d8d3d316220cdd049cd63c1aa8fe6", null ],

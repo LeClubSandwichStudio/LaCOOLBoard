@@ -85,8 +85,7 @@ Referenced by Cool\+Board\+::config().
 47 
 48 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -106,7 +105,7 @@ string json of the saved sensor data file
 \end{DoxyReturn}
 
 
-Definition at line 908 of file Cool\+File\+System.\+cpp.
+Definition at line 950 of file Cool\+File\+System.\+cpp.
 
 
 
@@ -118,109 +117,108 @@ Referenced by Cool\+Board\+::on\+Line\+Mode().
 
 
 \begin{DoxyCode}
-909 \{
-910 
-911 \textcolor{preprocessor}{#if DEBUG == 1 }
-912 
-913     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.getSensorSavedData()"}) );
-914     Serial.println();
-915 
-916 \textcolor{preprocessor}{#endif}
-917 
-918     \textcolor{comment}{//open sensors data file}
-919     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-920     
-921     \textcolor{keywordflow}{if} (!sensorsData)
-922     \{
-923 
-924 \textcolor{preprocessor}{    #if DEBUG == 1 }
-925 
-926         Serial.println( F(\textcolor{stringliteral}{"Failed to read /sensorsData.json"}) );
-927 
-928 \textcolor{preprocessor}{    #endif}
-929  
-930         \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to open file"});
-931     \}
-932 
-933     \textcolor{keywordflow}{else}
-934     \{
-935         \textcolor{keywordtype}{size\_t} size = sensorsData.size();
-936 
-937         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-938         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-939 
-940         sensorsData.readBytes(buf.get(), size);
-941 
-942         DynamicJsonBuffer jsonBuffer;
-943 
-944         JsonObject & json = jsonBuffer.parseObject(buf.get());
-945         
-946         \textcolor{keywordflow}{if} (!json.success())
-947         \{
-948 
-949 \textcolor{preprocessor}{        #if DEBUG == 1}
-950         
-951             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-952         
-953 \textcolor{preprocessor}{        #endif}
-954         
-955             \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to parse json"});
-956         \}
-957         \textcolor{keywordflow}{else}
-958         \{   
-959             \textcolor{comment}{//the return string}
-960             String sensorDataString;
-961             
-962             \textcolor{comment}{//print the json to the string}
-963             json.printTo(sensorDataString);
-964             
-965             \textcolor{comment}{//close the file}
-966             sensorsData.close();
+951 \{
+952 
+953 \textcolor{preprocessor}{#if DEBUG == 1 }
+954 
+955     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.getSensorSavedData()"}) );
+956     Serial.println();
+957 
+958 \textcolor{preprocessor}{#endif}
+959 
+960     \textcolor{comment}{//open sensors data file}
+961     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
+962     
+963     \textcolor{keywordflow}{if} (!sensorsData)
+964     \{
+965 
+966 \textcolor{preprocessor}{    #if DEBUG == 1 }
 967 
-968             \textcolor{comment}{//delete data in the file}
-969             File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"w"});
-970             File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsDataCSV.json"},\textcolor{stringliteral}{"w"});
-971             \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
-972             \{
-973 \textcolor{preprocessor}{            #if DEBUG == 1}
-974         
-975                 Serial.println( F(\textcolor{stringliteral}{"failed to delete data in the file"}) );
-976         
-977 \textcolor{preprocessor}{            #endif}
+968         Serial.println( F(\textcolor{stringliteral}{"Failed to read /sensorsData.json"}) );
+969 
+970 \textcolor{preprocessor}{    #endif}
+971  
+972         \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to open file"});
+973     \}
+974 
+975     \textcolor{keywordflow}{else}
+976     \{
+977         \textcolor{keywordtype}{size\_t} size = sensorsData.size();
 978 
-979                 \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to delete data in the file"});
-980             \}
+979         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+980         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
 981 
-982             sensorsData.close();
-983             sensorsDataCSV.close();
-984 
-985             \textcolor{comment}{//position the saved data flag to false}
-986             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false}; 
-987             
-988 \textcolor{preprocessor}{        #if DEBUG == 1 }
-989 
-990             Serial.println( F(\textcolor{stringliteral}{"saved data : "}) );
-991             Serial.println(sensorDataString);
-992             Serial.println();
-993 
-994             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-995             Serial.println(jsonBuffer.size());
-996             Serial.println();
-997 
-998         
-999 \textcolor{preprocessor}{        #endif}
-1000 
-1001             \textcolor{comment}{//return the string}
-1002             \textcolor{keywordflow}{return}(sensorDataString);       
-1003         \}
-1004         
-1005         
-1006     \}
-1007 
-1008 \}
+982         sensorsData.readBytes(buf.get(), size);
+983 
+984         DynamicJsonBuffer jsonBuffer;
+985 
+986         JsonObject & json = jsonBuffer.parseObject(buf.get());
+987         
+988         \textcolor{keywordflow}{if} (!json.success())
+989         \{
+990 
+991 \textcolor{preprocessor}{        #if DEBUG == 1}
+992         
+993             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+994         
+995 \textcolor{preprocessor}{        #endif}
+996         
+997             \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to parse json"});
+998         \}
+999         \textcolor{keywordflow}{else}
+1000         \{   
+1001             \textcolor{comment}{//the return string}
+1002             String sensorDataString;
+1003             
+1004             \textcolor{comment}{//print the json to the string}
+1005             json.printTo(sensorDataString);
+1006             
+1007             \textcolor{comment}{//close the file}
+1008             sensorsData.close();
+1009 
+1010             \textcolor{comment}{//delete data in the file}
+1011             File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"w"});
+1012             File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"w"});
+1013             \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
+1014             \{
+1015 \textcolor{preprocessor}{            #if DEBUG == 1}
+1016         
+1017                 Serial.println( F(\textcolor{stringliteral}{"failed to delete data in the file"}) );
+1018         
+1019 \textcolor{preprocessor}{            #endif}
+1020 
+1021                 \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"failed to delete data in the file"});
+1022             \}
+1023 
+1024             sensorsData.close();
+1025             sensorsDataCSV.close();
+1026 
+1027             \textcolor{comment}{//position the saved data flag to false}
+1028             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false}; 
+1029             
+1030 \textcolor{preprocessor}{        #if DEBUG == 1 }
+1031 
+1032             Serial.println( F(\textcolor{stringliteral}{"saved data : "}) );
+1033             Serial.println(sensorDataString);
+1034             Serial.println();
+1035 
+1036             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+1037             Serial.println(jsonBuffer.size());
+1038             Serial.println();
+1039 
+1040         
+1041 \textcolor{preprocessor}{        #endif}
+1042 
+1043             \textcolor{comment}{//return the string}
+1044             \textcolor{keywordflow}{return}(sensorDataString);       
+1045         \}
+1046         
+1047         
+1048     \}
+1049 
+1050 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -258,16 +256,57 @@ Referenced by Cool\+Board\+::on\+Line\+Mode().
 889 
 890     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.isDataSaved()"}) );
 891     Serial.println();
-892     Serial.print( F(\textcolor{stringliteral}{"savedData : "}) );
-893     Serial.println(this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData});
-894 
-895 \textcolor{preprocessor}{#endif}
-896 
-897     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData} );
-898 \}
+892 \textcolor{preprocessor}{#endif}
+893 
+894     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
+895     File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
+896     
+897     \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
+898     \{
+899 \textcolor{preprocessor}{    #if DEBUG == 1}
+900 
+901         Serial.println( F(\textcolor{stringliteral}{"failed to open files"}) );
+902 
+903 \textcolor{preprocessor}{    #endif}
+904         
+905         this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};
+906     \}
+907     \textcolor{keywordflow}{else}
+908     \{       
+909 \textcolor{preprocessor}{        #if DEBUG == 1}
+910 
+911             Serial.print(F(\textcolor{stringliteral}{"sensors Data file size : "}));
+912             Serial.println(sensorsData.size());
+913             Serial.println();
+914             
+915             Serial.print(F(\textcolor{stringliteral}{"sensors Data CSV file size : "}));               
+916             Serial.println(sensorsDataCSV.size());
+917             Serial.println();
+918 \textcolor{preprocessor}{        #endif  }
+919 
+920         \textcolor{keywordflow}{if}( (sensorsData.size()!=0) || (sensorsDataCSV.size()!=0) )
+921         \{
+922             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{true};
+923         \}
+924         \textcolor{keywordflow}{else}
+925         \{
+926 
+927             this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData}=\textcolor{keyword}{false};     
+928         
+929         \}   
+930     \}
+931 
+932 \textcolor{preprocessor}{#if DEBUG == 1 }
+933 
+934     Serial.print( F(\textcolor{stringliteral}{"savedData : "}) );
+935     Serial.println(this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData});
+936 
+937 \textcolor{preprocessor}{#endif}
+938 
+939     \textcolor{keywordflow}{return}( this->\hyperlink{classCoolFileSystem_ad398e0c5c41a0c88acdf5d672aa71351}{savedData} );
+940 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -388,16 +427,14 @@ Referenced by Cool\+Board\+::off\+Line\+Mode().
 145 
 146 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{classCoolFileSystem_afa3a4feae94871d4d3b6bebb701c2e67_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -620,8 +657,7 @@ Referenced by save\+Sensor\+Data().
 350 
 351 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1166,8 +1202,7 @@ Referenced by Cool\+Board\+::update().
 873 
 874 \}   
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode

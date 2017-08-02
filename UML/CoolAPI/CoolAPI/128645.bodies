@@ -14,10 +14,12 @@ class CoolMQTT
 	client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
 	client.setBufferSize((unsigned short)bufferSize);
 
-!!!132613.cpp!!!	connect(in keepAlive : uint16_t) : int
+!!!132613.cpp!!!	connect(in keepAlive : ulong) : int
        
 
 	int i=0;
+
+	uint16_t keepAliveSeconds = keepAlive/1000;
 
 #if DEBUG == 1 
 
@@ -25,11 +27,11 @@ class CoolMQTT
 	Serial.println( F("MQTT connecting...") );
 
 #endif
-
+	
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user, keepAlive ) )
+		if( this->client.connect( this-> user,keepAliveSeconds  ) )
 		{
 			client.subscribe( this->inTopic );
 
@@ -90,7 +92,7 @@ class CoolMQTT
 
 	return(pub);
 
-!!!153605.cpp!!!	publish(in data : char, in logInterval : int) : bool
+!!!153605.cpp!!!	publish(in data : char, in logInterval : ulong) : bool
 
 #if DEBUG == 1 
 
@@ -386,7 +388,7 @@ class CoolMQTT
 		
 	#endif
 		
-		for (int i = 0; i < length; i++) 
+		for (unsigned int i = 0; i < length; i++) 
 		{
 			temp[i]=(char)payload[i];
 		

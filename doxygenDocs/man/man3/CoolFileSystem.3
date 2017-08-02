@@ -1,4 +1,4 @@
-.TH "CoolFileSystem" 3 "Mon Jul 31 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolFileSystem" 3 "Wed Aug 2 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -86,113 +86,113 @@ string json of the saved sensor data file
 .PP
 
 .PP
-Definition at line 908 of file CoolFileSystem\&.cpp\&.
+Definition at line 950 of file CoolFileSystem\&.cpp\&.
 .PP
 References savedData\&.
 .PP
 Referenced by CoolBoard::onLineMode()\&.
 .PP
 .nf
-909 {
-910 
-911 #if DEBUG == 1 
-912 
-913     Serial\&.println( F("Entering CoolFileSystem\&.getSensorSavedData()") );
-914     Serial\&.println();
-915 
-916 #endif
-917 
-918     //open sensors data file
-919     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
-920     
-921     if (!sensorsData)
-922     {
-923 
-924     #if DEBUG == 1 
-925 
-926         Serial\&.println( F("Failed to read /sensorsData\&.json") );
-927 
-928     #endif
-929  
-930         return("failed to open file");
-931     }
-932 
-933     else
-934     {
-935         size_t size = sensorsData\&.size();
-936 
-937         // Allocate a buffer to store contents of the file\&.
-938         std::unique_ptr < char[] > buf(new char[size]);
-939 
-940         sensorsData\&.readBytes(buf\&.get(), size);
-941 
-942         DynamicJsonBuffer jsonBuffer;
-943 
-944         JsonObject & json = jsonBuffer\&.parseObject(buf\&.get());
-945         
-946         if (!json\&.success())
-947         {
-948 
-949         #if DEBUG == 1
-950         
-951             Serial\&.println( F("failed to parse json") );
-952         
-953         #endif
-954         
-955             return("failed to parse json");
-956         }
-957         else
-958         {   
-959             //the return string
-960             String sensorDataString;
-961             
-962             //print the json to the string
-963             json\&.printTo(sensorDataString);
-964             
-965             //close the file
-966             sensorsData\&.close();
+951 {
+952 
+953 #if DEBUG == 1 
+954 
+955     Serial\&.println( F("Entering CoolFileSystem\&.getSensorSavedData()") );
+956     Serial\&.println();
+957 
+958 #endif
+959 
+960     //open sensors data file
+961     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+962     
+963     if (!sensorsData)
+964     {
+965 
+966     #if DEBUG == 1 
 967 
-968             //delete data in the file
-969             File sensorsData=SPIFFS\&.open("/sensorsData\&.json","w");
-970             File sensorsDataCSV=SPIFFS\&.open("/sensorsDataCSV\&.json","w");
-971             if( (!sensorsData)||(!sensorsDataCSV) ) 
-972             {
-973             #if DEBUG == 1
-974         
-975                 Serial\&.println( F("failed to delete data in the file") );
-976         
-977             #endif
+968         Serial\&.println( F("Failed to read /sensorsData\&.json") );
+969 
+970     #endif
+971  
+972         return("failed to open file");
+973     }
+974 
+975     else
+976     {
+977         size_t size = sensorsData\&.size();
 978 
-979                 return("failed to delete data in the file");
-980             }
+979         // Allocate a buffer to store contents of the file\&.
+980         std::unique_ptr < char[] > buf(new char[size]);
 981 
-982             sensorsData\&.close();
-983             sensorsDataCSV\&.close();
-984 
-985             //position the saved data flag to false
-986             this->savedData=false;  
-987             
-988         #if DEBUG == 1 
-989 
-990             Serial\&.println( F("saved data : ") );
-991             Serial\&.println(sensorDataString);
-992             Serial\&.println();
-993 
-994             Serial\&.print(F("jsonBuffer size: "));
-995             Serial\&.println(jsonBuffer\&.size());
-996             Serial\&.println();
-997 
-998         
-999         #endif
-1000 
-1001             //return the string
-1002             return(sensorDataString);       
-1003         }
-1004         
-1005         
-1006     }
-1007 
-1008 }
+982         sensorsData\&.readBytes(buf\&.get(), size);
+983 
+984         DynamicJsonBuffer jsonBuffer;
+985 
+986         JsonObject & json = jsonBuffer\&.parseObject(buf\&.get());
+987         
+988         if (!json\&.success())
+989         {
+990 
+991         #if DEBUG == 1
+992         
+993             Serial\&.println( F("failed to parse json") );
+994         
+995         #endif
+996         
+997             return("failed to parse json");
+998         }
+999         else
+1000         {   
+1001             //the return string
+1002             String sensorDataString;
+1003             
+1004             //print the json to the string
+1005             json\&.printTo(sensorDataString);
+1006             
+1007             //close the file
+1008             sensorsData\&.close();
+1009 
+1010             //delete data in the file
+1011             File sensorsData=SPIFFS\&.open("/sensorsData\&.json","w");
+1012             File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","w");
+1013             if( (!sensorsData)||(!sensorsDataCSV) ) 
+1014             {
+1015             #if DEBUG == 1
+1016         
+1017                 Serial\&.println( F("failed to delete data in the file") );
+1018         
+1019             #endif
+1020 
+1021                 return("failed to delete data in the file");
+1022             }
+1023 
+1024             sensorsData\&.close();
+1025             sensorsDataCSV\&.close();
+1026 
+1027             //position the saved data flag to false
+1028             this->savedData=false;  
+1029             
+1030         #if DEBUG == 1 
+1031 
+1032             Serial\&.println( F("saved data : ") );
+1033             Serial\&.println(sensorDataString);
+1034             Serial\&.println();
+1035 
+1036             Serial\&.print(F("jsonBuffer size: "));
+1037             Serial\&.println(jsonBuffer\&.size());
+1038             Serial\&.println();
+1039 
+1040         
+1041         #endif
+1042 
+1043             //return the string
+1044             return(sensorDataString);       
+1045         }
+1046         
+1047         
+1048     }
+1049 
+1050 }
 .fi
 .SS "bool CoolFileSystem::isDataSaved ()"
 \fBCoolFileSystem::isDataSaved()\fP: This method is provided to report wether there is sensor data saved in the File System\&.
@@ -217,13 +217,55 @@ Referenced by CoolBoard::onLineMode()\&.
 889 
 890     Serial\&.println( F("Entering CoolFileSystem\&.isDataSaved()") );
 891     Serial\&.println();
-892     Serial\&.print( F("savedData : ") );
-893     Serial\&.println(this->savedData);
-894 
-895 #endif
-896 
-897     return( this->savedData );
-898 }
+892 #endif
+893 
+894     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+895     File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","r");
+896     
+897     if( (!sensorsData)||(!sensorsDataCSV) ) 
+898     {
+899     #if DEBUG == 1
+900 
+901         Serial\&.println( F("failed to open files") );
+902 
+903     #endif
+904         
+905         this->savedData=false;
+906     }
+907     else
+908     {       
+909         #if DEBUG == 1
+910 
+911             Serial\&.print(F("sensors Data file size : "));
+912             Serial\&.println(sensorsData\&.size());
+913             Serial\&.println();
+914             
+915             Serial\&.print(F("sensors Data CSV file size : "));                
+916             Serial\&.println(sensorsDataCSV\&.size());
+917             Serial\&.println();
+918         #endif  
+919 
+920         if( (sensorsData\&.size()!=0) || (sensorsDataCSV\&.size()!=0) )
+921         {
+922             this->savedData=true;
+923         }
+924         else
+925         {
+926 
+927             this->savedData=false;      
+928         
+929         }   
+930     }
+931 
+932 #if DEBUG == 1 
+933 
+934     Serial\&.print( F("savedData : ") );
+935     Serial\&.println(this->savedData);
+936 
+937 #endif
+938 
+939     return( this->savedData );
+940 }
 .fi
 .SS "bool CoolFileSystem::saveSensorData (const char * data)"
 CoolFileSystem::saveSensorData( data ): This method is provided to save the data on the local memory when there is no internet available
