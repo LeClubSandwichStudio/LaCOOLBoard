@@ -255,9 +255,10 @@ bool CoolMQTT::mqttLoop()
 
 #endif	
 
-	while( ( millis() - lastTime ) < 5000)
+	while( ( millis() - lastTime ) < 1000)
 	{
-		this->client.loop();	
+		this->client.loop();
+		yield();
 	}
 
 #if DEBUG == 1 
