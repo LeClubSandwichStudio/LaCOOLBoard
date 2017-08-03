@@ -210,6 +210,8 @@ void CoolBoard::onLineMode()
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
+		//need to modify this to be line by line
+
 		data+=fileSystem.getSensorSavedData();//{..,..,..}
 
 		//formatting data:

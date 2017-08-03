@@ -778,6 +778,9 @@ bool CoolFileSystem::isDataSaved()
 	return( this->savedData );
 }
 
+
+//could return String*(or char**) of the saved data,  line i is result[i]
+
 /**
 *	CoolFileSystem::getSensorData():
 *	This method is provided to return the 
