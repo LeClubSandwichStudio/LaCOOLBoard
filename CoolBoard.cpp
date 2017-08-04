@@ -212,7 +212,7 @@ void CoolBoard::onLineMode()
 
 		
 		int size=0;
-		std::unique_ptr<String[]> savedData=fileSystem.getSensorSavedData(size);//{..,..,..}
+		std::unique_ptr<String[]> savedData(std::move(fileSystem.getSensorSavedData(size)));//{..,..,..}
 
 		int i=0;
 		//loop through the array

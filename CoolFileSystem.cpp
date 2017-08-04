@@ -11,7 +11,7 @@
 #include "CoolFileSystem.h"
 #include "ArduinoJson.h"      // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
 #include "Arduino.h"
-#include <memory>
+
 
 #define DEBUG 1
 
@@ -787,7 +787,7 @@ bool CoolFileSystem::isDataSaved()
 *	\return String[] of the saved sensor 
 *	data file
 */
-std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
+String* CoolFileSystem::getSensorSavedData(int& size)
 {
 	int memorySize=10;
 	
@@ -820,8 +820,7 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
  		size++;
 
 		//result=sensorsDataArrayPointer;
-		std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
-		return(result);
+		return(sensorsDataArrayPointer);
 
 	}
 
@@ -845,7 +844,7 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 		#endif
 			sensorsDataArrayPointer[size]=temp;
 
-			sensorsData.read();
+			
 			
 		
 		#if DEBUG== 1
@@ -877,7 +876,8 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 					Serial.print(F("newArr String N°"));
 					Serial.print(i);
 					Serial.println(F(" is : "));
-					Serial.println( newArr[i] );	
+					Serial.println( newArr[i] );
+					Serial.println();	
 				}		
 			
 			#endif
@@ -903,6 +903,8 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 
 			
 			}
+			
+			yield();
 
 		}
 		
@@ -923,8 +925,7 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 			size++;
 			sensorsDataArrayPointer[size]="failed to delete data in the file";
 
-			std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
-			return(result);
+			return(sensorsDataArrayPointer);
 
 		}
 
@@ -936,8 +937,18 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 		
 
 		//return the string
-		std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
-		return(result);
+		#if DEBUG == 1
+		
+			for(int i=0;i<size;i++)
+			{
+				Serial.print(F("String N°"));
+				Serial.println(i);
+				Serial.println(sensorsDataArrayPointer[i]);
+				Serial.println(); 			
+			}
+	
+		#endif
+		return(sensorsDataArrayPointer);
 		
 		
 		
