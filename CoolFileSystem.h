@@ -13,6 +13,7 @@
 
 #include "Arduino.h"
 
+
 /**
 *	\class CoolFileSystem
 *  
@@ -35,7 +36,7 @@ public:
 	
 	bool isDataSaved();
 	
-	String getSensorSavedData();
+	String* getSensorSavedData(int& size);
 		
 private:
 	

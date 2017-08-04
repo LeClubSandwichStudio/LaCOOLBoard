@@ -7,13 +7,12 @@
 *
 *
 */
+
 #include "FS.h"
-#include "Arduino.h"
 #include "CoolBoard.h"
 #include "ArduinoJson.h"
-
-
-
+#include "Arduino.h"
+#include <memory>
 
 #define DEBUG 1 
 
@@ -210,22 +209,43 @@ void CoolBoard::onLineMode()
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
-		//need to modify this to be line by line
 
-		data+=fileSystem.getSensorSavedData();//{..,..,..}
+		
+		int size=0;
+		std::unique_ptr<String[]> savedData(std::move(fileSystem.getSensorSavedData(size)));//{..,..,..}
 
-		//formatting data:
-		String jsonData = "{\"state\":{\"reported\":";
-		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
-		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+		int i=0;
+		//loop through the array
+		while(i<size)
+		{
+			//formatting data:
 		
-		coolBoardLed.strobe(128,128,255,0.5);//shade of blue
+			String jsonData = "{\"state\":{\"reported\":";
+			jsonData += savedData[i]; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+			jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+
+		#if DEBUG == 1 
+			Serial.println(F("Size is : "));
+			Serial.println(size);
+			Serial.print(F("sending line N°"));
+			Serial.println(i);
+			Serial.println(jsonData);
+			Serial.println();
+
+		#endif
+
+			coolBoardLed.strobe(128,128,255,0.5);//shade of blue
 		
-		mqtt.publish( data.c_str() );
-		mqtt.mqttLoop();
+			mqtt.publish( jsonData.c_str() );
+			mqtt.mqttLoop();
 		
-		coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue		
-	
+			coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue
+			
+			i++;
+			yield();
+		}		
+
+
 	#if DEBUG == 1
 
 		Serial.println( F("Saved data sent ") );
@@ -337,7 +357,7 @@ void CoolBoard::onLineMode()
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green	
 
 	//publishing data	
-	if( this->sleepActive==0)	
+	if( this->sleepActive==0 )	
 	{	
 		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
 		
