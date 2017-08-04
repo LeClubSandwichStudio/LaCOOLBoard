@@ -10,8 +10,8 @@
 #include <FS.h>
 #include "CoolFileSystem.h"
 #include "ArduinoJson.h"      // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
-
-
+#include "Arduino.h"
+#include <memory>
 
 #define DEBUG 1
 
@@ -220,7 +220,7 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data )
 	File sensorsData=SPIFFS.open("/sensorsData.csv","r");
 	
 	//file doesn't exist
-	if(!sensorsData)
+	if( (!sensorsData) || (sensorsData.size()==0 ) )
 	{
 	
 	#if DEBUG == 1
@@ -779,18 +779,21 @@ bool CoolFileSystem::isDataSaved()
 }
 
 
-//could return String*(or char**) of the saved data,  line i is result[i]
-
 /**
 *	CoolFileSystem::getSensorData():
 *	This method is provided to return the 
 *	sensor data saved in the File System
 *
-*	\return string json of the saved sensor 
+*	\return String[] of the saved sensor 
 *	data file
 */
-String CoolFileSystem::getSensorSavedData()
+std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 {
+	int memorySize=10;
+
+	std::unique_ptr<String[]> sensorsDataArray;
+
+	size=0;
 
 #if DEBUG == 1 
 
@@ -810,81 +813,95 @@ String CoolFileSystem::getSensorSavedData()
 		Serial.println( F("Failed to read /sensorsData.json") );
 
 	#endif
- 
-		return("failed to open file");
+		 
+		sensorsDataArray[size]="Failed to read /sensorsData.json";
+ 		size++;
+		return(sensorsDataArray);
 	}
 
 	else
 	{
-		size_t size = sensorsData.size();
+		//read the file line by line and put it in the String array(aka String*)		
 
-		// Allocate a buffer to store contents of the file.
-		std::unique_ptr < char[] > buf(new char[size]);
-
-		sensorsData.readBytes(buf.get(), size);
-
-		DynamicJsonBuffer jsonBuffer;
-
-		JsonObject & json = jsonBuffer.parseObject(buf.get());
-		
-		if (!json.success())
+		//while loop until EOF is reached
+		String temp;
+		while(sensorsData.available())
 		{
+			
+			temp=sensorsData.readStringUntil('\r');
 
 		#if DEBUG == 1
-		
-			Serial.println( F("failed to parse json") );
-		
+			
+			Serial.println(F("temp String : "));
+			Serial.println(temp);
+			
 		#endif
-		
-			return("failed to parse json");
-		}
-		else
-		{	
-			//the return string
-			String sensorDataString;
-			
-			//print the json to the string
-			json.printTo(sensorDataString);
-			
-			//close the file
-			sensorsData.close();
+			sensorsDataArray[size]=temp;
 
-			//delete data in the file
-			File sensorsData=SPIFFS.open("/sensorsData.json","w");
-			File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","w");
-			if( (!sensorsData)||(!sensorsDataCSV) )	
+			sensorsData.read();
+			
+		
+		#if DEBUG== 1
+ 
+			Serial.print(F("read String N°"));
+			Serial.print(size);
+			Serial.println(F(" is : "));
+			Serial.println( sensorsDataArray[size] );			
+			
+		#endif
+			size++;
+			
+			//resize
+			if(size>(memorySize-1))
 			{
-			#if DEBUG == 1
-		
-				Serial.println( F("failed to delete data in the file") );
-		
-			#endif
+				
+				size_t newSize = memorySize * 2;
+				
+				std::unique_ptr<String[]> newArr(new String[newSize]);
 
-				return("failed to delete data in the file");
-			}
+				//memcpy( newArr, sensorsDataArray, memorySize * sizeof(String) );
 
-			sensorsData.close();
-			sensorsDataCSV.close();
+				newArr.swap(sensorsDataArray);
 
-			//position the saved data flag to false
-			this->savedData=false;	
+				sensorsDataArray.reset();
+
+				memorySize = newSize;				
+
+				sensorsDataArray.swap(newArr);
 			
-		#if DEBUG == 1 
-
-			Serial.println( F("saved data : ") );
-			Serial.println(sensorDataString);
-			Serial.println();
-
-			Serial.print(F("jsonBuffer size: "));
-			Serial.println(jsonBuffer.size());
-			Serial.println();
-
-		
-		#endif
-
-			//return the string
-			return(sensorDataString);		
+			}
 		}
+		
+					
+		//close the file
+		sensorsData.close();
+
+		//delete data in the file
+		File sensorsData=SPIFFS.open("/sensorsData.json","w");
+		File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","w");
+		if( (!sensorsData)||(!sensorsDataCSV) )	
+		{
+		#if DEBUG == 1
+	
+			Serial.println( F("failed to delete data in the file") );
+	
+		#endif
+			size++;
+			sensorsDataArray[size]="failed to delete data in the file";
+
+			return(sensorsDataArray);
+		}
+
+		sensorsData.close();
+		sensorsDataCSV.close();
+
+		//position the saved data flag to false
+		this->savedData=false;	
+		
+
+		//return the string
+		return(sensorsDataArray);
+		
 		
 		
 	}

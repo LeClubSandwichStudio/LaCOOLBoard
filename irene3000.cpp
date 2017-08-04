@@ -649,6 +649,6 @@ adsGain_t Irene3000::gainConvert(uint16_t tempGain)
 		case(16):return(GAIN_SIXTEEN); 	
 	}
 
-
+	return(GAIN_ONE);
 
 }

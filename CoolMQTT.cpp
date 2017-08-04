@@ -199,7 +199,7 @@ bool CoolMQTT::publish(const char* data,unsigned long logInterval)
 
 #endif 
 	//log interval is passed in seconds, logInteral*1000 = logInterval in ms
-	if( ( millis() - ( this->previousLogTime)  ) >=( logInterval*1000 ) )
+	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) )
 	{
 	
 	#if DEBUG == 1

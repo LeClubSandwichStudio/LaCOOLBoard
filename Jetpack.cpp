@@ -276,7 +276,7 @@ void Jetpack::doAction( const char* data )
 					
 					#endif
 						//if the actor was actif for highTime or more :
-						if( ( millis()- this->actors[i].actifTime  ) >= ( this->actors[i].high  ) )
+						if( ( millis()- this->actors[i].actifTime  ) >= ( (unsigned long) this->actors[i].high  ) )
 						{
 							//stop the actor
 							bitWrite( this->action , i , 0) ;
@@ -297,7 +297,7 @@ void Jetpack::doAction( const char* data )
 				if(this->actors[i].temporal==1)
 				{
 					//if the actor was inactif for lowTime or more :
-					if( ( millis() - this->actors[i].inactifTime ) >= ( this->actors[i].low  ) )
+					if( ( millis() - this->actors[i].inactifTime ) >= ( (unsigned long) this->actors[i].low  ) )
 					{
 						//start the actor
 						bitWrite( this->action , i , 1) ;

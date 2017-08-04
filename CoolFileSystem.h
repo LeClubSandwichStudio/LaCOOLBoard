@@ -12,6 +12,7 @@
 
 
 #include "Arduino.h"
+#include <memory>
 
 /**
 *	\class CoolFileSystem
@@ -35,7 +36,7 @@ public:
 	
 	bool isDataSaved();
 	
-	String getSensorSavedData();
+	std::unique_ptr<String[]> getSensorSavedData(int& size);
 		
 private:
 	
