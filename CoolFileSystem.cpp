@@ -893,10 +893,7 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 		
 				delete[] sensorsDataArrayPointer;
 				
-				for(int j=0;j<memorySize;j++)
-				{
-					sensorsDataArrayPointer[j]=newArr[j];				
-				}			
+				sensorsDataArrayPointer=newArr;			
 				
 			#if DEBUG== 1
 		
