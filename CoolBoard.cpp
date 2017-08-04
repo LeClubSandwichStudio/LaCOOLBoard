@@ -242,6 +242,7 @@ void CoolBoard::onLineMode()
 			coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue
 			
 			i++;
+			yield();
 		}		
 
 

@@ -790,8 +790,10 @@ bool CoolFileSystem::isDataSaved()
 std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 {
 	int memorySize=10;
-
-	std::unique_ptr<String[]> sensorsDataArray;
+	
+	String* sensorsDataArrayPointer=new String[memorySize];
+	
+	
 
 	size=0;
 
@@ -814,9 +816,13 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 
 	#endif
 		 
-		sensorsDataArray[size]="Failed to read /sensorsData.json";
+		sensorsDataArrayPointer[size]="Failed to read /sensorsData.json";
  		size++;
-		return(sensorsDataArray);
+
+		//result=sensorsDataArrayPointer;
+		std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
+		return(result);
+
 	}
 
 	else
@@ -831,12 +837,13 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 			temp=sensorsData.readStringUntil('\r');
 
 		#if DEBUG == 1
-			
+
 			Serial.println(F("temp String : "));
 			Serial.println(temp);
+			Serial.println();
 			
 		#endif
-			sensorsDataArray[size]=temp;
+			sensorsDataArrayPointer[size]=temp;
 
 			sensorsData.read();
 			
@@ -846,7 +853,8 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 			Serial.print(F("read String N°"));
 			Serial.print(size);
 			Serial.println(F(" is : "));
-			Serial.println( sensorsDataArray[size] );			
+			Serial.println( sensorsDataArrayPointer[size] );
+			Serial.println();			
 			
 		#endif
 			size++;
@@ -857,19 +865,45 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 				
 				size_t newSize = memorySize * 2;
 				
-				std::unique_ptr<String[]> newArr(new String[newSize]);
+				String* newArr=new String[newSize];
 
-				//memcpy( newArr, sensorsDataArray, memorySize * sizeof(String) );
+				memcpy( newArr, sensorsDataArrayPointer, memorySize * sizeof(String) );
 
-				newArr.swap(sensorsDataArray);
+			
+			#if DEBUG== 1
+ 			
+				for(int i=0;i<memorySize;i++)
+				{				
+					Serial.print(F("newArr String N°"));
+					Serial.print(i);
+					Serial.println(F(" is : "));
+					Serial.println( newArr[i] );	
+				}		
+			
+			#endif
 
-				sensorsDataArray.reset();
+				memorySize = newSize;		
+		
+				delete[] sensorsDataArrayPointer;
+				
+				sensorsDataArrayPointer=newArr;				
+				
+			#if DEBUG== 1
+		
+				for(int i=0;i<memorySize;i++)
+				{				
+					Serial.print(F("sensorsDataArray String N°"));
+					Serial.print(i);
+					Serial.println(F(" is : "));
+					Serial.println( sensorsDataArrayPointer[i] );
+					Serial.println();	
+				}		
+			
+			#endif
 
-				memorySize = newSize;				
-
-				sensorsDataArray.swap(newArr);
 			
 			}
+
 		}
 		
 					
@@ -887,9 +921,11 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 	
 		#endif
 			size++;
-			sensorsDataArray[size]="failed to delete data in the file";
+			sensorsDataArrayPointer[size]="failed to delete data in the file";
 
-			return(sensorsDataArray);
+			std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
+			return(result);
+
 		}
 
 		sensorsData.close();
@@ -900,7 +936,8 @@ std::unique_ptr<String[]> CoolFileSystem::getSensorSavedData(int& size)
 		
 
 		//return the string
-		return(sensorsDataArray);
+		std::unique_ptr<String[]> result( std::move(sensorsDataArrayPointer) );
+		return(result);
 		
 		
 		
