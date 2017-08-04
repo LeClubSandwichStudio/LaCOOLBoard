@@ -499,20 +499,43 @@ class CoolBoard
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
-		data+=fileSystem.getSensorSavedData();//{..,..,..}
 
-		//formatting data:
-		String jsonData = "{\"state\":{\"reported\":";
-		jsonData += data; // {"state":{"reported":{..,..,..,..,..,..,..,..}
-		jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
 		
-		coolBoardLed.strobe(128,128,255,0.5);//shade of blue
+		int size=0;
+		std::unique_ptr<String[]> savedData(std::move(fileSystem.getSensorSavedData(size)));//{..,..,..}
+
+		int i=0;
+		//loop through the array
+		while(i<size)
+		{
+			//formatting data:
 		
-		mqtt.publish( data.c_str() );
-		mqtt.mqttLoop();
+			String jsonData = "{\"state\":{\"reported\":";
+			jsonData += savedData[i]; // {"state":{"reported":{..,..,..,..,..,..,..,..}
+			jsonData += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+
+		#if DEBUG == 1 
+			Serial.println(F("Size is : "));
+			Serial.println(size);
+			Serial.print(F("sending line N°"));
+			Serial.println(i);
+			Serial.println(jsonData);
+			Serial.println();
+
+		#endif
+
+			coolBoardLed.strobe(128,128,255,0.5);//shade of blue
 		
-		coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue		
-	
+			mqtt.publish( jsonData.c_str() );
+			mqtt.mqttLoop();
+		
+			coolBoardLed.fadeOut(128,128,255,0.5);//shade of blue
+			
+			i++;
+			yield();
+		}		
+
+
 	#if DEBUG == 1
 
 		Serial.println( F("Saved data sent ") );
@@ -624,7 +647,7 @@ class CoolBoard
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green	
 
 	//publishing data	
-	if( this->sleepActive==0)	
+	if( this->sleepActive==0 )	
 	{	
 		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
 		
@@ -669,37 +692,30 @@ class CoolBoard
 #endif
 	coolBoardLed.write(0,0,255);//blue
 
-	if (wifiManager.state() != WL_CONNECTED)
-	{		
 	
-	#if DEBUG == 1		
-
-		Serial.println( F("CoolBoard not connected to WiFi ") );
-		Serial.println( F("Launching CoolWifi") );
-		Serial.println();
-
-	#endif
-		wifiManager.connect();
-		delay(100);
-	}
-
-
+			
 	
-	if (mqtt.state() != 0)
-	{	
-	
-	#if DEBUG == 1	
-	
-		Serial.println( F("CoolBoard not connected to MQTT ") );
-		Serial.println( F("Launching mqtt.connect()") );
-		Serial.println();
+#if DEBUG == 1		
 
-	#endif	
-		//logInterval in seconds
-		mqtt.connect(this -> getLogInterval());
-		delay(100);
+	Serial.println( F("Launching CoolWifi") );
+	Serial.println();
+
+#endif
+	wifiManager.connect();
+	delay(100);
+	
+	
+#if DEBUG == 1	
+
+	Serial.println( F("Launching mqtt.connect()") );
+	Serial.println();
+
+#endif	
+	//logInterval in seconds
+	mqtt.connect(this -> getLogInterval());
+	delay(100);
 		
-	}
+	
 	
 #if DEBUG == 1
 
@@ -713,6 +729,44 @@ class CoolBoard
 	coolBoardLed.blink(0,0,255,0.5);//blue
 
 	return(mqtt.state());
+!!!200709.cpp!!!	isConnected() : int
+
+#if DEBUG == 1	
+
+	Serial.println( F("Entering CoolBoard.isConnected ") );
+	Serial.println();
+
+#endif
+	if (wifiManager.state() != WL_CONNECTED)
+	{
+
+	#if DEBUG == 1
+	
+		Serial.println(F("Wifi Not Connected"));
+
+		Serial.println(F("Wifi State is "));
+		Serial.println(wifiManager.state());
+		
+	#endif
+		return(-1);
+	}
+	
+	if(mqtt.state() != 0)
+	{
+	
+	#if DEBUG==1
+		
+		Serial.println( F("MQTT not Connected"));
+
+		Serial.println( F("mqtt state is :") );
+		Serial.println(mqtt.state());	
+	
+	#endif
+
+	}
+	
+	return(0);
+
 !!!152965.cpp!!!	getLogInterval() : ulong
 
 #if DEBUG == 1

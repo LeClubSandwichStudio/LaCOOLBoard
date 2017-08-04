@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 21
+  revision 22
   modified_by 5 "ashiroji"
   // class settings
   
@@ -185,6 +185,31 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	connection and the mqtt connection.
 //
 //	 \\return mqtt client state
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 200709 "isConnected"
+	preserve_cpp_body_indent public explicit_return_type "int"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::isConnected()
+//	
+//	This method is provided to check
+//	if the card is connected to Wifi and MQTT
+//
+//	\\return	 0 : connected
+//		-1: Wifi Not Connected
+//		-2: MQTT Not Connected
+//			
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
@@ -663,18 +688,19 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 
       operation 153477 "getSensorSavedData"
 	preserve_cpp_body_indent public explicit_return_type "String"
-	nparams 0
-	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+	nparams 1
+	  param inout name "size" explicit_type "int"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} * ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolFileSystem::getSensorData():
 //	This method is provided to return the 
 //	sensor data saved in the File System
 //
-//	\\return string json of the saved sensor 
+//	\\return String[] of the saved sensor 
 //	data file
 //
 
-${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+${inline}${type} * ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -3927,6 +3953,12 @@ ${inlines}
 //	wifiManager time out 
 //
 
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -3942,6 +3974,16 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::config():
+//	This method is provided to set
+//	the wifi parameters :	-ssid
+//				-pass
+//				-AP timeOut
+//				-wifiCount	
+//
+//	\\return true if successful,false otherwise
+//
+
+//	CoolWifi::config():
 //	This method is provided to set
 //	the wifi parameters :	-ssid
 //				-pass
@@ -4215,6 +4257,12 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	\\return true if successfull, false otherwise
 //
 
+//	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout );
+//	This method is provided to configure the Wifi without SPIFFS
+//	
+//	\\return true if successfull, false otherwise
+//
+
 ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2}, ${t3} ${p3}${)}${const}${throw}${staticnl}{
   ${body}}
 "
@@ -4230,6 +4278,14 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2},
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
+//	CoolWifi::connect( ):
 //	This method is provided to connect to the strongest WiFi
 //	in the provided list of wiFis.
 //	If none are found , it starts the AP mode.
@@ -4595,6 +4651,20 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //		WL_DISCONNECTED = 6
 //
 
+//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4610,6 +4680,11 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
+//	CoolWifi::printConf():
 //	This method is provided to print the
 //	configuration to the Serial Monitor
 //
@@ -4707,6 +4782,14 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
 //	This method is provided to add new WiFi
 //	detected by the WiFiManager to 
 //	the jsonConfig(if used ) 

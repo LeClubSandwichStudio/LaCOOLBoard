@@ -101,6 +101,59 @@ void CoolBoard::begin()
 }
 
 /**
+*	CoolBoard::isConnected()
+*	
+*	This method is provided to check
+*	if the card is connected to Wifi and MQTT
+*
+*	\return	 0 : connected
+*		-1: Wifi Not Connected
+*		-2: MQTT Not Connected
+*			
+*/
+int CoolBoard::isConnected()
+{
+
+#if DEBUG == 1	
+
+	Serial.println( F("Entering CoolBoard.isConnected ") );
+	Serial.println();
+
+#endif
+	if (wifiManager.state() != WL_CONNECTED)
+	{
+
+	#if DEBUG == 1
+	
+		Serial.println(F("Wifi Not Connected"));
+
+		Serial.println(F("Wifi State is "));
+		Serial.println(wifiManager.state());
+		
+	#endif
+		return(-1);
+	}
+	
+	if(mqtt.state() != 0)
+	{
+	
+	#if DEBUG==1
+		
+		Serial.println( F("MQTT not Connected"));
+
+		Serial.println( F("mqtt state is :") );
+		Serial.println(mqtt.state());	
+	
+	#endif
+
+	}
+	
+	return(0);
+
+}
+
+
+/**
 *	CoolBoard::connect():
 *	This method is provided to manage the network
 *	connection and the mqtt connection.
@@ -120,37 +173,30 @@ int CoolBoard::connect()
 #endif
 	coolBoardLed.write(0,0,255);//blue
 
-	if (wifiManager.state() != WL_CONNECTED)
-	{		
 	
-	#if DEBUG == 1		
-
-		Serial.println( F("CoolBoard not connected to WiFi ") );
-		Serial.println( F("Launching CoolWifi") );
-		Serial.println();
-
-	#endif
-		wifiManager.connect();
-		delay(100);
-	}
-
-
+			
 	
-	if (mqtt.state() != 0)
-	{	
-	
-	#if DEBUG == 1	
-	
-		Serial.println( F("CoolBoard not connected to MQTT ") );
-		Serial.println( F("Launching mqtt.connect()") );
-		Serial.println();
+#if DEBUG == 1		
 
-	#endif	
-		//logInterval in seconds
-		mqtt.connect(this -> getLogInterval());
-		delay(100);
+	Serial.println( F("Launching CoolWifi") );
+	Serial.println();
+
+#endif
+	wifiManager.connect();
+	delay(100);
+	
+	
+#if DEBUG == 1	
+
+	Serial.println( F("Launching mqtt.connect()") );
+	Serial.println();
+
+#endif	
+	//logInterval in seconds
+	mqtt.connect(this -> getLogInterval());
+	delay(100);
 		
-	}
+	
 	
 #if DEBUG == 1
 

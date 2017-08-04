@@ -21,13 +21,14 @@ void setup()
 
 void loop()
 {
-	if(coolBoard.connect()==0 )
+	if(coolBoard.isConnected()==0 )
 	{
 		coolBoard.onLineMode();
 	}
 	else
 	{
 		coolBoard.offLineMode();
+		coolBoard.connect();
 	}
 
 
