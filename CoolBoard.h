@@ -46,6 +46,8 @@ public:
 	void onLineMode();
 
 	int connect();
+	
+	int isConnected();
 
 	unsigned long getLogInterval();
 
