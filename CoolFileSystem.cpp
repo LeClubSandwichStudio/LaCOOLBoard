@@ -832,7 +832,8 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 		String temp;
 		while(sensorsData.available())
 		{
-			
+			yield();
+
 			temp=sensorsData.readStringUntil('\r');
 
 		#if DEBUG == 1
@@ -843,7 +844,7 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 			
 		#endif
 			sensorsDataArrayPointer[size]=temp;
-
+			sensorsData.read();
 			
 			
 		
@@ -853,6 +854,9 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 			Serial.print(size);
 			Serial.println(F(" is : "));
 			Serial.println( sensorsDataArrayPointer[size] );
+			Serial.println();
+			Serial.println(F("next char is : "));
+			Serial.println((char)sensorsData.peek());
 			Serial.println();			
 			
 		#endif
@@ -865,8 +869,11 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 				size_t newSize = memorySize * 2;
 				
 				String* newArr=new String[newSize];
-
-				memcpy( newArr, sensorsDataArrayPointer, memorySize * sizeof(String) );
+				
+				for(int j=0;j<memorySize;j++)
+				{
+					newArr[j]=sensorsDataArrayPointer[j];				
+				}
 
 			
 			#if DEBUG== 1
@@ -886,7 +893,10 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 		
 				delete[] sensorsDataArrayPointer;
 				
-				sensorsDataArrayPointer=newArr;				
+				for(int j=0;j<memorySize;j++)
+				{
+					sensorsDataArrayPointer[j]=newArr[j];				
+				}			
 				
 			#if DEBUG== 1
 		
