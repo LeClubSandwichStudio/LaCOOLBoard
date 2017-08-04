@@ -4,6 +4,7 @@ var classCoolBoard =
     [ "config", "classCoolBoard.html#a583a874c09c07e70a6eb9229fc4beddb", null ],
     [ "connect", "classCoolBoard.html#a519de78b807f8ec6463ff484eb925918", null ],
     [ "getLogInterval", "classCoolBoard.html#a7508e029f2ee17bb747ffab599285e0d", null ],
+    [ "isConnected", "classCoolBoard.html#ad7442cf4b62c7b0d5bd62a0f75ffc065", null ],
     [ "offLineMode", "classCoolBoard.html#ae6b5e1274d760462290192acea4adca8", null ],
     [ "onLineMode", "classCoolBoard.html#aa0bbc4bc605e35618d18e68795c61363", null ],
     [ "printConf", "classCoolBoard.html#a486507b8f0981d3cc671ed31c2145755", null ],

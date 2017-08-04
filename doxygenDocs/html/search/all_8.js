@@ -9,6 +9,7 @@ var searchData=
   ['irene3000_2ecpp',['irene3000.cpp',['../irene3000_8cpp.html',1,'']]],
   ['irene3000_2eh',['Irene3000.h',['../Irene3000_8h.html',1,'']]],
   ['ireneactive',['ireneActive',['../classCoolBoard.html#a9c3f7ac625481ee2ae802a25d97a4ae0',1,'CoolBoard']]],
+  ['isconnected',['isConnected',['../classCoolBoard.html#ad7442cf4b62c7b0d5bd62a0f75ffc065',1,'CoolBoard']]],
   ['isdatasaved',['isDataSaved',['../classCoolFileSystem.html#a5a7eaeea7a9fbf8aaef651d862fa3b5b',1,'CoolFileSystem']]],
   ['istimesync',['isTimeSync',['../classCoolTime.html#a5ae038a4498602b189f76a10bf02adf8',1,'CoolTime']]]
 ];
