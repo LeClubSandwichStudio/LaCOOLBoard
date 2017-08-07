@@ -561,8 +561,8 @@ void CoolBoard::offLineMode()
 		
 	}
 	
-	//case we have no connection
-	if( this->isConnected()!=0  )
+	//case we have no connection at all
+	if( wifiManager.state() != WL_CONNECTED )
 	{
 	
 	#if DEBUG == 1
@@ -572,7 +572,8 @@ void CoolBoard::offLineMode()
 	
 	#endif
 		
-		this->connect();
+		this->connect();//nomad case : just run wifiMulti
+				//normal case : run wifiMulti+AP
 		
 	}	
 
