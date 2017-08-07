@@ -28,7 +28,6 @@ void loop()
 	else
 	{
 		coolBoard.offLineMode();
-		coolBoard.connect();
 	}
 
 

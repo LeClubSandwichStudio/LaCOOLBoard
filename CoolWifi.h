@@ -34,9 +34,13 @@ public:
 	
 	bool config();
 	
-	bool config(String ssid[],String pass[],int wifiNumber,int APTimeOut);
+	bool config(String ssid[],String pass[],int wifiNumber,int APTimeOut,bool nomad);
 
 	wl_status_t connect();
+	
+	wl_status_t connectWifiMulti();
+
+	wl_status_t connectAP();
 
 	wl_status_t state();
 	
@@ -55,7 +59,8 @@ private:
 	String pass[50]={"0"};
 	
 	int timeOut=0;//in seconds
-
+	
+	bool nomad=0;
 		
 
 };
