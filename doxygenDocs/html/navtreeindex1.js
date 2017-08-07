@@ -1,5 +1,8 @@
 var NAVTREEINDEX1 =
 {
+"classJetpack.html#a5a53e1ebf7aaf3bf3e0d37ea64ca09a7":[0,0,13,1],
+"classJetpack.html#a79ae7bc3c1828a0551a7c005c4f8bd00":[0,0,13,6],
+"classJetpack.html#a7e16d2f97837f9712a2e6de1c50d99db":[0,0,13,8],
 "classJetpack.html#a81df984fb4cea98c71aa1a1cfcdfe814":[0,0,13,11],
 "classJetpack.html#a9e703197093094b963f9ad57817495b8":[0,0,13,3],
 "classJetpack.html#ab065ee83e244265a2223a22f3ee4a719":[0,0,13,2],
@@ -7,8 +10,8 @@ var NAVTREEINDEX1 =
 "classJetpack.html#aca3142925a7b0834b34ae91d26af7765":[0,0,13,7],
 "classes.html":[0,1],
 "files.html":[1,0],
-"functions.html":[0,3,0],
 "functions.html":[0,3,0,0],
+"functions.html":[0,3,0],
 "functions_b.html":[0,3,0,1],
 "functions_c.html":[0,3,0,2],
 "functions_d.html":[0,3,0,3],

@@ -1,4 +1,4 @@
-.TH "CoolWifi" 3 "Fri Aug 4 2017" "CoolAPI" \" -*- nroff -*-
+.TH "CoolWifi" 3 "Mon Aug 7 2017" "CoolAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -19,10 +19,16 @@ CoolWifi \- This class manages the WiFi connection \&.
 .RI "bool \fBconfig\fP ()"
 .br
 .ti -1c
-.RI "bool \fBconfig\fP (String \fBssid\fP[], String \fBpass\fP[], int wifiNumber, int APTimeOut)"
+.RI "bool \fBconfig\fP (String \fBssid\fP[], String \fBpass\fP[], int wifiNumber, int APTimeOut, bool \fBnomad\fP)"
 .br
 .ti -1c
 .RI "wl_status_t \fBconnect\fP ()"
+.br
+.ti -1c
+.RI "wl_status_t \fBconnectWifiMulti\fP ()"
+.br
+.ti -1c
+.RI "wl_status_t \fBconnectAP\fP ()"
 .br
 .ti -1c
 .RI "wl_status_t \fBstate\fP ()"
@@ -52,6 +58,9 @@ CoolWifi \- This class manages the WiFi connection \&.
 .ti -1c
 .RI "int \fBtimeOut\fP =0"
 .br
+.ti -1c
+.RI "bool \fBnomad\fP =0"
+.br
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -70,149 +79,149 @@ true if successfull , false otherwise
 .PP
 
 .PP
-Definition at line 455 of file CoolWifi\&.cpp\&.
+Definition at line 558 of file CoolWifi\&.cpp\&.
 .PP
 References pass, ssid, timeOut, and wifiCount\&.
 .PP
-Referenced by connect()\&.
+Referenced by connectAP()\&.
 .PP
 .nf
-456 {
-457 
-458 #if DEBUG == 1
-459     
-460     Serial\&.println("Entering CoolWifi\&.addWifi() ") ;
-461 
-462 #endif  
-463     
-464     this->wifiCount++;
-465     if( this->wifiCount >=50)
-466     {
-467     
-468     #if DEBUG == 1
-469 
-470         Serial\&.println("You have reached the limit of 50");
-471         return(false);  
-472     
-473     #endif
-474 
-475     }
-476 
-477     this->ssid[this->wifiCount-1]=ssid;
-478     this->pass[this->wifiCount-1]=pass;
-479     
-480     //read config file
-481     //update data
-482     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
-483 
-484     if (!configFile) 
-485     {
-486     
-487     #if DEBUG == 1 
-488 
-489         Serial\&.println( F("failed to read /wifiConfig\&.json") );
-490         Serial\&.println();
-491 
-492     #endif
-493     }
-494     else
-495     {
-496         size_t size = configFile\&.size();
-497         // Allocate a buffer to store contents of the file\&.
-498         std::unique_ptr<char[]> buf(new char[size]);
-499 
-500         configFile\&.readBytes(buf\&.get(), size);
-501         DynamicJsonBuffer jsonBuffer;
-502         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-503         if (!json\&.success()) 
-504         {
-505         
-506         #if DEBUG == 1 
-507 
-508             Serial\&.println( F("failed to parse json ") );
-509             Serial\&.println();
-510         
-511         #endif
-512         } 
-513         else
-514         {
-515         
-516         #if DEBUG == 1 
-517         
-518             Serial\&.println( F("configuration json is ") );
-519             json\&.printTo(Serial);
-520             Serial\&.println();
-521 
-522             Serial\&.print(F("jsonBuffer size: "));
-523             Serial\&.println(jsonBuffer\&.size());
-524             Serial\&.println();
-525 
-526 
-527         #endif
-528             //wifiCount
-529             if(json["wifiCount"]\&.success() )
-530             {           
-531                 json["wifiCount"]=this->wifiCount;
-532             }
-533             else
-534             {
-535                 this->wifiCount=this->wifiCount;
-536             }
-537             json["wifiCount"]=this->wifiCount;
-538 
-539             
-540             //AP timeOut
-541             if(json["timeOut"]\&.success() )
-542             {
-543                 this->timeOut=json["timeOut"];
-544             }
-545             else
-546             {
-547                 this->timeOut=this->timeOut;
-548 
-549             }
-550             json["timeOut"]=this->timeOut;
-551             
-552             
-553             //new Wifi SSID and PASS
-554             JsonObject& newWifi = json\&.createNestedObject( "Wifi"+String( this->wifiCount-1 ) );
-555             
-556             newWifi["ssid"] =this->ssid[this->wifiCount-1];
-557             newWifi["pass"] = this->pass[this->wifiCount-1];
-558             
-559 
-560             configFile\&.close();
-561             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
-562             if(!configFile)
-563             {
-564             
-565             #if DEBUG == 1 
-566 
-567                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
-568             
-569             #endif
-570 
-571             }
-572             
-573             json\&.printTo(configFile);
-574             configFile\&.close();
-575 
-576         #if DEBUG == 1 
+559 {
+560 
+561 #if DEBUG == 1
+562     
+563     Serial\&.println("Entering CoolWifi\&.addWifi() ") ;
+564 
+565 #endif  
+566     
+567     this->wifiCount++;
+568     if( this->wifiCount >=50)
+569     {
+570     
+571     #if DEBUG == 1
+572 
+573         Serial\&.println("You have reached the limit of 50");
+574         return(false);  
+575     
+576     #endif
 577 
-578             Serial\&.println( F("saved configuration is :") );
-579             json\&.printTo(Serial);
-580             Serial\&.println();
-581         
-582         #endif
-583 
-584             return(true); 
-585         }
-586     }   
-587 
-588     
-589     return(true);
-590     
-591 }
+578     }
+579 
+580     this->ssid[this->wifiCount-1]=ssid;
+581     this->pass[this->wifiCount-1]=pass;
+582     
+583     //read config file
+584     //update data
+585     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
+586 
+587     if (!configFile) 
+588     {
+589     
+590     #if DEBUG == 1 
+591 
+592         Serial\&.println( F("failed to read /wifiConfig\&.json") );
+593         Serial\&.println();
+594 
+595     #endif
+596     }
+597     else
+598     {
+599         size_t size = configFile\&.size();
+600         // Allocate a buffer to store contents of the file\&.
+601         std::unique_ptr<char[]> buf(new char[size]);
+602 
+603         configFile\&.readBytes(buf\&.get(), size);
+604         DynamicJsonBuffer jsonBuffer;
+605         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+606         if (!json\&.success()) 
+607         {
+608         
+609         #if DEBUG == 1 
+610 
+611             Serial\&.println( F("failed to parse json ") );
+612             Serial\&.println();
+613         
+614         #endif
+615         } 
+616         else
+617         {
+618         
+619         #if DEBUG == 1 
+620         
+621             Serial\&.println( F("configuration json is ") );
+622             json\&.printTo(Serial);
+623             Serial\&.println();
+624 
+625             Serial\&.print(F("jsonBuffer size: "));
+626             Serial\&.println(jsonBuffer\&.size());
+627             Serial\&.println();
+628 
+629 
+630         #endif
+631             //wifiCount
+632             if(json["wifiCount"]\&.success() )
+633             {           
+634                 json["wifiCount"]=this->wifiCount;
+635             }
+636             else
+637             {
+638                 this->wifiCount=this->wifiCount;
+639             }
+640             json["wifiCount"]=this->wifiCount;
+641 
+642             
+643             //AP timeOut
+644             if(json["timeOut"]\&.success() )
+645             {
+646                 this->timeOut=json["timeOut"];
+647             }
+648             else
+649             {
+650                 this->timeOut=this->timeOut;
+651 
+652             }
+653             json["timeOut"]=this->timeOut;
+654             
+655             
+656             //new Wifi SSID and PASS
+657             JsonObject& newWifi = json\&.createNestedObject( "Wifi"+String( this->wifiCount-1 ) );
+658             
+659             newWifi["ssid"] =this->ssid[this->wifiCount-1];
+660             newWifi["pass"] = this->pass[this->wifiCount-1];
+661             
+662 
+663             configFile\&.close();
+664             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
+665             if(!configFile)
+666             {
+667             
+668             #if DEBUG == 1 
+669 
+670                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
+671             
+672             #endif
+673 
+674             }
+675             
+676             json\&.printTo(configFile);
+677             configFile\&.close();
+678 
+679         #if DEBUG == 1 
+680 
+681             Serial\&.println( F("saved configuration is :") );
+682             json\&.printTo(Serial);
+683             Serial\&.println();
+684         
+685         #endif
+686 
+687             return(true); 
+688         }
+689     }   
+690 
+691     
+692     return(true);
+693     
+694 }
 .fi
 .SS "void CoolWifi::begin ()"
 \fBCoolWifi::begin()\fP: This method is provided to set the wifiMulti Access points and the wifiManager time out 
@@ -249,174 +258,187 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 201 of file CoolWifi\&.cpp\&.
+Definition at line 286 of file CoolWifi\&.cpp\&.
 .PP
-References pass, ssid, timeOut, and wifiCount\&.
+References nomad, pass, ssid, timeOut, and wifiCount\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-202 {
-203 
-204 #if DEBUG == 1 
-205 
-206     Serial\&.println( F("Entering CoolWifi\&.config()") );
-207     Serial\&.println();
-208 
-209 #endif
-210 
-211     //read config file
-212     //update data
-213     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
-214 
-215     if (!configFile) 
-216     {
-217     
-218     #if DEBUG == 1 
-219 
-220         Serial\&.println( F("failed to read /wifiConfig\&.json") );
-221         Serial\&.println();
-222 
-223     #endif
-224 
-225         return(false);
-226     }
-227     else
-228     {
-229         size_t size = configFile\&.size();
-230         // Allocate a buffer to store contents of the file\&.
-231         std::unique_ptr<char[]> buf(new char[size]);
-232 
-233         configFile\&.readBytes(buf\&.get(), size);
-234         DynamicJsonBuffer jsonBuffer;
-235         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-236         if (!json\&.success()) 
-237         {
-238         
-239         #if DEBUG == 1 
-240 
-241             Serial\&.println( F("failed to parse json ") );
-242             Serial\&.println();
-243         
-244         #endif
-245             
-246             return(false);
-247         } 
-248         else
-249         {
-250         
-251         #if DEBUG == 1 
-252         
-253             Serial\&.println( F("configuration json is ") );
-254             json\&.printTo(Serial);
-255             Serial\&.println();
-256 
-257             Serial\&.print(F("jsonBuffer size: "));
-258             Serial\&.println(jsonBuffer\&.size());
-259             Serial\&.println();
-260 
-261 
-262         #endif
-263             //wifiCount
-264             if(json["wifiCount"]\&.success() )
-265             {           
-266                 this->wifiCount=json["wifiCount"];
-267             }
-268             else
-269             {
-270                 this->wifiCount=this->wifiCount;
-271             }
-272             json["wifiCount"]=this->wifiCount;
-273 
-274             
-275             //AP timeOut
-276             if(json["timeOut"]\&.success() )
-277             {
-278                 this->timeOut=json["timeOut"];
-279             }
-280             else
-281             {
-282                 this->timeOut=this->timeOut;
-283 
-284             }
-285             json["timeOut"]=this->timeOut;
-286             
-287             
-288             //Wifis SSID and PASS
-289             for(int i =0; i<this->wifiCount ;i++)
-290             {
-291                 if ( json["Wifi"+String(i)]\&.success() )
-292                 {
-293                     
-294                     if( json["Wifi"+String(i)]["ssid"]\&.success() )
-295                     {
-296                         const char* tempSsid=json["Wifi"+String(i)]["ssid"]; 
-297                         this->ssid[i]=tempSsid;                 
-298                     }
-299                     else
-300                     {
-301                         this->ssid[i]=this->ssid[i];                    
-302                     }
-303                     json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
-304                     
-305                     
-306                     if( json["Wifi"+String(i)]["pass"]\&.success() )
-307                     {
-308                         const char* tempPass =json["Wifi"+String(i)]["pass"];
-309                         this->pass[i]=tempPass ;                    
-310                     }
-311                     else
-312                     {
-313                         this->pass[i]=this->pass[i];                    
-314                     }
-315                     json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
-316                 
-317                 }
-318                 else
-319                 {
-320                     
-321                     this->ssid[i]=this->ssid[i];
-322                     this->pass[i]=this->pass[i];                    
-323                     
-324                 }
-325                 json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
-326                 json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
-327                         
-328             }
-329 
-330             configFile\&.close();
-331             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
-332             if(!configFile)
-333             {
-334             
-335             #if DEBUG == 1 
-336 
-337                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
-338             
-339             #endif
-340 
-341                 return(false);              
-342             }
-343             
-344             json\&.printTo(configFile);
-345             configFile\&.close();
+287 {
+288 
+289 #if DEBUG == 1 
+290 
+291     Serial\&.println( F("Entering CoolWifi\&.config()") );
+292     Serial\&.println();
+293 
+294 #endif
+295 
+296     //read config file
+297     //update data
+298     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
+299 
+300     if (!configFile) 
+301     {
+302     
+303     #if DEBUG == 1 
+304 
+305         Serial\&.println( F("failed to read /wifiConfig\&.json") );
+306         Serial\&.println();
+307 
+308     #endif
+309 
+310         return(false);
+311     }
+312     else
+313     {
+314         size_t size = configFile\&.size();
+315         // Allocate a buffer to store contents of the file\&.
+316         std::unique_ptr<char[]> buf(new char[size]);
+317 
+318         configFile\&.readBytes(buf\&.get(), size);
+319         DynamicJsonBuffer jsonBuffer;
+320         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+321         if (!json\&.success()) 
+322         {
+323         
+324         #if DEBUG == 1 
+325 
+326             Serial\&.println( F("failed to parse json ") );
+327             Serial\&.println();
+328         
+329         #endif
+330             
+331             return(false);
+332         } 
+333         else
+334         {
+335         
+336         #if DEBUG == 1 
+337         
+338             Serial\&.println( F("configuration json is ") );
+339             json\&.printTo(Serial);
+340             Serial\&.println();
+341 
+342             Serial\&.print(F("jsonBuffer size: "));
+343             Serial\&.println(jsonBuffer\&.size());
+344             Serial\&.println();
+345 
 346 
-347         #if DEBUG == 1 
-348 
-349             Serial\&.println( F("saved configuration is :") );
-350             json\&.printTo(Serial);
-351             Serial\&.println();
-352         
-353         #endif
-354 
-355             return(true); 
-356         }
-357     }   
-358     
-359 
-360 }
+347         #endif
+348             //wifiCount
+349             if(json["wifiCount"]\&.success() )
+350             {           
+351                 this->wifiCount=json["wifiCount"];
+352             }
+353             else
+354             {
+355                 this->wifiCount=this->wifiCount;
+356             }
+357             json["wifiCount"]=this->wifiCount;
+358 
+359             
+360             //AP timeOut
+361             if(json["timeOut"]\&.success() )
+362             {
+363                 this->timeOut=json["timeOut"];
+364             }
+365             else
+366             {
+367                 this->timeOut=this->timeOut;
+368 
+369             }
+370             json["timeOut"]=this->timeOut;
+371 
+372             //nomad
+373             if(json["nomad"]\&.success() )
+374             {
+375                 this->nomad=json["nomad"];
+376             }
+377             else
+378             {
+379                 this->nomad=this->nomad;
+380 
+381             }
+382             json["nomad"]=this->nomad;
+383 
+384             
+385             
+386             //Wifis SSID and PASS
+387             for(int i =0; i<this->wifiCount ;i++)
+388             {
+389                 if ( json["Wifi"+String(i)]\&.success() )
+390                 {
+391                     
+392                     if( json["Wifi"+String(i)]["ssid"]\&.success() )
+393                     {
+394                         const char* tempSsid=json["Wifi"+String(i)]["ssid"]; 
+395                         this->ssid[i]=tempSsid;                 
+396                     }
+397                     else
+398                     {
+399                         this->ssid[i]=this->ssid[i];                    
+400                     }
+401                     json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
+402                     
+403                     
+404                     if( json["Wifi"+String(i)]["pass"]\&.success() )
+405                     {
+406                         const char* tempPass =json["Wifi"+String(i)]["pass"];
+407                         this->pass[i]=tempPass ;                    
+408                     }
+409                     else
+410                     {
+411                         this->pass[i]=this->pass[i];                    
+412                     }
+413                     json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
+414                 
+415                 }
+416                 else
+417                 {
+418                     
+419                     this->ssid[i]=this->ssid[i];
+420                     this->pass[i]=this->pass[i];                    
+421                     
+422                 }
+423                 json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
+424                 json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
+425                         
+426             }
+427 
+428             configFile\&.close();
+429             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
+430             if(!configFile)
+431             {
+432             
+433             #if DEBUG == 1 
+434 
+435                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
+436             
+437             #endif
+438 
+439                 return(false);              
+440             }
+441             
+442             json\&.printTo(configFile);
+443             configFile\&.close();
+444 
+445         #if DEBUG == 1 
+446 
+447             Serial\&.println( F("saved configuration is :") );
+448             json\&.printTo(Serial);
+449             Serial\&.println();
+450         
+451         #endif
+452 
+453             return(true); 
+454         }
+455     }   
+456     
+457 
+458 }
 .fi
-.SS "bool CoolWifi::config (String ssid[], String pass[], int wifiNumber, int APTimeOut)"
+.SS "bool CoolWifi::config (String ssid[], String pass[], int wifiNumber, int APTimeOut, bool nomad)"
 CoolWifi::config(ssid array, pass array, number of wifis, AP timeout ); This method is provided to configure the Wifi without SPIFFS
 .PP
 \fBReturns:\fP
@@ -426,44 +448,46 @@ true if successfull, false otherwise
 .PP
 
 .PP
-Definition at line 368 of file CoolWifi\&.cpp\&.
+Definition at line 466 of file CoolWifi\&.cpp\&.
 .PP
-References timeOut, and wifiCount\&.
+References nomad, timeOut, and wifiCount\&.
 .PP
 .nf
-369 {
-370 
-371 #if DEBUG == 1 
-372     
-373     Serial\&.println("Entering CoolWifi\&.config(), no SPIFFS variant ") ;
-374     
-375 #endif
-376     
-377     if(wifiNumber>50)
-378     {
-379     
-380     #if DEBUG == 1 
-381         
-382         Serial\&.println("the limit of WiFis is 50 " );
-383         
-384     #endif
-385         return(false);  
-386     }
-387 
-388     this->wifiCount=wifiNumber;
-389 
-390     this->timeOut=APTimeOut;
-391     
-392     for(int i=0;i<wifiNumber;i++)
-393     {
-394         this->ssid[i]=ssid[i];
-395         
-396         this->pass[i]=pass[i];
-397     }
-398         
-399     return(true);
-400 
-401 }
+467 {
+468 
+469 #if DEBUG == 1 
+470     
+471     Serial\&.println("Entering CoolWifi\&.config(), no SPIFFS variant ") ;
+472     
+473 #endif
+474     
+475     if(wifiNumber>50)
+476     {
+477     
+478     #if DEBUG == 1 
+479         
+480         Serial\&.println("the limit of WiFis is 50 " );
+481         
+482     #endif
+483         return(false);  
+484     }
+485 
+486     this->wifiCount=wifiNumber;
+487 
+488     this->timeOut=APTimeOut;
+489 
+490     this->nomad=nomad;
+491     
+492     for(int i=0;i<wifiNumber;i++)
+493     {
+494         this->ssid[i]=ssid[i];
+495         
+496         this->pass[i]=pass[i];
+497     }
+498         
+499     return(true);
+500 
+501 }
 .fi
 .SS "wl_status_t CoolWifi::connect ()"
 \fBCoolWifi::connect( )\fP: This method is provided to connect to the strongest WiFi in the provided list of wiFis\&. If none are found , it starts the AP mode\&.
@@ -477,157 +501,259 @@ wifi state
 .PP
 Definition at line 90 of file CoolWifi\&.cpp\&.
 .PP
-References addWifi(), timeOut, and wifiMulti\&.
+References connectAP(), connectWifiMulti(), nomad, and wifiCount\&.
 .PP
 Referenced by CoolBoard::connect()\&.
 .PP
 .nf
 91 {       
 92 
-93     int i=0;
+93 
 94 
 95 #if DEBUG == 1 
 96 
 97     Serial\&.println( F("Entering CoolWifi\&.connect()") );
 98     Serial\&.println( F("Wifi connecting\&.\&.\&.") );
-99     
-100     Serial\&.println("entry time to multi : ");
-101     Serial\&.println(millis() ) ;
-102 
-103 #endif
-104     //Wifi MULTI
-105 
-106     while( (wifiMulti\&.run() != WL_CONNECTED) && (i<1000)  ) 
-107     {
-108 
-109     #if DEBUG == 1
-110 
-111             Serial\&.print("\&.");
-112         i++;
-113         delay(10);
-114     
-115     #endif
-116 
-117         }   
-118 
-119 #if DEBUG == 1 
-120 
-121     Serial\&.println();    
-122     Serial\&.println("exit point from multi : ");
-123     Serial\&.println(millis() );
-124 
+99 
+100 #endif
+101 
+102     //if WifiCount > 0 , lunch wifiMulti
+103     //else no need to , skip this part
+104     // to wifiManager  
+105     if(this->wifiCount !=0)
+106     {
+107     
+108         this->connectWifiMulti();
+109         
+110         //if nomad is true, only check wifi list
+111         if(this->nomad == true)
+112         {
+113     
+114         #if DEBUG == 1
+115     
+116             Serial\&.print(F("nomad mode :"));
+117             Serial\&.println(this->nomad);
+118         
+119             Serial\&.print(F("Wifi status: "));
+120             Serial\&.println(WiFi\&.status());
+121         
+122         #endif  
+123             return(WiFi\&.status());   
+124         }
 125 
-126 #endif
+126     }
 127 
-128     //Wifi Manager
-129     if( (i>=1000) ||  (WiFi\&.status() != WL_CONNECTED) ) 
-130     {
-131     
-132     #if DEBUG == 1 
-133         
-134         Serial\&.println(F("No matching wifi Found ") );
-135         Serial\&.println( F("Starting Access Point ") );   
-136         Serial\&.println();
-137     
-138     #endif
-139         WiFiManager wifiManager;
+128 
+129     //Wifi Manager
+130     if( WiFi\&.status() != WL_CONNECTED ) 
+131     {
+132 
+133     #if DEBUG == 1 
+134     
+135         Serial\&.println(F("No matching wifi Found ") );
+136         Serial\&.println( F("Starting Access Point ") );   
+137         Serial\&.println();
+138 
+139     #endif
 140         
-141         wifiManager\&.setRemoveDuplicateAPs(true);
-142     
-143         wifiManager\&.setTimeout(this->timeOut);
-144         
-145         String tempMAC = WiFi\&.macAddress();
-146         tempMAC\&.replace(":","");
-147     
-148         String name="CoolBoardAP"+tempMAC;  
-149 
-150         if(!wifiManager\&.autoConnect(name\&.c_str())) 
-151         {
-152         
-153         #if DEBUG == 1
-154 
-155             Serial\&.println( F("failed to connect and hit timeout") );
-156         
-157         #endif
-158             delay(300);
-159 
-160         } 
-161 
-162           //if you get here you have connected to the WiFi
-163         #if DEBUG == 1
-164 
-165             Serial\&.println( F("connected\&.\&.\&.yeey :)" ));
-166             Serial\&.println("connected to ");
-167             Serial\&.println( WiFi\&.SSID() );
-168             Serial\&.println( WiFi\&.psk() ) ;
-169             
-170         #endif
-171             this->addWifi( WiFi\&.SSID() , WiFi\&.psk() );
-172         
-173     }
-174     else
-175     {
-176 
-177     #if DEBUG == 1
-178 
-179         Serial\&.println("connected to ");
-180         Serial\&.println( WiFi\&.SSID() );
-181         Serial\&.println( WiFi\&.psk() ) ;
-182                 
-183     #endif
-184     
-185     }
-186     
-187     return( WiFi\&.status() ) ;
+141         this->connectAP();      
+142         
+143     }
+144     else
+145     {
+146 
+147     #if DEBUG == 1
+148 
+149         Serial\&.println(F("connected to "));
+150         Serial\&.println( WiFi\&.SSID() );
+151         //Serial\&.println( WiFi\&.psk() ) ;
+152                 
+153     #endif
+154     
+155     }
+156     
+157     return( WiFi\&.status() ) ;
+158 
+159 }
+.fi
+.SS "wl_status_t CoolWifi::connectAP ()"
+\fBCoolWifi::connectAP()\fP This function is provided to run the WifiManager part of the Wifi connection process
+.PP
+\fBReturns:\fP
+.RS 4
+wifi state 
+.RE
+.PP
+
+.PP
+Definition at line 220 of file CoolWifi\&.cpp\&.
+.PP
+References addWifi(), and timeOut\&.
+.PP
+Referenced by connect(), and CoolBoard::offLineMode()\&.
+.PP
+.nf
+221 {
+222 
+223 #if DEBUG == 1 
+224     
+225     Serial\&.println( F("Entering CoolWifi\&.connectAP()") ); 
+226     Serial\&.println();
+227 
+228 #endif
+229     WiFiManager wifiManager;
+230     
+231     wifiManager\&.setRemoveDuplicateAPs(true);
+232 
+233     wifiManager\&.setTimeout(this->timeOut);
+234     
+235     String tempMAC = WiFi\&.macAddress();
+236     tempMAC\&.replace(":","");
+237 
+238     String name="CoolBoardAP"+tempMAC;  
+239 
+240     if(!wifiManager\&.autoConnect(name\&.c_str())) 
+241     {
+242     
+243     #if DEBUG == 1
+244 
+245         Serial\&.println( F("failed to connect and hit timeout") );
+246     
+247     #endif
+248         delay(30);
+249 
+250     } 
+251 
+252     //if you get here you have connected to the WiFi
+253 
+254     if(WiFi\&.status()==WL_CONNECTED)
+255 
+256     {
+257 
+258         this->addWifi( WiFi\&.SSID() , WiFi\&.psk() );
+259 
+260     #if DEBUG == 1
+261     
+262         Serial\&.println( F("connected\&.\&.\&.yeey :)" ));
+263         Serial\&.println(F("connected to ") );
+264         Serial\&.println( WiFi\&.SSID() );
+265         //Serial\&.println( WiFi\&.psk() ) ;
+266 
+267     #endif
+268     
+269     }
+270     
+271     return(WiFi\&.status());
+272 
+273 }
+.fi
+.SS "wl_status_t CoolWifi::connectWifiMulti ()"
+\fBCoolWifi::connectWifiMulti()\fP This function is provided to run the WifiMulti part of the Wifi connection process
+.PP
+\fBReturns:\fP
+.RS 4
+wifi state 
+.RE
+.PP
+
+.PP
+Definition at line 169 of file CoolWifi\&.cpp\&.
+.PP
+References wifiMulti\&.
+.PP
+Referenced by connect()\&.
+.PP
+.nf
+170 {
+171     int i=0;
+172 
+173 #if DEBUG == 1 
+174 
+175     Serial\&.println(F("Entering CoolWifi\&.connectWifiMulti()"));
+176     Serial\&.println();
+177     
+178     Serial\&.println( F("entry time to multi : ") );
+179     Serial\&.println(millis() ) ;
+180 
+181 #endif
+182     
+183     //Wifi MULTI
+184     while( (this->wifiMulti\&.run() != WL_CONNECTED) && (i<500)  ) 
+185     {
+186 
+187     #if DEBUG == 1
 188 
-189 }
+189         Serial\&.print(F("\&."));
+190         i++;
+191         delay(5);
+192 
+193     #endif
+194 
+195         }   
+196 
+197 #if DEBUG == 1 
+198 
+199     Serial\&.println();    
+200     Serial\&.println(F("exit point from multi : "));
+201     Serial\&.println(millis() );
+202     
+203     Serial\&.print(F("Wifi Status :"));
+204     Serial\&.println(WiFi\&.status());
+205 #endif
+206 
+207     return(WiFi\&.status());
+208 
+209 }
 .fi
 .SS "void CoolWifi::printConf ()"
 \fBCoolWifi::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
-Definition at line 409 of file CoolWifi\&.cpp\&.
+Definition at line 509 of file CoolWifi\&.cpp\&.
 .PP
-References pass, ssid, timeOut, and wifiCount\&.
+References nomad, ssid, timeOut, and wifiCount\&.
 .PP
 Referenced by CoolBoard::begin()\&.
 .PP
 .nf
-410 {
-411 
-412 #if DEBUG == 1 
-413 
-414     Serial\&.println( F("Entering CoolWifi\&.printConf()") );
-415     Serial\&.println();    
-416 
-417 #endif
-418     
-419     Serial\&.println("Wifi configuration ");
-420 
-421     
-422     Serial\&.println("wifiCount : ");
-423     Serial\&.println(this->wifiCount);
-424     
-425     for(int i=0;i<this->wifiCount;i++)
-426     {   
-427         Serial\&.print("SSID");
-428         Serial\&.print(i);
-429         Serial\&.println(" : ");
-430         Serial\&.println(this->ssid[i]);
-431                 
-432         Serial\&.print("PASS");
-433         Serial\&.print(i);
-434         Serial\&.println(" : ");
-435         Serial\&.println(this->pass[i]);
-436         
-437     }
-438     
-439     Serial\&.println("timeOut : ");
-440     Serial\&.println(this->timeOut);
-441 
-442     Serial\&.println();
-443 
-444 
-445 }
+510 {
+511 
+512 #if DEBUG == 1 
+513 
+514     Serial\&.println( F("Entering CoolWifi\&.printConf()") );
+515     Serial\&.println();    
+516 
+517 #endif
+518     
+519     Serial\&.println(F("Wifi configuration "));
+520 
+521     
+522     Serial\&.println(F("wifiCount : "));
+523     Serial\&.println(this->wifiCount);
+524     
+525     for(int i=0;i<this->wifiCount;i++)
+526     {   
+527         Serial\&.print(F("SSID"));
+528         Serial\&.print(i);
+529         Serial\&.println(F(" : "));
+530         Serial\&.println(this->ssid[i]);
+531                 
+532         //Serial\&.print(F("PASS"));
+533         //Serial\&.print(i);
+534         //Serial\&.println(F(" : "));
+535         //Serial\&.println(this->pass[i]);
+536         
+537     }
+538     
+539     Serial\&.println(F("timeOut : "));
+540     Serial\&.println(this->timeOut);
+541 
+542     Serial\&.println(F("nomad : "));
+543     Serial\&.println(this->nomad);
+544 
+545     Serial\&.println();
+546 
+547 
+548 }
 .fi
 .SS "wl_status_t CoolWifi::state ()"
 \fBCoolWifi::state()\fP: This method is provided to return the Wifi client's state\&. 
@@ -641,7 +767,7 @@ wifi client state: WL_NO_SHIELD = 255, WL_IDLE_STATUS = 0, WL_NO_SSID_AVAIL = 1,
 .PP
 Definition at line 67 of file CoolWifi\&.cpp\&.
 .PP
-Referenced by CoolBoard::isConnected()\&.
+Referenced by CoolBoard::connect(), CoolBoard::isConnected(), and CoolBoard::offLineMode()\&.
 .PP
 .nf
 68 {
@@ -660,36 +786,42 @@ Referenced by CoolBoard::isConnected()\&.
 .fi
 .SH "Member Data Documentation"
 .PP 
+.SS "bool CoolWifi::nomad =0\fC [private]\fP"
+
+.PP
+Definition at line 63 of file CoolWifi\&.h\&.
+.PP
+Referenced by config(), connect(), and printConf()\&.
 .SS "String CoolWifi::pass[50] ={'0'}\fC [private]\fP"
 
 .PP
-Definition at line 55 of file CoolWifi\&.h\&.
+Definition at line 59 of file CoolWifi\&.h\&.
 .PP
-Referenced by addWifi(), begin(), config(), and printConf()\&.
+Referenced by addWifi(), begin(), and config()\&.
 .SS "String CoolWifi::ssid[50] ={'0'}\fC [private]\fP"
 
 .PP
-Definition at line 53 of file CoolWifi\&.h\&.
+Definition at line 57 of file CoolWifi\&.h\&.
 .PP
 Referenced by addWifi(), begin(), config(), and printConf()\&.
 .SS "int CoolWifi::timeOut =0\fC [private]\fP"
 
 .PP
-Definition at line 57 of file CoolWifi\&.h\&.
+Definition at line 61 of file CoolWifi\&.h\&.
 .PP
-Referenced by addWifi(), config(), connect(), and printConf()\&.
+Referenced by addWifi(), config(), connectAP(), and printConf()\&.
 .SS "int CoolWifi::wifiCount =0\fC [private]\fP"
 
 .PP
-Definition at line 51 of file CoolWifi\&.h\&.
+Definition at line 55 of file CoolWifi\&.h\&.
 .PP
-Referenced by addWifi(), begin(), config(), and printConf()\&.
+Referenced by addWifi(), begin(), config(), connect(), and printConf()\&.
 .SS "ESP8266WiFiMulti CoolWifi::wifiMulti\fC [private]\fP"
 
 .PP
-Definition at line 49 of file CoolWifi\&.h\&.
+Definition at line 53 of file CoolWifi\&.h\&.
 .PP
-Referenced by begin(), and connect()\&.
+Referenced by begin(), and connectWifiMulti()\&.
 
 .SH "Author"
 .PP 
