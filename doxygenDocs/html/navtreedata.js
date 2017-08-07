@@ -24,7 +24,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "CoolBoardLed_8cpp.html",
-"classJetpack.html#a81df984fb4cea98c71aa1a1cfcdfe814"
+"classJetpack.html#a5a53e1ebf7aaf3bf3e0d37ea64ca09a7"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

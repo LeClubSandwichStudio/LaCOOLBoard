@@ -184,17 +184,23 @@ int CoolBoard::connect()
 #endif
 	wifiManager.connect();
 	delay(100);
-	
-	
-#if DEBUG == 1	
 
-	Serial.println( F("Launching mqtt.connect()") );
-	Serial.println();
 
-#endif	
-	//logInterval in seconds
-	mqtt.connect(this -> getLogInterval());
-	delay(100);
+	//only attempt MQTT connection when Wifi is Connected
+	if (wifiManager.state() == WL_CONNECTED)
+	{
+
+	#if DEBUG == 1	
+	
+		Serial.println( F("Launching mqtt.connect()") );
+		Serial.println();
+	
+	#endif	
+		//logInterval in seconds
+		mqtt.connect(this -> getLogInterval());
+		delay(100);
+	}
+	
 		
 	
 	
@@ -445,6 +451,8 @@ void CoolBoard::onLineMode()
 *	mode:	-read sensors
 *		-do actions
 *		-save data in the file system
+*		-if there is WiFi but no Internet : make data available over AP
+*		-if there is no connection : retry to connect
 */
 void CoolBoard::offLineMode()
 {
@@ -535,7 +543,38 @@ void CoolBoard::offLineMode()
 	
 	fileSystem.saveSensorData( data.c_str() );
 
-	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green	
+	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green
+
+	//case we have wifi but no internet
+	if( (wifiManager.state() == WL_CONNECTED) && ( mqtt.state()!=0 ) )
+	{
+	
+	#if DEBUG == 1
+		
+		Serial.println(F("there is Wifi but no Internet"));
+		Serial.println(F("lunching AP to check saved files"));
+		Serial.println(F("and Add new WiFi if needed"));
+	
+	#endif
+		
+		wifiManager.connectAP();
+		
+	}
+	
+	//case we have no connection
+	if( this->isConnected()!=0  )
+	{
+	
+	#if DEBUG == 1
+		
+		Serial.println(F("there is No Wifi "));
+		Serial.println(F("retrying to connect"));
+	
+	#endif
+		
+		this->connect();
+		
+	}	
 
 }
 

@@ -90,28 +90,106 @@ wl_status_t CoolWifi::state()
 wl_status_t CoolWifi::connect()
 {       
 
-	int i=0;
+
 
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolWifi.connect()") );
 	Serial.println( F("Wifi connecting...") );
-	
-	Serial.println("entry time to multi : ");
-	Serial.println(millis() ) ;
 
 #endif
-	//Wifi MULTI
 
-	while( (wifiMulti.run() != WL_CONNECTED) && (i<1000)  ) 
+	//if WifiCount > 0 , lunch wifiMulti
+	//else no need to , skip this part
+	// to wifiManager  
+	if(this->wifiCount !=0)
+	{
+	
+		this->connectWifiMulti();
+		
+		//if nomad is true, only check wifi list
+		if(this->nomad == true)
+		{
+	
+		#if DEBUG == 1
+	
+			Serial.print(F("nomad mode :"));
+			Serial.println(this->nomad);
+		
+			Serial.print(F("Wifi status: "));
+			Serial.println(WiFi.status());
+		
+		#endif	
+			return(WiFi.status());	
+		}
+
+	}
+
+
+	//Wifi Manager
+	if( WiFi.status() != WL_CONNECTED ) 
+	{
+
+	#if DEBUG == 1 
+	
+		Serial.println(F("No matching wifi Found ") );
+		Serial.println( F("Starting Access Point ") );	
+		Serial.println();
+
+	#endif
+		
+		this->connectAP();		
+		
+	}
+	else
 	{
 
 	#if DEBUG == 1
 
-        	Serial.print(".");
-		i++;
-		delay(10);
+		Serial.println(F("connected to "));
+		Serial.println( WiFi.SSID() );
+		//Serial.println( WiFi.psk() ) ;
+				
+	#endif
 	
+	}
+	
+	return( WiFi.status() ) ;
+
+}
+
+/**
+*	CoolWifi::connectWifiMulti()
+*	This function is provided to
+*	run the WifiMulti part of the
+*	Wifi connection process
+*
+*	\return wifi state
+*/
+wl_status_t CoolWifi::connectWifiMulti()
+{
+	int i=0;
+
+#if DEBUG == 1 
+
+	Serial.println(F("Entering CoolWifi.connectWifiMulti()"));
+	Serial.println();
+	
+	Serial.println( F("entry time to multi : ") );
+	Serial.println(millis() ) ;
+
+#endif
+	
+	//Wifi MULTI
+	while( (this->wifiMulti.run() != WL_CONNECTED) && (i<500)  ) 
+	{
+
+	#if DEBUG == 1
+
+		Serial.print(F("."));
+		i++;
+		delay(5);
+
 	#endif
 
     	}	
@@ -119,48 +197,62 @@ wl_status_t CoolWifi::connect()
 #if DEBUG == 1 
 
 	Serial.println();	
-	Serial.println("exit point from multi : ");
+	Serial.println(F("exit point from multi : "));
 	Serial.println(millis() );
-
-
+	
+	Serial.print(F("Wifi Status :"));
+	Serial.println(WiFi.status());
 #endif
 
-	//Wifi Manager
-	if( (i>=1000) ||  (WiFi.status() != WL_CONNECTED) ) 
+	return(WiFi.status());
+
+}
+
+
+/**
+*	CoolWifi::connectAP()
+*	This function is provided to
+*	run the WifiManager part of the
+*	Wifi connection process
+*
+*	\return wifi state
+*/
+wl_status_t CoolWifi::connectAP()
+{
+
+#if DEBUG == 1 
+	
+	Serial.println( F("Entering CoolWifi.connectAP()") );	
+	Serial.println();
+
+#endif
+	WiFiManager wifiManager;
+	
+	wifiManager.setRemoveDuplicateAPs(true);
+
+	wifiManager.setTimeout(this->timeOut);
+	
+	String tempMAC = WiFi.macAddress();
+	tempMAC.replace(":","");
+
+	String name="CoolBoardAP"+tempMAC;	
+
+	if(!wifiManager.autoConnect(name.c_str())) 
 	{
 	
-	#if DEBUG == 1 
-		
-		Serial.println(F("No matching wifi Found ") );
-		Serial.println( F("Starting Access Point ") );	
-		Serial.println();
+	#if DEBUG == 1
+
+		Serial.println( F("failed to connect and hit timeout") );
 	
 	#endif
-		WiFiManager wifiManager;
-		
-		wifiManager.setRemoveDuplicateAPs(true);
-	
-		wifiManager.setTimeout(this->timeOut);
-		
-		String tempMAC = WiFi.macAddress();
-		tempMAC.replace(":","");
-	
-		String name="CoolBoardAP"+tempMAC;	
+		delay(30);
 
-		if(!wifiManager.autoConnect(name.c_str())) 
-		{
-		
-		#if DEBUG == 1
+	} 
 
-			Serial.println( F("failed to connect and hit timeout") );
-		
-		#endif
-			delay(300);
+	//if you get here you have connected to the WiFi
 
-		} 
+	if(WiFi.status()==WL_CONNECTED)
 
-		  //if you get here you have connected to the WiFi
-		#if DEBUG == 1
 
 			Serial.println( F("connected...yeey :)" ));
 			Serial.println("connected to ");
@@ -172,21 +264,26 @@ wl_status_t CoolWifi::connect()
 		
 	}
 	else
+
 	{
 
-	#if DEBUG == 1
+		this->addWifi( WiFi.SSID() , WiFi.psk() );
 
-		Serial.println("connected to ");
+	#if DEBUG == 1
+	
+		Serial.println( F("connected...yeey :)" ));
+		Serial.println(F("connected to ") );
 		Serial.println( WiFi.SSID() );
 		//Serial.println( WiFi.psk() ) ;
-				
+
 	#endif
 	
 	}
 	
-	return( WiFi.status() ) ;
+	return(WiFi.status());
 
 }
+
 
 /**
 *	CoolWifi::config():
@@ -283,6 +380,19 @@ bool CoolWifi::config()
 
 			}
 			json["timeOut"]=this->timeOut;
+
+			//nomad
+			if(json["nomad"].success() )
+			{
+				this->nomad=json["nomad"];
+			}
+			else
+			{
+				this->nomad=this->nomad;
+
+			}
+			json["nomad"]=this->nomad;
+
 			
 			
 			//Wifis SSID and PASS
@@ -365,7 +475,7 @@ bool CoolWifi::config()
 *	
 *	\return true if successfull, false otherwise
 */
-bool CoolWifi::config(String ssid[],String pass[],int wifiNumber, int APTimeOut)
+bool CoolWifi::config(String ssid[],String pass[],int wifiNumber, int APTimeOut,bool nomad)
 {
 
 #if DEBUG == 1 
@@ -388,6 +498,8 @@ bool CoolWifi::config(String ssid[],String pass[],int wifiNumber, int APTimeOut)
 	this->wifiCount=wifiNumber;
 
 	this->timeOut=APTimeOut;
+
+	this->nomad=nomad;
 	
 	for(int i=0;i<wifiNumber;i++)
 	{
@@ -416,28 +528,37 @@ void CoolWifi::printConf()
 
 #endif
 	
-	Serial.println("Wifi configuration ");
+	Serial.println(F("Wifi configuration "));
 
 	
-	Serial.println("wifiCount : ");
+	Serial.println(F("wifiCount : "));
 	Serial.println(this->wifiCount);
 	
 	for(int i=0;i<this->wifiCount;i++)
 	{	
-		Serial.print("SSID");
+		Serial.print(F("SSID"));
 		Serial.print(i);
-		Serial.println(" : ");
+		Serial.println(F(" : "));
 		Serial.println(this->ssid[i]);
 				
+
 		//Serial.print("PASS");
 		//Serial.print(i);
 		//Serial.println(" : ");
+
+		//Serial.print(F("PASS"));
+		//Serial.print(i);
+		//Serial.println(F(" : "));
+
 		//Serial.println(this->pass[i]);
 		
 	}
 	
-	Serial.println("timeOut : ");
+	Serial.println(F("timeOut : "));
 	Serial.println(this->timeOut);
+
+	Serial.println(F("nomad : "));
+	Serial.println(this->nomad);
 
 	Serial.println();
 
