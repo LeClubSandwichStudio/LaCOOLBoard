@@ -34,6 +34,8 @@ class CoolBoard
 {
 
 public:
+	//Constructor
+	CoolBoard();
 
 	void begin(); 
 	
@@ -56,6 +58,10 @@ public:
 	void sleep(unsigned long interval);
 
 	String readSensors();
+	
+	void initReadI2C();
+
+	void stopReadI2C();
 	
 	String userData();
 
@@ -97,6 +103,10 @@ private:
 	String data="";
 
 	String answer="";
+
+	const int EnI2C = 5;                            // double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch
+							// All I2C is over pins (2,14)
+
 
 
 };
