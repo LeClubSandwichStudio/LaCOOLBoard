@@ -28,9 +28,8 @@
 
 /**
 *	CoolBoardSensors::CoolBoardSensors():
-*	This Constructor is provided to start
-*	the I2C interface and Init the different
-*	used pins
+*	This Constructor is provided to 
+*	init the different used pins
 */
 CoolBoardSensors::CoolBoardSensors()
 {
@@ -42,12 +41,8 @@ CoolBoardSensors::CoolBoardSensors()
 
 #endif
 	
-	Wire.begin(2, 14);                       //I2C init Maybe change this to the CoolBoard?
-
 	pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
 	pinMode(EnMoisture, OUTPUT);             //Declare Moisture enable Pin
-	pinMode(EnI2C, OUTPUT);		   //Declare I2C Enable pin 
-
 
 }
 
@@ -100,8 +95,6 @@ void CoolBoardSensors::begin()
 	Serial.println();
 
 #endif
-
-	initReadI2C();
 
 	while (!lightSensor.Begin()) 
 	{
@@ -169,8 +162,7 @@ String CoolBoardSensors::read()
 	String data;
 	DynamicJsonBuffer  jsonBuffer ;
 	JsonObject& root = jsonBuffer.createObject();
-	
-	initReadI2C();
+
 	delay(100);
 	//light data
 	if(lightDataActive.visible)
@@ -237,45 +229,6 @@ String CoolBoardSensors::read()
 	
 
 }
-
-/**
-*	CoolBoardSensors::initReadI2C():
-*	This method is provided to enable the I2C
-*	Interface on the sensor board.
-*/
-void CoolBoardSensors::initReadI2C()
-{
-
-#if DEBUG == 1
-
- 	Serial.println( F("Entering CoolBoardSensors.initReadI2C()") );
-	Serial.println();
-
-#endif
- 
-	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
-
-}
-
-/**
-*	CoolBoardSensors::stopReadI2C():
-*	This method is provided to disable the I2C
-*	Interface on the sensor board
-*/
-void CoolBoardSensors::stopReadI2C()
-{
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.stopReadI2C()") );
-	Serial.println();
-
-#endif
-
-	digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
-
-}
-
 
 /**
 *	CoolBoardSensors::config():

@@ -26,6 +26,29 @@
 
 
 /**
+*	CoolBoard::CoolBoard():
+*	This Constructor is provided to start
+*	the I2C interface and Init the different
+*	used pins
+*/
+CoolBoard::CoolBoard()
+{
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolBoard Constructor") );
+	Serial.println();
+
+#endif
+	
+	Wire.begin(2, 14);                       //I2C init 
+
+	pinMode(EnI2C, OUTPUT);		   //Declare I2C Enable pin 
+
+}
+
+
+/**
 *	CoolBoard::begin():
 *	This method is provided to configure and
 *	start the used CoolKit Parts.
@@ -46,7 +69,9 @@ void CoolBoard::begin()
 	delay(100);
 	
 	coolBoardLed.write(255,128,0);//orange
-	
+
+	this->initReadI2C();
+
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	coolBoardSensors.printConf();
@@ -883,39 +908,6 @@ void CoolBoard::update(const char * answer)
 			//saving the new configuration
 			fileSystem.updateConfigFiles(answerDesired);
 
-			//applying the configuration	
-			/*this -> config();
-
-			coolBoardSensors.config();
-
-			rtc.config();
-
-			coolBoardLed.config();
-			
-			wifiManager.config();
-
-			mqtt.config();
-
-			if (jetpackActive)
-			{
-				jetPack.config();
-			}
-
-			if (ireneActive)
-			{
-				irene3000.config();
-			}
-
-			if (externalSensorsActive)
-			{
-				externalSensors.config();
-			}
-
-			delay(10);
-			wifiManager.begin();
-			delay(100);
-			mqtt.begin();*/
-
 		        //answering the update msg:
 			//reported = received configuration
 			//desired=null
@@ -1007,6 +999,8 @@ String CoolBoard::readSensors()
 	coolBoardLed.strobe(128,255,0,0.5);//light shade of green
 
 	String sensorsData;
+	
+	this->initReadI2C();
 
 	sensorsData = coolBoardSensors.read(); // {..,..,..}
 	
@@ -1052,6 +1046,44 @@ String CoolBoard::readSensors()
 	coolBoardLed.fadeOut(128,255,0,0.5);//light shade of green
 
 	return(sensorsData);
+
+}
+
+/**
+*	CoolBoard::initReadI2C():
+*	This method is provided to enable the I2C
+*	Interface.
+*/
+void CoolBoard::initReadI2C()
+{
+
+#if DEBUG == 1
+
+ 	Serial.println( F("Entering CoolBoard.initReadI2C()") );
+	Serial.println();
+
+#endif
+ 
+	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
+
+}
+
+/**
+*	CoolBoard::stopReadI2C():
+*	This method is provided to disable the I2C
+*	Interface. 
+*/
+void CoolBoard::stopReadI2C()
+{
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolBoard.stopReadI2C()") );
+	Serial.println();
+
+#endif
+
+	digitalWrite(EnI2C,LOW);//LOW= I2C Disable
 
 }
 
@@ -1124,3 +1156,6 @@ void CoolBoard::sleep(unsigned long interval)
 	//interval is in seconds , interval*1000*1000 in µS
 	ESP.deepSleep ( ( interval * 1000 * 1000 ), WAKE_RF_DEFAULT) ;
 }
+
+
+
