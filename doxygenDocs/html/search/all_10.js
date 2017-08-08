@@ -17,6 +17,6 @@ var searchData=
   ['soilmoistureactive',['soilMoistureActive',['../classCoolBoardSensors.html#a31983eecc0f9cd000e1f912206ea4dc8',1,'CoolBoardSensors']]],
   ['ssid',['ssid',['../classCoolWifi.html#a893b21d0fed821438733bba2e73fb4c2',1,'CoolWifi']]],
   ['state',['state',['../structIrene3000_1_1state.html',1,'Irene3000::state'],['../structJetpack_1_1state.html',1,'Jetpack::state'],['../classCoolMQTT.html#a5d003307eff78efbd585e42b43b72b6d',1,'CoolMQTT::state()'],['../classCoolWifi.html#a1c7b4d82a4098d346e7593dce92039fa',1,'CoolWifi::state()']]],
-  ['stopreadi2c',['stopReadI2C',['../classCoolBoardSensors.html#ab67b900b9e5e7c18d52d2d9107ba171b',1,'CoolBoardSensors']]],
+  ['stopreadi2c',['stopReadI2C',['../classCoolBoard.html#a8c23a7683ae929ec89d326ae605a41aa',1,'CoolBoard']]],
   ['strobe',['strobe',['../classCoolBoardLed.html#ad5f0de4c628cbfbf49896042831c64ad',1,'CoolBoardLed']]]
 ];

@@ -1,4 +1,17 @@
 class CoolBoard
+!!!207237.cpp!!!	CoolBoard()
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolBoard Constructor") );
+	Serial.println();
+
+#endif
+	
+	Wire.begin(2, 14);                       //I2C init 
+
+	pinMode(EnI2C, OUTPUT);		   //Declare I2C Enable pin 
+
 !!!128005.cpp!!!	begin() : void
 
 #if DEBUG == 1
@@ -11,7 +24,9 @@ class CoolBoard
 	delay(100);
 	
 	coolBoardLed.write(255,128,0);//orange
-	
+
+	this->initReadI2C();
+
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	coolBoardSensors.printConf();
@@ -300,39 +315,6 @@ class CoolBoard
 			//saving the new configuration
 			fileSystem.updateConfigFiles(answerDesired);
 
-			//applying the configuration	
-			/*this -> config();
-
-			coolBoardSensors.config();
-
-			rtc.config();
-
-			coolBoardLed.config();
-			
-			wifiManager.config();
-
-			mqtt.config();
-
-			if (jetpackActive)
-			{
-				jetPack.config();
-			}
-
-			if (ireneActive)
-			{
-				irene3000.config();
-			}
-
-			if (externalSensorsActive)
-			{
-				externalSensors.config();
-			}
-
-			delay(10);
-			wifiManager.begin();
-			delay(100);
-			mqtt.begin();*/
-
 		        //answering the update msg:
 			//reported = received configuration
 			//desired=null
@@ -483,8 +465,8 @@ class CoolBoard
 		
 	}
 	
-	//case we have no connection
-	if( this->isConnected()!=0  )
+	//case we have no connection at all
+	if( wifiManager.state() != WL_CONNECTED )
 	{
 	
 	#if DEBUG == 1
@@ -494,7 +476,8 @@ class CoolBoard
 	
 	#endif
 		
-		this->connect();
+		this->connect();//nomad case : just run wifiMulti
+				//normal case : run wifiMulti+AP
 		
 	}	
 
@@ -879,6 +862,8 @@ class CoolBoard
 	coolBoardLed.strobe(128,255,0,0.5);//light shade of green
 
 	String sensorsData;
+	
+	this->initReadI2C();
 
 	sensorsData = coolBoardSensors.read(); // {..,..,..}
 	
@@ -924,6 +909,28 @@ class CoolBoard
 	coolBoardLed.fadeOut(128,255,0,0.5);//light shade of green
 
 	return(sensorsData);
+
+!!!207365.cpp!!!	initReadI2C() : void
+
+#if DEBUG == 1
+
+ 	Serial.println( F("Entering CoolBoard.initReadI2C()") );
+	Serial.println();
+
+#endif
+ 
+	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
+
+!!!207493.cpp!!!	stopReadI2C() : void
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering CoolBoard.stopReadI2C()") );
+	Serial.println();
+
+#endif
+
+	digitalWrite(EnI2C,LOW);//LOW= I2C Disable
 
 !!!153221.cpp!!!	userData() : String
 

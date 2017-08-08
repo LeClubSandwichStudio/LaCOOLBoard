@@ -8,5 +8,6 @@ var searchData=
   ['readsensors',['readSensors',['../classCoolBoard.html#ad03abdce2e65f520bbf2cff0f2d083cf',1,'CoolBoard']]],
   ['readtemp',['readTemp',['../classIrene3000.html#a94ad40f281d83ad1be20bf1edd6fe802',1,'Irene3000']]],
   ['readvbat',['readVBat',['../classCoolBoardSensors.html#a6944b6ea7bce8e2fce1b434acfd9d5f3',1,'CoolBoardSensors']]],
-  ['resetparams',['resetParams',['../classIrene3000.html#a0fba280e8b7c881307efa31281aa691d',1,'Irene3000']]]
+  ['resetparams',['resetParams',['../classIrene3000.html#a0fba280e8b7c881307efa31281aa691d',1,'Irene3000']]],
+  ['return',['return',['../CoolWifi_8cpp.html#a6ab9b20a1b9461b93ce75cf8c5a9c3df',1,'CoolWifi.cpp']]]
 ];

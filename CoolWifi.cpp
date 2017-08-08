@@ -253,6 +253,18 @@ wl_status_t CoolWifi::connectAP()
 
 	if(WiFi.status()==WL_CONNECTED)
 
+
+			Serial.println( F("connected...yeey :)" ));
+			Serial.println("connected to ");
+			Serial.println( WiFi.SSID() );
+			//Serial.println( WiFi.psk() ) ;
+			
+		#endif
+			this->addWifi( WiFi.SSID() , WiFi.psk() );
+		
+	}
+	else
+
 	{
 
 		this->addWifi( WiFi.SSID() , WiFi.psk() );
@@ -529,9 +541,15 @@ void CoolWifi::printConf()
 		Serial.println(F(" : "));
 		Serial.println(this->ssid[i]);
 				
+
+		//Serial.print("PASS");
+		//Serial.print(i);
+		//Serial.println(" : ");
+
 		//Serial.print(F("PASS"));
 		//Serial.print(i);
 		//Serial.println(F(" : "));
+
 		//Serial.println(this->pass[i]);
 		
 	}

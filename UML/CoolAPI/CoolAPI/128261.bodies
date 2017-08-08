@@ -8,12 +8,8 @@ class CoolBoardSensors
 
 #endif
 	
-	Wire.begin(2, 14);                       //I2C init Maybe change this to the CoolBoard?
-
 	pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
 	pinMode(EnMoisture, OUTPUT);             //Declare Moisture enable Pin
-	pinMode(EnI2C, OUTPUT);		   //Declare I2C Enable pin 
-
 
 !!!130437.cpp!!!	begin() : void
   
@@ -24,8 +20,6 @@ class CoolBoardSensors
 	Serial.println();
 
 #endif
-
-	initReadI2C();
 
 	while (!lightSensor.Begin()) 
 	{
@@ -64,8 +58,7 @@ class CoolBoardSensors
 	String data;
 	DynamicJsonBuffer  jsonBuffer ;
 	JsonObject& root = jsonBuffer.createObject();
-	
-	initReadI2C();
+
 	delay(100);
 	//light data
 	if(lightDataActive.visible)
@@ -154,28 +147,6 @@ class CoolBoardSensors
 	this->soilMoistureActive=1;
 	
 
-
-!!!131077.cpp!!!	initReadI2C() : void
-
-#if DEBUG == 1
-
- 	Serial.println( F("Entering CoolBoardSensors.initReadI2C()") );
-	Serial.println();
-
-#endif
- 
-	digitalWrite(EnI2C,HIGH);//HIGH= I2C Enable
-
-!!!131205.cpp!!!	stopReadI2C() : void
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoardSensors.stopReadI2C()") );
-	Serial.println();
-
-#endif
-
-	digitalWrite(EnI2C,LOW);//HIGH= I2C Enable
 
 !!!131333.cpp!!!	end() : void
 
