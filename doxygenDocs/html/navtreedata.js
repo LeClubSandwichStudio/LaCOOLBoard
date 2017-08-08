@@ -15,6 +15,8 @@ var NAVTREE =
       [ "File List", "files.html", "files" ],
       [ "File Members", "globals.html", [
         [ "All", "globals.html", null ],
+        [ "Functions", "globals_func.html", null ],
+        [ "Variables", "globals_vars.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ]
@@ -24,7 +26,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "CoolBoardLed_8cpp.html",
-"classJetpack.html#a5a53e1ebf7aaf3bf3e0d37ea64ca09a7"
+"classIrene3000.html#aff7c5da186b388e7272e63ff88a20c34"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

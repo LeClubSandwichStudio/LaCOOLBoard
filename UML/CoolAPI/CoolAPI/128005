@@ -1,6 +1,6 @@
 format 213
 "CoolBoard" // CoolBoard
-  revision 23
+  revision 24
   modified_by 5 "ashiroji"
   // class settings
   
@@ -62,6 +62,27 @@ ${inlines}
 	\\brief This class manages the CoolBoard and all of
 	Its functions
 "
+      operation 207237 "CoolBoard"
+	preserve_cpp_body_indent public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::CoolBoard():
+//	This Constructor is provided to start
+//	the I2C interface and Init the different
+//	used pins
+//
+
+${inline}${class}::${name}${(}${)}${throw}{
+  ${body}}
+"
+	
+	
+	
+	
+	comment "Constructor"
+      end
+
       operation 128005 "begin"
 	preserve_cpp_body_indent public explicit_return_type "void"
 	nparams 0
@@ -308,6 +329,44 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	
       end
 
+      operation 207365 "initReadI2C"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::initReadI2C():
+//	This method is provided to enable the I2C
+//	Interface.
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 207493 "stopReadI2C"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::stopReadI2C():
+//	This method is provided to disable the I2C
+//	Interface. 
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
       operation 153221 "userData"
 	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 0
@@ -526,6 +585,20 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	idl_decl ""
 	mysql_decl ""
 	MysqlColumn
+      end
+
+      attribute 178437 "EnI2C"
+	const_attribute private explicit_type "int"
+	init_value "=  5"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+	comment " double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch"
       end
     end
 
@@ -750,9 +823,8 @@ ${inlines}
 	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolBoardSensors::CoolBoardSensors():
-//	This Constructor is provided to start
-//	the I2C interface and Init the different
-//	used pins
+//	This Constructor is provided to 
+//	init the different used pins
 //
 
 ${inline}${class}::${name}${(}${)}${throw}{
@@ -816,44 +888,6 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	This method is provided to allow
 //	activation of all the sensor board sensors
 //	without passing by the configuration file/method
-//
-
-${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
-  ${body}}
-"
-	
-	
-	
-	
-      end
-
-      operation 131077 "initReadI2C"
-	preserve_cpp_body_indent public explicit_return_type "void"
-	nparams 0
-	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
-"
-	cpp_def "//	CoolBoardSensors::initReadI2C():
-//	This method is provided to enable the I2C
-//	Interface on the sensor board.
-//
-
-${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
-  ${body}}
-"
-	
-	
-	
-	
-      end
-
-      operation 131205 "stopReadI2C"
-	preserve_cpp_body_indent public explicit_return_type "void"
-	nparams 0
-	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
-"
-	cpp_def "//	CoolBoardSensors::stopReadI2C():
-//	This method is provided to disable the I2C
-//	Interface on the sensor board
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
@@ -1173,20 +1207,6 @@ ${inlines}
 	comment " Analog Multiplexer  LOW=Vbat , HIGH=Moisture"
       end
 
-      attribute 130949 "EnI2C"
-	const_attribute private explicit_type "int"
-	init_value "=  5"
-	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-	mysql_decl ""
-	MysqlColumn
-	comment " double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch"
-      end
-
       attribute 131077 "vbatActive"
 	private explicit_type "byte"
 	init_value "= 0"
@@ -1198,8 +1218,6 @@ ${inlines}
 	idl_decl ""
 	mysql_decl ""
 	MysqlColumn
-	comment " All I2C is over pins (2,14)
-"
       end
 
       attribute 158213 "soilMoistureActive"
@@ -1214,6 +1232,7 @@ ${inlines}
 	mysql_decl ""
 	MysqlColumn
       end
+
     end
 
     class 128389 "CoolBoardLed"
@@ -3967,6 +3986,18 @@ ${inlines}
 //	wifiManager time out 
 //
 
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
+//	CoolWifi::begin():
+//	This method is provided to set the
+//	wifiMulti Access points and the 
+//	wifiManager time out 
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4439,6 +4470,22 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}[], ${t1} ${p1}[], ${t2} ${p2},
 //	\\return wifi state
 //
 
+//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
+//	CoolWifi::connect( ):
+//	This method is provided to connect to the strongest WiFi
+//	in the provided list of wiFis.
+//	If none are found , it starts the AP mode.
+//	
+//	\\return wifi state
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4454,6 +4501,34 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
+//	CoolWifi::state():
+//	This method is provided to return the 
+//	Wifi client's state.
+//	\\return wifi client state:	
+//		WL_NO_SHIELD        = 255, 
+//   		WL_IDLE_STATUS      = 0,
+//   		WL_NO_SSID_AVAIL    = 1,
+//   		WL_SCAN_COMPLETED   = 2,
+//   		WL_CONNECTED        = 3,
+//   		WL_CONNECT_FAILED   = 4,
+//   		WL_CONNECTION_LOST  = 5,
+//		WL_DISCONNECTED = 6
+//
+
+//	CoolWifi::state():
 //	This method is provided to return the 
 //	Wifi client's state.
 //	\\return wifi client state:	
@@ -4809,6 +4884,16 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //	configuration to the Serial Monitor
 //
 
+//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
+//	CoolWifi::printConf():
+//	This method is provided to print the
+//	configuration to the Serial Monitor
+//
+
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
@@ -4827,6 +4912,22 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}, ${t1} ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
 "
 	cpp_def "//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
+//	This method is provided to add new WiFi
+//	detected by the WiFiManager to 
+//	the jsonConfig(if used ) 
+//	
+//	\\return true if successfull , false otherwise
+//
+
+//	CoolWifi::addWifi(ssid,pass)	
 //	This method is provided to add new WiFi
 //	detected by the WiFiManager to 
 //	the jsonConfig(if used ) 

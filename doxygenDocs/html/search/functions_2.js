@@ -8,5 +8,6 @@ var searchData=
   ['connect',['connect',['../classCoolBoard.html#a519de78b807f8ec6463ff484eb925918',1,'CoolBoard::connect()'],['../classCoolMQTT.html#a50075d0ab23a327ab897fd6adad20eda',1,'CoolMQTT::connect()'],['../classCoolWifi.html#ad060353050f40d032a2dbf9e54a768bf',1,'CoolWifi::connect()']]],
   ['connectap',['connectAP',['../classCoolWifi.html#a7c857f27161782f5ef1d62d552aff971',1,'CoolWifi']]],
   ['connectwifimulti',['connectWifiMulti',['../classCoolWifi.html#a419de92d738f14b7444cf822b3ab0070',1,'CoolWifi']]],
+  ['coolboard',['CoolBoard',['../classCoolBoard.html#a8b88fd781e22e93025dd63474113b7e4',1,'CoolBoard']]],
   ['coolboardsensors',['CoolBoardSensors',['../classCoolBoardSensors.html#a91ff2a02f5486f90cf2413a1cf8a9ed4',1,'CoolBoardSensors']]]
 ];

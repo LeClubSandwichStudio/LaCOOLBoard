@@ -29,7 +29,7 @@ var files =
       [ "CoolWifi", "classCoolWifi.html", "classCoolWifi" ]
     ] ],
     [ "ExternalSensor.h", "ExternalSensor_8h.html", "ExternalSensor_8h" ],
-    [ "ExternalSensors.cpp", "ExternalSensors_8cpp.html", "ExternalSensors_8cpp" ],
+    [ "ExternalSensors.cpp", "ExternalSensors_8cpp.html", null ],
     [ "ExternalSensors.h", "ExternalSensors_8h.html", [
       [ "ExternalSensors", "classExternalSensors.html", "classExternalSensors" ],
       [ "sensor", "structExternalSensors_1_1sensor.html", "structExternalSensors_1_1sensor" ]
