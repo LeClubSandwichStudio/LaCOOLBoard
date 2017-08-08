@@ -314,6 +314,52 @@ bool ExternalSensors::config()
 }
 
 /**
+*	ExternalSensors::config(String reference[],String type[],uint8_t address[],int sensorsNumber):
+*	This method is provided to configure
+*	the externalSensors without a configuration
+*	file
+*
+*	\return true if successful,false otherwise
+*/
+bool ExternalSensors::config(String reference[],String type[],uint8_t address[],int sensorsNumber)
+{
+
+#if DEBUG == 1
+
+	Serial.println( F("Entering ExternalSensors.conf(reference[], type[], address[], sensorsNumber)") );
+	Serial.println();
+
+#endif 	
+	if(sensorsNumber>50)
+	{
+	
+	#if DEBUG == 1
+	
+		Serial.println(F("you can't add more than 50 sensors"));	
+	
+	#endif	
+	
+		return(false);
+	}
+
+	this->sensorsNumber=sensorsNumber;
+	
+	for(int i=0;i<sensorsNumber;i++)
+	{
+	
+		this->sensors[i].reference=reference[i];
+		
+		this->sensors[i].type=type[i];
+
+		this->sensors[i].address=address[i];
+	
+	}
+	
+	return(true);
+
+}
+
+/**
 *	ExternalSensors::printConf():
 *	This method is provided to print the
 *	configuration to the Serial Monitor

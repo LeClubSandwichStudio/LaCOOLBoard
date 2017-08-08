@@ -1,17 +1,31 @@
-#include<ExternalSensor.h>
+#include"ExternalSensors.h"
 #include<Wire.h>
 
-ExternalSensor sensor<NDIR_I2C>(0x4D);
+ExternalSensors externalSensors;
+
+String reference[]={"NDIR_I2C"};
+
+String type[]={"CO2"};
+
+uint8_t address[]={77};
+
+int sensorsNumber=1;	
 
 void setup()
 {
 	Wire.begin(2,14);
+
+	digitalWrite(5,HIGH);//HIGH= I2C Enable
+
 	Serial.begin(115200);
-	sensor.begin();
+
+	externalSensors.config(reference,type,address,sensorsNumber);
+	externalSensors.begin();
+	externalSensors.printConf();
 }
 
 void loop()
 {
-	Serial.println(sensor.read());
+	Serial.println(externalSensors.read());
 	delay(1000);
 }
