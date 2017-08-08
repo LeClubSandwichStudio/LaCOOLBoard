@@ -252,19 +252,21 @@ wl_status_t CoolWifi::connectAP()
 	//if you get here you have connected to the WiFi
 
 	if(WiFi.status()==WL_CONNECTED)
+	{
 
+	#if DEBUG == 1
 
-			Serial.println( F("connected...yeey :)" ));
-			Serial.println("connected to ");
-			Serial.println( WiFi.SSID() );
-			//Serial.println( WiFi.psk() ) ;
-			
-		#endif
-			this->addWifi( WiFi.SSID() , WiFi.psk() );
+		Serial.println( F("connected...yeey :)" ));
+		Serial.println("connected to ");
+		Serial.println( WiFi.SSID() );
+		//Serial.println( WiFi.psk() ) ;
+		
+	#endif
+
+		this->addWifi( WiFi.SSID() , WiFi.psk() );
 		
 	}
 	else
-
 	{
 
 		this->addWifi( WiFi.SSID() , WiFi.psk() );

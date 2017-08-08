@@ -32,6 +32,8 @@ public:
 	String read ();
 
 	bool config();
+	
+	bool config(String reference[],String type[],uint8_t address[],int sensorsNumber);
 
 	void printConf();
 
