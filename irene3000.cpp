@@ -18,7 +18,7 @@
 
 
 
-//#define DEBUG 1
+#define DEBUG 1
 
 #ifndef DEBUG
 
@@ -45,7 +45,7 @@ void Irene3000::begin()
 
 #endif
 
-	this->ads.begin();
+
 }
 
 /**
@@ -84,7 +84,7 @@ String Irene3000::read()
 		
 	if(waterTemp.active)
 	{
-		root["waterTemp"] = this->readTemp(waterTemp.gain);
+		root["waterTemp"] = this->readTemp();
 
 		if(phProbe.active)
 		{
@@ -463,7 +463,7 @@ float Irene3000::readPh(adsGain_t gain)
 *
 *	\return the Temperature probe value
 */
-double Irene3000::readTemp(adsGain_t gain)
+double Irene3000::readTemp()
 {
 
 #if DEBUG == 1 
@@ -477,7 +477,8 @@ double Irene3000::readTemp(adsGain_t gain)
 	const double B = -5.775E-7;
 	double T;
 
-	this->setGain(gain);
+	this->setGain(GAIN_EIGHT);
+
 	double adc0 = ads.readADC_SingleEnded(temp);
 
 

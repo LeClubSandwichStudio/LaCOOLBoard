@@ -52,7 +52,7 @@ public:
 
 	float readPh(adsGain_t gain);
 
-	double readTemp(adsGain_t gain);
+	double readTemp();
 
 	void resetParams(void);
 
