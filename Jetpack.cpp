@@ -14,13 +14,7 @@
 #include "Jetpack.h"
 
 
-#define DEBUG 1 
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif
 
 
 /**

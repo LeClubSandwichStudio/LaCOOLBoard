@@ -16,15 +16,7 @@
 #include "ArduinoJson.h"
 
 
-
-#define DEBUG 1
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif
-
 
 
 
@@ -100,9 +92,9 @@ int CoolMQTT::connect(unsigned long keepAlive)
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolMQTT.connect()") );
-	Serial.println( F("MQTT connecting...") );
 
 #endif
+	Serial.println( F("MQTT connecting...") );
 	
 	while( ( !this->client.connected() ) && ( i<100 ) ) 
 	{
@@ -113,7 +105,6 @@ int CoolMQTT::connect(unsigned long keepAlive)
 
 		#if DEBUG == 1 
 
-			Serial.println( F("MQTT connected") );
 			Serial.println( F(" subscribed , leavin ") ) ;
 		
 		#endif
@@ -136,7 +127,12 @@ int CoolMQTT::connect(unsigned long keepAlive)
 	delay(5);
 	i++;
 	}
-	
+	if (state() == 0)
+	{
+		Serial.println( F("MQTT connected : OK") );
+		Serial.println();
+	}
+	else Serial.println( F("MQTT not jet connected..."));
 	return( this->state() );
 
 }
@@ -166,7 +162,11 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println();
 
 #endif
-	
+#if DEBUG == 0
+	Serial.println( F("Publishing Message : "));
+	Serial.println(data);
+	Serial.println();
+#endif
 
 	bool pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
 
@@ -175,6 +175,13 @@ bool CoolMQTT::publish(const char* data)
 	Serial.print( F("success : ") );
 	Serial.println(pub);	
 
+#endif
+#if DEBUG == 0
+	if (pub == 1)
+	{
+		Serial.println( F("Publish : OK"));
+	}
+	else Serial.println( F("Publish : FAIL!!!"));
 #endif
 
 	return(pub);
