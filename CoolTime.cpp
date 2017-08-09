@@ -19,17 +19,7 @@
 #include "TimeLib.h"
 
 
-
-//#define DEBUG 1
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif
-
-
-
 
 
 /**
@@ -264,25 +254,23 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 
 #endif 
 
+#if DEBUG == 0
+
+	Serial.println( F("Check if Clock is ok and in sync..."));
+
+#endif
 
 	//default is once per week we try to get a time update
 	if( ( RTC.get(CLOCK_ADDRESS) - this->getLastSyncTime() ) > ( seconds ) ) 
 	{
 
-	#if DEBUG == 1 
-
 		Serial.println( F("time is not syncronised ") );
 	
-	#endif
-
 		return(false);	
 	}
 	
-#if DEBUG == 1 
-
-	Serial.println( F("time is syncronised ") );
-
-#endif 
+	Serial.println( F("time is syncronised : OK") );
+	Serial.println();
 
 	return(true);
 }
@@ -308,11 +296,7 @@ time_t CoolTime::getNtpTime()
 
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
 
-#if DEBUG == 1 
-	
 	Serial.println( F("Transmit NTP Request") );
-
-#endif 
 
 	sendNTPpacket(timeServer);
 
@@ -350,11 +334,7 @@ time_t CoolTime::getNtpTime()
 		}
 	}
 	
-#if DEBUG == 1
-
 	Serial.println( F("No NTP Response :-(") );
-
-#endif 
 
 	return 0; // return 0 if unable to get the time
 }
@@ -436,12 +416,8 @@ bool CoolTime::config()
 	if (!rtcConfig) 
 	{
 	
-	#if DEBUG == 1 
-
 		Serial.println( F("failed to read /rtcConfig.json") );
 		Serial.println();
-	
-	#endif
 
 		return(false);
 	}
@@ -456,13 +432,9 @@ bool CoolTime::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-		
-		#if DEBUG == 1 
 
-			Serial.println( F("failed to parse json") );
+			Serial.println( F("failed to parse rtcConfig json") );
 			Serial.println();
-		
-		#endif 
 
 			return(false);
 		} 
@@ -587,12 +559,9 @@ bool CoolTime::saveTimeSync()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-		#if DEBUG == 1
 
 			Serial.println( F("failed to parse json") );
 			Serial.println();
-		
-		#endif
 
 			return(false);
 		} 

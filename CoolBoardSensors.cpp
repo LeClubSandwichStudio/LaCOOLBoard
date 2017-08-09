@@ -15,14 +15,7 @@
 
 
 
-#define DEBUG 1
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif
-
 
 
 
@@ -43,6 +36,8 @@ CoolBoardSensors::CoolBoardSensors()
 	
 	pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
 	pinMode(EnMoisture, OUTPUT);             //Declare Moisture enable Pin
+	digitalWrite(EnMoisture, HIGH);			 //Prevent Wearing on the soil moisture fork
+
 
 }
 
@@ -121,6 +116,13 @@ void CoolBoardSensors::begin()
 
 #endif
 
+#if DEBUG == 0
+
+	Serial.println( F("Onboard Sensors : OK"));
+	Serial.println();
+
+#endif
+
 }
 
 /**
@@ -156,6 +158,12 @@ String CoolBoardSensors::read()
 	
 	Serial.println( F("Entering CoolBoardSensors.read()") );
 	Serial.println();
+
+#endif
+
+#if DEBUG == 0
+
+	Serial.println( F("Reading Sensors..."));
 
 #endif
 
@@ -213,12 +221,12 @@ String CoolBoardSensors::read()
 	
 	root.printTo(data);
 
-#if DEBUG == 1
-
 	Serial.println( F("CoolBoardSensors data is :") );
 	root.printTo(Serial);
 	Serial.println();
-	
+	Serial.println();
+
+#if DEBUG == 1
 	Serial.print(F("jsonBuffer size: "));
 	Serial.println(jsonBuffer.size());
 	Serial.println();
@@ -249,6 +257,11 @@ bool CoolBoardSensors::config()
 
 #endif
 
+#if DEBUG == 0
+
+	Serial.println( F("Reading Sensor Configuration..."));
+
+#endif
 	//read config file
 	//update data
 	File coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "r");
@@ -256,12 +269,8 @@ bool CoolBoardSensors::config()
 	if (!coolBoardSensorsConfig) 
 	{
 	
-	#if DEBUG == 1
-
 		Serial.println( F("failed to read /coolBoardSensorsConfig.json") );
 		Serial.println();
-	
-	#endif
 
 		return(false);
 	}
@@ -276,13 +285,9 @@ bool CoolBoardSensors::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-		
-		#if DEBUG == 1
 
 			Serial.println( F("failed to parse coolBoardSensorsConfig json") );
 			Serial.println();
-		
-		#endif
 	
 			return(false);
 		} 
@@ -298,8 +303,6 @@ bool CoolBoardSensors::config()
 			Serial.print(F("jsonBuffer size: "));
 			Serial.println(jsonBuffer.size());
 			Serial.println();
-
-			
 		
 		#endif
 			
@@ -395,13 +398,9 @@ bool CoolBoardSensors::config()
 			coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");			
 			if(!coolBoardSensorsConfig)
 			{
-			
-			#if DEBUG == 1
 
 				Serial.println( F("failed to write to /coolBoardSensorsConfig.json") );
 				Serial.println();
-			
-			#endif
 
 				return(false);			
 			}  
@@ -415,6 +414,10 @@ bool CoolBoardSensors::config()
 			json.printTo(Serial);
 			Serial.println();
 		
+		#endif
+
+		#if DEBUG == 0
+			Serial.println( F("Configuration loaded : OK"));
 		#endif
 
 			return(true); 
@@ -439,30 +442,30 @@ void CoolBoardSensors::printConf()
 
 #endif
 
-	Serial.println("Sensors Configuration : ");
+	Serial.println( F("Sensors Configuration : "));
 	
-	Serial.print("airDataActive.temperature : ");
+	Serial.print( F("airDataActive.temperature : "));
 	Serial.println(this->airDataActive.temperature);
 
-	Serial.print("airDataActive.humidity : ");
+	Serial.print( F("airDataActive.humidity : "));
 	Serial.println(airDataActive.humidity);
 
-	Serial.print("airDataActive.pressure : ");
+	Serial.print( F("airDataActive.pressure : "));
 	Serial.println(airDataActive.pressure);
 
-	Serial.print("lightDataActive.visible : ");
+	Serial.print( F("lightDataActive.visible : "));
 	Serial.println(lightDataActive.visible);
 
-	Serial.print("lightDataActive.ir : ");
+	Serial.print( F("lightDataActive.ir : "));
 	Serial.println(lightDataActive.ir);
 
-	Serial.print("lightDataActive.uv : ");
+	Serial.print( F("lightDataActive.uv : "));
 	Serial.println(lightDataActive.uv);
 	
-	Serial.print("vbatActive : ");
+	Serial.print( F("vbatActive : "));
 	Serial.println(vbatActive);
 
-	Serial.print("soilMoitureActive : ");
+	Serial.print( F("soilMoitureActive : "));
 	Serial.println(soilMoistureActive);
 
 	Serial.println();
@@ -570,12 +573,17 @@ float CoolBoardSensors::readMoisture()
 
 	int val = analogRead(A0);                       //read the value form the moisture sensor
 
+	if (val >= 891){
+		val = 890;
+	}
 	float result = (float)map(val, 0, 890, 0, 100);	
 
 	digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
 	
 #if DEBUG == 1 
 
+	Serial.println( F("RAW Moisture  is : "));
+	Serial.println(val);
 	Serial.println( F("Soil Moisture is : ") );
 	Serial.println(result);
 	Serial.println();

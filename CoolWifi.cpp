@@ -16,16 +16,7 @@
 #include "ArduinoJson.h"
 
 
-
-#define DEBUG 1
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif
-
-
 
 
 /**
@@ -95,9 +86,11 @@ wl_status_t CoolWifi::connect()
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolWifi.connect()") );
-	Serial.println( F("Wifi connecting...") );
 
 #endif
+
+	Serial.println( F("Wifi connecting...") );
+
 
 	//if WifiCount > 0 , lunch wifiMulti
 	//else no need to , skip this part
@@ -144,13 +137,9 @@ wl_status_t CoolWifi::connect()
 	else
 	{
 
-	#if DEBUG == 1
-
 		Serial.println(F("connected to "));
 		Serial.println( WiFi.SSID() );
-		//Serial.println( WiFi.psk() ) ;
-				
-	#endif
+		Serial.println();
 	
 	}
 	
@@ -187,11 +176,10 @@ wl_status_t CoolWifi::connectWifiMulti()
 	#if DEBUG == 1
 
 		Serial.print(F("."));
+		
+	#endif
 		i++;
 		delay(5);
-
-	#endif
-
     	}	
 
 #if DEBUG == 1 
@@ -235,16 +223,13 @@ wl_status_t CoolWifi::connectAP()
 	String tempMAC = WiFi.macAddress();
 	tempMAC.replace(":","");
 
-	String name="CoolBoardAP"+tempMAC;	
+	String name="CoolBoard-"+tempMAC;	
 
 	if(!wifiManager.autoConnect(name.c_str())) 
 	{
-	
-	#if DEBUG == 1
 
 		Serial.println( F("failed to connect and hit timeout") );
-	
-	#endif
+
 		delay(30);
 
 	} 
@@ -271,14 +256,10 @@ wl_status_t CoolWifi::connectAP()
 
 		this->addWifi( WiFi.SSID() , WiFi.psk() );
 
-	#if DEBUG == 1
-	
 		Serial.println( F("connected...yeey :)" ));
 		Serial.println(F("connected to ") );
 		Serial.println( WiFi.SSID() );
-		//Serial.println( WiFi.psk() ) ;
-
-	#endif
+		Serial.println();
 	
 	}
 	
@@ -306,6 +287,11 @@ bool CoolWifi::config()
 	Serial.println();
 
 #endif
+#if DEBUG == 0
+
+	Serial.println( "Reading Wifi Configuration..");
+	delay(100);
+#endif 
 
 	//read config file
 	//update data
@@ -314,12 +300,8 @@ bool CoolWifi::config()
 	if (!configFile) 
 	{
 	
-	#if DEBUG == 1 
-
 		Serial.println( F("failed to read /wifiConfig.json") );
 		Serial.println();
-
-	#endif
 
 		return(false);
 	}
@@ -334,14 +316,10 @@ bool CoolWifi::config()
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
 		{
-		
-		#if DEBUG == 1 
 
 			Serial.println( F("failed to parse json ") );
 			Serial.println();
-		
-		#endif
-			
+
 			return(false);
 		} 
 		else
@@ -444,12 +422,8 @@ bool CoolWifi::config()
 			if(!configFile)
 			{
 			
-			#if DEBUG == 1 
-
 				Serial.println( F("failed to write to /wifiConfig.json") );
 			
-			#endif
-
 				return(false);				
 			}
 			
@@ -463,7 +437,9 @@ bool CoolWifi::config()
 			Serial.println();
 		
 		#endif
-
+		#if DEBUG == 0
+			Serial.println( F("Configuration loaded : OK"));
+		#endif
 			return(true); 
 		}
 	}	
