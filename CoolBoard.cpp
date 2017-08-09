@@ -389,7 +389,7 @@ void CoolBoard::onLineMode()
 	//do action
 	if (jetpackActive)
 	{
-		this->stopReadI2C();
+		//this->stopReadI2C();
 
 	#if DEBUG ==1
 
@@ -551,7 +551,7 @@ void CoolBoard::offLineMode()
 	if (jetpackActive)
 	{
 	
-		this->stopReadI2C();
+		//this->stopReadI2C();
 
 	#if DEBUG == 1
 

@@ -88,7 +88,7 @@ String Irene3000::read()
 
 		if(phProbe.active)
 		{
-			root["ph"] =this->readPh(phProbe.gain) ;
+			root["ph"] =this->readPh() ;
 		}
 
 	}
@@ -428,7 +428,7 @@ int Irene3000::readADSChannel2(adsGain_t gain)
 *
 *	\return the PH probe value
 */
-float Irene3000::readPh(adsGain_t gain)
+float Irene3000::readPh()
 {
 
 #if DEBUG == 1 
@@ -438,9 +438,9 @@ float Irene3000::readPh(adsGain_t gain)
 
 #endif 
 
-	this->setGain(gain);
-
-	double Voltage =  gain * ( ads.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
+	this->setGain(GAIN_FOUR);
+	int adcR=ads.readADC_SingleEnded(ph);
+	double Voltage =  REFERENCE_VOLTAGE_GAIN_4 * ( adcR ) / ADC_MAXIMUM_VALUE;
 
 	float miliVolts = Voltage * 1000;
 	float temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
