@@ -70,6 +70,7 @@ void CoolBoard::begin()
 	coolBoardLed.write(255,128,0);//orange
 
 	this->initReadI2C();
+	delay(50);
 
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
@@ -404,7 +405,8 @@ void CoolBoard::onLineMode()
 	//do action
 	if (jetpackActive)
 	{
-	
+		//this->stopReadI2C();
+
 	#if DEBUG ==1
 
 		Serial.println( F("jetpack is Active ") );
@@ -564,6 +566,8 @@ void CoolBoard::offLineMode()
 	//do action
 	if (jetpackActive)
 	{
+	
+		//this->stopReadI2C();
 
 	#if DEBUG == 1
 
