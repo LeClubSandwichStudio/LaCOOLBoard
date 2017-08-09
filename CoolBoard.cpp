@@ -71,6 +71,7 @@ void CoolBoard::begin()
 	coolBoardLed.write(255,128,0);//orange
 
 	this->initReadI2C();
+	delay(50);
 
 	coolBoardSensors.config();
 	coolBoardSensors.begin();

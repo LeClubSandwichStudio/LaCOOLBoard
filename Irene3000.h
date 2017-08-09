@@ -45,7 +45,7 @@ public:
 
 	String read();
 
-	int readButton(adsGain_t gain);
+	int readButton();
 
 	void setGain(adsGain_t gain);
 
@@ -55,15 +55,17 @@ public:
 
 	double readTemp();
 
-	void resetParams(void);
+	void resetParams();
 
-	void calibratepH7(adsGain_t gain);
+	void calibratepH7();
 
-	void calibratepH4(adsGain_t gain);
+	void calibratepH4();
 
 	void calcpHSlope ();
 
 	adsGain_t gainConvert(uint16_t tempGain);
+	
+	bool saveParams();
 
 
 private:
