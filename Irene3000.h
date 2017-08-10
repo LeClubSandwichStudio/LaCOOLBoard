@@ -51,7 +51,7 @@ public:
 
 	int readADSChannel2(adsGain_t gain);
 
-	float readPh();
+	float readPh( double t );
 
 	double readTemp();
 
