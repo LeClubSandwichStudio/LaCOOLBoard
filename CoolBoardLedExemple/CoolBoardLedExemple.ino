@@ -3,6 +3,7 @@
 CoolBoardLed led;
 void setup()
 {
+	led.activate();
 	led.begin();
 }
 

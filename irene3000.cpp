@@ -19,7 +19,7 @@
 
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
 *	Irene3000::begin():
@@ -135,7 +135,7 @@ String Irene3000::read()
 
 		if(phProbe.active)
 		{
-			root["ph"] =this->readPh() ;
+			root["ph"] =this->readPh( root["waterTemp"].as<double>() ) ;
 		}
 
 	}
@@ -502,14 +502,14 @@ int Irene3000::readADSChannel2(adsGain_t gain)
 }
 
 /**
-*	Irene3000::readPh(gain):
+*	Irene3000::readPh(double t):
 *	This method is provided to read the PH probe
 *	note that for the best results, PH must be 
 *	correlated to Temperature.
 *
 *	\return the PH probe value
 */
-float Irene3000::readPh()
+float Irene3000::readPh(double t)
 {
 
 #if DEBUG == 1 
@@ -525,15 +525,22 @@ float Irene3000::readPh()
 
 	float miliVolts = Voltage * 1000;
 	float temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
+	
+	float phT=7 - (temporary / params.pHStep);
+
+	float ph25= ( phT / ( 1 + 0.009*( t - 25 ) ) );
 
 #if DEBUG == 1 
 
 	Serial.println( F("ph is : ") );
-	Serial.println( 7 - (temporary / params.pHStep) ) ;
+	Serial.println( phT ) ;
+	
+	Serial.println(F("corrected ph to 25°C is : "));
+	Serial.println(ph25);
 
 #endif 
 
-	return( 7 - (temporary / params.pHStep) );
+	return(ph25);
 
 }
 

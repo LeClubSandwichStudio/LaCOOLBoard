@@ -31,6 +31,9 @@ public:
 	void end();				//delete the dynamic led;
 
 	bool config();
+
+	void activate();
+
 	void printConf();
 
 

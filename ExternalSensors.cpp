@@ -22,10 +22,9 @@
 
 #include"ExternalSensor.h"
 
+#define DEBUG 0
 
 OneWire oneWire(0);
-
-#define DEBUG 0
 
 
 /**
