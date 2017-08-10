@@ -406,3 +406,17 @@ void CoolBoardLed::printConf()
 
 	Serial.println();	
 }
+
+/**
+*	CoolBoardLed::activate():
+*	This method is provided to activate the
+*	Led Object without the configuration
+*	file
+*/
+void CoolBoardLed::activate()
+{
+
+	this->ledActive=1;
+
+}
+

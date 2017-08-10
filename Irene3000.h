@@ -16,6 +16,7 @@
 
 
 #define ADC_MAXIMUM_VALUE     32767
+#define REFERENCE_VOLTAGE_GAIN_4  1.024
 #define V_GAIN_2 0.0625
 #define V_GAIN_4 0.03125
 #define V_GAIN_8 0.015625
@@ -44,25 +45,27 @@ public:
 
 	String read();
 
-	int readButton(adsGain_t gain);
+	int readButton();
 
 	void setGain(adsGain_t gain);
 
 	int readADSChannel2(adsGain_t gain);
 
-	float readPh(adsGain_t gain);
+	float readPh( double t );
 
-	double readTemp(adsGain_t gain);
+	double readTemp();
 
-	void resetParams(void);
+	void resetParams();
 
-	void calibratepH7(adsGain_t gain);
+	void calibratepH7();
 
-	void calibratepH4(adsGain_t gain);
+	void calibratepH4();
 
 	void calcpHSlope ();
 
 	adsGain_t gainConvert(uint16_t tempGain);
+	
+	bool saveParams();
 
 
 private:

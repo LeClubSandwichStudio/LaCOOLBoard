@@ -22,8 +22,9 @@
 
 #include"ExternalSensor.h"
 
-
 #define DEBUG 0
+
+OneWire oneWire(0);
 
 
 /**
@@ -54,12 +55,12 @@ void ExternalSensors::begin()
 		}
 		if( (sensors[i].reference) == "DallasTemperature")
 		{
-			OneWire oneWire(0);
-			std::unique_ptr< ExternalSensor<DallasTemperature> > dallasTemp(new ExternalSensor<DallasTemperature> ());
-			 ;
+
+			std::unique_ptr< ExternalSensor<DallasTemperature> > dallasTemp(new ExternalSensor<DallasTemperature> (&oneWire));
+			 
 			sensors[i].exSensor=dallasTemp.release();
 			sensors[i].exSensor->begin();
-			
+			sensors[i].exSensor->read();
 		}
 		
 		

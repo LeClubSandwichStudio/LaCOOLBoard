@@ -14,16 +14,7 @@
 #include"Arduino.h" 
 
  
-#define DEBUG 1
-
-#ifndef DEBUG
-
 #define DEBUG 0
-
-#endif 
-
-
-
 
 
 /**
@@ -319,7 +310,7 @@ public:
 	*	ExternalSensor():
 	*	DallasTemperature specific constructor
 	*/
-	ExternalSensor()
+	ExternalSensor(OneWire* oneWire)
 	{
 		
 	#if DEBUG == 1 
@@ -328,10 +319,7 @@ public:
 		Serial.println();
 	
 	#endif
-
-		OneWire oneWire(0);
-		
-		sensor=DallasTemperature(&oneWire);
+		sensor=DallasTemperature(oneWire);
 	}
 	
 	/**
@@ -349,10 +337,10 @@ public:
 		Serial.println();
 	
 	#endif
-	
+
 		sensor.begin(); 
 		delay(5);
-		sensor.getAddress(this->dallasAddress, 1);	
+		sensor.getAddress(this->dallasAddress, 0);	
 		return(true);
 	}
 	/**
@@ -363,25 +351,30 @@ public:
 	*/
 	virtual float read()
 	{
-	
+
+		sensor.requestTemperatures(); // Send the command to get temperatures
+		float result=(float) sensor.getTempCByIndex(0);
 	#if DEBUG == 1 
 
 		Serial.println( "ExternalSensor <DallasTemperature> read()" );
 		Serial.println();
 
+		Serial.print("Requesting temperature...");
+
 		Serial.print( "temperature : ");
-		Serial.print( (float) sensor.getTempC(this->dallasAddress) );
+		Serial.print( result );
 		Serial.print( "°C" );
 		Serial.println();
 	
 	#endif
 		
-		return( (float) sensor.getTempC(this->dallasAddress) );
+		return( result );
 	}
 
 private:
 
-	DallasTemperature sensor=NULL;
+
+	DallasTemperature sensor;
 	DeviceAddress dallasAddress;
 };
 

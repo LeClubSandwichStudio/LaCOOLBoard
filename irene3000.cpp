@@ -17,25 +17,82 @@
 #include <Irene3000.h>
 
 
-#define DEBUG 0
 
+
+#define DEBUG 0
 
 /**
 *	Irene3000::begin():
 *	This method is provided to start the
-*	Irene3000 ADS chip
+*	Irene3000 
 */
 void Irene3000::begin()
 {
+	delay(2000);
 
 #if DEBUG == 1 
 
+
 	Serial.println( F("Entering Irene3000.begin()") );
 	Serial.println();
+	
+	Serial.println(F("Press the button to calibrate the Ph probe "));
+	
 
 #endif
+	delay(3000);
 
-	this->ads.begin();
+	int bValue=this->readButton();
+	
+	while(bValue<500)
+	{
+		bValue=this->readButton();
+		delay(10);	
+	}
+
+	if(  bValue > 10000 )
+	{
+	
+
+		
+		Serial.println(F("calibrating the Ph probe " ) );
+		
+		Serial.println(F("ph7 calibration for 25 seconds"));
+		
+		delay(10000);
+		
+		this->calibratepH7();
+
+		delay(15000);		
+	
+		this->calibratepH7();
+
+		delay(1000);
+		Serial.println(F("ph 7 calibration ok"));
+		Serial.println();
+	
+
+		Serial.println(F("ph 4 calibration for 25 seconds"));
+	
+		delay(10000);		
+
+		this->calibratepH4();
+
+		delay(15000);
+		
+		this->calibratepH4();
+	
+		delay(1000);		
+
+		Serial.println(F("ph 4 calibration ok"));
+		Serial.println();
+	
+
+
+		this->saveParams();
+	
+	}
+
 }
 
 /**
@@ -74,11 +131,11 @@ String Irene3000::read()
 		
 	if(waterTemp.active)
 	{
-		root["waterTemp"] = this->readTemp(waterTemp.gain);
+		root["waterTemp"] = this->readTemp();
 
 		if(phProbe.active)
 		{
-			root["ph"] =this->readPh(phProbe.gain) ;
+			root["ph"] =this->readPh( root["waterTemp"].as<double>() ) ;
 		}
 
 	}
@@ -256,6 +313,40 @@ bool Irene3000::config()
 			}
 			json["adc2"]["type"]=this->adc2.type;
 
+
+			if(json["pH7Cal"].success())
+			{
+				this->params.pH7Cal=json["pH7Cal"];			
+			}
+			else
+			{
+				this->params.pH7Cal=this->params.pH7Cal;
+			}
+			json["pH7Cal"]=this->params.pH7Cal;
+
+			
+			if(json["pH4Cal"].success())
+			{
+				this->params.pH4Cal=json["pH4Cal"];			
+			}
+			else
+			{
+				this->params.pH4Cal=this->params.pH4Cal;
+			}
+			json["pH4Cal"]=this->params.pH4Cal;
+
+
+			if(json["pHStep"].success())
+			{
+				this->params.pHStep=json["pHStep"];			
+			}
+			else
+			{
+				this->params.pHStep=this->params.pHStep;
+			}
+			json["pHStep"]=this->params.pHStep;
+
+
 			irene3000Config.close();
 			irene3000Config = SPIFFS.open("/irene3000Config.json", "w");
 
@@ -331,13 +422,13 @@ void Irene3000::printConf()
 }
 
 /**
-*	Irene3000::readButton(gain):
+*	Irene3000::readButton():
 *	This method is provided to read the
 *	Irene3000 button
 *
 *	\return the button value
 */
-int Irene3000::readButton(adsGain_t gain)
+int Irene3000::readButton()
 {
 
 #if DEBUG == 1 
@@ -347,7 +438,7 @@ int Irene3000::readButton(adsGain_t gain)
 
 #endif 
 
-	this->setGain(gain);
+	this->setGain(GAIN_TWOTHIRDS);
 
 #if DEBUG == 1
 	
@@ -411,14 +502,14 @@ int Irene3000::readADSChannel2(adsGain_t gain)
 }
 
 /**
-*	Irene3000::readPh(gain):
+*	Irene3000::readPh(double t):
 *	This method is provided to read the PH probe
 *	note that for the best results, PH must be 
 *	correlated to Temperature.
 *
 *	\return the PH probe value
 */
-float Irene3000::readPh(adsGain_t gain)
+float Irene3000::readPh(double t)
 {
 
 #if DEBUG == 1 
@@ -428,21 +519,28 @@ float Irene3000::readPh(adsGain_t gain)
 
 #endif 
 
-	this->setGain(gain);
-
-	double Voltage =  gain * ( ads.readADC_SingleEnded(ph) ) / ADC_MAXIMUM_VALUE;
+	this->setGain(GAIN_FOUR);
+	int adcR=ads.readADC_SingleEnded(ph);
+	double Voltage =  REFERENCE_VOLTAGE_GAIN_4 * ( adcR ) / ADC_MAXIMUM_VALUE;
 
 	float miliVolts = Voltage * 1000;
 	float temporary = ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) / opampGain;
+	
+	float phT=7 - (temporary / params.pHStep);
+
+	float ph25= ( phT / ( 1 + 0.009*( t - 25 ) ) );
 
 #if DEBUG == 1 
 
 	Serial.println( F("ph is : ") );
-	Serial.println( 7 - (temporary / params.pHStep) ) ;
+	Serial.println( phT ) ;
+	
+	Serial.println(F("corrected ph to 25°C is : "));
+	Serial.println(ph25);
 
 #endif 
 
-	return( 7 - (temporary / params.pHStep) );
+	return(ph25);
 
 }
 
@@ -453,7 +551,7 @@ float Irene3000::readPh(adsGain_t gain)
 *
 *	\return the Temperature probe value
 */
-double Irene3000::readTemp(adsGain_t gain)
+double Irene3000::readTemp()
 {
 
 #if DEBUG == 1 
@@ -467,7 +565,8 @@ double Irene3000::readTemp(adsGain_t gain)
 	const double B = -5.775E-7;
 	double T;
 
-	this->setGain(gain);
+	this->setGain(GAIN_EIGHT);
+
 	double adc0 = ads.readADC_SingleEnded(temp);
 
 
@@ -519,21 +618,24 @@ double Irene3000::readTemp(adsGain_t gain)
 
 
 /**
-*	Irene3000::calibratepH7(gain):
+*	Irene3000::calibratepH7():
 *	This method is provided to calibrate the
 *	PH probe to 7
 */
-void Irene3000::calibratepH7(adsGain_t gain)
+void Irene3000::calibratepH7()
 {
 
 #if DEBUG == 1 
 
 	Serial.println( F("Entering Irene3000.calibratepH7() ") );
 	Serial.println();
+	
+	
 
 #endif 
+	delay(1000);
 
-  	this->setGain(gain);
+  	this->setGain(GAIN_FOUR);
         
 	this->params.pH7Cal = ads.readADC_SingleEnded(ph);
  
@@ -543,11 +645,11 @@ void Irene3000::calibratepH7(adsGain_t gain)
 }
 
 /**
-*	Irene3000::calibratepH4(gain):
+*	Irene3000::calibratepH4():
 *	This method is provided to calibrate the
 *	PH probe to 4
 */
-void Irene3000::calibratepH4(adsGain_t gain)
+void Irene3000::calibratepH4()
 {
 
 #if DEBUG == 1 
@@ -556,8 +658,9 @@ void Irene3000::calibratepH4(adsGain_t gain)
 	Serial.println();
 
 #endif 
-	
-	this->setGain(gain);
+	delay(1000);
+
+	this->setGain(GAIN_FOUR);
 
 	this->params.pH4Cal =  ads.readADC_SingleEnded(ph);
 
@@ -642,3 +745,111 @@ adsGain_t Irene3000::gainConvert(uint16_t tempGain)
 	return(GAIN_ONE);
 
 }
+
+
+bool Irene3000::saveParams()
+{
+
+#if DEBUG == 1
+		
+	Serial.println(F("Entering Irene3000.saveParams()"));
+	Serial.println();
+	
+	Serial.println(F("saving new params"));
+#endif
+	
+	//open file
+	File irene3000Config = SPIFFS.open("/irene3000Config.json", "r");
+
+	if (!irene3000Config) 
+	{
+	
+	#if DEBUG == 1 
+
+		Serial.println( F("failed to read /irene3000Config.json") );
+		Serial.println();
+	
+	#endif
+
+		return(false);
+	}
+	else
+	{
+		//read file into json
+		size_t size = irene3000Config.size();
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr<char[]> buf(new char[size]);
+	        uint16_t tempGain;
+		irene3000Config.readBytes(buf.get(), size);
+		DynamicJsonBuffer jsonBuffer;
+		JsonObject& json = jsonBuffer.parseObject(buf.get());
+		if (!json.success()) 
+		{
+		
+		#if DEBUG == 1 
+
+			Serial.println( F("failed to parse json ") );
+			Serial.println();
+		
+		#endif
+			
+			return(false);
+		} 
+		else
+		{
+		
+		#if DEBUG == 1 
+ 	
+			Serial.println( F("read configuration file ") );
+			json.printTo(Serial);
+			Serial.println();
+
+			Serial.print(F("jsonBuffer size: "));
+			Serial.println(jsonBuffer.size());
+			Serial.println();
+
+		
+
+		#endif 			
+	
+			//add params to json
+			json["pH7Cal"]=this->params.pH7Cal;
+			json["pH4Cal"]=this->params.pH4Cal;
+			json["pHStep"]=this->params.pHStep;			
+			
+			irene3000Config.close();
+			
+			
+			//save json to file
+			irene3000Config = SPIFFS.open("/irene3000Config.json", "w");
+
+			if(!irene3000Config)
+			{
+			
+			#if DEBUG == 1
+
+				Serial.println( F("failed to write to /irene3000Config.json") );
+				Serial.println();
+			
+			#endif 
+
+				return(false);
+			}
+
+			json.printTo(irene3000Config);
+			irene3000Config.close();
+			
+		#if DEBUG == 1 
+
+			Serial.println( F("saved configuration file :")  );
+			json.printTo(Serial);
+			Serial.println();
+		
+		#endif
+
+			return(true); 
+		}
+	}	
+
+}
+
