@@ -60,8 +60,6 @@ public:
 	String readSensors();
 	
 	void initReadI2C();
-
-	void stopReadI2C();
 	
 	String userData();
 

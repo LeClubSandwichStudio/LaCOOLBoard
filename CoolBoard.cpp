@@ -405,7 +405,7 @@ void CoolBoard::onLineMode()
 	//do action
 	if (jetpackActive)
 	{
-		//this->stopReadI2C();
+
 
 	#if DEBUG ==1
 
@@ -567,7 +567,7 @@ void CoolBoard::offLineMode()
 	if (jetpackActive)
 	{
 	
-		//this->stopReadI2C();
+
 
 	#if DEBUG == 1
 
@@ -1089,24 +1089,6 @@ void CoolBoard::initReadI2C()
 
 }
 
-/**
-*	CoolBoard::stopReadI2C():
-*	This method is provided to disable the I2C
-*	Interface. 
-*/
-void CoolBoard::stopReadI2C()
-{
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoard.stopReadI2C()") );
-	Serial.println();
-
-#endif
-
-	digitalWrite(EnI2C,LOW);//LOW= I2C Disable
-
-}
 
 /**
 *	CoolBoard::userData():
