@@ -1,12 +1,14 @@
 #include<CoolBoardSensors.h>
 
 CoolBoardSensors sensors;
+
 void setup()
 {
+	
+
 	Serial.begin(115200);
 
 	sensors.allActive();
-	sensors.config();
 
 	sensors.begin();
 

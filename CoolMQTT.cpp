@@ -11,7 +11,7 @@
 #include "FS.h"
 #include "Arduino.h"  
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>                             
+#include "CoolPubSubClient.h"                            
 #include "CoolMQTT.h"
 #include "ArduinoJson.h"
 

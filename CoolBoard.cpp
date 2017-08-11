@@ -14,7 +14,7 @@
 #include "Arduino.h"
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 
@@ -405,7 +405,7 @@ void CoolBoard::onLineMode()
 	//do action
 	if (jetpackActive)
 	{
-		//this->stopReadI2C();
+
 
 	#if DEBUG ==1
 
@@ -505,6 +505,12 @@ void CoolBoard::offLineMode()
 	
 #endif
 
+#if DEBUG == 0
+
+	Serial.println( F("CoolBoard is in Offline Mode"));
+
+#endif
+
 	//read user data if user is active
 	if(userActive)
 	{
@@ -529,12 +535,9 @@ void CoolBoard::offLineMode()
 		
 				
 		//read sensors data
-	#if DEBUG == 1
 
 		Serial.println( F("Collecting sensors data ") );
 		Serial.println();
-
-	#endif
 
 		data+=this->readSensors();//{"":"","":"","","",{.......}
 
@@ -567,7 +570,7 @@ void CoolBoard::offLineMode()
 	if (jetpackActive)
 	{
 	
-		//this->stopReadI2C();
+
 
 	#if DEBUG == 1
 
@@ -587,19 +590,21 @@ void CoolBoard::offLineMode()
 	
 	fileSystem.saveSensorData( data.c_str() );
 
+	#if DEBUG == 0
+
+		Serial.println( F("saving Data in Memory : OK"));
+
+	#endif
+
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green
 
 	//case we have wifi but no internet
 	if( (wifiManager.state() == WL_CONNECTED) && ( mqtt.state()!=0 ) )
 	{
-	
-	#if DEBUG == 1
 		
 		Serial.println(F("there is Wifi but no Internet"));
 		Serial.println(F("lunching AP to check saved files"));
 		Serial.println(F("and Add new WiFi if needed"));
-	
-	#endif
 		
 		wifiManager.connectAP();
 		
@@ -614,6 +619,10 @@ void CoolBoard::offLineMode()
 		Serial.println(F("there is No Wifi "));
 		Serial.println(F("retrying to connect"));
 	
+	#endif
+
+	#if DEBUG == 0
+		Serial.println( F("there is no WiFi..."));
 	#endif
 		
 		this->connect();//nomad case : just run wifiMulti
@@ -764,16 +773,6 @@ bool CoolBoard::config()
 			}
 			json["externalSensorsActive"] = this -> externalSensorsActive;
 
-			//parsing serverTimeOut key
-			if (json["serverTimeOut"].success())
-			{
-				this -> serverTimeOut = json["serverTimeOut"];
-			}
-			else
-			{
-				this -> serverTimeOut = this -> serverTimeOut;
-			}
-			json["serverTimeOut"] = this -> serverTimeOut;
 			
 			//parsing sleepActive key
 			if (json["sleepActive"].success())
@@ -846,9 +845,6 @@ void CoolBoard::printConf()
 
 	Serial.print( F("external sensors active 	: "));
 	Serial.println(this->externalSensorsActive);
-
-	Serial.print( F("access point timeOut 	: "));
-	Serial.println(this->serverTimeOut);
 
 	Serial.print( F("sleept active 		: "));
 	Serial.println(this->sleepActive);
@@ -1089,24 +1085,6 @@ void CoolBoard::initReadI2C()
 
 }
 
-/**
-*	CoolBoard::stopReadI2C():
-*	This method is provided to disable the I2C
-*	Interface. 
-*/
-void CoolBoard::stopReadI2C()
-{
-
-#if DEBUG == 1
-
-	Serial.println( F("Entering CoolBoard.stopReadI2C()") );
-	Serial.println();
-
-#endif
-
-	digitalWrite(EnI2C,LOW);//LOW= I2C Disable
-
-}
 
 /**
 *	CoolBoard::userData():

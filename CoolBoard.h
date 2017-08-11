@@ -60,8 +60,6 @@ public:
 	String readSensors();
 	
 	void initReadI2C();
-
-	void stopReadI2C();
 	
 	String userData();
 
@@ -97,8 +95,6 @@ private:
 	bool sleepActive=0;	
 
 	unsigned long logInterval=1;//s
-
-	int serverTimeOut=180;
 
 	String data="";
 

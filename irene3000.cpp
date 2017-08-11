@@ -9,7 +9,7 @@
 
 
 #include "FS.h"
-#include <Adafruit_ADS1015.h>                                                                              
+
 #include <Arduino.h>
 #include "ArduinoJson.h"
 #include <math.h>    
@@ -19,7 +19,7 @@
 
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
 *	Irene3000::begin():
@@ -28,6 +28,8 @@
 */
 void Irene3000::begin()
 {
+	this->ads.begin();
+
 	delay(2000);
 
 #if DEBUG == 1 
@@ -40,7 +42,7 @@ void Irene3000::begin()
 	
 
 #endif
-	delay(3000);
+	delay(2000);
 
 	int bValue=this->readButton();
 	

@@ -12,11 +12,12 @@
 #include "Arduino.h"  
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
+#include "WiFiManagerReadFileButton.h"
 #include <CoolWifi.h>
 #include "ArduinoJson.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -448,7 +449,7 @@ bool CoolWifi::config()
 }
 
 /**
-*	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout );
+*	CoolWifi::config(ssid array, pass array, number of wifis, AP timeout,nomad flag );
 *	This method is provided to configure the Wifi without SPIFFS
 *	
 *	\return true if successfull, false otherwise

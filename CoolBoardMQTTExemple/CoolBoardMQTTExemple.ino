@@ -20,7 +20,7 @@ void setup()
 {
 	Serial.begin(115200);
 
-	wifiManager.config(ssid,pass,2,180);
+	wifiManager.config(ssid,pass,2,180,0);
 	wifiManager.begin();
 	wifiManager.printConf();
 

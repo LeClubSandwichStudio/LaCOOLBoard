@@ -13,7 +13,7 @@
 
 #include"Arduino.h"  
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#include "CoolPubSubClient.h"
 
 /**
 *	\class CoolMQTT
@@ -64,7 +64,7 @@ private:
 
 	WiFiClient espClient;
 
-	PubSubClient client;
+	CoolPubSubClient client;
 
 	bool newMsg=0;
 

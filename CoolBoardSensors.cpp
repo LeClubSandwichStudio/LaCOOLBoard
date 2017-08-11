@@ -9,13 +9,12 @@
 #include "FS.h"
 #include "Arduino.h"
 #include <stdint.h>        
-#include "Wire.h"
 #include "ArduinoJson.h"
 #include "CoolBoardSensors.h"
 
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 

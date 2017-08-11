@@ -16,7 +16,7 @@
 #include <ESP8266WiFiMulti.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include "WiFiManagerReadFileButton.h"
+
 
 
 /**
@@ -58,7 +58,7 @@ private:
 	
 	String pass[50]={"0"};
 	
-	int timeOut=0;//in seconds
+	int timeOut=0;//access point Timeout in seconds
 	
 	bool nomad=0;
 		

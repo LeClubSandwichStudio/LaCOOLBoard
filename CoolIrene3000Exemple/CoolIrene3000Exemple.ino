@@ -1,14 +1,16 @@
 #include<Irene3000.h>
-#include<Wire.h>
+
 
 Irene3000 irene;
 
 
 void setup()
 {
-	Serial.begin(115200);
+	pinMode(5,OUTPUT);
 
-	Wire.begin(2,14);
+	digitalWrite(5,HIGH);
+
+	Serial.begin(115200);
 
 	irene.begin();
 }

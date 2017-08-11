@@ -11,8 +11,8 @@
 #define CoolBoardSensors_H
 
 #include "Arduino.h"
-#include "SI114X.h"        // Light sensor Support
-#include "SparkFunBME280.h"// Environmental sensor Support
+#include "CoolSI114X.h"        // Light sensor Support
+#include "CoolSparkFunBME280.h"// Environmental sensor Support
 
 /**
 *
@@ -59,7 +59,7 @@ public:
 	float readMoisture();
 
 	//sensor objects :
-	SI114X lightSensor = SI114X();			// light sensor	
+	CoolSI114X lightSensor;			// light sensor	
 	
 	BME280 envSensor;			        // environment sensor
 	
