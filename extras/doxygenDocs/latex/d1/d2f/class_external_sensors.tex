@@ -1,0 +1,522 @@
+\hypertarget{class_external_sensors}{}\section{External\+Sensors Class Reference}
+\label{class_external_sensors}\index{External\+Sensors@{External\+Sensors}}
+
+
+This class handles the external sensors run time defintion , configuartion and actions.  
+
+
+
+
+{\ttfamily \#include $<$External\+Sensors.\+h$>$}
+
+
+
+Collaboration diagram for External\+Sensors\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=204pt]{d8/df9/class_external_sensors__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_external_sensors_1_1sensor}{sensor}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{begin} ()
+\item 
+String \hyperlink{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}{read} ()
+\item 
+bool \hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{config} ()
+\item 
+bool \hyperlink{class_external_sensors_ac829858f587e15a3fcb00567248f0edd}{config} (String reference\mbox{[}$\,$\mbox{]}, String type\mbox{[}$\,$\mbox{]}, uint8\+\_\+t address\mbox{[}$\,$\mbox{]}, int \hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensors\+Number})
+\item 
+void \hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{print\+Conf} ()
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_external_sensors_1_1sensor}{External\+Sensors\+::sensor} \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors} \mbox{[}50\mbox{]}
+\item 
+int \hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensors\+Number} =0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class handles the external sensors run time defintion , configuartion and actions. 
+
+Definition at line 24 of file External\+Sensors.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_external_sensors_a58ede0d786a86417254708870f04a21e}\label{class_external_sensors_a58ede0d786a86417254708870f04a21e}} 
+\index{External\+Sensors@{External\+Sensors}!begin@{begin}}
+\index{begin@{begin}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{begin()}{begin()}}
+{\footnotesize\ttfamily void External\+Sensors\+::begin (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{External\+Sensors\+::begin()}\+: This method is provided to initialise the external sensors. 
+
+Definition at line 35 of file External\+Sensors.\+cpp.
+
+
+\begin{DoxyCode}
+36 \{
+37 
+38 \textcolor{preprocessor}{#if DEBUG == 1}
+39 
+40     Serial.println( F(\textcolor{stringliteral}{"Enter ExternalSensors.begin()"}) );
+41     Serial.println();
+42 
+43 \textcolor{preprocessor}{#endif }
+44 
+45     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i< this->\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber} ; i++)
+46     \{
+47         \textcolor{keywordflow}{if}( (\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].reference) == \textcolor{stringliteral}{"NDIR\_I2C"} )
+48         \{   
+49             std::unique\_ptr< ExternalSensor<NDIR\_I2C> > sensorCO2(\textcolor{keyword}{new} 
+      \hyperlink{class_external_sensor_3_01_n_d_i_r___i2_c_01_4}{ExternalSensor<NDIR\_I2C>}( this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].address) );
+50 
+51 
+52             \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a9bca150fd468b8d0e090e6d72c5c2b48}{exSensor}= sensorCO2.release();
+53             \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a9bca150fd468b8d0e090e6d72c5c2b48}{exSensor}->\hyperlink{class_base_external_sensor_a87d132803d4f4fdd4e66332809f0c9a0}{begin}();
+54 
+55         \}
+56         \textcolor{keywordflow}{if}( (\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].reference) == \textcolor{stringliteral}{"DallasTemperature"})
+57         \{
+58 
+59             std::unique\_ptr< ExternalSensor<DallasTemperature> > dallasTemp(\textcolor{keyword}{new} 
+      \hyperlink{class_external_sensor_3_01_dallas_temperature_01_4}{ExternalSensor<DallasTemperature>} (&\hyperlink{_external_sensors_8cpp_af39fa3dad1ba161b384c0b26b8145e65}{oneWire}));
+60              
+61             \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a9bca150fd468b8d0e090e6d72c5c2b48}{exSensor}=dallasTemp.release();
+62             \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a9bca150fd468b8d0e090e6d72c5c2b48}{exSensor}->\hyperlink{class_base_external_sensor_a87d132803d4f4fdd4e66332809f0c9a0}{begin}();
+63             \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a9bca150fd468b8d0e090e6d72c5c2b48}{exSensor}->\hyperlink{class_base_external_sensor_a1564f16deacf57b51b9948ac29db4291}{read}();
+64         \}
+65         
+66         
+67     \}
+68 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=340pt]{d1/d2f/class_external_sensors_a58ede0d786a86417254708870f04a21e_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=326pt]{d1/d2f/class_external_sensors_a58ede0d786a86417254708870f04a21e_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}\label{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}} 
+\index{External\+Sensors@{External\+Sensors}!config@{config}}
+\index{config@{config}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{config()}{config()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool External\+Sensors\+::config (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{External\+Sensors\+::config()}\+: This method is provided to configure the external\+Sensors through a configuration file
+
+\begin{DoxyReturn}{Returns}
+true if successful,false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 151 of file External\+Sensors.\+cpp.
+
+
+\begin{DoxyCode}
+152 \{
+153     \textcolor{comment}{//read config file}
+154     \textcolor{comment}{//update data}
+155     File externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"r"});
+156 
+157     \textcolor{keywordflow}{if} (!externalSensorsConfig) 
+158     \{
+159     
+160 \textcolor{preprocessor}{    #if DEBUG == 1}
+161         
+162         Serial.println( F(\textcolor{stringliteral}{"failed to read /externalSensorsConfig.json"}) );
+163         Serial.println();
+164     
+165 \textcolor{preprocessor}{    #endif}
+166         
+167         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+168     \}
+169     \textcolor{keywordflow}{else}
+170     \{
+171         \textcolor{keywordtype}{size\_t} size = externalSensorsConfig.size();
+172         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+173         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+174 
+175         externalSensorsConfig.readBytes(buf.get(), size);
+176         DynamicJsonBuffer jsonBuffer;
+177         JsonObject& json = jsonBuffer.parseObject(buf.get());
+178 
+179         \textcolor{keywordflow}{if} (!json.success()) 
+180         \{
+181         
+182 \textcolor{preprocessor}{        #if DEBUG == 1 }
+183 
+184             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
+185             Serial.println();
+186         
+187 \textcolor{preprocessor}{        #endif}
+188 
+189             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+190         \} 
+191         \textcolor{keywordflow}{else}
+192         \{
+193         
+194 \textcolor{preprocessor}{        #if DEBUG == 1 }
+195     
+196             Serial.println( F(\textcolor{stringliteral}{"configuration json is : "}) );
+197             json.printTo(Serial);
+198             Serial.println();
+199 
+200             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+201             Serial.println(jsonBuffer.size());
+202             Serial.println();
+203 
+204         
+205 \textcolor{preprocessor}{        #endif          }
+206             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"sensorsNumber"}]!=NULL)
+207             \{
+208                 this->\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber} = json[\textcolor{stringliteral}{"sensorsNumber"}];
+209                 
+210                 
+211 
+212                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+213                 \{   String name=\textcolor{stringliteral}{"sensor"}+String(i);
+214                     
+215                     \textcolor{keywordflow}{if}(json[name].success())
+216                     \{  
+217                         JsonObject& sensorJson=json[name];
+218                         
+219                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"reference"}].success() )
+220                         \{  
+221                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference} =sensorJson[\textcolor{stringliteral}{"reference"}].as<String>(
+      );
+222                         \}
+223                         \textcolor{keywordflow}{else}
+224                         \{
+225                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference}=this->
+      \hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};                           
+226                                     
+227                         \}
+228                         sensorJson[\textcolor{stringliteral}{"reference"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+      \hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};
+229 
+230                     
+231                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"type"}].success() )
+232                         \{                   
+233                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=sensorJson[\textcolor{stringliteral}{"type"}].as<String>();
+234                         \}
+235                         \textcolor{keywordflow}{else}
+236                         \{
+237                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+      \hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+238 
+239                         \}
+240                         sensorJson[\textcolor{stringliteral}{"type"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+241                     
+242                         \textcolor{keywordflow}{if}(sensorJson[\textcolor{stringliteral}{"address"}].success() )
+243                         \{                   
+244                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=sensorJson[\textcolor{stringliteral}{"address"}];
+245                         \}
+246                         \textcolor{keywordflow}{else}
+247                         \{   
+248                             this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].
+      \hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+249 
+250                         \}
+251                         sensorJson[\textcolor{stringliteral}{"address"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+252                     
+253     
+254                     \}
+255                     \textcolor{keywordflow}{else}
+256                     \{
+257                         this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i];                    
+258                     \}
+259                                             
+260                     json[name][\textcolor{stringliteral}{"reference"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference};
+261                     json[name][\textcolor{stringliteral}{"type"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type};
+262                     json[name][\textcolor{stringliteral}{"address"}]=this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address};
+263                 \}
+264  
+265             \}
+266             \textcolor{keywordflow}{else}
+267             \{
+268                 this->sensorsNumber=this->\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
+269             \}
+270             json[\textcolor{stringliteral}{"sensorsNumber"}]=this->\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
+271 
+272             externalSensorsConfig.close();
+273             externalSensorsConfig = SPIFFS.open(\textcolor{stringliteral}{"/externalSensorsConfig.json"}, \textcolor{stringliteral}{"w"});
+274 
+275             \textcolor{keywordflow}{if}(!externalSensorsConfig)
+276             \{
+277             
+278 \textcolor{preprocessor}{            #if DEBUG == 1 }
+279 
+280                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /externalSensorsConfig.json"}) );
+281                 Serial.println();
+282             
+283 \textcolor{preprocessor}{            #endif}
+284 
+285                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+286             \}
+287             
+288             json.printTo(externalSensorsConfig);
+289             externalSensorsConfig.close();
+290             
+291 \textcolor{preprocessor}{        #if DEBUG == 1 }
+292 
+293             Serial.println( F(\textcolor{stringliteral}{"saved configuration is : "}) );
+294             json.printTo(Serial);
+295             Serial.println();
+296         
+297 \textcolor{preprocessor}{        #endif}
+298 
+299             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+300         \}
+301     \}   
+302     
+303 
+304 
+305 
+306 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=329pt]{d1/d2f/class_external_sensors_a862a4bd11346b37270d0244c2adabe5a_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_external_sensors_ac829858f587e15a3fcb00567248f0edd}\label{class_external_sensors_ac829858f587e15a3fcb00567248f0edd}} 
+\index{External\+Sensors@{External\+Sensors}!config@{config}}
+\index{config@{config}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{config()}{config()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool External\+Sensors\+::config (\begin{DoxyParamCaption}\item[{String}]{reference\mbox{[}$\,$\mbox{]},  }\item[{String}]{type\mbox{[}$\,$\mbox{]},  }\item[{uint8\+\_\+t}]{address\mbox{[}$\,$\mbox{]},  }\item[{int}]{sensors\+Number }\end{DoxyParamCaption})}
+
+\hyperlink{class_external_sensors_ac829858f587e15a3fcb00567248f0edd}{External\+Sensors\+::config(\+String reference\mbox{[}$\,$\mbox{]},\+String type\mbox{[}$\,$\mbox{]},uint8\+\_\+t address\mbox{[}$\,$\mbox{]},int sensors\+Number)}\+: This method is provided to configure the external\+Sensors without a configuration file
+
+\begin{DoxyReturn}{Returns}
+true if successful,false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 316 of file External\+Sensors.\+cpp.
+
+
+\begin{DoxyCode}
+317 \{
+318 
+319 \textcolor{preprocessor}{#if DEBUG == 1}
+320 
+321     Serial.println( F(\textcolor{stringliteral}{"Entering ExternalSensors.conf(reference[], type[], address[], sensorsNumber)"}) );
+322     Serial.println();
+323 
+324 \textcolor{preprocessor}{#endif  }
+325     \textcolor{keywordflow}{if}(\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber}>50)
+326     \{
+327     
+328 \textcolor{preprocessor}{    #if DEBUG == 1}
+329     
+330         Serial.println(F(\textcolor{stringliteral}{"you can't add more than 50 sensors"}));    
+331     
+332 \textcolor{preprocessor}{    #endif  }
+333     
+334         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+335     \}
+336 
+337     this->\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber}=\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};
+338     
+339     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+340     \{
+341     
+342         this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_afed5bdfd49732202a368b600cb8396fe}{reference}=reference[i];
+343         
+344         this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}=type[i];
+345 
+346         this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a8d70ca58524521ed054fc6b81eb58d34}{address}=address[i];
+347     
+348     \}
+349     
+350     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+351 
+352 \}
+\end{DoxyCode}
+\mbox{\Hypertarget{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}\label{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}} 
+\index{External\+Sensors@{External\+Sensors}!print\+Conf@{print\+Conf}}
+\index{print\+Conf@{print\+Conf}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{print\+Conf()}{printConf()}}
+{\footnotesize\ttfamily void External\+Sensors\+::print\+Conf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{External\+Sensors\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
+
+Definition at line 359 of file External\+Sensors.\+cpp.
+
+
+\begin{DoxyCode}
+360 \{
+361 
+362 \textcolor{preprocessor}{#if DEBUG == 1}
+363 
+364     Serial.println( F(\textcolor{stringliteral}{"Entering ExternalSensors.printConf()"}) );
+365     Serial.println();
+366 
+367 \textcolor{preprocessor}{#endif }
+368 
+369     Serial.println(\textcolor{stringliteral}{"External Sensors configuration "});
+370 
+371     Serial.print(\textcolor{stringliteral}{"sensorsNumber : "});
+372     Serial.println(\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber});
+373 
+374     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+375     \{
+376         Serial.print(\textcolor{stringliteral}{"sensor "});
+377         Serial.print(i);
+378         Serial.print(\textcolor{stringliteral}{" reference : "});
+379         Serial.println(this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].reference);
+380 
+381         Serial.print(\textcolor{stringliteral}{"sensor "});
+382         Serial.print(i);
+383         Serial.print(\textcolor{stringliteral}{" type : "});
+384         Serial.println(this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].type);
+385                 
+386         Serial.print(\textcolor{stringliteral}{"sensor "});
+387         Serial.print(i);
+388         Serial.print(\textcolor{stringliteral}{" address : "});
+389         Serial.println(this->\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].address);
+390     
+391     \}
+392 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=342pt]{d1/d2f/class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}\label{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}} 
+\index{External\+Sensors@{External\+Sensors}!read@{read}}
+\index{read@{read}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{read()}{read()}}
+{\footnotesize\ttfamily String External\+Sensors\+::read (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}{External\+Sensors\+::read()}\+: This method is provided to read the data from the external sensors
+
+\begin{DoxyReturn}{Returns}
+json string that contains the sensors data 
+\end{DoxyReturn}
+
+
+Definition at line 78 of file External\+Sensors.\+cpp.
+
+
+\begin{DoxyCode}
+79 \{
+80 
+81 \textcolor{preprocessor}{#if DEBUG == 1}
+82 
+83     Serial.println( F(\textcolor{stringliteral}{"Entering ExternalSensors.read()"}) );
+84     Serial.println();
+85 
+86 \textcolor{preprocessor}{#endif }
+87 
+88     String data;
+89     DynamicJsonBuffer  jsonBuffer ;
+90     JsonObject& root = jsonBuffer.createObject();
+91 
+92     \textcolor{keywordflow}{if}(!root.success() )
+93     \{
+94  
+95 \textcolor{preprocessor}{    #if DEBUG == 1}
+96 
+97         Serial.println( F(\textcolor{stringliteral}{"failed to create json "}) );
+98     
+99 \textcolor{preprocessor}{    #endif }
+100 
+101         \textcolor{keywordflow}{return}(\textcolor{stringliteral}{"00"});
+102     \}
+103     \textcolor{keywordflow}{else}
+104     \{
+105         \textcolor{keywordflow}{if}(\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber}>0)
+106         \{
+107             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<\hyperlink{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}{sensorsNumber};i++)
+108             \{
+109                 \textcolor{keywordflow}{if}(\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].exSensor != NULL )
+110                 \{
+111                     root[\hyperlink{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}{sensors}[i].\hyperlink{struct_external_sensors_1_1sensor_a6acfdb02c742c2110d7bd2b5d9fce9e7}{type}]=sensors[i].exSensor->read();       
+112                 \}
+113             
+114 \textcolor{preprocessor}{            #if DEBUG == 1}
+115                 \textcolor{keywordflow}{else}
+116                 \{
+117                     Serial.println(F(\textcolor{stringliteral}{"null pointer "}));
+118                 \}
+119 \textcolor{preprocessor}{            #endif  }
+120             \}
+121         \}   
+122         
+123         root.printTo(data);
+124     
+125 \textcolor{preprocessor}{    #if DEBUG == 1}
+126 
+127         Serial.println( F(\textcolor{stringliteral}{"sensors data :"}) );
+128         Serial.println(data);
+129         Serial.println();
+130 
+131         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+132         Serial.println(jsonBuffer.size());
+133         Serial.println();
+134 
+135     
+136 \textcolor{preprocessor}{    #endif}
+137     
+138         \textcolor{keywordflow}{return}(data);
+139     \}
+140 
+141 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d1/d2f/class_external_sensors_a53177b81eca3be89508b5511ddcd00fc_icgraph}
+\end{center}
+\end{figure}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}\label{class_external_sensors_a284233f884fcf00154a44740cf1d9e1e}} 
+\index{External\+Sensors@{External\+Sensors}!sensors@{sensors}}
+\index{sensors@{sensors}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{sensors}{sensors}}
+{\footnotesize\ttfamily struct \hyperlink{struct_external_sensors_1_1sensor}{External\+Sensors\+::sensor} External\+Sensors\+::sensors\mbox{[}50\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}\label{class_external_sensors_a58e4fbf9adeae787d92be5fa33043b5d}} 
+\index{External\+Sensors@{External\+Sensors}!sensors\+Number@{sensors\+Number}}
+\index{sensors\+Number@{sensors\+Number}!External\+Sensors@{External\+Sensors}}
+\subsubsection{\texorpdfstring{sensors\+Number}{sensorsNumber}}
+{\footnotesize\ttfamily int External\+Sensors\+::sensors\+Number =0\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 47 of file External\+Sensors.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_external_sensors_8h}{External\+Sensors.\+h}\item 
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_external_sensors_8cpp}{External\+Sensors.\+cpp}\end{DoxyCompactItemize}

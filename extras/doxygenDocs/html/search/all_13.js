@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['t_5ffine',['t_fine',['../df/dcf/class_b_m_e280.html#ad20f44914b78395f4d4bc64f4a68b369',1,'BME280']]],
+  ['tcr',['TCR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a380869a8309123a03ff77170b67e112d',1,'CoolNDIR_I2C.cpp']]],
+  ['temp',['temp',['../d7/d31/_irene3000_8h.html#a5905d48604152cf57aa6bfa087b49173',1,'Irene3000.h']]],
+  ['temperature',['temperature',['../d7/db6/struct_cool_board_sensors_1_1air_active.html#a9a6633c426b0508e30ebc1832ec6d745',1,'CoolBoardSensors::airActive']]],
+  ['template_2eh',['template.h',['../de/db8/template_8h.html',1,'']]],
+  ['temporal',['temporal',['../da/d35/struct_jetpack_1_1state.html#abd6039e7a48856550b0ffbf8bcff7bdd',1,'Jetpack::state']]],
+  ['tempoversample',['tempOverSample',['../d8/dd4/struct_sensor_settings.html#abdedc9d05f4850c58005313486958073',1,'SensorSettings']]],
+  ['thr',['THR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a5e9787adf3c9afcc4b781e85bb545b35',1,'CoolNDIR_I2C.cpp']]],
+  ['timeout',['timeOut',['../d7/d29/class_cool_wifi.html#a952111605f25156588b5632caaba1c6f',1,'CoolWifi']]],
+  ['timeserver',['timeServer',['../d6/d49/class_cool_time.html#ad2b9858f399108cb440dd1e908916f04',1,'CoolTime']]],
+  ['timesync',['timeSync',['../d6/d49/class_cool_time.html#a9d032e76c3470a15b3bbbc52af6463f7',1,'CoolTime']]],
+  ['tlr',['TLR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a3c55ed918d6c0dd9a07fa39aaa184052',1,'CoolNDIR_I2C.cpp']]],
+  ['tmset',['tmSet',['../d6/d49/class_cool_time.html#ad33c2713c903ff064ad09c46406ae088',1,'CoolTime']]],
+  ['tostringip',['toStringIp',['../d4/dc8/class_wi_fi_manager.html#a8dfd64cefecbdf26242b16eca335c20b',1,'WiFiManager']]],
+  ['tstandby',['tStandby',['../d8/dd4/struct_sensor_settings.html#a7098be3c1df0271dc9bc0fb45c1e9bb9',1,'SensorSettings']]],
+  ['txlvl',['TXLVL',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a395aad125960f7ee2bf0a23c4ea06fcf',1,'CoolNDIR_I2C.cpp']]],
+  ['type',['type',['../dd/d58/struct_external_sensors_1_1sensor.html#a6acfdb02c742c2110d7bd2b5d9fce9e7',1,'ExternalSensors::sensor::type()'],['../d2/d18/struct_irene3000_1_1state.html#a9897a7e02727db6351d44006eec73799',1,'Irene3000::state::type()'],['../da/d35/struct_jetpack_1_1state.html#a9143580871c2e573fb502bb94c1da8e5',1,'Jetpack::state::type()']]]
+];

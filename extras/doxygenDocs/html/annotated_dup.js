@@ -1,0 +1,27 @@
+var annotated_dup =
+[
+    [ "Adafruit_ADS1015", "df/df6/class_adafruit___a_d_s1015.html", "df/df6/class_adafruit___a_d_s1015" ],
+    [ "Adafruit_ADS1115", "d8/dab/class_adafruit___a_d_s1115.html", "d8/dab/class_adafruit___a_d_s1115" ],
+    [ "BaseExternalSensor", "d1/d68/class_base_external_sensor.html", "d1/d68/class_base_external_sensor" ],
+    [ "BME280", "df/dcf/class_b_m_e280.html", "df/dcf/class_b_m_e280" ],
+    [ "CoolBoard", "d7/df9/class_cool_board.html", "d7/df9/class_cool_board" ],
+    [ "CoolBoardLed", "de/dc0/class_cool_board_led.html", "de/dc0/class_cool_board_led" ],
+    [ "CoolBoardSensors", "de/d46/class_cool_board_sensors.html", "de/d46/class_cool_board_sensors" ],
+    [ "CoolFileSystem", "db/d0c/class_cool_file_system.html", "db/d0c/class_cool_file_system" ],
+    [ "CoolMQTT", "d0/dd0/class_cool_m_q_t_t.html", "d0/dd0/class_cool_m_q_t_t" ],
+    [ "CoolPubSubClient", "d8/d4b/class_cool_pub_sub_client.html", "d8/d4b/class_cool_pub_sub_client" ],
+    [ "CoolSI114X", "dd/d67/class_cool_s_i114_x.html", "dd/d67/class_cool_s_i114_x" ],
+    [ "CoolTime", "d6/d49/class_cool_time.html", "d6/d49/class_cool_time" ],
+    [ "CoolWifi", "d7/d29/class_cool_wifi.html", "d7/d29/class_cool_wifi" ],
+    [ "ExternalSensor", "db/d42/class_external_sensor.html", "db/d42/class_external_sensor" ],
+    [ "ExternalSensor< DallasTemperature >", "d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html", "d7/d59/class_external_sensor_3_01_dallas_temperature_01_4" ],
+    [ "ExternalSensor< NDIR_I2C >", "db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html", "db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4" ],
+    [ "ExternalSensors", "d1/d2f/class_external_sensors.html", "d1/d2f/class_external_sensors" ],
+    [ "Irene3000", "d6/d03/class_irene3000.html", "d6/d03/class_irene3000" ],
+    [ "Jetpack", "df/d1d/class_jetpack.html", "df/d1d/class_jetpack" ],
+    [ "NDIR_I2C", "d6/ddb/class_n_d_i_r___i2_c.html", "d6/ddb/class_n_d_i_r___i2_c" ],
+    [ "SensorCalibration", "d0/d9c/struct_sensor_calibration.html", "d0/d9c/struct_sensor_calibration" ],
+    [ "SensorSettings", "d8/dd4/struct_sensor_settings.html", "d8/dd4/struct_sensor_settings" ],
+    [ "WiFiManager", "d4/dc8/class_wi_fi_manager.html", "d4/dc8/class_wi_fi_manager" ],
+    [ "WiFiManagerParameter", "d7/d08/class_wi_fi_manager_parameter.html", "d7/d08/class_wi_fi_manager_parameter" ]
+];

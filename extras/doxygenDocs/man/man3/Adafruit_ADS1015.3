@@ -1,0 +1,383 @@
+.TH "Adafruit_ADS1015" 3 "Fri Aug 11 2017" "CoolBoardAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Adafruit_ADS1015
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <CoolAdafruit_ADS1015\&.h>\fP
+.PP
+Inherited by \fBAdafruit_ADS1115\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBAdafruit_ADS1015\fP (uint8_t i2cAddress=\fBADS1015_ADDRESS\fP)"
+.br
+.RI "Instantiates a new ADS1015 class w/appropriate properties\&. "
+.ti -1c
+.RI "void \fBbegin\fP (void)"
+.br
+.RI "Sets up the HW (reads coefficients values, etc\&.) "
+.ti -1c
+.RI "uint16_t \fBreadADC_SingleEnded\fP (uint8_t channel)"
+.br
+.RI "Gets a single-ended ADC reading from the specified channel\&. "
+.ti -1c
+.RI "int16_t \fBreadADC_Differential_0_1\fP (void)"
+.br
+.RI "Reads the conversion results, measuring the voltage difference between the P (AIN0) and N (AIN1) input\&. Generates a signed value since the difference can be either positive or negative\&. "
+.ti -1c
+.RI "int16_t \fBreadADC_Differential_2_3\fP (void)"
+.br
+.RI "Reads the conversion results, measuring the voltage difference between the P (AIN2) and N (AIN3) input\&. Generates a signed value since the difference can be either positive or negative\&. "
+.ti -1c
+.RI "void \fBstartComparator_SingleEnded\fP (uint8_t channel, int16_t threshold)"
+.br
+.RI "Sets up the comparator to operate in basic mode, causing the ALERT/RDY pin to assert (go from high to low) when the ADC value exceeds the specified threshold\&. "
+.ti -1c
+.RI "int16_t \fBgetLastConversionResults\fP ()"
+.br
+.RI "In order to clear the comparator, we need to read the conversion results\&. This function reads the last conversion results without changing the config value\&. "
+.ti -1c
+.RI "void \fBsetGain\fP (\fBadsGain_t\fP gain)"
+.br
+.RI "Sets the gain and input voltage range\&. "
+.ti -1c
+.RI "\fBadsGain_t\fP \fBgetGain\fP (void)"
+.br
+.RI "Gets a gain and input voltage range\&. "
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "uint8_t \fBm_i2cAddress\fP"
+.br
+.ti -1c
+.RI "uint8_t \fBm_conversionDelay\fP"
+.br
+.ti -1c
+.RI "uint8_t \fBm_bitShift\fP"
+.br
+.ti -1c
+.RI "\fBadsGain_t\fP \fBm_gain\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 119 of file CoolAdafruit_ADS1015\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "Adafruit_ADS1015::Adafruit_ADS1015 (uint8_t i2cAddress = \fC\fBADS1015_ADDRESS\fP\fP)"
+
+.PP
+Instantiates a new ADS1015 class w/appropriate properties\&. 
+.PP
+Definition at line 88 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+89 {
+90    m_i2cAddress = i2cAddress;
+91    m_conversionDelay = ADS1015_CONVERSIONDELAY;
+92    m_bitShift = 4;
+93    m_gain = GAIN_TWOTHIRDS; /* +/- 6\&.144V range (limited to VDD +0\&.3V max!) */
+94 }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "void Adafruit_ADS1015::begin (void)"
+
+.PP
+Sets up the HW (reads coefficients values, etc\&.) 
+.PP
+Definition at line 114 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+114                              {
+115   Wire\&.begin(2,14);
+116 }
+.fi
+.SS "\fBadsGain_t\fP Adafruit_ADS1015::getGain (void)"
+
+.PP
+Gets a gain and input voltage range\&. 
+.PP
+Definition at line 133 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+134 {
+135   return m_gain;
+136 }
+.fi
+.SS "int16_t Adafruit_ADS1015::getLastConversionResults ()"
+
+.PP
+In order to clear the comparator, we need to read the conversion results\&. This function reads the last conversion results without changing the config value\&. 
+.PP
+Definition at line 348 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+349 {
+350   // Wait for the conversion to complete
+351   delay(m_conversionDelay);
+352 
+353   // Read the conversion results
+354   uint16_t res = readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT) >> m_bitShift;
+355   if (m_bitShift == 0)
+356   {
+357     return (int16_t)res;
+358   }
+359   else
+360   {
+361     // Shift 12-bit results right 4 bits for the ADS1015,
+362     // making sure we keep the sign bit intact
+363     if (res > 0x07FF)
+364     {
+365       // negative number - extend the sign to 16th bit
+366       res |= 0xF000;
+367     }
+368     return (int16_t)res;
+369   }
+370 }
+.fi
+.SS "int16_t Adafruit_ADS1015::readADC_Differential_0_1 (void)"
+
+.PP
+Reads the conversion results, measuring the voltage difference between the P (AIN0) and N (AIN1) input\&. Generates a signed value since the difference can be either positive or negative\&. 
+.PP
+Definition at line 199 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+199                                                    {
+200   // Start with default values
+201   uint16_t config = ADS1015_REG_CONFIG_CQUE_NONE    | // Disable the comparator (default val)
+202                     ADS1015_REG_CONFIG_CLAT_NONLAT  | // Non-latching (default val)
+203                     ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+204                     ADS1015_REG_CONFIG_CMODE_TRAD   | // Traditional comparator (default val)
+205                     ADS1015_REG_CONFIG_DR_1600SPS   | // 1600 samples per second (default)
+206                     ADS1015_REG_CONFIG_MODE_SINGLE;   // Single-shot mode (default)
+207 
+208   // Set PGA/voltage range
+209   config |= m_gain;
+210                     
+211   // Set channels
+212   config |= ADS1015_REG_CONFIG_MUX_DIFF_0_1;          // AIN0 = P, AIN1 = N
+213 
+214   // Set 'start single-conversion' bit
+215   config |= ADS1015_REG_CONFIG_OS_SINGLE;
+216 
+217   // Write config register to the ADC
+218   writeRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG, config);
+219 
+220   // Wait for the conversion to complete
+221   delay(m_conversionDelay);
+222 
+223   // Read the conversion results
+224   uint16_t res = readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT) >> m_bitShift;
+225   if (m_bitShift == 0)
+226   {
+227     return (int16_t)res;
+228   }
+229   else
+230   {
+231     // Shift 12-bit results right 4 bits for the ADS1015,
+232     // making sure we keep the sign bit intact
+233     if (res > 0x07FF)
+234     {
+235       // negative number - extend the sign to 16th bit
+236       res |= 0xF000;
+237     }
+238     return (int16_t)res;
+239   }
+240 }
+.fi
+.SS "int16_t Adafruit_ADS1015::readADC_Differential_2_3 (void)"
+
+.PP
+Reads the conversion results, measuring the voltage difference between the P (AIN2) and N (AIN3) input\&. Generates a signed value since the difference can be either positive or negative\&. 
+.PP
+Definition at line 250 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+250                                                    {
+251   // Start with default values
+252   uint16_t config = ADS1015_REG_CONFIG_CQUE_NONE    | // Disable the comparator (default val)
+253                     ADS1015_REG_CONFIG_CLAT_NONLAT  | // Non-latching (default val)
+254                     ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+255                     ADS1015_REG_CONFIG_CMODE_TRAD   | // Traditional comparator (default val)
+256                     ADS1015_REG_CONFIG_DR_1600SPS   | // 1600 samples per second (default)
+257                     ADS1015_REG_CONFIG_MODE_SINGLE;   // Single-shot mode (default)
+258 
+259   // Set PGA/voltage range
+260   config |= m_gain;
+261 
+262   // Set channels
+263   config |= ADS1015_REG_CONFIG_MUX_DIFF_2_3;          // AIN2 = P, AIN3 = N
+264 
+265   // Set 'start single-conversion' bit
+266   config |= ADS1015_REG_CONFIG_OS_SINGLE;
+267 
+268   // Write config register to the ADC
+269   writeRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG, config);
+270 
+271   // Wait for the conversion to complete
+272   delay(m_conversionDelay);
+273 
+274   // Read the conversion results
+275   uint16_t res = readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT) >> m_bitShift;
+276   if (m_bitShift == 0)
+277   {
+278     return (int16_t)res;
+279   }
+280   else
+281   {
+282     // Shift 12-bit results right 4 bits for the ADS1015,
+283     // making sure we keep the sign bit intact
+284     if (res > 0x07FF)
+285     {
+286       // negative number - extend the sign to 16th bit
+287       res |= 0xF000;
+288     }
+289     return (int16_t)res;
+290   }
+291 }
+.fi
+.SS "uint16_t Adafruit_ADS1015::readADC_SingleEnded (uint8_t channel)"
+
+.PP
+Gets a single-ended ADC reading from the specified channel\&. 
+.PP
+Definition at line 143 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+143                                                               {
+144   if (channel > 3)
+145   {
+146     return 0;
+147   }
+148   
+149   // Start with default values
+150   uint16_t config = ADS1015_REG_CONFIG_CQUE_NONE    | // Disable the comparator (default val)
+151                     ADS1015_REG_CONFIG_CLAT_NONLAT  | // Non-latching (default val)
+152                     ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+153                     ADS1015_REG_CONFIG_CMODE_TRAD   | // Traditional comparator (default val)
+154                     ADS1015_REG_CONFIG_DR_1600SPS   | // 1600 samples per second (default)
+155                     ADS1015_REG_CONFIG_MODE_SINGLE;   // Single-shot mode (default)
+156 
+157   // Set PGA/voltage range
+158   config |= m_gain;
+159 
+160   // Set single-ended input channel
+161   switch (channel)
+162   {
+163     case (0):
+164       config |= ADS1015_REG_CONFIG_MUX_SINGLE_0;
+165       break;
+166     case (1):
+167       config |= ADS1015_REG_CONFIG_MUX_SINGLE_1;
+168       break;
+169     case (2):
+170       config |= ADS1015_REG_CONFIG_MUX_SINGLE_2;
+171       break;
+172     case (3):
+173       config |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
+174       break;
+175   }
+176 
+177   // Set 'start single-conversion' bit
+178   config |= ADS1015_REG_CONFIG_OS_SINGLE;
+179 
+180   // Write config register to the ADC
+181   writeRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG, config);
+182 
+183   // Wait for the conversion to complete
+184   delay(m_conversionDelay);
+185 
+186   // Read the conversion results
+187   // Shift 12-bit results right 4 bits for the ADS1015
+188   return readRegister(m_i2cAddress, ADS1015_REG_POINTER_CONVERT) >> m_bitShift;  
+189 }
+.fi
+.SS "void Adafruit_ADS1015::setGain (\fBadsGain_t\fP gain)"
+
+.PP
+Sets the gain and input voltage range\&. 
+.PP
+Definition at line 123 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+124 {
+125   m_gain = gain;
+126 }
+.fi
+.SS "void Adafruit_ADS1015::startComparator_SingleEnded (uint8_t channel, int16_t threshold)"
+
+.PP
+Sets up the comparator to operate in basic mode, causing the ALERT/RDY pin to assert (go from high to low) when the ADC value exceeds the specified threshold\&. This will also set the ADC in continuous conversion mode\&. 
+.PP
+Definition at line 302 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+.nf
+303 {
+304   // Start with default values
+305   uint16_t config = ADS1015_REG_CONFIG_CQUE_1CONV   | // Comparator enabled and asserts on 1 match
+306                     ADS1015_REG_CONFIG_CLAT_LATCH   | // Latching mode
+307                     ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+308                     ADS1015_REG_CONFIG_CMODE_TRAD   | // Traditional comparator (default val)
+309                     ADS1015_REG_CONFIG_DR_1600SPS   | // 1600 samples per second (default)
+310                     ADS1015_REG_CONFIG_MODE_CONTIN  | // Continuous conversion mode
+311                     ADS1015_REG_CONFIG_MODE_CONTIN;   // Continuous conversion mode
+312 
+313   // Set PGA/voltage range
+314   config |= m_gain;
+315                     
+316   // Set single-ended input channel
+317   switch (channel)
+318   {
+319     case (0):
+320       config |= ADS1015_REG_CONFIG_MUX_SINGLE_0;
+321       break;
+322     case (1):
+323       config |= ADS1015_REG_CONFIG_MUX_SINGLE_1;
+324       break;
+325     case (2):
+326       config |= ADS1015_REG_CONFIG_MUX_SINGLE_2;
+327       break;
+328     case (3):
+329       config |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
+330       break;
+331   }
+332 
+333   // Set the high threshold register
+334   // Shift 12-bit results left 4 bits for the ADS1015
+335   writeRegister(m_i2cAddress, ADS1015_REG_POINTER_HITHRESH, threshold << m_bitShift);
+336 
+337   // Write config register to the ADC
+338   writeRegister(m_i2cAddress, ADS1015_REG_POINTER_CONFIG, config);
+339 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "uint8_t Adafruit_ADS1015::m_bitShift\fC [protected]\fP"
+
+.PP
+Definition at line 125 of file CoolAdafruit_ADS1015\&.h\&.
+.SS "uint8_t Adafruit_ADS1015::m_conversionDelay\fC [protected]\fP"
+
+.PP
+Definition at line 124 of file CoolAdafruit_ADS1015\&.h\&.
+.SS "\fBadsGain_t\fP Adafruit_ADS1015::m_gain\fC [protected]\fP"
+
+.PP
+Definition at line 126 of file CoolAdafruit_ADS1015\&.h\&.
+.SS "uint8_t Adafruit_ADS1015::m_i2cAddress\fC [protected]\fP"
+
+.PP
+Definition at line 123 of file CoolAdafruit_ADS1015\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
