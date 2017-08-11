@@ -1,0 +1,180 @@
+.TH "ExternalSensor< NDIR_I2C >" 3 "Fri Aug 11 2017" "CoolBoardAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ExternalSensor< NDIR_I2C > \- \fBNDIR_I2C\fP Specialization Class This is the template specialization for the \fBNDIR_I2C\fP CO2 sensor\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <ExternalSensor\&.h>\fP
+.PP
+Inherits \fBBaseExternalSensor\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBExternalSensor\fP (uint8_t i2c_addr)"
+.br
+.ti -1c
+.RI "virtual uint8_t \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "virtual float \fBread\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBNDIR_I2C\fP \fBsensor\fP =NULL"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.SS "template<>
+.br
+class ExternalSensor< NDIR_I2C >"
+\fBNDIR_I2C\fP Specialization Class This is the template specialization for the \fBNDIR_I2C\fP CO2 sensor\&. 
+.PP
+Definition at line 181 of file ExternalSensor\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "\fBExternalSensor\fP< \fBNDIR_I2C\fP >::\fBExternalSensor\fP (uint8_t i2c_addr)\fC [inline]\fP"
+\fBExternalSensor(I2C address)\fP: \fBNDIR_I2C\fP specific constructor 
+.PP
+Definition at line 189 of file ExternalSensor\&.h\&.
+.PP
+.nf
+190     {
+191     
+192     #if DEBUGExternal == 1 
+193 
+194         Serial\&.println( "ExternalSensor <NDIR_I2C> constructor");
+195         Serial\&.println();
+196     
+197     #endif
+198 
+199         sensor=NDIR_I2C(i2c_addr);
+200     }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual uint8_t \fBExternalSensor\fP< \fBNDIR_I2C\fP >::begin (void)\fC [inline]\fP, \fC [virtual]\fP"
+\fBbegin()\fP: \fBNDIR_I2C\fP specific begin method
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful, false otherwise 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBBaseExternalSensor\fP\&.
+.PP
+Definition at line 209 of file ExternalSensor\&.h\&.
+.PP
+.nf
+210     {
+211     
+212     #if DEBUGExternal == 1 
+213 
+214         Serial\&.println( "ExternalSensor <NDIR_I2C> begin()" );
+215         Serial\&.println();
+216     
+217     #endif 
+218 
+219         if (sensor\&.begin()) 
+220         {
+221         
+222         #if DEBUGExternal == 1 
+223             
+224             Serial\&.println( "NDIR_I2C init : wait 10 seconds" );
+225             Serial\&.println();
+226         
+227         #endif
+228 
+229             delay(10000);
+230             return(true);
+231 
+232             }
+233         else 
+234         {
+235         
+236         #if DEBUGExternal == 1 
+237 
+238             Serial\&.println( "NDIR_I2C init : fail " );
+239             Serial\&.println();
+240         
+241         #endif
+242 
+243             return(false);
+244         }   
+245     }
+.fi
+.SS "virtual float \fBExternalSensor\fP< \fBNDIR_I2C\fP >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
+\fBread()\fP: \fBNDIR_I2C\fP specific read method
+.PP
+\fBReturns:\fP
+.RS 4
+the ppm value if successful, else return -42 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBBaseExternalSensor\fP\&.
+.PP
+Definition at line 254 of file ExternalSensor\&.h\&.
+.PP
+.nf
+255     {
+256         
+257     #if DEBUGExternal == 1 
+258         
+259         Serial\&.println( "ExternalSensor <NDIR_I2C> read()" );
+260         Serial\&.println();
+261 
+262     #endif
+263 
+264         if (sensor\&.measure())
+265         {
+266         
+267         #if DEBUGExternal == 1 
+268 
+269             Serial\&.print( "NDIR_I2C ppm :" );
+270             Serial\&.println( (float) sensor\&.ppm);
+271             
+272             Serial\&.println();            
+273 
+274         #endif
+275 
+276             return( (float) sensor\&.ppm);
+277             
+278         }
+279         
+280         else
+281         {
+282         
+283         #if DEBUGExternal == 1 
+284 
+285             Serial\&.println( "NDIR_I2C read fail " );
+286             Serial\&.println();
+287         
+288         #endif
+289 
+290             return(-42);
+291         }
+292     }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBNDIR_I2C\fP \fBExternalSensor\fP< \fBNDIR_I2C\fP >::sensor =NULL\fC [private]\fP"
+
+.PP
+Definition at line 296 of file ExternalSensor\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.

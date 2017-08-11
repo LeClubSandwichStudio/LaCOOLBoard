@@ -1,0 +1,1303 @@
+.TH "WiFiManager" 3 "Fri Aug 11 2017" "CoolBoardAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+WiFiManager
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <WiFiManagerReadFileButton\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBWiFiManager\fP ()"
+.br
+.ti -1c
+.RI "boolean \fBautoConnect\fP ()"
+.br
+.ti -1c
+.RI "boolean \fBautoConnect\fP (char const *apName, char const *apPassword=NULL)"
+.br
+.ti -1c
+.RI "boolean \fBstartConfigPortal\fP ()"
+.br
+.ti -1c
+.RI "boolean \fBstartConfigPortal\fP (char const *apName, char const *apPassword=NULL)"
+.br
+.ti -1c
+.RI "String \fBgetConfigPortalSSID\fP ()"
+.br
+.ti -1c
+.RI "void \fBresetSettings\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetConfigPortalTimeout\fP (unsigned long seconds)"
+.br
+.ti -1c
+.RI "void \fBsetTimeout\fP (unsigned long seconds)"
+.br
+.ti -1c
+.RI "void \fBsetConnectTimeout\fP (unsigned long seconds)"
+.br
+.ti -1c
+.RI "void \fBsetDebugOutput\fP (boolean debug)"
+.br
+.ti -1c
+.RI "void \fBsetMinimumSignalQuality\fP (int quality=8)"
+.br
+.ti -1c
+.RI "void \fBsetAPStaticIPConfig\fP (IPAddress ip, IPAddress gw, IPAddress sn)"
+.br
+.ti -1c
+.RI "void \fBsetSTAStaticIPConfig\fP (IPAddress ip, IPAddress gw, IPAddress sn)"
+.br
+.ti -1c
+.RI "void \fBsetAPCallback\fP (void(*func)(\fBWiFiManager\fP *))"
+.br
+.ti -1c
+.RI "void \fBsetSaveConfigCallback\fP (void(*func)(void))"
+.br
+.ti -1c
+.RI "void \fBaddParameter\fP (\fBWiFiManagerParameter\fP *p)"
+.br
+.ti -1c
+.RI "void \fBsetBreakAfterConfig\fP (boolean shouldBreak)"
+.br
+.ti -1c
+.RI "void \fBsetCustomHeadElement\fP (const char *element)"
+.br
+.ti -1c
+.RI "void \fBsetRemoveDuplicateAPs\fP (boolean removeDuplicates)"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBsetupConfigPortal\fP ()"
+.br
+.ti -1c
+.RI "void \fBstartWPS\fP ()"
+.br
+.ti -1c
+.RI "int \fBconnectWifi\fP (String ssid, String pass)"
+.br
+.ti -1c
+.RI "uint8_t \fBwaitForConnectResult\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandleRoot\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandleWifi\fP (boolean scan)"
+.br
+.ti -1c
+.RI "void \fBhandleWifiSave\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandleInfo\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandleReset\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandleNotFound\fP ()"
+.br
+.ti -1c
+.RI "void \fBhandle204\fP ()"
+.br
+.ti -1c
+.RI "bool \fBhandleFileRead\fP ()"
+.br
+.ti -1c
+.RI "boolean \fBcaptivePortal\fP ()"
+.br
+.ti -1c
+.RI "String \fBgetContentType\fP (String filename)"
+.br
+.ti -1c
+.RI "int \fBgetRSSIasQuality\fP (int RSSI)"
+.br
+.ti -1c
+.RI "boolean \fBisIp\fP (String str)"
+.br
+.ti -1c
+.RI "String \fBtoStringIp\fP (IPAddress ip)"
+.br
+.ti -1c
+.RI "template<typename Generic > void \fBDEBUG_WM\fP (Generic text)"
+.br
+.ti -1c
+.RI "template<class T > auto \fBoptionalIPFromString\fP (T *obj, const char *s) \-> decltype(obj\->fromString(s))"
+.br
+.ti -1c
+.RI "auto \fBoptionalIPFromString\fP (\&.\&.\&.) \-> bool"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "std::unique_ptr< DNSServer > \fBdnsServer\fP"
+.br
+.ti -1c
+.RI "std::unique_ptr< ESP8266WebServer > \fBserver\fP"
+.br
+.ti -1c
+.RI "const char * \fB_apName\fP = 'no\-net'"
+.br
+.ti -1c
+.RI "const char * \fB_apPassword\fP = NULL"
+.br
+.ti -1c
+.RI "String \fB_ssid\fP = ''"
+.br
+.ti -1c
+.RI "String \fB_pass\fP = ''"
+.br
+.ti -1c
+.RI "unsigned long \fB_configPortalTimeout\fP = 0"
+.br
+.ti -1c
+.RI "unsigned long \fB_connectTimeout\fP = 0"
+.br
+.ti -1c
+.RI "unsigned long \fB_configPortalStart\fP = 0"
+.br
+.ti -1c
+.RI "IPAddress \fB_ap_static_ip\fP"
+.br
+.ti -1c
+.RI "IPAddress \fB_ap_static_gw\fP"
+.br
+.ti -1c
+.RI "IPAddress \fB_ap_static_sn\fP"
+.br
+.ti -1c
+.RI "IPAddress \fB_sta_static_ip\fP"
+.br
+.ti -1c
+.RI "IPAddress \fB_sta_static_gw\fP"
+.br
+.ti -1c
+.RI "IPAddress \fB_sta_static_sn\fP"
+.br
+.ti -1c
+.RI "int \fB_paramsCount\fP = 0"
+.br
+.ti -1c
+.RI "int \fB_minimumQuality\fP = \-1"
+.br
+.ti -1c
+.RI "boolean \fB_removeDuplicateAPs\fP = true"
+.br
+.ti -1c
+.RI "boolean \fB_shouldBreakAfterConfig\fP = false"
+.br
+.ti -1c
+.RI "boolean \fB_tryWPS\fP = false"
+.br
+.ti -1c
+.RI "const char * \fB_customHeadElement\fP = ''"
+.br
+.ti -1c
+.RI "int \fBstatus\fP = WL_IDLE_STATUS"
+.br
+.ti -1c
+.RI "const byte \fBDNS_PORT\fP = 53"
+.br
+.ti -1c
+.RI "boolean \fBconnect\fP"
+.br
+.ti -1c
+.RI "boolean \fB_debug\fP = true"
+.br
+.ti -1c
+.RI "void(* \fB_apcallback\fP )(\fBWiFiManager\fP *) = NULL"
+.br
+.ti -1c
+.RI "void(* \fB_savecallback\fP )(void) = NULL"
+.br
+.ti -1c
+.RI "\fBWiFiManagerParameter\fP * \fB_params\fP [\fBWIFI_MANAGER_MAX_PARAMS\fP]"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 67 of file WiFiManagerReadFileButton\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "WiFiManager::WiFiManager ()"
+
+.PP
+Definition at line 64 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+64                          {
+65 }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "void WiFiManager::addParameter (\fBWiFiManagerParameter\fP * p)"
+
+.PP
+Definition at line 67 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+67                                                       {
+68   _params[_paramsCount] = p;
+69   _paramsCount++;
+70   DEBUG_WM("Adding parameter");
+71   DEBUG_WM(p->getID());
+72 }
+.fi
+.SS "boolean WiFiManager::autoConnect ()"
+
+.PP
+Definition at line 128 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+128                                  {
+129   String ssid = "ESP" + String(ESP\&.getChipId());
+130   return autoConnect(ssid\&.c_str(), NULL);
+131 }
+.fi
+.SS "boolean WiFiManager::autoConnect (char const * apName, char const * apPassword = \fCNULL\fP)"
+
+.PP
+Definition at line 133 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+133                                                                            {
+134   DEBUG_WM(F(""));
+135   DEBUG_WM(F("AutoConnect"));
+136 
+137   // read eeprom for ssid and pass
+138   //String ssid = getSSID();
+139   //String pass = getPassword();
+140 
+141   // attempt to connect; should it fail, fall back to AP
+142   WiFi\&.mode(WIFI_STA);
+143 
+144   if (connectWifi("", "") == WL_CONNECTED)   {
+145     DEBUG_WM(F("IP Address:"));
+146     DEBUG_WM(WiFi\&.localIP());
+147     //connected
+148     return true;
+149   }
+150 
+151   return startConfigPortal(apName, apPassword);
+152 }
+.fi
+.SS "boolean WiFiManager::captivePortal ()\fC [private]\fP"
+Redirect to captive portal if we got a request for another domain\&. Return true in that case so the page handler do not try to handle the request again\&. 
+.PP
+Definition at line 727 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+727                                    {
+728   if (!isIp(server->hostHeader()) ) {
+729     DEBUG_WM(F("Request redirected to captive portal"));
+730     server->sendHeader("Location", String("http://") + toStringIp(server->client()\&.localIP()), true);
+731     server->send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves\&.
+732     server->client()\&.stop(); // Stop is needed because we sent no content length
+733     return true;
+734   }
+735   return false;
+736 }
+.fi
+.SS "int WiFiManager::connectWifi (String ssid, String pass)\fC [private]\fP"
+
+.PP
+Definition at line 221 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+221                                                      {
+222   DEBUG_WM(F("Connecting as wifi client\&.\&.\&."));
+223 
+224   // check if we've got static_ip settings, if we do, use those\&.
+225   if (_sta_static_ip) {
+226     DEBUG_WM(F("Custom STA IP/GW/Subnet"));
+227     WiFi\&.config(_sta_static_ip, _sta_static_gw, _sta_static_sn);
+228     DEBUG_WM(WiFi\&.localIP());
+229   }
+230   //fix for auto connect racing issue
+231   if (WiFi\&.status() == WL_CONNECTED) {
+232     DEBUG_WM("Already connected\&. Bailing out\&.");
+233     return WL_CONNECTED;
+234   }
+235   //check if we have ssid and pass and force those, if not, try with last saved values
+236   if (ssid != "") {
+237     WiFi\&.begin(ssid\&.c_str(), pass\&.c_str());
+238   } else {
+239     if (WiFi\&.SSID()) {
+240       DEBUG_WM("Using last saved values, should be faster");
+241       //trying to fix connection in progress hanging
+242       ETS_UART_INTR_DISABLE();
+243       wifi_station_disconnect();
+244       ETS_UART_INTR_ENABLE();
+245 
+246       WiFi\&.begin();
+247     } else {
+248       DEBUG_WM("No saved credentials");
+249     }
+250   }
+251 
+252   int connRes = waitForConnectResult();
+253   DEBUG_WM ("Connection result: ");
+254   DEBUG_WM ( connRes );
+255   //not connected, WPS enabled, no pass - first attempt
+256   if (_tryWPS && connRes != WL_CONNECTED && pass == "") {
+257     startWPS();
+258     //should be connected at the end of WPS
+259     connRes = waitForConnectResult();
+260   }
+261   return connRes;
+262 }
+.fi
+.SS "template<typename Generic > void WiFiManager::DEBUG_WM (Generic text)\fC [private]\fP"
+
+.PP
+Definition at line 761 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+761                                        {
+762   if (_debug) {
+763     Serial\&.print("*WM: ");
+764     Serial\&.println(text);
+765   }
+766 }
+.fi
+.SS "String WiFiManager::getConfigPortalSSID ()"
+
+.PP
+Definition at line 313 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+313                                         {
+314   return _apName;
+315 }
+.fi
+.SS "String WiFiManager::getContentType (String filename)\fC [private]\fP"
+
+.PP
+Definition at line 802 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+802                                                  {
+803   if(server->hasArg("download")) return "application/octet-stream";
+804   else if(filename\&.endsWith("\&.htm")) return "text/html";
+805   else if(filename\&.endsWith("\&.html")) return "text/html";
+806   else if(filename\&.endsWith("\&.css")) return "text/css";
+807   else if(filename\&.endsWith("\&.js")) return "application/javascript";
+808   else if(filename\&.endsWith("\&.png")) return "image/png";
+809   else if(filename\&.endsWith("\&.gif")) return "image/gif";
+810   else if(filename\&.endsWith("\&.jpg")) return "image/jpeg";
+811   else if(filename\&.endsWith("\&.ico")) return "image/x-icon";
+812   else if(filename\&.endsWith("\&.xml")) return "text/xml";
+813   else if(filename\&.endsWith("\&.pdf")) return "application/x-pdf";
+814   else if(filename\&.endsWith("\&.zip")) return "application/x-zip";
+815   else if(filename\&.endsWith("\&.gz")) return "application/x-gzip";
+816   return "text/plain";
+817 }
+.fi
+.SS "int WiFiManager::getRSSIasQuality (int RSSI)\fC [private]\fP"
+
+.PP
+Definition at line 768 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+768                                           {
+769   int quality = 0;
+770 
+771   if (RSSI <= -100) {
+772     quality = 0;
+773   } else if (RSSI >= -50) {
+774     quality = 100;
+775   } else {
+776     quality = 2 * (RSSI + 100);
+777   }
+778   return quality;
+779 }
+.fi
+.SS "void WiFiManager::handle204 ()\fC [private]\fP"
+
+.SS "bool WiFiManager::handleFileRead ()\fC [private]\fP"
+Handle the read file button 
+.PP
+Definition at line 657 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+658 {
+659 
+660     DEBUG_WM(F("handleFileRead: /sensorsData\&.csv " ));
+661 
+662     String path="/sensorsData\&.csv";
+663 
+664     if(path\&.endsWith("/"))
+665     {
+666         path += "index\&.htm";
+667     }
+668 
+669     String contentType = getContentType(path);
+670     String pathWithGz = path + "\&.gz";
+671     if(SPIFFS\&.exists(pathWithGz) || SPIFFS\&.exists(path))
+672     {
+673 
+674         if(SPIFFS\&.exists(pathWithGz))
+675         {
+676             path += "\&.gz";
+677         }
+678 
+679         File file = SPIFFS\&.open(path, "r");
+680         size_t sent = server->streamFile(file, contentType);
+681         file\&.close();
+682         return true;
+683 
+684     }
+685 
+686     return false;
+687 }
+.fi
+.SS "void WiFiManager::handleInfo ()\fC [private]\fP"
+Handle the info page 
+.PP
+Definition at line 597 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+597                              {
+598   DEBUG_WM(F("Info"));
+599 
+600   String page = FPSTR(HTTP_HEAD);
+601   page\&.replace("{v}", "Info");
+602   page += FPSTR(HTTP_SCRIPT);
+603   page += FPSTR(HTTP_STYLE);
+604   page += _customHeadElement;
+605   page += FPSTR(HTTP_HEAD_END);
+606   page += F("<dl>");
+607   page += F("<dt>Chip ID</dt><dd>");
+608   page += ESP\&.getChipId();
+609   page += F("</dd>");
+610   page += F("<dt>Flash Chip ID</dt><dd>");
+611   page += ESP\&.getFlashChipId();
+612   page += F("</dd>");
+613   page += F("<dt>IDE Flash Size</dt><dd>");
+614   page += ESP\&.getFlashChipSize();
+615   page += F(" bytes</dd>");
+616   page += F("<dt>Real Flash Size</dt><dd>");
+617   page += ESP\&.getFlashChipRealSize();
+618   page += F(" bytes</dd>");
+619   page += F("<dt>Soft AP IP</dt><dd>");
+620   page += WiFi\&.softAPIP()\&.toString();
+621   page += F("</dd>");
+622   page += F("<dt>Soft AP MAC</dt><dd>");
+623   page += WiFi\&.softAPmacAddress();
+624   page += F("</dd>");
+625   page += F("<dt>Station MAC</dt><dd>");
+626   page += WiFi\&.macAddress();
+627   page += F("</dd>");
+628   page += F("</dl>");
+629   page += FPSTR(HTTP_END);
+630 
+631   server->send(200, "text/html", page);
+632 
+633   DEBUG_WM(F("Sent info page"));
+634 }
+.fi
+.SS "void WiFiManager::handleNotFound ()\fC [private]\fP"
+
+.PP
+Definition at line 699 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+699                                  {
+700   if (captivePortal()) {
+701     if(!(this->handleFileRead()) )
+702     {
+703     server->send(404, "text/plain", "FileNotFound");
+704     }// If captive portal redirect instead of displaying the error page\&.
+705     return;
+706   }
+707   String message = "File Not Found\n\n";
+708   message += "URI: ";
+709   message += server->uri();
+710   message += "\nMethod: ";
+711   message += ( server->method() == HTTP_GET ) ? "GET" : "POST";
+712   message += "\nArguments: ";
+713   message += server->args();
+714   message += "\n";
+715 
+716   for ( uint8_t i = 0; i < server->args(); i++ ) {
+717     message += " " + server->argName ( i ) + ": " + server->arg ( i ) + "\n";
+718   }
+719   server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+720   server->sendHeader("Pragma", "no-cache");
+721   server->sendHeader("Expires", "-1");
+722   server->send ( 404, "text/plain", message );
+723 }
+.fi
+.SS "void WiFiManager::handleReset ()\fC [private]\fP"
+Handle the reset page 
+.PP
+Definition at line 637 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+637                               {
+638   DEBUG_WM(F("Reset"));
+639 
+640   String page = FPSTR(HTTP_HEAD);
+641   page\&.replace("{v}", "Info");
+642   page += FPSTR(HTTP_SCRIPT);
+643   page += FPSTR(HTTP_STYLE);
+644   page += _customHeadElement;
+645   page += FPSTR(HTTP_HEAD_END);
+646   page += F("Module will reset in a few seconds\&.");
+647   page += FPSTR(HTTP_END);
+648   server->send(200, "text/html", page);
+649 
+650   DEBUG_WM(F("Sent reset page"));
+651   delay(5000);
+652   ESP\&.reset();
+653   delay(2000);
+654 }
+.fi
+.SS "void WiFiManager::handleRoot ()\fC [private]\fP"
+Handle root or redirect to captive portal 
+.PP
+Definition at line 360 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+360                              {
+361   DEBUG_WM(F("Handle root"));
+362   if (captivePortal()) { // If caprive portal redirect instead of displaying the page\&.
+363     return;
+364   }
+365 
+366   String page = FPSTR(HTTP_HEAD);
+367   page\&.replace("{v}", "Options");
+368   page += FPSTR(HTTP_SCRIPT);
+369   page += FPSTR(HTTP_STYLE);
+370   page += _customHeadElement;
+371   page += FPSTR(HTTP_HEAD_END);
+372   page += "<h1>";
+373   page += _apName;
+374   page += "</h1>";
+375   page += F("<h3>WiFiManager</h3>");
+376   page += FPSTR(HTTP_PORTAL_OPTIONS);
+377   page += FPSTR(HTTP_END);
+378 
+379   server->send(200, "text/html", page);
+380 
+381 }
+.fi
+.SS "void WiFiManager::handleWifi (boolean scan)\fC [private]\fP"
+Wifi config page handler 
+.PP
+Definition at line 384 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+384                                          {
+385 
+386   String page = FPSTR(HTTP_HEAD);
+387   page\&.replace("{v}", "Config ESP");
+388   page += FPSTR(HTTP_SCRIPT);
+389   page += FPSTR(HTTP_STYLE);
+390   page += _customHeadElement;
+391   page += FPSTR(HTTP_HEAD_END);
+392 
+393   if (scan) {
+394     int n = WiFi\&.scanNetworks();
+395     DEBUG_WM(F("Scan done"));
+396     if (n == 0) {
+397       DEBUG_WM(F("No networks found"));
+398       page += F("No networks found\&. Refresh to scan again\&.");
+399     } else {
+400 
+401       //sort networks
+402       int indices[n];
+403       for (int i = 0; i < n; i++) {
+404         indices[i] = i;
+405       }
+406 
+407       // RSSI SORT
+408 
+409       // old sort
+410       for (int i = 0; i < n; i++) {
+411         for (int j = i + 1; j < n; j++) {
+412           if (WiFi\&.RSSI(indices[j]) > WiFi\&.RSSI(indices[i])) {
+413             std::swap(indices[i], indices[j]);
+414           }
+415         }
+416       }
+417 
+418       /*std::sort(indices, indices + n, [](const int & a, const int & b) -> bool
+419         {
+420         return WiFi\&.RSSI(a) > WiFi\&.RSSI(b);
+421         });*/
+422 
+423       // remove duplicates ( must be RSSI sorted )
+424       if (_removeDuplicateAPs) {
+425         String cssid;
+426         for (int i = 0; i < n; i++) {
+427           if (indices[i] == -1) continue;
+428           cssid = WiFi\&.SSID(indices[i]);
+429           for (int j = i + 1; j < n; j++) {
+430             if (cssid == WiFi\&.SSID(indices[j])) {
+431               DEBUG_WM("DUP AP: " + WiFi\&.SSID(indices[j]));
+432               indices[j] = -1; // set dup aps to index -1
+433             }
+434           }
+435         }
+436       }
+437 
+438       //display networks in page
+439       for (int i = 0; i < n; i++) {
+440         if (indices[i] == -1) continue; // skip dups
+441         DEBUG_WM(WiFi\&.SSID(indices[i]));
+442         DEBUG_WM(WiFi\&.RSSI(indices[i]));
+443         int quality = getRSSIasQuality(WiFi\&.RSSI(indices[i]));
+444 
+445         if (_minimumQuality == -1 || _minimumQuality < quality) {
+446           String item = FPSTR(HTTP_ITEM);
+447           String rssiQ;
+448           rssiQ += quality;
+449           item\&.replace("{v}", WiFi\&.SSID(indices[i]));
+450           item\&.replace("{r}", rssiQ);
+451           if (WiFi\&.encryptionType(indices[i]) != ENC_TYPE_NONE) {
+452             item\&.replace("{i}", "l");
+453           } else {
+454             item\&.replace("{i}", "");
+455           }
+456           //DEBUG_WM(item);
+457           page += item;
+458           delay(0);
+459         } else {
+460           DEBUG_WM(F("Skipping due to quality"));
+461         }
+462 
+463       }
+464       page += "<br/>";
+465     }
+466   }
+467 
+468   page += FPSTR(HTTP_FORM_START);
+469   char parLength[2];
+470   // add the extra parameters to the form
+471   for (int i = 0; i < _paramsCount; i++) {
+472     if (_params[i] == NULL) {
+473       break;
+474     }
+475 
+476     String pitem = FPSTR(HTTP_FORM_PARAM);
+477     if (_params[i]->getID() != NULL) {
+478       pitem\&.replace("{i}", _params[i]->getID());
+479       pitem\&.replace("{n}", _params[i]->getID());
+480       pitem\&.replace("{p}", _params[i]->getPlaceholder());
+481       snprintf(parLength, 2, "%d", _params[i]->getValueLength());
+482       pitem\&.replace("{l}", parLength);
+483       pitem\&.replace("{v}", _params[i]->getValue());
+484       pitem\&.replace("{c}", _params[i]->getCustomHTML());
+485     } else {
+486       pitem = _params[i]->getCustomHTML();
+487     }
+488 
+489     page += pitem;
+490   }
+491   if (_params[0] != NULL) {
+492     page += "<br/>";
+493   }
+494 
+495   if (_sta_static_ip) {
+496 
+497     String item = FPSTR(HTTP_FORM_PARAM);
+498     item\&.replace("{i}", "ip");
+499     item\&.replace("{n}", "ip");
+500     item\&.replace("{p}", "Static IP");
+501     item\&.replace("{l}", "15");
+502     item\&.replace("{v}", _sta_static_ip\&.toString());
+503 
+504     page += item;
+505 
+506     item = FPSTR(HTTP_FORM_PARAM);
+507     item\&.replace("{i}", "gw");
+508     item\&.replace("{n}", "gw");
+509     item\&.replace("{p}", "Static Gateway");
+510     item\&.replace("{l}", "15");
+511     item\&.replace("{v}", _sta_static_gw\&.toString());
+512 
+513     page += item;
+514 
+515     item = FPSTR(HTTP_FORM_PARAM);
+516     item\&.replace("{i}", "sn");
+517     item\&.replace("{n}", "sn");
+518     item\&.replace("{p}", "Subnet");
+519     item\&.replace("{l}", "15");
+520     item\&.replace("{v}", _sta_static_sn\&.toString());
+521 
+522     page += item;
+523 
+524     page += "<br/>";
+525   }
+526 
+527   page += FPSTR(HTTP_FORM_END);
+528   page += FPSTR(HTTP_SCAN_LINK);
+529 
+530   page += FPSTR(HTTP_END);
+531 
+532   server->send(200, "text/html", page);
+533 
+534 
+535   DEBUG_WM(F("Sent config page"));
+536 }
+.fi
+.SS "void WiFiManager::handleWifiSave ()\fC [private]\fP"
+Handle the WLAN save form and redirect to WLAN config page again 
+.PP
+Definition at line 539 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+539                                  {
+540   DEBUG_WM(F("WiFi save"));
+541 
+542   //SAVE/connect here
+543   _ssid = server->arg("s")\&.c_str();
+544   _pass = server->arg("p")\&.c_str();
+545 
+546   //parameters
+547   for (int i = 0; i < _paramsCount; i++) {
+548     if (_params[i] == NULL) {
+549       break;
+550     }
+551     //read parameter
+552     String value = server->arg(_params[i]->getID())\&.c_str();
+553     //store it in array
+554     value\&.toCharArray(_params[i]->_value, _params[i]->_length);
+555     DEBUG_WM(F("Parameter"));
+556     DEBUG_WM(_params[i]->getID());
+557     DEBUG_WM(value);
+558   }
+559 
+560   if (server->arg("ip") != "") {
+561     DEBUG_WM(F("static ip"));
+562     DEBUG_WM(server->arg("ip"));
+563     //_sta_static_ip\&.fromString(server->arg("ip"));
+564     String ip = server->arg("ip");
+565     optionalIPFromString(&_sta_static_ip, ip\&.c_str());
+566   }
+567   if (server->arg("gw") != "") {
+568     DEBUG_WM(F("static gateway"));
+569     DEBUG_WM(server->arg("gw"));
+570     String gw = server->arg("gw");
+571     optionalIPFromString(&_sta_static_gw, gw\&.c_str());
+572   }
+573   if (server->arg("sn") != "") {
+574     DEBUG_WM(F("static netmask"));
+575     DEBUG_WM(server->arg("sn"));
+576     String sn = server->arg("sn");
+577     optionalIPFromString(&_sta_static_sn, sn\&.c_str());
+578   }
+579 
+580   String page = FPSTR(HTTP_HEAD);
+581   page\&.replace("{v}", "Credentials Saved");
+582   page += FPSTR(HTTP_SCRIPT);
+583   page += FPSTR(HTTP_STYLE);
+584   page += _customHeadElement;
+585   page += FPSTR(HTTP_HEAD_END);
+586   page += FPSTR(HTTP_SAVED);
+587   page += FPSTR(HTTP_END);
+588 
+589   server->send(200, "text/html", page);
+590 
+591   DEBUG_WM(F("Sent wifi save page"));
+592 
+593   connect = true; //signal ready to connect/reset
+594 }
+.fi
+.SS "boolean WiFiManager::isIp (String str)\fC [private]\fP"
+Is this an IP? 
+.PP
+Definition at line 782 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+782                                     {
+783   for (int i = 0; i < str\&.length(); i++) {
+784     int c = str\&.charAt(i);
+785     if (c != '\&.' && (c < '0' || c > '9')) {
+786       return false;
+787     }
+788   }
+789   return true;
+790 }
+.fi
+.SS "template<class T > auto WiFiManager::optionalIPFromString (T * obj, const char * s) \-> decltype(  obj\->fromString(s)  ) \fC [inline]\fP, \fC [private]\fP"
+
+.PP
+Definition at line 192 of file WiFiManagerReadFileButton\&.h\&.
+.PP
+.nf
+192                                                                                          {
+193       return  obj->fromString(s);
+194     }
+.fi
+.SS "auto WiFiManager::optionalIPFromString ( \&.\&.\&.) \-> bool \fC [inline]\fP, \fC [private]\fP"
+
+.PP
+Definition at line 195 of file WiFiManagerReadFileButton\&.h\&.
+.PP
+.nf
+195                                            {
+196       DEBUG_WM("NO fromString METHOD ON IPAddress, you need ESP8266 core 2\&.1\&.0 or newer for Custom IP configuration to work\&.");
+197       return false;
+198     }
+.fi
+.SS "void WiFiManager::resetSettings ()"
+
+.PP
+Definition at line 317 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+317                                 {
+318   DEBUG_WM(F("settings invalidated"));
+319   DEBUG_WM(F("THIS MAY CAUSE AP NOT TO START UP PROPERLY\&. YOU NEED TO COMMENT IT OUT AFTER ERASING THE DATA\&."));
+320   WiFi\&.disconnect(true);
+321   //delay(200);
+322 }
+.fi
+.SS "void WiFiManager::setAPCallback (void(*)(\fBWiFiManager\fP *) func)"
+
+.PP
+Definition at line 739 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+739                                                                           {
+740   _apcallback = func;
+741 }
+.fi
+.SS "void WiFiManager::setAPStaticIPConfig (IPAddress ip, IPAddress gw, IPAddress sn)"
+
+.PP
+Definition at line 339 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+339                                                                               {
+340   _ap_static_ip = ip;
+341   _ap_static_gw = gw;
+342   _ap_static_sn = sn;
+343 }
+.fi
+.SS "void WiFiManager::setBreakAfterConfig (boolean shouldBreak)"
+
+.PP
+Definition at line 355 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+355                                                          {
+356   _shouldBreakAfterConfig = shouldBreak;
+357 }
+.fi
+.SS "void WiFiManager::setConfigPortalTimeout (unsigned long seconds)"
+
+.PP
+Definition at line 327 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+327                                                               {
+328   _configPortalTimeout = seconds * 1000;
+329 }
+.fi
+.SS "void WiFiManager::setConnectTimeout (unsigned long seconds)"
+
+.PP
+Definition at line 331 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+331                                                          {
+332   _connectTimeout = seconds * 1000;
+333 }
+.fi
+.SS "void WiFiManager::setCustomHeadElement (const char * element)"
+
+.PP
+Definition at line 749 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+749                                                           {
+750   _customHeadElement = element;
+751 }
+.fi
+.SS "void WiFiManager::setDebugOutput (boolean debug)"
+
+.PP
+Definition at line 335 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+335                                               {
+336   _debug = debug;
+337 }
+.fi
+.SS "void WiFiManager::setMinimumSignalQuality (int quality = \fC8\fP)"
+
+.PP
+Definition at line 351 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+351                                                      {
+352   _minimumQuality = quality;
+353 }
+.fi
+.SS "void WiFiManager::setRemoveDuplicateAPs (boolean removeDuplicates)"
+
+.PP
+Definition at line 754 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+754                                                                 {
+755   _removeDuplicateAPs = removeDuplicates;
+756 }
+.fi
+.SS "void WiFiManager::setSaveConfigCallback (void(*)(void) func)"
+
+.PP
+Definition at line 744 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+744                                                             {
+745   _savecallback = func;
+746 }
+.fi
+.SS "void WiFiManager::setSTAStaticIPConfig (IPAddress ip, IPAddress gw, IPAddress sn)"
+
+.PP
+Definition at line 345 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+345                                                                                {
+346   _sta_static_ip = ip;
+347   _sta_static_gw = gw;
+348   _sta_static_sn = sn;
+349 }
+.fi
+.SS "void WiFiManager::setTimeout (unsigned long seconds)"
+
+.PP
+Definition at line 323 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+323                                                   {
+324   setConfigPortalTimeout(seconds);
+325 }
+.fi
+.SS "void WiFiManager::setupConfigPortal ()\fC [private]\fP"
+
+.PP
+Definition at line 74 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+74                                     {
+75   dnsServer\&.reset(new DNSServer());
+76   server\&.reset(new ESP8266WebServer(80));
+77 
+78   DEBUG_WM(F(""));
+79   _configPortalStart = millis();
+80 
+81   DEBUG_WM(F("Configuring access point\&.\&.\&. "));
+82   DEBUG_WM(_apName);
+83   if (_apPassword != NULL) {
+84     if (strlen(_apPassword) < 8 || strlen(_apPassword) > 63) {
+85       // fail passphrase to short or long!
+86       DEBUG_WM(F("Invalid AccessPoint password\&. Ignoring"));
+87       _apPassword = NULL;
+88     }
+89     DEBUG_WM(_apPassword);
+90   }
+91 
+92   //optional soft ip config
+93   if (_ap_static_ip) {
+94     DEBUG_WM(F("Custom AP IP/GW/Subnet"));
+95     WiFi\&.softAPConfig(_ap_static_ip, _ap_static_gw, _ap_static_sn);
+96   }
+97 
+98   if (_apPassword != NULL) {
+99     WiFi\&.softAP(_apName, _apPassword);//password option
+100   } else {
+101     WiFi\&.softAP(_apName);
+102   }
+103 
+104   delay(500); // Without delay I've seen the IP address blank
+105   DEBUG_WM(F("AP IP address: "));
+106   DEBUG_WM(WiFi\&.softAPIP());
+107 
+108   /* Setup the DNS server redirecting all the domains to the apIP */
+109   dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
+110   dnsServer->start(DNS_PORT, "*", WiFi\&.softAPIP());
+111 
+112   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found\&. */
+113   server->on("/", std::bind(&WiFiManager::handleRoot, this));
+114   server->on("/wifi", std::bind(&WiFiManager::handleWifi, this, true));
+115   server->on("/0wifi", std::bind(&WiFiManager::handleWifi, this, false));
+116   server->on("/wifisave", std::bind(&WiFiManager::handleWifiSave, this));
+117   server->on("/i", std::bind(&WiFiManager::handleInfo, this));
+118   server->on("/r", std::bind(&WiFiManager::handleReset, this));
+119   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check\&.
+120   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal\&. Maybe not needed\&. Might be handled by notFound handler\&.
+121   server->on("/read", std::bind(&WiFiManager::handleFileRead, this));
+122   server->onNotFound (std::bind(&WiFiManager::handleNotFound, this));
+123   server->begin(); // Web server start
+124   DEBUG_WM(F("HTTP server started"));
+125 
+126 }
+.fi
+.SS "boolean WiFiManager::startConfigPortal ()"
+
+.PP
+Definition at line 154 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+154                                        {
+155   String ssid = "ESP" + String(ESP\&.getChipId());
+156   return startConfigPortal(ssid\&.c_str(), NULL);
+157 }
+.fi
+.SS "boolean WiFiManager::startConfigPortal (char const * apName, char const * apPassword = \fCNULL\fP)"
+
+.PP
+Definition at line 159 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+159                                                                                   {
+160   //setup AP
+161   WiFi\&.mode(WIFI_AP_STA);
+162   DEBUG_WM("SET AP STA");
+163 
+164   _apName = apName;
+165   _apPassword = apPassword;
+166 
+167   //notify we entered AP mode
+168   if ( _apcallback != NULL) {
+169     _apcallback(this);
+170   }
+171 
+172   connect = false;
+173   setupConfigPortal();
+174 
+175   while (_configPortalTimeout == 0 || millis() < _configPortalStart + _configPortalTimeout) {
+176     //DNS
+177     dnsServer->processNextRequest();
+178     //HTTP
+179     server->handleClient();
+180 
+181 
+182     if (connect) {
+183       connect = false;
+184       delay(2000);
+185       DEBUG_WM(F("Connecting to new AP"));
+186 
+187       // using user-provided  _ssid, _pass in place of system-stored ssid and pass
+188       if (connectWifi(_ssid, _pass) != WL_CONNECTED) {
+189         DEBUG_WM(F("Failed to connect\&."));
+190       } else {
+191         //connected
+192         WiFi\&.mode(WIFI_STA);
+193         //notify that configuration has changed and any optional parameters should be saved
+194         if ( _savecallback != NULL) {
+195           //todo: check if any custom parameters actually exist, and check if they really changed maybe
+196           _savecallback();
+197         }
+198         break;
+199       }
+200 
+201       if (_shouldBreakAfterConfig) {
+202         //flag set to exit after config after trying to connect
+203         //notify that configuration has changed and any optional parameters should be saved
+204         if ( _savecallback != NULL) {
+205           //todo: check if any custom parameters actually exist, and check if they really changed maybe
+206           _savecallback();
+207         }
+208         break;
+209       }
+210     }
+211     yield();
+212   }
+213 
+214   server\&.reset();
+215   dnsServer\&.reset();
+216 
+217   return  WiFi\&.status() == WL_CONNECTED;
+218 }
+.fi
+.SS "void WiFiManager::startWPS ()\fC [private]\fP"
+
+.PP
+Definition at line 287 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+287                            {
+288   DEBUG_WM("START WPS");
+289   WiFi\&.beginWPSConfig();
+290   DEBUG_WM("END WPS");
+291 }
+.fi
+.SS "String WiFiManager::toStringIp (IPAddress ip)\fC [private]\fP"
+IP to String? 
+.PP
+Definition at line 793 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+793                                            {
+794   String res = "";
+795   for (int i = 0; i < 3; i++) {
+796     res += String((ip >> (8 * i)) & 0xFF) + "\&.";
+797   }
+798   res += String(((ip >> 8 * 3)) & 0xFF);
+799   return res;
+800 }
+.fi
+.SS "uint8_t WiFiManager::waitForConnectResult ()\fC [private]\fP"
+
+.PP
+Definition at line 264 of file WiFiManagerReadFileButton\&.cpp\&.
+.PP
+.nf
+264                                           {
+265   if (_connectTimeout == 0) {
+266     return WiFi\&.waitForConnectResult();
+267   } else {
+268     DEBUG_WM (F("Waiting for connection result with time out"));
+269     unsigned long start = millis();
+270     boolean keepConnecting = true;
+271     uint8_t status;
+272     while (keepConnecting) {
+273       status = WiFi\&.status();
+274       if (millis() > start + _connectTimeout) {
+275         keepConnecting = false;
+276         DEBUG_WM (F("Connection timed out"));
+277       }
+278       if (status == WL_CONNECTED || status == WL_CONNECT_FAILED) {
+279         keepConnecting = false;
+280       }
+281       delay(100);
+282     }
+283     return status;
+284   }
+285 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "IPAddress WiFiManager::_ap_static_gw\fC [private]\fP"
+
+.PP
+Definition at line 137 of file WiFiManagerReadFileButton\&.h\&.
+.SS "IPAddress WiFiManager::_ap_static_ip\fC [private]\fP"
+
+.PP
+Definition at line 136 of file WiFiManagerReadFileButton\&.h\&.
+.SS "IPAddress WiFiManager::_ap_static_sn\fC [private]\fP"
+
+.PP
+Definition at line 138 of file WiFiManagerReadFileButton\&.h\&.
+.SS "void(* WiFiManager::_apcallback) (\fBWiFiManager\fP *) = NULL\fC [private]\fP"
+
+.PP
+Definition at line 183 of file WiFiManagerReadFileButton\&.h\&.
+.SS "const char* WiFiManager::_apName = 'no\-net'\fC [private]\fP"
+
+.PP
+Definition at line 128 of file WiFiManagerReadFileButton\&.h\&.
+.SS "const char* WiFiManager::_apPassword = NULL\fC [private]\fP"
+
+.PP
+Definition at line 129 of file WiFiManagerReadFileButton\&.h\&.
+.SS "unsigned long WiFiManager::_configPortalStart = 0\fC [private]\fP"
+
+.PP
+Definition at line 134 of file WiFiManagerReadFileButton\&.h\&.
+.SS "unsigned long WiFiManager::_configPortalTimeout = 0\fC [private]\fP"
+
+.PP
+Definition at line 132 of file WiFiManagerReadFileButton\&.h\&.
+.SS "unsigned long WiFiManager::_connectTimeout = 0\fC [private]\fP"
+
+.PP
+Definition at line 133 of file WiFiManagerReadFileButton\&.h\&.
+.SS "const char* WiFiManager::_customHeadElement = ''\fC [private]\fP"
+
+.PP
+Definition at line 149 of file WiFiManagerReadFileButton\&.h\&.
+.SS "boolean WiFiManager::_debug = true\fC [private]\fP"
+
+.PP
+Definition at line 181 of file WiFiManagerReadFileButton\&.h\&.
+.SS "int WiFiManager::_minimumQuality = \-1\fC [private]\fP"
+
+.PP
+Definition at line 144 of file WiFiManagerReadFileButton\&.h\&.
+.SS "\fBWiFiManagerParameter\fP* WiFiManager::_params[\fBWIFI_MANAGER_MAX_PARAMS\fP]\fC [private]\fP"
+
+.PP
+Definition at line 186 of file WiFiManagerReadFileButton\&.h\&.
+.SS "int WiFiManager::_paramsCount = 0\fC [private]\fP"
+
+.PP
+Definition at line 143 of file WiFiManagerReadFileButton\&.h\&.
+.SS "String WiFiManager::_pass = ''\fC [private]\fP"
+
+.PP
+Definition at line 131 of file WiFiManagerReadFileButton\&.h\&.
+.SS "boolean WiFiManager::_removeDuplicateAPs = true\fC [private]\fP"
+
+.PP
+Definition at line 145 of file WiFiManagerReadFileButton\&.h\&.
+.SS "void(* WiFiManager::_savecallback) (void) = NULL\fC [private]\fP"
+
+.PP
+Definition at line 184 of file WiFiManagerReadFileButton\&.h\&.
+.SS "boolean WiFiManager::_shouldBreakAfterConfig = false\fC [private]\fP"
+
+.PP
+Definition at line 146 of file WiFiManagerReadFileButton\&.h\&.
+.SS "String WiFiManager::_ssid = ''\fC [private]\fP"
+
+.PP
+Definition at line 130 of file WiFiManagerReadFileButton\&.h\&.
+.SS "IPAddress WiFiManager::_sta_static_gw\fC [private]\fP"
+
+.PP
+Definition at line 140 of file WiFiManagerReadFileButton\&.h\&.
+.SS "IPAddress WiFiManager::_sta_static_ip\fC [private]\fP"
+
+.PP
+Definition at line 139 of file WiFiManagerReadFileButton\&.h\&.
+.SS "IPAddress WiFiManager::_sta_static_sn\fC [private]\fP"
+
+.PP
+Definition at line 141 of file WiFiManagerReadFileButton\&.h\&.
+.SS "boolean WiFiManager::_tryWPS = false\fC [private]\fP"
+
+.PP
+Definition at line 147 of file WiFiManagerReadFileButton\&.h\&.
+.SS "boolean WiFiManager::connect\fC [private]\fP"
+
+.PP
+Definition at line 180 of file WiFiManagerReadFileButton\&.h\&.
+.SS "const byte WiFiManager::DNS_PORT = 53\fC [private]\fP"
+
+.PP
+Definition at line 173 of file WiFiManagerReadFileButton\&.h\&.
+.SS "std::unique_ptr<DNSServer> WiFiManager::dnsServer\fC [private]\fP"
+
+.PP
+Definition at line 117 of file WiFiManagerReadFileButton\&.h\&.
+.SS "std::unique_ptr<ESP8266WebServer> WiFiManager::server\fC [private]\fP"
+
+.PP
+Definition at line 118 of file WiFiManagerReadFileButton\&.h\&.
+.SS "int WiFiManager::status = WL_IDLE_STATUS\fC [private]\fP"
+
+.PP
+Definition at line 154 of file WiFiManagerReadFileButton\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.

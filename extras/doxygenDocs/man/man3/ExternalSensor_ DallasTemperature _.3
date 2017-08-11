@@ -1,0 +1,146 @@
+.TH "ExternalSensor< DallasTemperature >" 3 "Fri Aug 11 2017" "CoolBoardAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ExternalSensor< DallasTemperature > \- DallasTemperature Specialization Class This is the template specialization for the Dallas Temperature sensor\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <ExternalSensor\&.h>\fP
+.PP
+Inherits \fBBaseExternalSensor\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBExternalSensor\fP (OneWire *\fBoneWire\fP)"
+.br
+.ti -1c
+.RI "virtual uint8_t \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "virtual float \fBread\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "DallasTemperature \fBsensor\fP"
+.br
+.ti -1c
+.RI "DeviceAddress \fBdallasAddress\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.SS "template<>
+.br
+class ExternalSensor< DallasTemperature >"
+DallasTemperature Specialization Class This is the template specialization for the Dallas Temperature sensor\&. 
+.PP
+Definition at line 306 of file ExternalSensor\&.h\&.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "\fBExternalSensor\fP< DallasTemperature >::\fBExternalSensor\fP (OneWire * oneWire)\fC [inline]\fP"
+\fBExternalSensor()\fP: DallasTemperature specific constructor 
+.PP
+Definition at line 313 of file ExternalSensor\&.h\&.
+.PP
+.nf
+314     {
+315         
+316     #if DEBUGExternal == 1 
+317 
+318         Serial\&.println( "ExternalSensor <DallasTemperature> constructor" );
+319         Serial\&.println();
+320     
+321     #endif
+322         sensor=DallasTemperature(oneWire);
+323     }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual uint8_t \fBExternalSensor\fP< DallasTemperature >::begin (void)\fC [inline]\fP, \fC [virtual]\fP"
+\fBbegin()\fP: DallasTemperature specific begin method
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBBaseExternalSensor\fP\&.
+.PP
+Definition at line 331 of file ExternalSensor\&.h\&.
+.PP
+.nf
+332     {
+333     
+334     #if DEBUGExternal == 1 
+335 
+336         Serial\&.println( "ExternalSensor <DallasTemperature> begin()" );
+337         Serial\&.println();
+338     
+339     #endif
+340 
+341         sensor\&.begin(); 
+342         delay(5);
+343         sensor\&.getAddress(this->dallasAddress, 0);   
+344         return(true);
+345     }
+.fi
+.SS "virtual float \fBExternalSensor\fP< DallasTemperature >::read (void)\fC [inline]\fP, \fC [virtual]\fP"
+\fBread()\fP: DallasTemperature specific read method
+.PP
+\fBReturns:\fP
+.RS 4
+the temperature in °C 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBBaseExternalSensor\fP\&.
+.PP
+Definition at line 352 of file ExternalSensor\&.h\&.
+.PP
+.nf
+353     {
+354 
+355         sensor\&.requestTemperatures(); // Send the command to get temperatures
+356         float result=(float) sensor\&.getTempCByIndex(0);
+357     #if DEBUGExternal == 1 
+358 
+359         Serial\&.println( "ExternalSensor <DallasTemperature> read()" );
+360         Serial\&.println();
+361 
+362         Serial\&.print("Requesting temperature\&.\&.\&.");
+363 
+364         Serial\&.print( "temperature : ");
+365         Serial\&.print( result );
+366         Serial\&.print( "°C" );
+367         Serial\&.println();
+368     
+369     #endif
+370         
+371         return( result );
+372     }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "DeviceAddress \fBExternalSensor\fP< DallasTemperature >::dallasAddress\fC [private]\fP"
+
+.PP
+Definition at line 378 of file ExternalSensor\&.h\&.
+.SS "DallasTemperature \fBExternalSensor\fP< DallasTemperature >::sensor\fC [private]\fP"
+
+.PP
+Definition at line 377 of file ExternalSensor\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
