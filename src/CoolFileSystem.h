@@ -34,13 +34,19 @@ public:
 	
 	bool saveSensorDataCSV(const char* data );
 	
-	bool isDataSaved();
+	int isDataSaved();
 	
 	String* getSensorSavedData(int& size);
+	
+	bool incrementsavedData();
+
+	void getsavedData();
 		
 private:
 	
-	bool savedData=0;	
+	int savedData=0;
+	
+	int linesToSkip=0;	
 
 };
 

@@ -14,7 +14,7 @@
 #include "Arduino.h" 
 
  
-#define DEBUGExternal 0
+#define DEBUGExternal 1
 
 
 /**

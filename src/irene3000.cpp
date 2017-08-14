@@ -19,7 +19,7 @@
 
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
 *	Irene3000::begin():
@@ -541,6 +541,10 @@ float Irene3000::readPh(double t)
 	Serial.println(ph25);
 
 #endif 
+	if(isnan(ph25) )
+	{
+		return(-42);	
+	}
 
 	return(ph25);
 

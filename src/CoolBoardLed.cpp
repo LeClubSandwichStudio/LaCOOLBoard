@@ -13,7 +13,7 @@
 #include "CoolBoardLed.h"
 #include "ArduinoJson.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 
