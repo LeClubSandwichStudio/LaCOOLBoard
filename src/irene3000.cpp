@@ -19,7 +19,7 @@
 
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
 *	Irene3000::begin():
