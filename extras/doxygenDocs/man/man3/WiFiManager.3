@@ -1,4 +1,4 @@
-.TH "WiFiManager" 3 "Fri Aug 11 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "WiFiManager" 3 "Mon Aug 14 2017" "CoolBoardAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -109,7 +109,7 @@ WiFiManager
 .RI "void \fBhandle204\fP ()"
 .br
 .ti -1c
-.RI "bool \fBhandleFileRead\fP ()"
+.RI "bool \fBhandleFileRead\fP (String path)"
 .br
 .ti -1c
 .RI "boolean \fBcaptivePortal\fP ()"
@@ -400,8 +400,9 @@ Definition at line 802 of file WiFiManagerReadFileButton\&.cpp\&.
 813   else if(filename\&.endsWith("\&.pdf")) return "application/x-pdf";
 814   else if(filename\&.endsWith("\&.zip")) return "application/x-zip";
 815   else if(filename\&.endsWith("\&.gz")) return "application/x-gzip";
-816   return "text/plain";
-817 }
+816   else if (filename\&.endsWith("\&.csv")) return "text/csv";
+817   return "text/plain";
+818 }
 .fi
 .SS "int WiFiManager::getRSSIasQuality (int RSSI)\fC [private]\fP"
 
@@ -424,7 +425,7 @@ Definition at line 768 of file WiFiManagerReadFileButton\&.cpp\&.
 .fi
 .SS "void WiFiManager::handle204 ()\fC [private]\fP"
 
-.SS "bool WiFiManager::handleFileRead ()\fC [private]\fP"
+.SS "bool WiFiManager::handleFileRead (String path)\fC [private]\fP"
 Handle the read file button 
 .PP
 Definition at line 657 of file WiFiManagerReadFileButton\&.cpp\&.
@@ -432,34 +433,38 @@ Definition at line 657 of file WiFiManagerReadFileButton\&.cpp\&.
 .nf
 658 {
 659 
-660     DEBUG_WM(F("handleFileRead: /sensorsData\&.csv " ));
-661 
-662     String path="/sensorsData\&.csv";
+660     DEBUG_WM(F("handleFileRead" ));
+661     DEBUG_WM(F("path : "));
+662     DEBUG_WM(path);
 663 
 664     if(path\&.endsWith("/"))
 665     {
 666         path += "index\&.htm";
 667     }
 668 
-669     String contentType = getContentType(path);
-670     String pathWithGz = path + "\&.gz";
-671     if(SPIFFS\&.exists(pathWithGz) || SPIFFS\&.exists(path))
-672     {
-673 
-674         if(SPIFFS\&.exists(pathWithGz))
-675         {
-676             path += "\&.gz";
-677         }
-678 
-679         File file = SPIFFS\&.open(path, "r");
-680         size_t sent = server->streamFile(file, contentType);
-681         file\&.close();
-682         return true;
-683 
-684     }
-685 
-686     return false;
-687 }
+669     DEBUG_WM(F("path modified : "));
+670     DEBUG_WM(path);
+671     
+672     
+673     String contentType = getContentType(path);
+674     String pathWithGz = path + "\&.gz";
+675     if(SPIFFS\&.exists(pathWithGz) || SPIFFS\&.exists(path))
+676     {
+677 
+678         if(SPIFFS\&.exists(pathWithGz))
+679         {
+680             path += "\&.gz";
+681         }
+682 
+683         File file = SPIFFS\&.open(path, "r");
+684         size_t sent = server->streamFile(file, contentType);
+685         file\&.close();
+686         return true;
+687 
+688     }
+689 
+690     return false;
+691 }
 .fi
 .SS "void WiFiManager::handleInfo ()\fC [private]\fP"
 Handle the info page 
@@ -509,16 +514,12 @@ Definition at line 597 of file WiFiManagerReadFileButton\&.cpp\&.
 .SS "void WiFiManager::handleNotFound ()\fC [private]\fP"
 
 .PP
-Definition at line 699 of file WiFiManagerReadFileButton\&.cpp\&.
+Definition at line 703 of file WiFiManagerReadFileButton\&.cpp\&.
 .PP
 .nf
-699                                  {
-700   if (captivePortal()) {
-701     if(!(this->handleFileRead()) )
-702     {
-703     server->send(404, "text/plain", "FileNotFound");
-704     }// If captive portal redirect instead of displaying the error page\&.
-705     return;
+703                                  {
+704   if (captivePortal()) {
+705         return;
 706   }
 707   String message = "File Not Found\n\n";
 708   message += "URI: ";
@@ -1042,7 +1043,7 @@ Definition at line 74 of file WiFiManagerReadFileButton\&.cpp\&.
 118   server->on("/r", std::bind(&WiFiManager::handleReset, this));
 119   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check\&.
 120   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal\&. Maybe not needed\&. Might be handled by notFound handler\&.
-121   server->on("/read", std::bind(&WiFiManager::handleFileRead, this));
+121   server->on("/sensorsData\&.csv", std::bind(&WiFiManager::handleFileRead, this,"/sensorsData\&.csv"));
 122   server->onNotFound (std::bind(&WiFiManager::handleNotFound, this));
 123   server->begin(); // Web server start
 124   DEBUG_WM(F("HTTP server started"));

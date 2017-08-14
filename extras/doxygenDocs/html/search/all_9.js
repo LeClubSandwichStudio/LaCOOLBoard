@@ -8,6 +8,7 @@ var searchData=
   ['ier',['IER',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a3e27fa35f9febccdc4a0c28a5c8cffbb',1,'CoolNDIR_I2C.cpp']]],
   ['iir',['IIR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a67004975983f9c99226d63db17ba74c4',1,'CoolNDIR_I2C.cpp']]],
   ['inactiftime',['inactifTime',['../da/d35/struct_jetpack_1_1state.html#aaf817b1f9e7a4d65b9e3ca4726b281f6',1,'Jetpack::state']]],
+  ['incrementsaveddata',['incrementsavedData',['../db/d0c/class_cool_file_system.html#aae045125288f255f3e258073dcada2a6',1,'CoolFileSystem']]],
   ['init',['init',['../d7/d08/class_wi_fi_manager_parameter.html#a137b764027d3851a428f3ab185a5660f',1,'WiFiManagerParameter']]],
   ['initreadi2c',['initReadI2C',['../d7/df9/class_cool_board.html#a397b46fadab8f530a8cf4d914c561366',1,'CoolBoard']]],
   ['intopic',['inTopic',['../d0/dd0/class_cool_m_q_t_t.html#a4492f52a441e83cc5151010317fdb52d',1,'CoolMQTT']]],
@@ -23,7 +24,7 @@ var searchData=
   ['irene3000_2eh',['Irene3000.h',['../d7/d31/_irene3000_8h.html',1,'']]],
   ['ireneactive',['ireneActive',['../d7/df9/class_cool_board.html#a9c3f7ac625481ee2ae802a25d97a4ae0',1,'CoolBoard']]],
   ['isconnected',['isConnected',['../d7/df9/class_cool_board.html#ad7442cf4b62c7b0d5bd62a0f75ffc065',1,'CoolBoard']]],
-  ['isdatasaved',['isDataSaved',['../db/d0c/class_cool_file_system.html#a5a7eaeea7a9fbf8aaef651d862fa3b5b',1,'CoolFileSystem']]],
+  ['isdatasaved',['isDataSaved',['../db/d0c/class_cool_file_system.html#ac86a40e7c3a1842f7342f698d34324f9',1,'CoolFileSystem']]],
   ['isip',['isIp',['../d4/dc8/class_wi_fi_manager.html#a9c78a8774f746ec22a99d03a53baa607',1,'WiFiManager']]],
   ['istimesync',['isTimeSync',['../d6/d49/class_cool_time.html#a5ae038a4498602b189f76a10bf02adf8',1,'CoolTime']]]
 ];

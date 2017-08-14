@@ -30,7 +30,7 @@ var searchData=
   ['readvbat',['readVBat',['../de/d46/class_cool_board_sensors.html#a6944b6ea7bce8e2fce1b434acfd9d5f3',1,'CoolBoardSensors']]],
   ['readvisible',['ReadVisible',['../dd/d67/class_cool_s_i114_x.html#a42e0e574256341443c647a4c0eda87d5',1,'CoolSI114X']]],
   ['receive',['receive',['../d6/ddb/class_n_d_i_r___i2_c.html#aa6d2b8dd287f9c9015461cebb18f9abc',1,'NDIR_I2C']]],
-  ['reset',['Reset',['../dd/d67/class_cool_s_i114_x.html#a9d9f9c9129c0c29ed497f8563f3dd823',1,'CoolSI114X::Reset()'],['../df/dcf/class_b_m_e280.html#aeec5deb6daace6ae390108b4210e9df7',1,'BME280::reset()']]],
+  ['reset',['reset',['../df/dcf/class_b_m_e280.html#aeec5deb6daace6ae390108b4210e9df7',1,'BME280::reset()'],['../dd/d67/class_cool_s_i114_x.html#a9d9f9c9129c0c29ed497f8563f3dd823',1,'CoolSI114X::Reset()']]],
   ['resetparams',['resetParams',['../d6/d03/class_irene3000.html#a43b0e44f8d211413ff4e3a0c654205ff',1,'Irene3000']]],
   ['resetsettings',['resetSettings',['../d4/dc8/class_wi_fi_manager.html#a0027749816b6c66bc845d7c5db760a33',1,'WiFiManager']]]
 ];

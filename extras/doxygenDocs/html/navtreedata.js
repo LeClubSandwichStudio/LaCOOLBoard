@@ -31,7 +31,7 @@ var NAVTREEINDEX =
 "annotated.html",
 "d2/d82/_wi_fi_manager_read_file_button_8cpp.html",
 "d7/df9/class_cool_board.html#a583a874c09c07e70a6eb9229fc4beddb",
-"df/d06/_cool_adafruit___a_d_s1015_8h.html#a81494a3f6eaf337f4132cc32bba9f28d"
+"df/d06/_cool_adafruit___a_d_s1015_8h.html#a77fd8c7103e1ad09bd2c8e4b954db74c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

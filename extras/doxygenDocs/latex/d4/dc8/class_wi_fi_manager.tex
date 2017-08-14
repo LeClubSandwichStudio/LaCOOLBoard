@@ -81,7 +81,7 @@ void \hyperlink{class_wi_fi_manager_a7d01f7de3e4b76acdabffac79fa3d0ab}{handle\+N
 \item 
 void \hyperlink{class_wi_fi_manager_ac924dc071144e609afcf52073176c11f}{handle204} ()
 \item 
-bool \hyperlink{class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1}{handle\+File\+Read} ()
+bool \hyperlink{class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806}{handle\+File\+Read} (String path)
 \item 
 boolean \hyperlink{class_wi_fi_manager_a4ef4298deb224212e5242c456669a973}{captive\+Portal} ()
 \item 
@@ -405,7 +405,8 @@ Definition at line 761 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 765   \}
 766 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -454,10 +455,12 @@ Definition at line 802 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 813   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(filename.endsWith(\textcolor{stringliteral}{".pdf"})) \textcolor{keywordflow}{return} \textcolor{stringliteral}{"application/x-pdf"};
 814   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(filename.endsWith(\textcolor{stringliteral}{".zip"})) \textcolor{keywordflow}{return} \textcolor{stringliteral}{"application/x-zip"};
 815   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(filename.endsWith(\textcolor{stringliteral}{".gz"})) \textcolor{keywordflow}{return} \textcolor{stringliteral}{"application/x-gzip"};
-816   \textcolor{keywordflow}{return} \textcolor{stringliteral}{"text/plain"};
-817 \}
+816   \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (filename.endsWith(\textcolor{stringliteral}{".csv"})) \textcolor{keywordflow}{return} \textcolor{stringliteral}{"text/csv"};
+817   \textcolor{keywordflow}{return} \textcolor{stringliteral}{"text/plain"};
+818 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -489,7 +492,8 @@ Definition at line 768 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 778   \textcolor{keywordflow}{return} quality;
 779 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -502,11 +506,11 @@ Here is the caller graph for this function\+:\nopagebreak
 \subsubsection{\texorpdfstring{handle204()}{handle204()}}
 {\footnotesize\ttfamily void Wi\+Fi\+Manager\+::handle204 (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
 
-\mbox{\Hypertarget{class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1}\label{class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1}} 
+\mbox{\Hypertarget{class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806}\label{class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806}} 
 \index{Wi\+Fi\+Manager@{Wi\+Fi\+Manager}!handle\+File\+Read@{handle\+File\+Read}}
 \index{handle\+File\+Read@{handle\+File\+Read}!Wi\+Fi\+Manager@{Wi\+Fi\+Manager}}
 \subsubsection{\texorpdfstring{handle\+File\+Read()}{handleFileRead()}}
-{\footnotesize\ttfamily bool Wi\+Fi\+Manager\+::handle\+File\+Read (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+{\footnotesize\ttfamily bool Wi\+Fi\+Manager\+::handle\+File\+Read (\begin{DoxyParamCaption}\item[{String}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
 
 Handle the read file button 
 
@@ -516,47 +520,53 @@ Definition at line 657 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 \begin{DoxyCode}
 658 \{
 659 
-660     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"handleFileRead: /sensorsData.csv "} ));
-661 
-662     String path=\textcolor{stringliteral}{"/sensorsData.csv"};
+660     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"handleFileRead"} ));
+661     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"path : "}));
+662     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(path);
 663 
 664     \textcolor{keywordflow}{if}(path.endsWith(\textcolor{stringliteral}{"/"}))
 665     \{
 666         path += \textcolor{stringliteral}{"index.htm"};
 667     \}
 668 
-669     String contentType = \hyperlink{class_wi_fi_manager_a40f123fd290c3e331c9785d19a88f3b8}{getContentType}(path);
-670     String pathWithGz = path + \textcolor{stringliteral}{".gz"};
-671     \textcolor{keywordflow}{if}(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-672     \{
-673 
-674         \textcolor{keywordflow}{if}(SPIFFS.exists(pathWithGz))
-675         \{
-676             path += \textcolor{stringliteral}{".gz"};
-677         \}
-678 
-679         File file = SPIFFS.open(path, \textcolor{stringliteral}{"r"});
-680         \textcolor{keywordtype}{size\_t} sent = \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->streamFile(file, contentType);
-681         file.close();
-682         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
-683 
-684     \}
-685 
-686     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
-687 \}
+669     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"path modified : "}));
+670     \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(path);
+671     
+672     
+673     String contentType = \hyperlink{class_wi_fi_manager_a40f123fd290c3e331c9785d19a88f3b8}{getContentType}(path);
+674     String pathWithGz = path + \textcolor{stringliteral}{".gz"};
+675     \textcolor{keywordflow}{if}(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
+676     \{
+677 
+678         \textcolor{keywordflow}{if}(SPIFFS.exists(pathWithGz))
+679         \{
+680             path += \textcolor{stringliteral}{".gz"};
+681         \}
+682 
+683         File file = SPIFFS.open(path, \textcolor{stringliteral}{"r"});
+684         \textcolor{keywordtype}{size\_t} sent = \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->streamFile(file, contentType);
+685         file.close();
+686         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+687 
+688     \}
+689 
+690     \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+691 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1_cgraph}
+\includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1_icgraph}
+\includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_wi_fi_manager_ac35e46661f8a209d84bba62d9aa43a35}\label{class_wi_fi_manager_ac35e46661f8a209d84bba62d9aa43a35}} 
@@ -610,14 +620,16 @@ Definition at line 597 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 633   \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"Sent info page"}));
 634 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_ac35e46661f8a209d84bba62d9aa43a35_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -632,17 +644,13 @@ Here is the caller graph for this function\+:\nopagebreak
 
 
 
-Definition at line 699 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
+Definition at line 703 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 
 
 \begin{DoxyCode}
-699                                  \{
-700   \textcolor{keywordflow}{if} (\hyperlink{class_wi_fi_manager_a4ef4298deb224212e5242c456669a973}{captivePortal}()) \{
-701     \textcolor{keywordflow}{if}(!(this->\hyperlink{class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1}{handleFileRead}()) )
-702     \{
-703     \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->send(404, \textcolor{stringliteral}{"text/plain"}, \textcolor{stringliteral}{"FileNotFound"});
-704     \}\textcolor{comment}{// If captive portal redirect instead of displaying the error page.}
-705     \textcolor{keywordflow}{return};
+703                                  \{
+704   \textcolor{keywordflow}{if} (\hyperlink{class_wi_fi_manager_a4ef4298deb224212e5242c456669a973}{captivePortal}()) \{
+705         \textcolor{keywordflow}{return};
 706   \}
 707   String message = \textcolor{stringliteral}{"File Not Found\(\backslash\)n\(\backslash\)n"};
 708   message += \textcolor{stringliteral}{"URI: "};
@@ -662,14 +670,16 @@ Definition at line 699 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 722   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->send ( 404, \textcolor{stringliteral}{"text/plain"}, message );
 723 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a7d01f7de3e4b76acdabffac79fa3d0ab_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -707,14 +717,16 @@ Definition at line 637 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 653   delay(2000);
 654 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a94fb1a8fcfbd0d02714c69138bf72f9c_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -756,14 +768,16 @@ Definition at line 360 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 380 
 381 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a47e4c7df7478f690c53ff9f5125c9760_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -936,14 +950,16 @@ Definition at line 384 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 535   \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"Sent config page"}));
 536 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a57a9048175c1918340ab9d0a2c53601f_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1019,14 +1035,16 @@ Definition at line 539 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 593   \hyperlink{class_wi_fi_manager_a7be7e74e93283eea089af659184dd906}{connect} = \textcolor{keyword}{true}; \textcolor{comment}{//signal ready to connect/reset}
 594 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a2a8c2b60aa86dfdeab8a1a90f7122dc7_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1055,7 +1073,8 @@ Definition at line 782 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 789   \textcolor{keywordflow}{return} \textcolor{keyword}{true};
 790 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1079,7 +1098,8 @@ Definition at line 192 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+h.
 193       \textcolor{keywordflow}{return}  obj->fromString(s);
 194     \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1104,7 +1124,8 @@ Definition at line 195 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+h.
 197       \textcolor{keywordflow}{return} \textcolor{keyword}{false};
 198     \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1131,7 +1152,8 @@ Definition at line 317 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 321   \textcolor{comment}{//delay(200);}
 322 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1204,7 +1226,8 @@ Definition at line 327 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 328   \hyperlink{class_wi_fi_manager_ae6c969ba67e0a029dcde1c3511ca79b7}{\_configPortalTimeout} = seconds * 1000;
 329 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1291,7 +1314,8 @@ Definition at line 754 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 755   \hyperlink{class_wi_fi_manager_a94d25bd8d02bbf0236d75dfd8ee682d7}{\_removeDuplicateAPs} = removeDuplicates;
 756 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1348,14 +1372,16 @@ Definition at line 323 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 324   \hyperlink{class_wi_fi_manager_a904006cb4d2c769e93bfdef336853766}{setConfigPortalTimeout}(seconds);
 325 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_aa6493d59c284ff245edb767ff684756d_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1424,21 +1450,24 @@ Definition at line 74 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
        portal check.}
 120   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->on(\textcolor{stringliteral}{"/fwlink"}, std::bind(&\hyperlink{class_wi_fi_manager_a47e4c7df7478f690c53ff9f5125c9760}{WiFiManager::handleRoot}, \textcolor{keyword}{this}));  \textcolor{comment}{//
       Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.}
-121   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->on(\textcolor{stringliteral}{"/read"}, std::bind(&\hyperlink{class_wi_fi_manager_abed7fbbdab409fc8aba2a5c00f3d2db1}{WiFiManager::handleFileRead}, \textcolor{keyword}{this}));
+121   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->on(\textcolor{stringliteral}{"/sensorsData.csv"}, std::bind(&\hyperlink{class_wi_fi_manager_a9e802fa4ca834a622f058a7176f47806}{WiFiManager::handleFileRead}, \textcolor{keyword}{
+      this},\textcolor{stringliteral}{"/sensorsData.csv"}));
 122   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->onNotFound (std::bind(&\hyperlink{class_wi_fi_manager_a7d01f7de3e4b76acdabffac79fa3d0ab}{WiFiManager::handleNotFound}, \textcolor{keyword}{this}));
 123   \hyperlink{class_wi_fi_manager_a509523a01c0395cf0dc235b074f2a5ea}{server}->begin(); \textcolor{comment}{// Web server start}
 124   \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(F(\textcolor{stringliteral}{"HTTP server started"}));
 125 
 126 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a1743325d0dd86d011df96b22d2a0ddd6_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1462,7 +1491,8 @@ Definition at line 154 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 156   \textcolor{keywordflow}{return} \hyperlink{class_wi_fi_manager_ad781751307f7f623956126096a09a545}{startConfigPortal}(ssid.c\_str(), NULL);
 157 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1543,7 +1573,8 @@ Definition at line 159 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 217   \textcolor{keywordflow}{return}  WiFi.status() == WL\_CONNECTED;
 218 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1568,14 +1599,16 @@ Definition at line 287 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 290   \hyperlink{class_wi_fi_manager_ae5f595c670ccbcf9a191baf50f5c7c26}{DEBUG\_WM}(\textcolor{stringliteral}{"END WPS"});
 291 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_abcc403fc26a47f7a111d1271f1d0869e_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1603,7 +1636,8 @@ Definition at line 793 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 799   \textcolor{keywordflow}{return} res;
 800 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -1645,14 +1679,16 @@ Definition at line 264 of file Wi\+Fi\+Manager\+Read\+File\+Button.\+cpp.
 284   \}
 285 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d4/dc8/class_wi_fi_manager_a89a3f33997aa662ad223d6c150c1eede_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
