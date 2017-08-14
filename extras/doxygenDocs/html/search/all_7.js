@@ -21,6 +21,7 @@ var searchData=
   ['getntptime',['getNtpTime',['../d6/d49/class_cool_time.html#a41fbbbfd651c2079f54d4b2911e4c705',1,'CoolTime']]],
   ['getplaceholder',['getPlaceholder',['../d7/d08/class_wi_fi_manager_parameter.html#a69124c6f46876d1ede54177c692e3382',1,'WiFiManagerParameter']]],
   ['getrssiasquality',['getRSSIasQuality',['../d4/dc8/class_wi_fi_manager.html#ae71cfd6bd70ada2ca02e1d20b152d0e5',1,'WiFiManager']]],
+  ['getsaveddata',['getsavedData',['../db/d0c/class_cool_file_system.html#a70701d05e811604af1b531f4f6dc69ed',1,'CoolFileSystem']]],
   ['getsensorsaveddata',['getSensorSavedData',['../db/d0c/class_cool_file_system.html#a3223ffff4266a6300988fab956d6b4b2',1,'CoolFileSystem']]],
   ['gettimedate',['getTimeDate',['../d6/d49/class_cool_time.html#a7a7501c5ca77dd1248bea704c44f986c',1,'CoolTime']]],
   ['getuser',['getUser',['../d0/dd0/class_cool_m_q_t_t.html#a373cc92fca7760d886f02d8a6e5b3f63',1,'CoolMQTT']]],

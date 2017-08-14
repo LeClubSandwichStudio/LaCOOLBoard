@@ -1,6 +1,6 @@
 format 213
 "src" // src
-  revision 2
+  revision 3
   modified_by 5 "ashiroji"
   // class settings
   
@@ -668,7 +668,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, const ${t1} * ${p1}${)}${cons
 //	This method is provided to save the data on the local
 //	memory when there is no internet available
 //
-//	sets the saved data flag to TRUE when successful
+//	increments the saved data flag  when successful
 //
 //	\\return true if the data was saved,
 //	false otherwise
@@ -707,7 +707,7 @@ ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}
       end
 
       operation 133125 "isDataSaved"
-	preserve_cpp_body_indent public explicit_return_type "bool"
+	preserve_cpp_body_indent public explicit_return_type "int"
 	nparams 0
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
 "
@@ -732,15 +732,18 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       operation 133253 "getSensorSavedData"
 	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 1
-	  param inout name "size" explicit_type "int"
+	  param inout name "lines" explicit_type "int"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} * ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
 "
-	cpp_def "//	CoolFileSystem::getSensorData():
+	cpp_def "//	CoolFileSystem::getSensorData(int &lines):
 //	This method is provided to return the 
 //	sensor data saved in the File System
+//	10 lines at a time
 //
-//	\\return String[] of the saved sensor 
-//	data file
+//	\\return String array containing 
+//	50 first lines from the file
+//	modifies tge lines argument to reflect the number of
+//	lines left
 //
 
 ${inline}${type} * ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
@@ -752,8 +755,64 @@ ${inline}${type} * ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${th
 	
       end
 
+      operation 166789 "incrementsavedData"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolFileSystem::incrementsavedData():
+//	This method is provided to increment the
+//	savedData flag
+//
+//	\\return true if successful , false otherwise
+//
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 166917 "getsavedData"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolFileSystem::getsavedData():
+//	This method is provided to get the
+//	savedData flag from the file system
+//
+//
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
       attribute 130693 "savedData"
-	private explicit_type "bool"
+	private explicit_type "int"
+	init_value "= 0"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
+      attribute 154501 "linesToSkip"
+	private explicit_type "int"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "

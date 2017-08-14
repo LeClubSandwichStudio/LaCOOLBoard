@@ -13,7 +13,7 @@
 #include "Arduino.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -26,18 +26,22 @@
 */
 bool CoolFileSystem::begin()
 {
+	bool sResult=SPIFFS.begin();
+	
 
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolFileSystem.begin()") );
 	Serial.println();	
 	Serial.print( F("SPIFFS success ? ") );
-	Serial.println(SPIFFS.begin());
-	Serial.println();
+	Serial.println(sResult);
+	Serial.println(  );
 
 #endif
+	//get the data from the files
+	this->getsavedData();
 
-	return( SPIFFS.begin() );                                   //Initialize Filesystem
+	return( sResult  );                                   //Initialize Filesystem
 
 }
 
@@ -46,7 +50,7 @@ bool CoolFileSystem::begin()
 *	This method is provided to save the data on the local
 *	memory when there is no internet available
 *
-*	sets the saved data flag to TRUE when successful
+*	increments the saved data flag  when successful
 *
 *	\return true if the data was saved,
 *	false otherwise
@@ -72,8 +76,9 @@ bool CoolFileSystem::saveSensorData(const char* data )
 		Serial.println();
 	
 	#endif
+		//keep the old data
+		this->savedData=savedData;
 
-		this->savedData=false;
 		return (false);	
 	}	
 
@@ -99,6 +104,7 @@ bool CoolFileSystem::saveSensorData(const char* data )
 		{
 			
 			Serial.println(F("failed to reopen /sensorsData.json"));
+			return(true);
 						
 		}
 	
@@ -120,7 +126,11 @@ bool CoolFileSystem::saveSensorData(const char* data )
 
 		this->saveSensorDataCSV(data);		
 
-		this->savedData=true;
+		//new data
+		this->savedData++;
+
+		this->incrementsavedData();
+		
 		return (true);		
 	}
 	else
@@ -131,8 +141,9 @@ bool CoolFileSystem::saveSensorData(const char* data )
 		Serial.println( F("failed to parse json") );
 	
 	#endif
+		//old data
+		this->savedData=savedData;
 
-		this->savedData=false;
 		return(false);
 	}
 	
@@ -715,54 +726,45 @@ bool CoolFileSystem::updateConfigFiles(String answer )
 *	\return true if there is data saved, false
 *	otherwise
 */
-bool CoolFileSystem::isDataSaved()
+int CoolFileSystem::isDataSaved()
 {
 
 #if DEBUG == 1 
 
 	Serial.println( F("Entering CoolFileSystem.isDataSaved()") );
 	Serial.println();
-#endif
+
+	FSInfo fs_info;
+
+	if(SPIFFS.info(fs_info)==true)
+	{
+		Serial.print(F("used bytes/total bytes : "));	
+		Serial.print(fs_info.usedBytes);
+		Serial.print(F("/"));
+		Serial.print(fs_info.totalBytes);
+		Serial.println();
+
+	}
 
 	File sensorsData=SPIFFS.open("/sensorsData.json","r");
 	File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","r");
 	
 	if( (!sensorsData)||(!sensorsDataCSV) )	
 	{
-	#if DEBUG == 1
-
-		Serial.println( F("failed to open files") );
-
-	#endif
-		
-		this->savedData=false;
+		Serial.println( F("failed to open files") );		
 	}
 	else
 	{		
-		#if DEBUG == 1
-
-			Serial.print(F("sensors Data file size : "));
+			Serial.print(F("sensors Data file size in bytes : "));
 			Serial.println(sensorsData.size());
 			Serial.println();
 			
-			Serial.print(F("sensors Data CSV file size : "));				
+			Serial.print(F("sensors Data CSV file size in bytes : "));				
 			Serial.println(sensorsDataCSV.size());
 			Serial.println();
-		#endif	
-
-		if( (sensorsData.size()!=0) || (sensorsDataCSV.size()!=0) )
-		{
-			this->savedData=true;
-		}
-		else
-		{
-
-			this->savedData=false;		
-		
-		}	
 	}
 
-#if DEBUG == 1 
+
 
 	Serial.print( F("savedData : ") );
 	Serial.println(this->savedData);
@@ -774,22 +776,21 @@ bool CoolFileSystem::isDataSaved()
 
 
 /**
-*	CoolFileSystem::getSensorData():
+*	CoolFileSystem::getSensorData(int &lines):
 *	This method is provided to return the 
 *	sensor data saved in the File System
-*
-*	\return String[] of the saved sensor 
-*	data file
-*/
-String* CoolFileSystem::getSensorSavedData(int& size)
-{
-	int memorySize=10;
-	
-	String* sensorsDataArrayPointer=new String[memorySize];
-	
-	
+*	10 lines at a time
 
-	size=0;
+*	\return String array containing 
+*	50 first lines from the file
+*	modifies tge lines argument to reflect the number of
+*	lines left
+*/
+String* CoolFileSystem::getSensorSavedData(int& lines)
+{
+	int maxString=50;
+	String *sensorsDataArray=new String[maxString];
+	lines=0;
 
 #if DEBUG == 1 
 
@@ -810,11 +811,11 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 
 	#endif
 		 
-		sensorsDataArrayPointer[size]="Failed to read /sensorsData.json";
- 		size++;
+		sensorsDataArray[0]="Failed to read /sensorsData.json";
+ 		lines++;
 
-		//result=sensorsDataArrayPointer;
-		return(sensorsDataArrayPointer);
+		//result=sensorsDataArray;
+		return(sensorsDataArray);
 
 	}
 
@@ -827,85 +828,54 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 		while(sensorsData.available())
 		{
 			yield();
-
+			
 			temp=sensorsData.readStringUntil('\r');
 
-		#if DEBUG == 1
-
-			Serial.println(F("temp String : "));
-			Serial.println(temp);
-			Serial.println();
-			
-		#endif
-			sensorsDataArrayPointer[size]=temp;
-			sensorsData.read();
-			
-			
-		
-		#if DEBUG== 1
- 
-			Serial.print(F("read String N°"));
-			Serial.print(size);
-			Serial.println(F(" is : "));
-			Serial.println( sensorsDataArrayPointer[size] );
-			Serial.println();
-			Serial.println(F("next char is : "));
-			Serial.println((char)sensorsData.peek());
-			Serial.println();			
-			
-		#endif
-			size++;
-			
-			//resize
-			if(size>(memorySize-1))
+			if(linesToSkip>0)
 			{
-				
-				size_t newSize = memorySize * 2;
-				
-				String* newArr=new String[newSize];
-				
-				for(int j=0;j<memorySize;j++)
+
+				linesToSkip--;
+		
+			}
+			else
+			{
+
+			#if DEBUG == 1
+
+				Serial.println(F("temp String : "));
+				Serial.println(temp);
+				Serial.println();
+			
+			#endif
+			
+				sensorsDataArray[lines]=temp;
+				sensorsData.read();
+			
+			
+		
+			#if DEBUG== 1
+	 
+				Serial.print(F("read String N°"));
+				Serial.print(lines);
+				Serial.println(F(" is : "));
+				Serial.println( sensorsDataArray[lines] );
+				Serial.println();
+				Serial.println(F("next char is : "));
+				Serial.println((char)sensorsData.peek());
+				Serial.println();			
+			
+			#endif
+				lines++;
+			
+				//maximum size is maxString(index : 0..maxString-1)
+				if(lines>=maxString)
 				{
-					newArr[j]=sensorsDataArrayPointer[j];				
+					break;
 				}
-
 			
-			#if DEBUG== 1
- 			
-				for(int i=0;i<memorySize;i++)
-				{				
-					Serial.print(F("newArr String N°"));
-					Serial.print(i);
-					Serial.println(F(" is : "));
-					Serial.println( newArr[i] );
-					Serial.println();	
-				}		
-			
-			#endif
-
-				memorySize = newSize;		
-		
-				delete[] sensorsDataArrayPointer;
-				
-				sensorsDataArrayPointer=newArr;			
-				
-			#if DEBUG== 1
-		
-				for(int i=0;i<memorySize;i++)
-				{				
-					Serial.print(F("sensorsDataArray String N°"));
-					Serial.print(i);
-					Serial.println(F(" is : "));
-					Serial.println( sensorsDataArrayPointer[i] );
-					Serial.println();	
-				}		
-			
-			#endif
-
+				yield();
 			
 			}
-			
-			yield();
 
 		}
 		
@@ -913,43 +883,54 @@ String* CoolFileSystem::getSensorSavedData(int& size)
 		//close the file
 		sensorsData.close();
 
-		//delete data in the file
-		File sensorsData=SPIFFS.open("/sensorsData.json","w");
-		File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","w");
-		if( (!sensorsData)||(!sensorsDataCSV) )	
+		//position the saved data flag to the number of unread lines
+		this->savedData=savedData-lines;
+		
+		//position the number of lines to skip to the number of read lines	
+		this->linesToSkip=lines;
+
+		//delete data in the file only if savedData<=0
+		if(this->savedData<=0)
 		{
-		#if DEBUG == 1
+			File sensorsData=SPIFFS.open("/sensorsData.json","w");
+			File sensorsDataCSV=SPIFFS.open("/sensorsData.csv","w");
+			if( (!sensorsData)||(!sensorsDataCSV) )	
+			{
+			#if DEBUG == 1
 	
-			Serial.println( F("failed to delete data in the file") );
+				Serial.println( F("failed to delete data in the file") );
 	
-		#endif
-			size++;
-			sensorsDataArrayPointer[size]="failed to delete data in the file";
+			#endif
+				lines++;
+				sensorsDataArray[lines]="failed to delete data in the file";
 
-			return(sensorsDataArrayPointer);
+				return(sensorsDataArray);
 
+			}
+
+			sensorsData.close();
+			sensorsDataCSV.close();
+			
+			this->linesToSkip=0;
+		
 		}
 
-		sensorsData.close();
-		sensorsDataCSV.close();
-
-		//position the saved data flag to false
-		this->savedData=false;	
-		
+		//save the changes to linesToSkip and savedData in the file system
+		this->incrementsavedData();
 
 		//return the string
 		#if DEBUG == 1
 		
-			for(int i=0;i<size;i++)
+			for(int i=0;i<lines;i++)
 			{
 				Serial.print(F("String N°"));
 				Serial.println(i);
-				Serial.println(sensorsDataArrayPointer[i]);
+				Serial.println(sensorsDataArray[i]);
 				Serial.println(); 			
 			}
 	
 		#endif
-		return(sensorsDataArrayPointer);
+		return(sensorsDataArray);
 		
 		
 		
@@ -1102,5 +1083,108 @@ bool CoolFileSystem::fileUpdate(String update,const char* path)
 #endif
 	
 	return(true);
+	
+}
+
+
+
+/**
+*	CoolFileSystem::incrementsavedData():
+*	This method is provided to increment the
+*	savedData flag
+*
+*	\return true if successful , false otherwise
+*
+*/
+bool CoolFileSystem::incrementsavedData()
+{
+
+
+#if DEBUG == 1
+	
+	Serial.println(F("Entering CoolFileSystem.incrementsavedData()"));	
+	
+#endif
+	//open file
+	File file=SPIFFS.open("/savedDataFlag.txt","w");	
+	//read file
+	if( !file)	
+	{
+		Serial.println( F("failed to open savedDataFlag.txt") );
+		
+		return(false);		
+	}
+	else
+	{		
+		//write to file	
+		file.print(this->savedData);
+		
+		file.print(" ");
+		
+		file.println(this->linesToSkip);
+	
+		file.close();
+
+	#if DEBUG == 1
+
+		Serial.print(F("number of lines to read :"));
+		Serial.println(this->savedData);
+	
+		Serial.print(F("number of lines to skip :"));
+		Serial.println(this->linesToSkip);
+
+	#endif
+		
+		return(true);
+	}
+	
+}
+/**
+*	CoolFileSystem::getsavedData():
+*	This method is provided to get the
+*	savedData flag from the file system
+*
+*
+*/
+void CoolFileSystem::getsavedData()
+{
+
+
+#if DEBUG == 1
+	
+	Serial.println(F("Entering CoolFileSystem.getsavedData()"));	
+	
+#endif
+	//open file
+	File file=SPIFFS.open("/savedDataFlag.txt","r");	
+	//read file
+	if( !file)	
+	{
+		Serial.println( F("failed to read savedDataFlag.txt") );
+		
+	}
+	else
+	{		
+		//read from file	
+		String temp=file.readStringUntil(' ');
+		
+		this->savedData=temp.toInt();
+
+		
+		temp=file.readStringUntil('\n');
+		this-> linesToSkip=temp.toInt();;	
+		
+		file.close();	
+	}
+	
+#if DEBUG == 1
+
+	Serial.print(F("number of lines to read :"));
+	Serial.println(this->savedData);
+	
+	Serial.print(F("number of lines to skip :"));
+	Serial.println(this->linesToSkip);
+
+#endif
 	
 }

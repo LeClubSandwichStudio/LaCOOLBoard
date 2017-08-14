@@ -77,147 +77,147 @@ true if successfull , false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 555 of file Cool\+Wifi.\+cpp.
+Definition at line 548 of file Cool\+Wifi.\+cpp.
 
 
 \begin{DoxyCode}
-556 \{
-557 
-558 \textcolor{preprocessor}{#if DEBUG == 1}
-559     
-560     Serial.println(\textcolor{stringliteral}{"Entering CoolWifi.addWifi() "}) ;
-561 
-562 \textcolor{preprocessor}{#endif  }
-563     
-564     this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}++;
-565     \textcolor{keywordflow}{if}( this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount} >=50)
-566     \{
-567     
-568 \textcolor{preprocessor}{    #if DEBUG == 1}
+549 \{
+550 
+551 \textcolor{preprocessor}{#if DEBUG == 1}
+552     
+553     Serial.println(\textcolor{stringliteral}{"Entering CoolWifi.addWifi() "}) ;
+554 
+555 \textcolor{preprocessor}{#endif  }
+556     
+557     this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}++;
+558     \textcolor{keywordflow}{if}( this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount} >=50)
+559     \{
+560     
+561 \textcolor{preprocessor}{    #if DEBUG == 1}
+562 
+563         Serial.println(\textcolor{stringliteral}{"You have reached the limit of 50"});
+564         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
+565     
+566 \textcolor{preprocessor}{    #endif}
+567 
+568     \}
 569 
-570         Serial.println(\textcolor{stringliteral}{"You have reached the limit of 50"});
-571         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
+570     this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1]=\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid};
+571     this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1]=\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass};
 572     
-573 \textcolor{preprocessor}{    #endif}
-574 
-575     \}
+573     \textcolor{comment}{//read config file}
+574     \textcolor{comment}{//update data}
+575     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"r"});
 576 
-577     this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1]=\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid};
-578     this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1]=\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass};
+577     \textcolor{keywordflow}{if} (!configFile) 
+578     \{
 579     
-580     \textcolor{comment}{//read config file}
-581     \textcolor{comment}{//update data}
-582     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"r"});
-583 
-584     \textcolor{keywordflow}{if} (!configFile) 
-585     \{
-586     
-587 \textcolor{preprocessor}{    #if DEBUG == 1 }
-588 
-589         Serial.println( F(\textcolor{stringliteral}{"failed to read /wifiConfig.json"}) );
-590         Serial.println();
-591 
-592 \textcolor{preprocessor}{    #endif}
-593     \}
-594     \textcolor{keywordflow}{else}
-595     \{
-596         \textcolor{keywordtype}{size\_t} size = configFile.size();
-597         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-598         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-599 
-600         configFile.readBytes(buf.get(), size);
-601         DynamicJsonBuffer jsonBuffer;
-602         JsonObject& json = jsonBuffer.parseObject(buf.get());
-603         \textcolor{keywordflow}{if} (!json.success()) 
-604         \{
-605         
-606 \textcolor{preprocessor}{        #if DEBUG == 1 }
-607 
-608             Serial.println( F(\textcolor{stringliteral}{"failed to parse json "}) );
-609             Serial.println();
+580 \textcolor{preprocessor}{    #if DEBUG == 1 }
+581 
+582         Serial.println( F(\textcolor{stringliteral}{"failed to read /wifiConfig.json"}) );
+583         Serial.println();
+584 
+585 \textcolor{preprocessor}{    #endif}
+586     \}
+587     \textcolor{keywordflow}{else}
+588     \{
+589         \textcolor{keywordtype}{size\_t} size = configFile.size();
+590         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+591         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+592 
+593         configFile.readBytes(buf.get(), size);
+594         DynamicJsonBuffer jsonBuffer;
+595         JsonObject& json = jsonBuffer.parseObject(buf.get());
+596         \textcolor{keywordflow}{if} (!json.success()) 
+597         \{
+598         
+599 \textcolor{preprocessor}{        #if DEBUG == 1 }
+600 
+601             Serial.println( F(\textcolor{stringliteral}{"failed to parse json "}) );
+602             Serial.println();
+603         
+604 \textcolor{preprocessor}{        #endif}
+605         \} 
+606         \textcolor{keywordflow}{else}
+607         \{
+608         
+609 \textcolor{preprocessor}{        #if DEBUG == 1 }
 610         
-611 \textcolor{preprocessor}{        #endif}
-612         \} 
-613         \textcolor{keywordflow}{else}
-614         \{
-615         
-616 \textcolor{preprocessor}{        #if DEBUG == 1 }
-617         
-618             Serial.println( F(\textcolor{stringliteral}{"configuration json is "}) );
-619             json.printTo(Serial);
-620             Serial.println();
-621 
-622             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-623             Serial.println(jsonBuffer.size());
-624             Serial.println();
-625 
-626 
-627 \textcolor{preprocessor}{        #endif}
-628             \textcolor{comment}{//wifiCount}
-629             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"wifiCount"}].success() )
-630             \{           
-631                 json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
-632             \}
-633             \textcolor{keywordflow}{else}
-634             \{
-635                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
-636             \}
-637             json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
-638 
-639             
-640             \textcolor{comment}{//AP timeOut}
-641             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeOut"}].success() )
-642             \{
-643                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=json[\textcolor{stringliteral}{"timeOut"}];
-644             \}
-645             \textcolor{keywordflow}{else}
-646             \{
-647                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
-648 
-649             \}
-650             json[\textcolor{stringliteral}{"timeOut"}]=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
-651             
-652             
-653             \textcolor{comment}{//new Wifi SSID and PASS}
-654             JsonObject& newWifi = json.createNestedObject( \textcolor{stringliteral}{"Wifi"}+String( this->
+611             Serial.println( F(\textcolor{stringliteral}{"configuration json is "}) );
+612             json.printTo(Serial);
+613             Serial.println();
+614 
+615             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+616             Serial.println(jsonBuffer.size());
+617             Serial.println();
+618 
+619 
+620 \textcolor{preprocessor}{        #endif}
+621             \textcolor{comment}{//wifiCount}
+622             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"wifiCount"}].success() )
+623             \{           
+624                 json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
+625             \}
+626             \textcolor{keywordflow}{else}
+627             \{
+628                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
+629             \}
+630             json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
+631 
+632             
+633             \textcolor{comment}{//AP timeOut}
+634             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeOut"}].success() )
+635             \{
+636                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=json[\textcolor{stringliteral}{"timeOut"}];
+637             \}
+638             \textcolor{keywordflow}{else}
+639             \{
+640                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
+641 
+642             \}
+643             json[\textcolor{stringliteral}{"timeOut"}]=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
+644             
+645             
+646             \textcolor{comment}{//new Wifi SSID and PASS}
+647             JsonObject& newWifi = json.createNestedObject( \textcolor{stringliteral}{"Wifi"}+String( this->
       \hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1 ) );
-655             
-656             newWifi[\textcolor{stringliteral}{"ssid"}] =this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1];
-657             newWifi[\textcolor{stringliteral}{"pass"}] = this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1];
-658             
+648             
+649             newWifi[\textcolor{stringliteral}{"ssid"}] =this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1];
+650             newWifi[\textcolor{stringliteral}{"pass"}] = this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}-1];
+651             
+652 
+653             configFile.close();
+654             configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"});
+655             \textcolor{keywordflow}{if}(!configFile)
+656             \{
+657             
+658 \textcolor{preprocessor}{            #if DEBUG == 1 }
 659 
-660             configFile.close();
-661             configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"});
-662             \textcolor{keywordflow}{if}(!configFile)
-663             \{
-664             
-665 \textcolor{preprocessor}{            #if DEBUG == 1 }
-666 
-667                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /wifiConfig.json"}) );
-668             
-669 \textcolor{preprocessor}{            #endif}
+660                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /wifiConfig.json"}) );
+661             
+662 \textcolor{preprocessor}{            #endif}
+663 
+664             \}
+665             
+666             json.printTo(configFile);
+667             configFile.close();
+668 
+669 \textcolor{preprocessor}{        #if DEBUG == 1 }
 670 
-671             \}
-672             
-673             json.printTo(configFile);
-674             configFile.close();
-675 
-676 \textcolor{preprocessor}{        #if DEBUG == 1 }
-677 
-678             Serial.println( F(\textcolor{stringliteral}{"saved configuration is :"}) );
-679             json.printTo(Serial);
-680             Serial.println();
-681         
-682 \textcolor{preprocessor}{        #endif}
-683 
-684             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-685         \}
-686     \}   
-687 
-688     
-689     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-690     
-691 \}
+671             Serial.println( F(\textcolor{stringliteral}{"saved configuration is :"}) );
+672             json.printTo(Serial);
+673             Serial.println();
+674         
+675 \textcolor{preprocessor}{        #endif}
+676 
+677             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+678         \}
+679     \}   
+680 
+681     
+682     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+683     
+684 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -273,177 +273,177 @@ true if successful,false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 282 of file Cool\+Wifi.\+cpp.
+Definition at line 275 of file Cool\+Wifi.\+cpp.
 
 
 \begin{DoxyCode}
-283 \{
-284 
-285 \textcolor{preprocessor}{#if DEBUG == 1 }
-286 
-287     Serial.println( F(\textcolor{stringliteral}{"Entering CoolWifi.config()"}) );
-288     Serial.println();
+276 \{
+277 
+278 \textcolor{preprocessor}{#if DEBUG == 1 }
+279 
+280     Serial.println( F(\textcolor{stringliteral}{"Entering CoolWifi.config()"}) );
+281     Serial.println();
+282 
+283 \textcolor{preprocessor}{#endif}
+284 \textcolor{preprocessor}{#if DEBUG == 0}
+285 
+286     Serial.println( \textcolor{stringliteral}{"Reading Wifi Configuration.."});
+287     delay(100);
+288 \textcolor{preprocessor}{#endif }
 289 
-290 \textcolor{preprocessor}{#endif}
-291 \textcolor{preprocessor}{#if DEBUG == 0}
-292 
-293     Serial.println( \textcolor{stringliteral}{"Reading Wifi Configuration.."});
-294     delay(100);
-295 \textcolor{preprocessor}{#endif }
-296 
-297     \textcolor{comment}{//read config file}
-298     \textcolor{comment}{//update data}
-299     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"r"});
-300 
-301     \textcolor{keywordflow}{if} (!configFile) 
-302     \{
-303     
-304         Serial.println( F(\textcolor{stringliteral}{"failed to read /wifiConfig.json"}) );
-305         Serial.println();
-306 
-307         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-308     \}
-309     \textcolor{keywordflow}{else}
-310     \{
-311         \textcolor{keywordtype}{size\_t} size = configFile.size();
-312         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-313         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-314 
-315         configFile.readBytes(buf.get(), size);
-316         DynamicJsonBuffer jsonBuffer;
-317         JsonObject& json = jsonBuffer.parseObject(buf.get());
-318         \textcolor{keywordflow}{if} (!json.success()) 
-319         \{
-320 
-321             Serial.println( F(\textcolor{stringliteral}{"failed to parse json "}) );
-322             Serial.println();
-323 
-324             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-325         \} 
-326         \textcolor{keywordflow}{else}
-327         \{
-328         
-329 \textcolor{preprocessor}{        #if DEBUG == 1 }
-330         
-331             Serial.println( F(\textcolor{stringliteral}{"configuration json is "}) );
-332             json.printTo(Serial);
-333             Serial.println();
-334 
-335             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-336             Serial.println(jsonBuffer.size());
-337             Serial.println();
-338 
-339 
-340 \textcolor{preprocessor}{        #endif}
-341             \textcolor{comment}{//wifiCount}
-342             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"wifiCount"}].success() )
-343             \{           
-344                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=json[\textcolor{stringliteral}{"wifiCount"}];
-345             \}
-346             \textcolor{keywordflow}{else}
-347             \{
-348                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
-349             \}
-350             json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
-351 
-352             
-353             \textcolor{comment}{//AP timeOut}
-354             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeOut"}].success() )
-355             \{
-356                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=json[\textcolor{stringliteral}{"timeOut"}];
-357             \}
-358             \textcolor{keywordflow}{else}
-359             \{
-360                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
-361 
+290     \textcolor{comment}{//read config file}
+291     \textcolor{comment}{//update data}
+292     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"r"});
+293 
+294     \textcolor{keywordflow}{if} (!configFile) 
+295     \{
+296     
+297         Serial.println( F(\textcolor{stringliteral}{"failed to read /wifiConfig.json"}) );
+298         Serial.println();
+299 
+300         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+301     \}
+302     \textcolor{keywordflow}{else}
+303     \{
+304         \textcolor{keywordtype}{size\_t} size = configFile.size();
+305         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+306         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+307 
+308         configFile.readBytes(buf.get(), size);
+309         DynamicJsonBuffer jsonBuffer;
+310         JsonObject& json = jsonBuffer.parseObject(buf.get());
+311         \textcolor{keywordflow}{if} (!json.success()) 
+312         \{
+313 
+314             Serial.println( F(\textcolor{stringliteral}{"failed to parse json "}) );
+315             Serial.println();
+316 
+317             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+318         \} 
+319         \textcolor{keywordflow}{else}
+320         \{
+321         
+322 \textcolor{preprocessor}{        #if DEBUG == 1 }
+323         
+324             Serial.println( F(\textcolor{stringliteral}{"configuration json is "}) );
+325             json.printTo(Serial);
+326             Serial.println();
+327 
+328             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+329             Serial.println(jsonBuffer.size());
+330             Serial.println();
+331 
+332 
+333 \textcolor{preprocessor}{        #endif}
+334             \textcolor{comment}{//wifiCount}
+335             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"wifiCount"}].success() )
+336             \{           
+337                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=json[\textcolor{stringliteral}{"wifiCount"}];
+338             \}
+339             \textcolor{keywordflow}{else}
+340             \{
+341                 this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
+342             \}
+343             json[\textcolor{stringliteral}{"wifiCount"}]=this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};
+344 
+345             
+346             \textcolor{comment}{//AP timeOut}
+347             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeOut"}].success() )
+348             \{
+349                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=json[\textcolor{stringliteral}{"timeOut"}];
+350             \}
+351             \textcolor{keywordflow}{else}
+352             \{
+353                 this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
+354 
+355             \}
+356             json[\textcolor{stringliteral}{"timeOut"}]=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
+357 
+358             \textcolor{comment}{//nomad}
+359             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"nomad"}].success() )
+360             \{
+361                 this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=json[\textcolor{stringliteral}{"nomad"}];
 362             \}
-363             json[\textcolor{stringliteral}{"timeOut"}]=this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut};
-364 
-365             \textcolor{comment}{//nomad}
-366             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"nomad"}].success() )
-367             \{
-368                 this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=json[\textcolor{stringliteral}{"nomad"}];
-369             \}
-370             \textcolor{keywordflow}{else}
-371             \{
-372                 this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
-373 
-374             \}
-375             json[\textcolor{stringliteral}{"nomad"}]=this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
-376 
-377             
-378             
-379             \textcolor{comment}{//Wifis SSID and PASS}
-380             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0; i<this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount} ;i++)
-381             \{
-382                 \textcolor{keywordflow}{if} ( json[\textcolor{stringliteral}{"Wifi"}+String(i)].success() )
-383                 \{
-384                     
-385                     \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}].success() )
-386                     \{
-387                         \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempSsid=json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]; 
-388                         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=tempSsid;                 
-389                     \}
-390                     \textcolor{keywordflow}{else}
+363             \textcolor{keywordflow}{else}
+364             \{
+365                 this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
+366 
+367             \}
+368             json[\textcolor{stringliteral}{"nomad"}]=this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
+369 
+370             
+371             
+372             \textcolor{comment}{//Wifis SSID and PASS}
+373             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i =0; i<this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount} ;i++)
+374             \{
+375                 \textcolor{keywordflow}{if} ( json[\textcolor{stringliteral}{"Wifi"}+String(i)].success() )
+376                 \{
+377                     
+378                     \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}].success() )
+379                     \{
+380                         \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempSsid=json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]; 
+381                         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=tempSsid;                 
+382                     \}
+383                     \textcolor{keywordflow}{else}
+384                     \{
+385                         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];                    
+386                     \}
+387                     json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i].c\_str();
+388                     
+389                     
+390                     \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}].success() )
 391                     \{
-392                         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];                    
-393                     \}
-394                     json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i].c\_str();
-395                     
-396                     
-397                     \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}].success() )
-398                     \{
-399                         \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempPass =json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}];
-400                         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=tempPass ;                    
-401                     \}
-402                     \textcolor{keywordflow}{else}
-403                     \{
-404                         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];                    
-405                     \}
-406                     json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i].c\_str();           
-407                 
+392                         \textcolor{keyword}{const} \textcolor{keywordtype}{char}* tempPass =json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}];
+393                         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=tempPass ;                    
+394                     \}
+395                     \textcolor{keywordflow}{else}
+396                     \{
+397                         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];                    
+398                     \}
+399                     json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i].c\_str();           
+400                 
+401                 \}
+402                 \textcolor{keywordflow}{else}
+403                 \{
+404                     
+405                     this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];
+406                     this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];                    
+407                     
 408                 \}
-409                 \textcolor{keywordflow}{else}
-410                 \{
-411                     
-412                     this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];
-413                     this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];                    
-414                     
-415                 \}
-416                 json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i].c\_str();
-417                 json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i].c\_str();           
-418                         
-419             \}
-420 
-421             configFile.close();
-422             configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"});
-423             \textcolor{keywordflow}{if}(!configFile)
-424             \{
-425             
-426                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /wifiConfig.json"}) );
-427             
-428                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});              
-429             \}
-430             
-431             json.printTo(configFile);
-432             configFile.close();
-433 
-434 \textcolor{preprocessor}{        #if DEBUG == 1 }
-435 
-436             Serial.println( F(\textcolor{stringliteral}{"saved configuration is :"}) );
-437             json.printTo(Serial);
-438             Serial.println();
-439         
-440 \textcolor{preprocessor}{        #endif}
-441 \textcolor{preprocessor}{        #if DEBUG == 0}
-442             Serial.println( F(\textcolor{stringliteral}{"Configuration loaded : OK"}));
-443 \textcolor{preprocessor}{        #endif}
-444             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-445         \}
-446     \}   
-447     
-448 
-449 \}
+409                 json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"ssid"}]=this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i].c\_str();
+410                 json[\textcolor{stringliteral}{"Wifi"}+String(i)][\textcolor{stringliteral}{"pass"}]=this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i].c\_str();           
+411                         
+412             \}
+413 
+414             configFile.close();
+415             configFile = SPIFFS.open(\textcolor{stringliteral}{"/wifiConfig.json"}, \textcolor{stringliteral}{"w"});
+416             \textcolor{keywordflow}{if}(!configFile)
+417             \{
+418             
+419                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /wifiConfig.json"}) );
+420             
+421                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});              
+422             \}
+423             
+424             json.printTo(configFile);
+425             configFile.close();
+426 
+427 \textcolor{preprocessor}{        #if DEBUG == 1 }
+428 
+429             Serial.println( F(\textcolor{stringliteral}{"saved configuration is :"}) );
+430             json.printTo(Serial);
+431             Serial.println();
+432         
+433 \textcolor{preprocessor}{        #endif}
+434 \textcolor{preprocessor}{        #if DEBUG == 0}
+435             Serial.println( F(\textcolor{stringliteral}{"Configuration loaded : OK"}));
+436 \textcolor{preprocessor}{        #endif}
+437             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+438         \}
+439     \}   
+440     
+441 
+442 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -465,45 +465,45 @@ true if successfull, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 457 of file Cool\+Wifi.\+cpp.
+Definition at line 450 of file Cool\+Wifi.\+cpp.
 
 
 \begin{DoxyCode}
-458 \{
-459 
-460 \textcolor{preprocessor}{#if DEBUG == 1 }
+451 \{
+452 
+453 \textcolor{preprocessor}{#if DEBUG == 1 }
+454     
+455     Serial.println(\textcolor{stringliteral}{"Entering CoolWifi.config(), no SPIFFS variant "}) ;
+456     
+457 \textcolor{preprocessor}{#endif}
+458     
+459     \textcolor{keywordflow}{if}(wifiNumber>50)
+460     \{
 461     
-462     Serial.println(\textcolor{stringliteral}{"Entering CoolWifi.config(), no SPIFFS variant "}) ;
-463     
-464 \textcolor{preprocessor}{#endif}
-465     
-466     \textcolor{keywordflow}{if}(wifiNumber>50)
-467     \{
-468     
-469 \textcolor{preprocessor}{    #if DEBUG == 1 }
-470         
-471         Serial.println(\textcolor{stringliteral}{"the limit of WiFis is 50 "} );
-472         
-473 \textcolor{preprocessor}{    #endif}
-474         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
-475     \}
-476 
-477     this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=wifiNumber;
-478 
-479     this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=APTimeOut;
-480 
-481     this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
-482     
-483     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<wifiNumber;i++)
-484     \{
-485         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];
-486         
-487         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];
-488     \}
-489         
-490     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-491 
-492 \}
+462 \textcolor{preprocessor}{    #if DEBUG == 1 }
+463         
+464         Serial.println(\textcolor{stringliteral}{"the limit of WiFis is 50 "} );
+465         
+466 \textcolor{preprocessor}{    #endif}
+467         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
+468     \}
+469 
+470     this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount}=wifiNumber;
+471 
+472     this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut}=APTimeOut;
+473 
+474     this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad}=\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad};
+475     
+476     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<wifiNumber;i++)
+477     \{
+478         this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]=\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i];
+479         
+480         this->\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i]=\hyperlink{class_cool_wifi_a0c3332a149245aaad060b32593a54c9b}{pass}[i];
+481     \}
+482         
+483     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+484 
+485 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{class_cool_wifi_ad060353050f40d032a2dbf9e54a768bf}\label{class_cool_wifi_ad060353050f40d032a2dbf9e54a768bf}} 
 \index{Cool\+Wifi@{Cool\+Wifi}!connect@{connect}}
@@ -668,19 +668,12 @@ Definition at line 209 of file Cool\+Wifi.\+cpp.
 254     \}
 255     \textcolor{keywordflow}{else}
 256     \{
-257 
-258         this->\hyperlink{class_cool_wifi_a914d7a1df14dd6b75345fb614c34e9d6}{addWifi}( WiFi.SSID() , WiFi.psk() );
-259 
-260         Serial.println( F(\textcolor{stringliteral}{"connected...yeey :)"} ));
-261         Serial.println(F(\textcolor{stringliteral}{"connected to "}) );
-262         Serial.println( WiFi.SSID() );
-263         Serial.println();
-264     
-265     \}
-266     
-267     \textcolor{keywordflow}{return}(WiFi.status());
-268 
-269 \}
+257         Serial.println( F(\textcolor{stringliteral}{"Not connected...:("} ));
+258     \}
+259     
+260     \textcolor{keywordflow}{return}(WiFi.status());
+261 
+262 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
@@ -768,55 +761,55 @@ Here is the caller graph for this function\+:\nopagebreak
 
 \hyperlink{class_cool_wifi_a9e6105c6d13d35ec510f6633da9e0223}{Cool\+Wifi\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
 
-Definition at line 500 of file Cool\+Wifi.\+cpp.
+Definition at line 493 of file Cool\+Wifi.\+cpp.
 
 
 \begin{DoxyCode}
-501 \{
-502 
-503 \textcolor{preprocessor}{#if DEBUG == 1 }
+494 \{
+495 
+496 \textcolor{preprocessor}{#if DEBUG == 1 }
+497 
+498     Serial.println( F(\textcolor{stringliteral}{"Entering CoolWifi.printConf()"}) );
+499     Serial.println();   
+500 
+501 \textcolor{preprocessor}{#endif}
+502     
+503     Serial.println(F(\textcolor{stringliteral}{"Wifi configuration "}));
 504 
-505     Serial.println( F(\textcolor{stringliteral}{"Entering CoolWifi.printConf()"}) );
-506     Serial.println();   
-507 
-508 \textcolor{preprocessor}{#endif}
-509     
-510     Serial.println(F(\textcolor{stringliteral}{"Wifi configuration "}));
-511 
-512     
-513     Serial.println(F(\textcolor{stringliteral}{"wifiCount : "}));
-514     Serial.println(this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount});
-515     
-516     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};i++)
-517     \{   
-518         Serial.print(F(\textcolor{stringliteral}{"SSID"}));
-519         Serial.print(i);
-520         Serial.println(F(\textcolor{stringliteral}{" : "}));
-521         Serial.println(this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]);
-522                 
-523 
-524         \textcolor{comment}{//Serial.print("PASS");}
-525         \textcolor{comment}{//Serial.print(i);}
-526         \textcolor{comment}{//Serial.println(" : ");}
-527 
-528         \textcolor{comment}{//Serial.print(F("PASS"));}
-529         \textcolor{comment}{//Serial.print(i);}
-530         \textcolor{comment}{//Serial.println(F(" : "));}
+505     
+506     Serial.println(F(\textcolor{stringliteral}{"wifiCount : "}));
+507     Serial.println(this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount});
+508     
+509     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<this->\hyperlink{class_cool_wifi_ab133bd92fcb895b884deecd6678592e4}{wifiCount};i++)
+510     \{   
+511         Serial.print(F(\textcolor{stringliteral}{"SSID"}));
+512         Serial.print(i);
+513         Serial.println(F(\textcolor{stringliteral}{" : "}));
+514         Serial.println(this->\hyperlink{class_cool_wifi_a893b21d0fed821438733bba2e73fb4c2}{ssid}[i]);
+515                 
+516 
+517         \textcolor{comment}{//Serial.print("PASS");}
+518         \textcolor{comment}{//Serial.print(i);}
+519         \textcolor{comment}{//Serial.println(" : ");}
+520 
+521         \textcolor{comment}{//Serial.print(F("PASS"));}
+522         \textcolor{comment}{//Serial.print(i);}
+523         \textcolor{comment}{//Serial.println(F(" : "));}
+524 
+525         \textcolor{comment}{//Serial.println(this->pass[i]);}
+526         
+527     \}
+528     
+529     Serial.println(F(\textcolor{stringliteral}{"timeOut : "}));
+530     Serial.println(this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut});
 531 
-532         \textcolor{comment}{//Serial.println(this->pass[i]);}
-533         
-534     \}
-535     
-536     Serial.println(F(\textcolor{stringliteral}{"timeOut : "}));
-537     Serial.println(this->\hyperlink{class_cool_wifi_a952111605f25156588b5632caaba1c6f}{timeOut});
-538 
-539     Serial.println(F(\textcolor{stringliteral}{"nomad : "}));
-540     Serial.println(this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad});
-541 
-542     Serial.println();
-543 
-544 
-545 \}
+532     Serial.println(F(\textcolor{stringliteral}{"nomad : "}));
+533     Serial.println(this->\hyperlink{class_cool_wifi_ab7d9643c4af7bac3be331ef008b2ea27}{nomad});
+534 
+535     Serial.println();
+536 
+537 
+538 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]

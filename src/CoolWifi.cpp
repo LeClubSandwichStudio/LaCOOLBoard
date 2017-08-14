@@ -17,7 +17,7 @@
 #include "ArduinoJson.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -254,14 +254,7 @@ wl_status_t CoolWifi::connectAP()
 	}
 	else
 	{
-
-		this->addWifi( WiFi.SSID() , WiFi.psk() );
-
-		Serial.println( F("connected...yeey :)" ));
-		Serial.println(F("connected to ") );
-		Serial.println( WiFi.SSID() );
-		Serial.println();
-	
+		Serial.println( F("Not connected...:(" ));
 	}
 	
 	return(WiFi.status());

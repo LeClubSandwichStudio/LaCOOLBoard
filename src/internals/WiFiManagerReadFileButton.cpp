@@ -118,7 +118,7 @@ void WiFiManager::setupConfigPortal() {
   server->on("/r", std::bind(&WiFiManager::handleReset, this));
   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check.
   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
-  server->on("/read", std::bind(&WiFiManager::handleFileRead, this));
+  server->on("/sensorsData.csv", std::bind(&WiFiManager::handleFileRead, this,"/sensorsData.csv"));
   server->onNotFound (std::bind(&WiFiManager::handleNotFound, this));
   server->begin(); // Web server start
   DEBUG_WM(F("HTTP server started"));
@@ -654,18 +654,22 @@ void WiFiManager::handleReset() {
 }
 
 /**Handle the read file button */
-bool WiFiManager::handleFileRead() 
+bool WiFiManager::handleFileRead(String path) 
 {
 
-	DEBUG_WM(F("handleFileRead: /sensorsData.csv " ));
-
-	String path="/sensorsData.csv";
+	DEBUG_WM(F("handleFileRead" ));
+	DEBUG_WM(F("path : "));
+	DEBUG_WM(path);
 
 	if(path.endsWith("/"))
 	{
 		path += "index.htm";
 	}
 
+	DEBUG_WM(F("path modified : "));
+	DEBUG_WM(path);
+	
+	
 	String contentType = getContentType(path);
 	String pathWithGz = path + ".gz";
 	if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
@@ -698,11 +702,7 @@ bool WiFiManager::handleFileRead()
 
 void WiFiManager::handleNotFound() {
   if (captivePortal()) {
-	if(!(this->handleFileRead()) )
-	{
-	server->send(404, "text/plain", "FileNotFound");
-	}// If captive portal redirect instead of displaying the error page.
-    return;
+	    return;
   }
   String message = "File Not Found\n\n";
   message += "URI: ";
@@ -813,5 +813,6 @@ String WiFiManager::getContentType(String filename){
   else if(filename.endsWith(".pdf")) return "application/x-pdf";
   else if(filename.endsWith(".zip")) return "application/x-zip";
   else if(filename.endsWith(".gz")) return "application/x-gzip";
+  else if (filename.endsWith(".csv")) return "text/csv";
   return "text/plain";
 }
