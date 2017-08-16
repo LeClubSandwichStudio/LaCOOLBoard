@@ -15,8 +15,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 0
-
+#define DEBUG 1
 
 
 
@@ -99,9 +98,12 @@ void CoolBoard::begin()
 	{
 		jetPack.config();
 		jetPack.begin();
-		#if DEBUG == 1
-			jetPack.printConf();
-		#endif
+
+	#if DEBUG == 1
+		
+		jetPack.printConf();
+
+	#endif
 		delay(100);
 	}
 
@@ -109,9 +111,12 @@ void CoolBoard::begin()
 	{
 		irene3000.config();
 		irene3000.begin();
-		#if DEBUG == 1
-			irene3000.printConf();
-		#endif
+
+	#if DEBUG == 1
+
+		irene3000.printConf();
+
+	#endif
 		delay(100);
 	}
 
@@ -119,9 +124,12 @@ void CoolBoard::begin()
 	{
 		externalSensors.config();
 		externalSensors.begin();
-		#if DEBUG == 1
-			externalSensors.printConf();
-		#endif
+
+	#if DEBUG == 1
+
+		externalSensors.printConf();
+
+	#endif
 		delay(100);
 	}
 	
@@ -132,9 +140,12 @@ void CoolBoard::begin()
 
 	rtc.config();
 	rtc.begin();
-	#if DEBUG == 1
-		rtc.printConf();
-	#endif
+
+#if DEBUG == 1
+
+	rtc.printConf();
+
+#endif
 	delay(100);
 	
 	coolBoardLed.blink(0,255,0,0.5);//green
@@ -1052,6 +1063,8 @@ String CoolBoard::readSensors()
 	sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,	
 	sensorsData+=",\"hour\":";	
 	sensorsData+=tm.Hour;
+	sensorsData+=",\"minute\":";
+	sensorsData+=tm.Minute;
 	sensorsData+="}";
 	
 #if DEBUG == 1

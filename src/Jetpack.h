@@ -29,6 +29,8 @@ public:
 	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
  
 	void doAction(const char* data );
+	
+	
        
 	bool config();
 
@@ -40,24 +42,40 @@ private:
 
 	struct state{
 	
-	String type;
+		bool actif=0;
 
-	bool actif=0; 
+		bool temporal=0;
 
-	int low=0;	//if temporal == 1 this is the time spent inactif in ms
-			//if type is hour/minute/second this is the deactivation time
+		bool inverted=0;
+		
+		//"type":["temperature","hour"]
+		String primaryType="";//the primary type is related to the sensor's type (type[0])
 
-	int high=0;	//if temporal==1 this is the time spent actif in ms
-			//if type is hour/minute/second this is the activation time
+		String secondaryType="";// the secondary type if present is hour or minute or hourMinute (type[1]) 
+		
+		//"low":[20,5000,18]
+		int rangeLow=0;//this is the minimum at which the actor becomes actif (low[0])
+		
+		unsigned long timeLow=0;//this is the time the actor is off in temporal mode (low[1])
+		
+		int hourLow=0; //this is the hour when to turn off the actor in temporal/hour mode (low[2])
+		
+		int minuteLow=0;//this is the minute when to turn off the actor in temporal/minute mode (low[3])
 
-	bool temporal=0;
+
+		//"high":[30,2000,17]
+		int rangeHigh=0;//this is the maximum at which the actor becomes inactif(high[0])
+		
+		unsigned long timeHigh=0;//this is the time the actor is on in temporal mode(high[1])
+		
+		int hourHigh=0; //this is the hour when to turn on the actor in temporal/hour mode(high[2])
+
+		int minuteHigh=0;//this is the minute when to turn on the actor in temporal/minute mode (high[3])
+
+		unsigned long actifTime=0;
 	
-	unsigned long actifTime=0;
+		unsigned long inactifTime=0;
 	
-	unsigned long inactifTime=0;
-	
-	bool inverted=0;	
-
 	}actors[8];
 
 	const int clockPin = 4; //clock pin for the shift register

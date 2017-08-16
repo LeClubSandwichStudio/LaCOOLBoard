@@ -14,7 +14,7 @@
 #include "Jetpack.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -73,8 +73,9 @@ void Jetpack::write(byte action)
 
 	digitalWrite(EnI2C, HIGH);
 
-}	
 
+}
+	
 /**
 *	Jetpack::writeBit(pin,state):
 *	This method is provided to write
@@ -175,7 +176,7 @@ void Jetpack::doAction( const char* data )
 		{
 			//check if the actor is actif 
 			if(this->actors[i].actif==1)
-			{	
+			{						
 				//if the actor is not temporal
 				if( this->actors[i].temporal==0 ) 
 				{	
@@ -183,28 +184,80 @@ void Jetpack::doAction( const char* data )
 					if( (this->actors[i].inverted) == 0 )
 					{
 						//measure >= high limit : stop actor
-						if( ( root[this->actors[i].type] ) >= ( this->actors[i].high ) ) 	
+						if( ( root[this->actors[i].primaryType] ) >= ( this->actors[i].rangeHigh ) ) 	
 						{	
 							bitWrite( this->action , i , 0 ) ;	
+
+						#if DEBUG == 1
+							
+							Serial.print(F("measured value : "));
+							Serial.println(root[this->actors[i].primaryType].as<float>());
+
+							Serial.print(F("high range : "));
+							Serial.println(this->actors[i].rangeHigh);
+						
+						#endif
+						
 						}
 						//measure <= low limit : start actor
-						else if( ( root[ this->actors[i].type ] ) <= ( this->actors[i].low ) )
+						else if( ( root[ this->actors[i].primaryType ] ) <= ( this->actors[i].rangeLow ) )
 						{
-							bitWrite( this->action , i , 1 ) ;					
+							bitWrite( this->action , i , 1 ) ;
+
+						#if DEBUG == 1
+							
+							Serial.print(F("measured value : "));
+							Serial.println(root[this->actors[i].primaryType].as<float>());
+
+							Serial.print(F("low range : "));
+							Serial.println(this->actors[i].rangeLow);
+						
+						#endif
+											
+						}
+						else 
+						{
+							bitWrite( this->action , i , 0 ) ;						
 						}
 					}
 					//inverted actor
 					else if( (this->actors[i].inverted) == 1 )
 					{
 						//measure >= high limit : start actor
-						if( ( root[this->actors[i].type] ) >= ( this->actors[i].high ) ) 	
+						if( ( root[this->actors[i].primaryType] ) >= ( this->actors[i].rangeHigh ) ) 	
 						{	
-							bitWrite( this->action , i , 1 ) ;	
+							bitWrite( this->action , i , 1 ) ;
+
+						#if DEBUG == 1
+							
+							Serial.print(F("measured value : "));
+							Serial.println(root[this->actors[i].primaryType].as<float>());
+
+							Serial.print(F("high range : "));
+							Serial.println(this->actors[i].rangeHigh);
+						
+						#endif
+							
 						}
 						//measure <= low limit : stop actor
-						else if( ( root[ this->actors[i].type ] ) <= ( this->actors[i].low ) )
+						else if( ( root[ this->actors[i].primaryType ] ) <= ( this->actors[i].rangeLow ) )
 						{
-							bitWrite( this->action , i , 0 ) ;					
+							bitWrite( this->action , i , 0 ) ;
+
+						#if DEBUG == 1
+							
+							Serial.print(F("measured value : "));
+							Serial.println(root[this->actors[i].primaryType].as<float>());
+
+							Serial.print(F("low range : "));
+							Serial.println(this->actors[i].rangeLow);
+						
+						#endif
+											
+						}
+						else 
+						{
+							bitWrite( this->action , i , 0 ) ;						
 						}
 
 					
@@ -214,63 +267,161 @@ void Jetpack::doAction( const char* data )
 				//if the actor is temporal
 				else
 				{
-					//actor of type hour
-					if( ( this->actors[i].type ) == ( "hour" ) ) 	
+					//actor has a secondary type (either hour,minute or hourMinute)
+					if( ( this->actors[i].secondaryType ) !="" ) 	
 					{
 					
 					#if DEBUG == 1
 						
-						Serial.println("hour actor ");
+						Serial.print(this->actors[i].secondaryType);
+						Serial.print(" actor N° ");
 						Serial.println(i);
 						Serial.println();
 					#endif
-
-						//time >= high : stop actor
-						if( ( root[this->actors[i].type] ) >= ( this->actors[i].low ) ) 	
+						//secondary type is hour 	
+						if( ( this->actors[i].secondaryType=="hour" ) )
 						{
+							//time >= hourLow : stop actor
+							if( ( root[this->actors[i].secondaryType] ) >= ( this->actors[i].hourLow ) ) 	
+							{
 						
-						#if DEBUG == 1 
+							#if DEBUG == 1 
 							
-							Serial.print("deactive ");
-							Serial.println(i);
+								Serial.print("deactive actor N° ");
+								Serial.println(i);
 						
-						#endif	
-							bitWrite( this->action , i , 0 ) ;	
+							#endif	
+								bitWrite( this->action , i , 0 ) ;	
+							}
+							//time >= hourHigh : start actor
+							else if( ( root[ this->actors[i].secondaryType ] ) >= ( this->actors[i].hourHigh ) )
+							{
+						
+							#if DEBUG == 1 
+						
+								Serial.print("active actor N° ");
+								Serial.println(i);
+						
+							#endif
+								bitWrite( this->action , i , 1 ) ;					
+							}
 						}
-						//time >= low : start actor
-						else if( ( root[ this->actors[i].type ] ) >= ( this->actors[i].high ) )
+
+						//secondary type is minute 	
+						if( ( this->actors[i].secondaryType=="minute" ) )
 						{
+							//time >= minuteLow : stop actor
+							if( ( root[this->actors[i].secondaryType] ) >= ( this->actors[i].minuteLow ) ) 	
+							{
 						
-						#if DEBUG == 1 
+							#if DEBUG == 1 
+							
+								Serial.print("deactive actor N° ");
+								Serial.println(i);
 						
-							Serial.print("active ");
-							Serial.println(i);
+							#endif	
+								bitWrite( this->action , i , 0 ) ;	
+							}
+							//time >= minuteHigh : start actor
+							else if( ( root[ this->actors[i].secondaryType ] ) >= ( this->actors[i].minuteHigh ) )
+							{
 						
-						#endif
-							bitWrite( this->action , i , 1 ) ;					
+							#if DEBUG == 1 
+						
+								Serial.print("active actor N° ");
+								Serial.println(i);
+						
+							#endif
+								bitWrite( this->action , i , 1 ) ;					
+							}
 						}
+
+						//secondary type is hourMinute 	
+						if( ( this->actors[i].secondaryType=="hourMinute" ) )
+						{
+							//time == hourLow :
+							if( ( root["hour"] ) == ( this->actors[i].hourLow ) ) 	
+							{
+								//time > minuteLow : stop actor
+								if( (root["minute"])>=(this->actors[i].minuteLow) )						
+								{
+								#if DEBUG == 1 
 						
+									Serial.print(" time.hour == hourLow, time.minute>=minuteLow : deactive actor N° ");
+									Serial.println(i);
+					
+								#endif	
+									bitWrite( this->action , i , 0 ) ;
+								}	
+							}
+							//time > hourLow: stop actor
+							else if( ( root["hour" ] ) > ( this->actors[i].hourLow ) )
+							{
+	
+							#if DEBUG == 1 
+						
+								Serial.print("time.hour>hourLow : deactive actor N° ");
+								Serial.println(i);
+				
+							#endif		
+								bitWrite( this->action , i , 0 ) ;
+													
+							}
+							//time == hourHigh:
+							else if( ( root["hour" ] ) == ( this->actors[i].hourHigh ) )
+							{
+								//time > minuteHigh: start actor
+								if( (root["minute"])>=(this->actors[i].minuteHigh) )
+								{
+						
+								#if DEBUG == 1 
+						
+									Serial.print("time.hour==hourHigh, time.mintue>=minuteHigh : active actor N° ");
+									Serial.println(i);
+						
+								#endif
+									bitWrite( this->action , i , 1 ) ;
+								}					
+							}
+							//time > hourHigh : start actor
+							else if( ( root["hour" ] ) > ( this->actors[i].hourHigh ) )
+							{
+								
+							#if DEBUG == 1 
+						
+								Serial.print("time.hour>hourHigh : active actor N° ");
+								Serial.println(i);
+				
+							#endif		
+
+								bitWrite( this->action , i , 1 ) ;
+													
+							}
+
+						}
+
+
 					}
 					//actor not of type hour
-					else if( ( this->actors[i].type ) != ( "hour" ) ) 	 
+					else if( ( this->actors[i].secondaryType ) == ( "" ) ) 	 
 					{
 					
 					#if DEBUG == 1 
 						
 						Serial.println("not hour temporal actor");
-						Serial.println(this->actors[i].type);
 						Serial.println(i);
+						Serial.println(this->actors[i].secondaryType);
 						Serial.println("actifTime : ");
 						Serial.println(this->actors[i].actifTime);
 						Serial.println("millis : ");
 						Serial.println(millis() );
 						Serial.println(" high : ");
-						Serial.println(this->actors[i].high );
+						Serial.println(this->actors[i].timeHigh );
 						Serial.println();
 					
 					#endif
 						//if the actor was actif for highTime or more :
-						if( ( millis()- this->actors[i].actifTime  ) >= ( (unsigned long) this->actors[i].high  ) )
+						if( ( millis()- this->actors[i].actifTime  ) >= (  this->actors[i].timeHigh  ) )
 						{
 							//stop the actor
 							bitWrite( this->action , i , 0) ;
@@ -291,7 +442,7 @@ void Jetpack::doAction( const char* data )
 				if(this->actors[i].temporal==1)
 				{
 					//if the actor was inactif for lowTime or more :
-					if( ( millis() - this->actors[i].inactifTime ) >= ( (unsigned long) this->actors[i].low  ) )
+					if( ( millis() - this->actors[i].inactifTime ) >= (  this->actors[i].timeLow  ) )
 					{
 						//start the actor
 						bitWrite( this->action , i , 1) ;
@@ -305,7 +456,7 @@ void Jetpack::doAction( const char* data )
 					#if DEBUG == 1 
 						
 						Serial.println("inactif temporal actor");
-						Serial.println(this->actors[i].type);
+						Serial.println(this->actors[i].primaryType);
 						Serial.print("temporal : ");
 						Serial.println(this->actors[i].temporal);
 						Serial.println(i);
@@ -314,7 +465,7 @@ void Jetpack::doAction( const char* data )
 						Serial.println("millis : ");
 						Serial.println(millis() );
 						Serial.println(" low : ");
-						Serial.println(this->actors[i].low );
+						Serial.println(this->actors[i].timeLow );
 						Serial.println();
 
 						Serial.println();
@@ -412,6 +563,7 @@ bool Jetpack::config()
 			{	
 				if(json[String("Act")+String(i)].success())
 				{
+					//parsing actif key
 					if(json[String("Act")+String(i)]["actif"].success() )
 					{
 						this->actors[i].actif=json[String("Act")+String(i)]["actif"];
@@ -421,62 +573,98 @@ bool Jetpack::config()
 						this->actors[i].actif=this->actors[i].actif;
 					}
 					json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
-
-
-					if(json[String("Act")+String(i)]["low"].success() )
-					{					
-						this->actors[i].low=json[String("Act")+String(i)]["low"];
-					}
-					else
-					{
-						this->actors[i].low=this->actors[i].low;					
-					}
-					json[String("Act")+String(i)]["low"]=this->actors[i].low;
-
-				
-					if(json[String("Act")+String(i)]["high"].success() )
-					{				
-						this->actors[i].high=json[String("Act")+String(i)]["high"];
-					}
-					else
-					{
-						this->actors[i].high=this->actors[i].high;
-					}
-					json[String("Act")+String(i)]["high"]=this->actors[i].high;
-
-				
-					if(json[String("Act")+String(i)]["type"].success() )
-					{				
-						this->actors[i].type=String( json[String("Act")+String(i)]["type"].as<const char*>() ); 
-					}
-					else
-					{
-						this->actors[i].type=this->actors[i].type;
-					}
-					json[String("Act")+String(i)]["type"]=this->actors[i].type.c_str();
-
-
+					
+					//parsing temporal key
 					if(json[String("Act")+String(i)]["temporal"].success() )
 					{
-						this->actors[i].temporal=json[String("Act")+String(i)]["temporal"]; 													
+						this->actors[i].temporal=json[String("Act")+String(i)]["temporal"];
 					}
 					else
 					{
-						this->actors[i].temporal=this->actors[i].temporal; 
-					}	
+						this->actors[i].temporal=this->actors[i].temporal;
+					}
 					json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal;
-
 					
+					//parsing inverted key
 					if(json[String("Act")+String(i)]["inverted"].success() )
 					{
-						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 													
+						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"];
 					}
 					else
 					{
-						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"]; 
-					}	
+						this->actors[i].inverted=this->actors[i].inverted;
+					}
 					json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted;
 
+					//parsing inverted key
+					if(json[String("Act")+String(i)]["inverted"].success() )
+					{
+						this->actors[i].inverted=json[String("Act")+String(i)]["inverted"];
+					}
+					else
+					{
+						this->actors[i].inverted=this->actors[i].inverted;
+					}
+					json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted;
+					
+					//parsing low key
+					if(json[String("Act")+String(i)]["low"].success() )
+					{
+						this->actors[i].rangeLow=json[String("Act")+String(i)]["low"][0];
+						this->actors[i].timeLow=json[String("Act")+String(i)]["low"][1];
+						this->actors[i].hourLow=json[String("Act")+String(i)]["low"][2];						
+						this->actors[i].minuteLow=json[String("Act")+String(i)]["low"][3];						
+					}
+					else
+					{
+						this->actors[i].rangeLow=this->actors[i].rangeLow;
+						this->actors[i].timeLow=this->actors[i].timeLow;
+						this->actors[i].hourLow=this->actors[i].hourLow;
+						this->actors[i].minuteLow=this->actors[i].minuteLow;						
+					}
+					json[String("Act")+String(i)]["low"][0]=this->actors[i].rangeLow;
+					json[String("Act")+String(i)]["low"][1]=this->actors[i].timeLow;
+					json[String("Act")+String(i)]["low"][2]=this->actors[i].hourLow;
+					json[String("Act")+String(i)]["low"][3]=this->actors[i].minuteLow;
+
+					//parsing high key
+					if(json[String("Act")+String(i)]["high"].success() )
+					{
+						this->actors[i].rangeHigh=json[String("Act")+String(i)]["high"][0];
+						this->actors[i].timeHigh=json[String("Act")+String(i)]["high"][1];
+						this->actors[i].hourHigh=json[String("Act")+String(i)]["high"][2];						
+						this->actors[i].minuteHigh=json[String("Act")+String(i)]["high"][3];						
+					}
+					else
+					{
+						this->actors[i].rangeHigh=this->actors[i].rangeHigh;
+						this->actors[i].timeHigh=this->actors[i].timeHigh;
+						this->actors[i].hourHigh=this->actors[i].hourHigh;
+						this->actors[i].minuteHigh=this->actors[i].minuteHigh;
+					}
+					json[String("Act")+String(i)]["high"][0]=this->actors[i].rangeHigh;
+					json[String("Act")+String(i)]["high"][1]=this->actors[i].timeHigh;
+					json[String("Act")+String(i)]["high"][2]=this->actors[i].hourHigh;
+					json[String("Act")+String(i)]["high"][3]=this->actors[i].minuteHigh;
+
+					//parsing type key
+					if(json[String("Act")+String(i)]["type"].success() )
+					{
+						this->actors[i].primaryType=json[String("Act")+String(i)]["type"][0].as<String>();
+						this->actors[i].secondaryType=json[String("Act")+String(i)]["type"][1].as<String>();						
+						
+					}
+					else
+					{
+						this->actors[i].primaryType=this->actors[i].primaryType;
+						this->actors[i].secondaryType=this->actors[i].secondaryType;
+					}
+					json[String("Act")+String(i)]["type"][0]=this->actors[i].primaryType;
+					json[String("Act")+String(i)]["type"][1]=this->actors[i].secondaryType;
+						
+
+
+					
 					
 					 
 				}
@@ -486,11 +674,24 @@ bool Jetpack::config()
 				}
 				
 				json[String("Act")+String(i)]["actif"]=this->actors[i].actif;
-				json[String("Act")+String(i)]["low"]=this->actors[i].low;
-				json[String("Act")+String(i)]["high"]=this->actors[i].high;
-				json[String("Act")+String(i)]["type"]=this->actors[i].type;
 				json[String("Act")+String(i)]["temporal"]=this->actors[i].temporal;
-				json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted; 
+				json[String("Act")+String(i)]["inverted"]=this->actors[i].inverted;
+
+				json[String("Act")+String(i)]["low"][0]=this->actors[i].rangeLow;
+				json[String("Act")+String(i)]["low"][1]=this->actors[i].timeLow;
+				json[String("Act")+String(i)]["low"][2]=this->actors[i].hourLow;
+				json[String("Act")+String(i)]["low"][3]=this->actors[i].minuteLow;
+
+				json[String("Act")+String(i)]["high"][0]=this->actors[i].rangeHigh;
+				json[String("Act")+String(i)]["high"][1]=this->actors[i].timeHigh;
+				json[String("Act")+String(i)]["high"][2]=this->actors[i].hourHigh;
+				json[String("Act")+String(i)]["high"][3]=this->actors[i].minuteHigh;
+
+				json[String("Act")+String(i)]["type"][0]=this->actors[i].primaryType;
+				json[String("Act")+String(i)]["type"][1]=this->actors[i].secondaryType;
+
+
+
 			}
 			
 
@@ -542,41 +743,77 @@ void Jetpack::printConf()
 	Serial.println();
 
 #endif 
-	Serial.println( "Jetpack configuration " ) ;
+	Serial.println(F( "Jetpack configuration " ) ) ;
  
         for(int i=0;i<8;i++)
 	{	
-		Serial.print("actor N°");
+		Serial.print(F("actor N°"));
 		Serial.print(i);
-		Serial.print(" actif :");
+		Serial.print(F(" actif :"));
 		Serial.println(this->actors[i].actif);
-
-		Serial.print("actor N°");
-		Serial.print(i);
-		Serial.print(" low :");
-		Serial.println(this->actors[i].low);
-
-		Serial.print("actor N°");
-		Serial.print(i);
-		Serial.print(" high :");
-		Serial.println(this->actors[i].high);
-
-		Serial.print("actor N°");
-		Serial.print(i);
-		Serial.print(" type :");
-		Serial.println(this->actors[i].type);
 		
-		Serial.print("actor N°");
+		Serial.print(F("actor N°"));
 		Serial.print(i);
-		Serial.print(" temporal :");
+		Serial.print(F(" temporal :"));
 		Serial.println(this->actors[i].temporal);
 
-		Serial.print("actor N°");
+		Serial.print(F("actor N°"));
 		Serial.print(i);
-		Serial.print(" inverted :");
+		Serial.print(F(" inverted :"));
 		Serial.println(this->actors[i].inverted);
 
- 
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" primary Type :"));
+		Serial.println(this->actors[i].primaryType);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" secondary Type :"));		
+		Serial.println(this->actors[i].secondaryType);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" range Low :"));
+		Serial.println(this->actors[i].rangeLow);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" time Low :"));
+		Serial.println(this->actors[i].timeLow);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" hour low:"));
+		Serial.println(this->actors[i].hourLow);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" minute low:"));
+		Serial.println(this->actors[i].minuteLow);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" range High:"));
+		Serial.println(this->actors[i].rangeHigh);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" time High:"));
+		Serial.println(this->actors[i].timeHigh);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" hour high:"));
+		Serial.println(this->actors[i].hourHigh);
+
+		Serial.print(F("actor N°"));
+		Serial.print(i);
+		Serial.print(F(" minute high:"));
+		Serial.println(this->actors[i].minuteHigh);
+
+		Serial.println(); 
 
 	}
 
