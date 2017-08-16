@@ -190,6 +190,9 @@ void Jetpack::doAction( const char* data )
 
 						#if DEBUG == 1
 							
+							Serial.print(F("not inverted Actor N° : "));
+							Serial.println(i);
+
 							Serial.print(F("measured value : "));
 							Serial.println(root[this->actors[i].primaryType].as<float>());
 
@@ -205,7 +208,10 @@ void Jetpack::doAction( const char* data )
 							bitWrite( this->action , i , 1 ) ;
 
 						#if DEBUG == 1
-							
+
+							Serial.print(F("not inverted Actor N° : "));
+							Serial.println(i);
+
 							Serial.print(F("measured value : "));
 							Serial.println(root[this->actors[i].primaryType].as<float>());
 
@@ -229,6 +235,9 @@ void Jetpack::doAction( const char* data )
 							bitWrite( this->action , i , 1 ) ;
 
 						#if DEBUG == 1
+
+							Serial.print(F(" inverted Actor N° : "));
+							Serial.println(i);
 							
 							Serial.print(F("measured value : "));
 							Serial.println(root[this->actors[i].primaryType].as<float>());
@@ -246,6 +255,9 @@ void Jetpack::doAction( const char* data )
 
 						#if DEBUG == 1
 							
+							Serial.print(F("inverted Actor N° : "));
+							Serial.println(i);
+
 							Serial.print(F("measured value : "));
 							Serial.println(root[this->actors[i].primaryType].as<float>());
 
