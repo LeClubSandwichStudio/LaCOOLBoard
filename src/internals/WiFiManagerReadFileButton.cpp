@@ -12,6 +12,7 @@
  **************************************************************/
 #include "FS.h"
 #include "WiFiManagerReadFileButton.h"
+#include "ArduinoJson.h"
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -649,8 +650,26 @@ void WiFiManager::handleReset() {
 
   DEBUG_WM(F("Sent reset page"));
   delay(5000);
-  ESP.reset();
-  delay(2000);
+  
+  DEBUG_WM(F("reset ESP and Wifi configuration file"));
+
+ //create json wifi count = 0 ,timeout=300,nomad=0
+ const size_t bufferSize = JSON_OBJECT_SIZE(3) + 40;
+ DynamicJsonBuffer jsonBuffer(bufferSize);
+
+ const char* json = "{\"wifiCount\":0,\"timeOut\":300,\"nomad\":0}";
+
+ JsonObject& root = jsonBuffer.parseObject(json);
+
+ //open wifi file in w : delete contents
+ File configFile = SPIFFS.open("/wifiConfig.json", "w");
+ //write json in file 
+ root.printTo(configFile);
+ //close file 
+ configFile.close();
+ delay(500);
+ ESP.reset();
+ delay(2000);
 }
 
 /**Handle the read file button */
