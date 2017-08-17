@@ -82,9 +82,10 @@ private:
 
 	struct state
 	{
-		byte active=0;
+		bool active=0;
 		adsGain_t gain=GAIN_ONE;
 		String type="";
+
 	} waterTemp, phProbe,adc2;
 
 	const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exa

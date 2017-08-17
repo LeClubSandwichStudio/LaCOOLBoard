@@ -58,9 +58,9 @@ private:
 		
 		unsigned long timeLow=0;//this is the time the actor is off in temporal mode (low[1])
 		
-		int hourLow=0; //this is the hour when to turn off the actor in temporal/hour mode (low[2])
+		int hourLow=0; //this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2])
 		
-		int minuteLow=0;//this is the minute when to turn off the actor in temporal/minute mode (low[3])
+		int minuteLow=0;//this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
 
 
 		//"high":[30,2000,17]
@@ -68,9 +68,9 @@ private:
 		
 		unsigned long timeHigh=0;//this is the time the actor is on in temporal mode(high[1])
 		
-		int hourHigh=0; //this is the hour when to turn on the actor in temporal/hour mode(high[2])
+		int hourHigh=0; //this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
 
-		int minuteHigh=0;//this is the minute when to turn on the actor in temporal/minute mode (high[3])
+		int minuteHigh=0;//this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3])
 
 		unsigned long actifTime=0;
 	

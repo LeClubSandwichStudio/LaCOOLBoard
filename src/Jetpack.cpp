@@ -14,7 +14,7 @@
 #include "Jetpack.h"
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 /**
@@ -113,18 +113,55 @@ void Jetpack::writeBit(byte pin,bool state)
 *	exemple:
 *	initial state:
 *		current Temperature = 23 °C
-*		actors[0].actif=1
-*		actors[0].low=25 °C
-*		actors[0].high=30 °C
-*		actors[0].type="Temperature"
+*		actors[i].actif=1
+*		actors[i].rangeLow=25 °C
+*		actors[i].rangeHigh=30 °C
+*		actors[i].primaryType="Temperature"
 *		
 *	condition verified:		
-*		root["Temperature"] < actors[0].low
+*		root["Temperature"] < actors[i].rangeLow
 *
-*	action: invert the state of actors[0]:
-*		bitWrite( action,0,!( bitRead ( action,0 ) ) )
-*		write(action)
-*	
+*	action : activate the actor at pin[i]
+*
+*
+*	initial state:
+*		actors[i].actif=1
+*		actors[i].rangeLow=2°C
+*		actors[i].rangeHigh=12°C
+*		actors[i].inverted=1
+*		actors[i].primaryType="Temperature"
+*		
+*	condition verified:		
+*		root["Temperature"] > actors[i].rangeHigh
+*
+*	action: activate the actor at pin[i]
+*
+*
+*	initial state:
+*		actors[i].actif=1
+*		actors[i].timeLow=2500ms
+*		actors[i].timeHigh=3000ms
+*		actors[i].temporal=1
+*		
+*	condition verified:		
+*		millis()-actors[i].actifTime >=actors[i].timeHigh
+*
+*	action: deactivate the actor at pin[i]
+*
+*
+*	initial state:
+*		actors[i].actif=1
+*		actors[i].hourLow=10
+*		actors[i].hourHigh=8
+*		actors[i].temporal=1
+*		actors[i].secondaryType="hour"( or "minute" or "hourMinute")
+*		
+*	condition verified:		
+*		root["hour"]>=actors[i].hourHigh
+*
+*	action: activate the actor at pin[i]
+*
+*
 */
 void Jetpack::doAction( const char* data )
 {

@@ -25,7 +25,7 @@ void setup()
 		coolBoard.offLineMode();
 	}
 
-	coolBoard.sleep( coolBoard.getLogInterval() );
+
  
 }
 

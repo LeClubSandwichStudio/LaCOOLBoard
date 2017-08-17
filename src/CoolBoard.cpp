@@ -658,6 +658,7 @@ void CoolBoard::offLineMode()
 */
 bool CoolBoard::config()
 {
+	yield();
 
 #if DEBUG == 1
 

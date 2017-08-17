@@ -67,25 +67,27 @@ private:
 	//sensors control structs :
 	struct lightActive
 	{
-		byte visible=0;
-		byte ir=0;
-		byte uv=0;	
+		bool visible=0;
+		bool ir=0;
+		bool uv=0;	
 
 	}lightDataActive;
 
 
 	struct airActive
 	{
-		byte temperature=0;
-		byte humidity=0;
-		byte pressure=0;
+		bool temperature=0;
+		bool humidity=0;
+		bool pressure=0;
+
 	}airDataActive;
 
 	const int EnMoisture = 13;                      // Moisture Enable Pin
 	const int AnMplex = 12;                         // Analog Multiplexer  LOW=Vbat , HIGH=Moisture
 
-        byte vbatActive=0;
-	byte soilMoistureActive=0;
+        bool vbatActive=0;
+
+	bool soilMoistureActive=0;
 
 };
 
