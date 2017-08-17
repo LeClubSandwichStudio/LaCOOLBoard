@@ -11,6 +11,6 @@ var class_cool_board_led =
     [ "printConf", "de/dc0/class_cool_board_led.html#a8ed3053a36f0ed4a131f43b5b17efb61", null ],
     [ "strobe", "de/dc0/class_cool_board_led.html#ad5f0de4c628cbfbf49896042831c64ad", null ],
     [ "write", "de/dc0/class_cool_board_led.html#a30fadd4cbec17ceea428bf7a32207e87", null ],
-    [ "ledActive", "de/dc0/class_cool_board_led.html#a5f17c135516fcf4b44ea8a096ba0177a", null ],
+    [ "ledActive", "de/dc0/class_cool_board_led.html#aadd04d2ecf123247718d77f42fba7f08", null ],
     [ "neoPixelLed", "de/dc0/class_cool_board_led.html#ac2c13fa462a010cd9242bf297c013923", null ]
 ];

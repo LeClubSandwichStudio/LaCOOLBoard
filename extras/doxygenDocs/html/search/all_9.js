@@ -18,7 +18,7 @@ var searchData=
   ['iointena',['IOINTENA',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a5f98f86f1843563138fed90ac7a97a14',1,'CoolNDIR_I2C.cpp']]],
   ['iostate',['IOSTATE',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#ac22eec5f4921ef22a37bd802a4b8dc83',1,'CoolNDIR_I2C.cpp']]],
   ['ip',['ip',['../d8/d4b/class_cool_pub_sub_client.html#adabd958c6c3462433a3f3393f40a0966',1,'CoolPubSubClient']]],
-  ['ir',['ir',['../df/da3/struct_cool_board_sensors_1_1light_active.html#a67700895349b95ceb263f1a6da756315',1,'CoolBoardSensors::lightActive']]],
+  ['ir',['ir',['../df/da3/struct_cool_board_sensors_1_1light_active.html#a4c21258d3c89c6292740d6deb10f9dcc',1,'CoolBoardSensors::lightActive']]],
   ['irene3000',['Irene3000',['../d6/d03/class_irene3000.html',1,'Irene3000'],['../d7/df9/class_cool_board.html#ad103718ce316006c4695b8eb312eaf11',1,'CoolBoard::irene3000()']]],
   ['irene3000_2ecpp',['irene3000.cpp',['../db/dd5/irene3000_8cpp.html',1,'']]],
   ['irene3000_2eh',['Irene3000.h',['../d7/d31/_irene3000_8h.html',1,'']]],

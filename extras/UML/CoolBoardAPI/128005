@@ -1,6 +1,6 @@
-format 213
+format 214
 "src" // src
-  revision 3
+  revision 4
   modified_by 5 "ashiroji"
   // class settings
   
@@ -1107,7 +1107,7 @@ ${inlines}
 	mysql_decl ""
 	
 	attribute 129413 "visible"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1120,7 +1120,7 @@ ${inlines}
 	end
 
 	attribute 129541 "ir"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1133,7 +1133,7 @@ ${inlines}
 	end
 
 	attribute 129669 "uv"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1160,7 +1160,7 @@ ${inlines}
 	mysql_decl ""
 	
 	attribute 129797 "temperature"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1173,7 +1173,7 @@ ${inlines}
 	end
 
 	attribute 129925 "humidity"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1186,7 +1186,7 @@ ${inlines}
 	end
 
 	attribute 130053 "pressure"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1228,7 +1228,7 @@ ${inlines}
       end
 
       attribute 130437 "vbatActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1241,7 +1241,7 @@ ${inlines}
       end
 
       attribute 130565 "soilMoistureActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -1522,7 +1522,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}, ${t2} ${p2}, ${t
       end
 
       attribute 129285 "ledActive"
-	private explicit_type "byte"
+	private explicit_type "bool"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -2769,18 +2769,55 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${vola
 //	exemple:
 //	initial state:
 //		current Temperature = 23 °C
-//		actors[0].actif=1
-//		actors[0].low=25 °C
-//		actors[0].high=30 °C
-//		actors[0].type=\"Temperature\"
+//		actors[i].actif=1
+//		actors[i].rangeLow=25 °C
+//		actors[i].rangeHigh=30 °C
+//		actors[i].primaryType=\"Temperature\"
 //		
 //	condition verified:		
-//		root[\"Temperature\"] < actors[0].low
+//		root[\"Temperature\"] < actors[i].rangeLow
 //
-//	action: invert the state of actors[0]:
-//		bitWrite( action,0,!( bitRead ( action,0 ) ) )
-//		write(action)
-//	
+//	action : activate the actor at pin[i]
+//
+//
+//	initial state:
+//		actors[i].actif=1
+//		actors[i].rangeLow=2°C
+//		actors[i].rangeHigh=12°C
+//		actors[i].inverted=1
+//		actors[i].primaryType=\"Temperature\"
+//		
+//	condition verified:		
+//		root[\"Temperature\"] > actors[i].rangeHigh
+//
+//	action: activate the actor at pin[i]
+//
+//
+//	initial state:
+//		actors[i].actif=1
+//		actors[i].timeLow=2500ms
+//		actors[i].timeHigh=3000ms
+//		actors[i].temporal=1
+//		
+//	condition verified:		
+//		millis()-actors[i].actifTime >=actors[i].timeHigh
+//
+//	action: deactivate the actor at pin[i]
+//
+//
+//	initial state:
+//		actors[i].actif=1
+//		actors[i].hourLow=10
+//		actors[i].hourHigh=8
+//		actors[i].temporal=1
+//		actors[i].secondaryType=\"hour\"( or \"minute\" or \"hourMinute\")
+//		
+//	condition verified:		
+//		root[\"hour\"]>=actors[i].hourHigh
+//
+//	action: activate the actor at pin[i]
+//
+//
 //
 
 ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}${throw}${staticnl}{
@@ -2860,18 +2897,6 @@ ${inlines}
 	explicit_switch_type ""
 	mysql_decl ""
 	
-	attribute 135685 "type"
-	  public explicit_type "String"
-	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
-"
-	  java_decl ""
-	  php_decl ""
-	  python_decl ""
-	  idl_decl ""
-	  mysql_decl ""
-	  MysqlColumn
-	end
-
 	attribute 135813 "actif"
 	  public explicit_type "bool"
 	  init_value "= 0"
@@ -2885,35 +2910,6 @@ ${inlines}
 	  MysqlColumn
 	end
 
-	attribute 135941 "low"
-	  public explicit_type "int"
-	  init_value "= 0"
-	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
-"
-	  java_decl ""
-	  php_decl ""
-	  python_decl ""
-	  idl_decl ""
-	  mysql_decl ""
-	  MysqlColumn
-	  comment "if temporal == 1 this is the time spent inactif in ms"
-	end
-
-	attribute 136069 "high"
-	  public explicit_type "int"
-	  init_value "= 0"
-	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
-"
-	  java_decl ""
-	  php_decl ""
-	  python_decl ""
-	  idl_decl ""
-	  mysql_decl ""
-	  MysqlColumn
-	  comment "if type is hour/minute/second this is the deactivation time
-if temporal==1 this is the time spent actif in ms"
-	end
-
 	attribute 136197 "temporal"
 	  public explicit_type "bool"
 	  init_value "= 0"
@@ -2925,8 +2921,162 @@ if temporal==1 this is the time spent actif in ms"
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
-	  comment "if type is hour/minute/second this is the activation time
+	end
+
+	attribute 136581 "inverted"
+	  public explicit_type "bool"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 161029 "primaryType"
+	  public explicit_type "String"
+	  init_value "= \"\""
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"type\":[\"temperature\",\"hour\"]
+the primary type is related to the sensor's type (type[0])"
+	end
+
+	attribute 161157 "secondaryType"
+	  public explicit_type "String"
+	  init_value "= \"\""
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment " the secondary type if present is hour or minute or hourMinute (type[1]) "
+	end
+
+	attribute 161285 "rangeLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"low\":[20,5000,18]
+this is the minimum at which the actor becomes actif (low[0])"
+	end
+
+	attribute 161413 "timeLow"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the time the actor is off in temporal mode (low[1])"
+	end
+
+	attribute 161541 "hourLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2])"
+	end
+
+	attribute 161669 "minuteLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])"
+	end
+
+	attribute 161797 "rangeHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"high\":[30,2000,17]
+this is the maximum at which the actor becomes inactif(high[0])"
+	end
+
+	attribute 161925 "timeHigh"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the time the actor is on in temporal mode(high[1])"
+	end
+
+	attribute 162053 "hourHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])"
+	end
+
+	attribute 162181 "minuteHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3])"
 	end
 
 	attribute 136325 "actifTime"
@@ -2955,18 +3105,6 @@ if temporal==1 this is the time spent actif in ms"
 	  MysqlColumn
 	end
 
-	attribute 136581 "inverted"
-	  public explicit_type "bool"
-	  init_value "= 0"
-	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
-"
-	  java_decl ""
-	  php_decl ""
-	  python_decl ""
-	  idl_decl ""
-	  mysql_decl ""
-	  MysqlColumn
-	end
       end
 
       attribute 136709 "clockPin"
@@ -3416,7 +3554,7 @@ ${inlines}
 	mysql_decl ""
 	
 	attribute 135045 "active"
-	  public explicit_type "byte"
+	  public explicit_type "bool"
 	  init_value "= 0"
 	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
 "
@@ -4242,7 +4380,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128005 // CoolBoard
       end
     end
@@ -4265,7 +4403,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128389 // CoolBoardLed
       end
     end
@@ -4288,7 +4426,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128261 // CoolBoardSensors
       end
     end
@@ -4311,7 +4449,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128133 // CoolFileSystem
       end
     end
@@ -4334,7 +4472,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128773 // CoolMQTT
       end
     end
@@ -4357,7 +4495,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128517 // CoolTime
       end
     end
@@ -4380,7 +4518,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128645 // CoolWifi
       end
     end
@@ -4403,7 +4541,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 129925 // BaseExternalSensor
 	class_ref 130053 // ExternalSensor
 	class_ref 130181 // ExternalSensor<NDIR_I2C>
@@ -4429,7 +4567,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 129157 // ExternalSensors
       end
     end
@@ -4452,7 +4590,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 129029 // Irene3000
       end
     end
@@ -4475,7 +4613,7 @@ ${includes}
 ${namespace_start}
 ${members}
 ${namespace_end}"
-      associated_classes
+      associated_elems
 	class_ref 128901 // Jetpack
       end
     end

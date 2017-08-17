@@ -7,7 +7,7 @@ var searchData=
   ['readadc_5fsingleended',['readADC_SingleEnded',['../df/df6/class_adafruit___a_d_s1015.html#a40f38b9e1f3ec397c0670dd632510235',1,'Adafruit_ADS1015']]],
   ['readadschannel2',['readADSChannel2',['../d6/d03/class_irene3000.html#ae73bd2ed14a199a7e83f4d6458476a7c',1,'Irene3000']]],
   ['readbutton',['readButton',['../d6/d03/class_irene3000.html#a78a87eb7cf295b95c12b2ebd51c2bb77',1,'Irene3000']]],
-  ['readbyte',['ReadByte',['../dd/d67/class_cool_s_i114_x.html#acc20f8037e156ec4aadcbe90780b1e8b',1,'CoolSI114X::ReadByte()'],['../d8/d4b/class_cool_pub_sub_client.html#ad409bbd287d5894f0cf082f62446c002',1,'CoolPubSubClient::readByte(uint8_t *result)'],['../d8/d4b/class_cool_pub_sub_client.html#abef3735bb9a2a8c87b3da659dc4ade03',1,'CoolPubSubClient::readByte(uint8_t *result, uint16_t *index)']]],
+  ['readbyte',['readByte',['../d8/d4b/class_cool_pub_sub_client.html#ad409bbd287d5894f0cf082f62446c002',1,'CoolPubSubClient::readByte(uint8_t *result)'],['../d8/d4b/class_cool_pub_sub_client.html#abef3735bb9a2a8c87b3da659dc4ade03',1,'CoolPubSubClient::readByte(uint8_t *result, uint16_t *index)'],['../dd/d67/class_cool_s_i114_x.html#acc20f8037e156ec4aadcbe90780b1e8b',1,'CoolSI114X::ReadByte()']]],
   ['readfloataltitudefeet',['readFloatAltitudeFeet',['../df/dcf/class_b_m_e280.html#a6525c8a26f887b52596c86bed99343cb',1,'BME280']]],
   ['readfloataltitudemeters',['readFloatAltitudeMeters',['../df/dcf/class_b_m_e280.html#af67b56ba50760ee1d116acc6c5010221',1,'BME280']]],
   ['readfloathumidity',['readFloatHumidity',['../df/dcf/class_b_m_e280.html#a42ea7232039eebf5aadb391ef6132c35',1,'BME280']]],

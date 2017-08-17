@@ -11,7 +11,8 @@ var searchData=
   ['port',['port',['../d8/d4b/class_cool_pub_sub_client.html#a01e3249102c057756af7a515c179844e',1,'CoolPubSubClient']]],
   ['ppm',['ppm',['../d6/ddb/class_n_d_i_r___i2_c.html#a7e5cfc725dba0f9c2bd1bd5ab3bb8600',1,'NDIR_I2C']]],
   ['pressoversample',['pressOverSample',['../d8/dd4/struct_sensor_settings.html#a85ba10cad25b479bba9cb42c6400ab21',1,'SensorSettings']]],
-  ['pressure',['pressure',['../d7/db6/struct_cool_board_sensors_1_1air_active.html#ab200826a70d1dc9945f5efb6b9c732ed',1,'CoolBoardSensors::airActive']]],
+  ['pressure',['pressure',['../d7/db6/struct_cool_board_sensors_1_1air_active.html#a15932ccfb6ee6603713d937ec9b76b72',1,'CoolBoardSensors::airActive']]],
   ['previouslogtime',['previousLogTime',['../d0/dd0/class_cool_m_q_t_t.html#a3db37ef9ed3b05b2a8d44edba0e7d3cc',1,'CoolMQTT']]],
+  ['primarytype',['primaryType',['../da/d35/struct_jetpack_1_1state.html#aa6242c32eb0ab42aaea170636ab949e1',1,'Jetpack::state']]],
   ['progmem',['PROGMEM',['../de/db8/template_8h.html#ac1462f9c3604d047a125687a27561cf8',1,'PROGMEM():&#160;template.h'],['../d0/d63/_wi_fi_manager_read_file_button_8h.html#ac1462f9c3604d047a125687a27561cf8',1,'PROGMEM():&#160;WiFiManagerReadFileButton.h']]]
 ];

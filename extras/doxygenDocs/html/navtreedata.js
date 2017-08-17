@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "CoolBoardAPI", "index.html", [
+    [ "README", "d6/de5/md__home_ashiroji__arduino_libraries__cool_board__r_e_a_d_m_e.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -30,8 +31,8 @@ var NAVTREEINDEX =
 [
 "annotated.html",
 "d2/d82/_wi_fi_manager_read_file_button_8cpp.html",
-"d7/df9/class_cool_board.html#a583a874c09c07e70a6eb9229fc4beddb",
-"df/d06/_cool_adafruit___a_d_s1015_8h.html#a77fd8c7103e1ad09bd2c8e4b954db74c"
+"d7/df9/class_cool_board.html#a519de78b807f8ec6463ff484eb925918",
+"df/d06/_cool_adafruit___a_d_s1015_8h.html#a49d39ffb8fb66bdb877d0f2546137cce"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

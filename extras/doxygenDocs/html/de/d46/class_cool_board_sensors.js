@@ -18,6 +18,6 @@ var class_cool_board_sensors =
     [ "envSensor", "de/d46/class_cool_board_sensors.html#a868e38985e9a2412829fa2790ca13e2e", null ],
     [ "lightDataActive", "de/d46/class_cool_board_sensors.html#ac4deb1cf41bac8b91c780c92fab00ba4", null ],
     [ "lightSensor", "de/d46/class_cool_board_sensors.html#ac711c27d0927eb5e73be77f092c48be0", null ],
-    [ "soilMoistureActive", "de/d46/class_cool_board_sensors.html#a31983eecc0f9cd000e1f912206ea4dc8", null ],
-    [ "vbatActive", "de/d46/class_cool_board_sensors.html#af5039ad760b0ff0aa7eee16c55e81702", null ]
+    [ "soilMoistureActive", "de/d46/class_cool_board_sensors.html#ae7971bf527781ac4994309591b78ab89", null ],
+    [ "vbatActive", "de/d46/class_cool_board_sensors.html#ab0b4bbae83796b52b90f91008d383583", null ]
 ];
