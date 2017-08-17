@@ -91,6 +91,7 @@ Configuration Files :
     
 	
   2/coolBoardLedConfig.json:
+  
   	ledActive: Put this flag to 1(true) if you want to have Light Effects from the on Board LED
   	
   
@@ -137,7 +138,7 @@ Configuration Files :
 
   6/jetPackConfig.json:
   
-  	Act[i].actif: Put this flag to 1(true) in order to use the jetpack output NÂ°i (0..7)
+  	Act[i].actif: Put this flag to 1(true) in order to use the jetpack output N°i (0..7)
 		
 	Act[i].inverted:Put this flag to 1(true) if the actor is inverted (e.g : a cooler is activated when Temp>TempMax)
 					Put this flag to 0(false) if the actor is notInverted(e.g : a heater is activated when Temp<TempMin)
