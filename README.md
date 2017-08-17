@@ -1,7 +1,5 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
 ### What is this repository for? ###
 
 Quick summary : 
@@ -22,28 +20,49 @@ Configuration :
  3/Download and Add the CoolBoard Library set to the Arduino IDE :
 
    a)First Method :
-    -Open the Arduino IDE
-    -Go to the "Sketch" Menu 
-    -Include Library > Manage Libraries. 
-    -Search for CoolBoard
-    -Install
-    -Restart Arduino IDE
    
-   b)Second Method (if you have a CoolBoard.zip file )
-    -Open the Arduino IDE
-    -Go to the "Sketch" Menu 
-    -Include Library > "Add .ZIP Library". 
-    -Search for CoolBoard.zip 
-    -Click Open
-    -Restart Arduino IDE
+   -Open the Arduino IDE
+	
+   -Go to the "Sketch" Menu 
+  
+   -Include Library > Manage Libraries. 
+  
+   -Search for CoolBoard
    
-   c)Third Method (if you have the bitbucket/github link)
-    -Open Arduino IDE > File > Preferences
-    -Check the "SketchBook Location" path
-    -Go to the Arduino/libraries folder (if it doesn't exist, create one )
-    -Clone the repo there ( git clone "bitbucket/github link" )
-    -Restart Arduino IDE
+   -Install
+   
+   -Restart Arduino IDE
+   
+   
+   b)Second Method (if you have a CoolBoard.zip file ):
+   
+   -Open the Arduino IDE
+   
+   -Go to the "Sketch" Menu 
     
+   -Include Library > "Add .ZIP Library". 
+   
+   -Search for CoolBoard.zip 
+   
+   -Click Open
+   
+   -Restart Arduino IDE
+   
+   
+   
+   c)Third Method (if you have the bitbucket/github link):
+   
+   -Open Arduino IDE > File > Preferences
+   
+   -Check the "SketchBook Location" path
+   
+   -Go to the Arduino/libraries folder (if it doesn't exist, create one )
+   
+   -Clone the repo there ( git clone "bitbucket/github link" )
+   
+   -Restart Arduino IDE
+   
+   
  4/Download ESP8266FS Tool (https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
  
  5/Optional but Heavily Recommended : Download the ESP8266 Exception Decoder ( download link :https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6)
@@ -55,7 +74,7 @@ Dependencies :
 
 You need the following libraries to be able to use the CoolBoard API:
 
- -ArduinoJson(https://github.com/bblanchon/ArduinoJson)
+-ArduinoJson(https://github.com/bblanchon/ArduinoJson)
 
 -NeoPixelBus(https://github.com/Makuna/NeoPixelBus)
 
@@ -68,10 +87,13 @@ You need the following libraries to be able to use the CoolBoard API:
 
 
 Configuration Files :
- -The CoolBoard API heavily uses the SPIFFS for storing and retreiving configuration and data files
-  This is a description of the configuration files and what are they used for :
+
+-The CoolBoard API heavily uses the SPIFFS for storing and retreiving configuration and data files
+
+This is a description of the configuration files and what are they used for :
   
   1/coolBoardConfig.json :
+  
     logInterval: The time Interval to wait,in seconds, between two logs
 	
     ireneActive: Put this flag to 1(true) if you are using the Irene3000 module
@@ -87,12 +109,14 @@ Configuration Files :
 																		-check for updates
 																		-go to sleep for logInterval period of time
 	             
-    userActive:Put this flag to 1(true) if you want your CoolBoard to collect userData : userName,CoolBoard MAC Address and the TimeStamp
+    userActive:Put this flag to 1(true) if you want your CoolBoard to collect userData : userName
+																						 CoolBoard MAC Address 
+																						 TimeStamp
     
 	
   2/coolBoardLedConfig.json:
   
-  	ledActive: Put this flag to 1(true) if you want to have Light Effects from the on Board LED
+    ledActive: Put this flag to 1(true) if you want to have Light Effects from the on Board LED
   	
   
   3/coolBoardSensorsConfig.json:
@@ -138,7 +162,7 @@ Configuration Files :
 
   6/jetPackConfig.json:
   
-  	Act[i].actif: Put this flag to 1(true) in order to use the jetpack output N°i (0..7)
+  	Act[i].actif: Put this flag to 1(true) in order to use the jetpack output Nï¿½i (0..7)
 		
 	Act[i].inverted:Put this flag to 1(true) if the actor is inverted (e.g : a cooler is activated when Temp>TempMax)
 					Put this flag to 0(false) if the actor is notInverted(e.g : a heater is activated when Temp<TempMin)
@@ -238,6 +262,7 @@ How to run the exemples :
 	-Open The Serial Monitor
 	
 	-Sit back and Enjoy!
+	
 
 ### Contribution guidelines ###
 
