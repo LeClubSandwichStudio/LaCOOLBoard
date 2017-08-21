@@ -422,12 +422,28 @@ void CoolBoard::onLineMode()
 	#if DEBUG ==1
 
 		Serial.println( F("jetpack is Active ") );
-		Serial.println( F("jetpack doing action ") );
 		Serial.println();
 
 	#endif
-		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
-		jetPack.doAction(data.c_str());
+	
+		if(this->manual == 0 )
+		{
+			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
+
+			jetPack.doAction(data.c_str());
+			
+			Serial.println( F("jetpack doing action ") );
+		
+		}
+		
+		else if(this->manual == 1 )
+		{
+		
+			Serial.println(F("we are in manual mode"));
+			mqtt.mqttLoop();
+			answer = mqtt.read();
+			this -> update(answer.c_str());
+		}
 	}
 	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
@@ -798,6 +814,20 @@ bool CoolBoard::config()
 			}
 			json["sleepActive"] = this -> sleepActive;
 
+
+			//parsing manual key
+			if (json["manual"].success())
+			{
+				this -> manual = json["manual"];
+			}
+			else
+			{
+				this -> manual = this -> manual;
+			}
+			json["manual"] = this -> manual;
+
+
+
 			//saving the current/correct configuration
 			configFile.close();
 			configFile = SPIFFS.open("/coolBoardConfig.json", "w");
@@ -859,11 +889,14 @@ void CoolBoard::printConf()
 	Serial.print( F("external sensors active 	: "));
 	Serial.println(this->externalSensorsActive);
 
-	Serial.print( F("sleept active 		: "));
+	Serial.print( F("sleep active 		: "));
 	Serial.println(this->sleepActive);
 
 	Serial.print( F("user active 		: "));
 	Serial.println(this->userActive);
+
+	Serial.print( F("manual active		: "));
+	Serial.println(this->manual);
 
 	Serial.println();
 
@@ -935,6 +968,70 @@ void CoolBoard::update(const char * answer)
 
 		
 		#endif
+			//manual mode check
+			if(this->manual == 1 )
+			{ 
+				JsonObject & manualMode=stateDesired["manual"];
+				//json parse
+				for(auto kv : manualMode)
+				{
+				#if DEBUG == 1
+
+					Serial.print(F("writing to "));
+					Serial.println(kv.key);
+					Serial.print(F("state : "));
+					Serial.println(kv.value.as<bool>());		
+					
+				#endif				
+
+					if( strcmp(kv.key,"Act0") == 0 )
+					{
+					
+						jetPack.writeBit(0,kv.value.as<bool>() ); 
+						
+					}
+					else if(strcmp(kv.key,"Act1") == 0)
+					{
+						jetPack.writeBit(1,kv.value.as<bool>() ); 
+
+					}
+					else if(strcmp(kv.key,"Act2") == 0)
+					{
+						jetPack.writeBit(2,kv.value.as<bool>() ); 
+
+					}
+					else if(strcmp(kv.key,"Act3") == 0)
+					{
+						jetPack.writeBit(3,kv.value.as<bool>() ); 
+
+					}
+					else if(strcmp(kv.key,"Act4") == 0)
+					{
+						jetPack.writeBit(4,kv.value.as<bool>() ); 
+
+					}
+					else if(strcmp(kv.key,"Act5") == 0)
+					{
+						jetPack.writeBit(5,kv.value.as<bool>() ); 
+
+					}
+					else if(strcmp(kv.key,"Act6") == 0)
+					{
+						jetPack.writeBit(6,kv.value.as<bool>() ); 
+
+					}
+					else if (strcmp(kv.key,"Act7") == 0)
+					{
+						jetPack.writeBit(7,kv.value.as<bool>() ); 
+
+					}
+								
+				
+				}
+
+				
+			}
+
 			//saving the new configuration
 			fileSystem.updateConfigFiles(answerDesired);
 
@@ -964,9 +1061,12 @@ void CoolBoard::update(const char * answer)
 			mqtt.mqttLoop();
 
 			delay(10);
-			
-			//restart the esp to apply the config
-			ESP.restart();
+		
+			if(manual == 0 )
+			{
+				//restart the esp to apply the config
+				ESP.restart();
+			}
 	}
 	else
 	{
