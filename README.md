@@ -112,7 +112,19 @@ This is a description of the configuration files and what are they used for :
     userActive:Put this flag to 1(true) if you want your CoolBoard to collect userData : userName
 																						 CoolBoard MAC Address 
 																						 TimeStamp
-    
+                                                                                         
+    manual /!\ : Put this flag to 1(true) to control to turn on/off your actors and bypass your initial actors configuration
+                 
+                 Be Careful with this mode!!.
+                 
+                 When this mode is actif , the CoolBoard will not restart automatically to apply any new configuration sent via
+                 the update method.
+                 
+                 Restarting the coolBoard when in manual mode will deactivate all the actors!
+                 
+                 Never forget to reset this to 0(false) to go back to normal mode!
+                 
+                 
 	
   2/coolBoardLedConfig.json:
   
