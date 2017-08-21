@@ -20,7 +20,8 @@
 #include"Jetpack.h"		//CoolBoard Jetpack Manager
 #include"Irene3000.h"		//CoolBoard Irene3000 Manager
 #include"ExternalSensors.h"	//CoolBoard External Sensors Manager
-#include"CoolWifi.h"
+#include"CoolWifi.h"		//CoolBoard Wifi Manager
+#include"CoolBoardActor.h"	//CoolBoard Actor Manager
 
 #include"Arduino.h"		//Arduino Defs
 
@@ -83,6 +84,8 @@ private:
 	Irene3000 irene3000;
 
 	ExternalSensors externalSensors;
+	
+	CoolBoardActor	onBoardActor;
 
 	bool userActive=0;
 

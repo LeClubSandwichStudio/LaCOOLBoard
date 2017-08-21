@@ -1,32 +1,30 @@
 /**
-*	\file Jetpack.h
-*	\brief Jetpack Header File
+*	\file CoolBoardActor.h
+*	\brief CoolBoardActor Header File
 *	\author Mehdi Zemzem
 *	\version 1.0
 *	\date 27/06/2017
 *
 */
 
-#ifndef Jetpack_H
-#define Jetpack_H
+#ifndef CoolBoardActor_H
+#define CoolBoardActor_H
 
 #include "Arduino.h"
 
 
 /**
-*	\class Jetpack
-*	\brief This class manages the Jetpack shield
+*	\class CoolBoardActor
+*	\brief This class manages the CoolBoardActor 
 *
 */
-class Jetpack
+class CoolBoardActor
 {
 public:
 
-	void begin();		       //starts the Jetpack
+	void begin();		       //starts the CoolBoardActor
 
- 	void write(byte action);			//writes to the Jetpack
- 
-	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
+ 	void write(bool action);			//CoolBoardActor
  
 	void doAction(const char* data );
        
@@ -35,8 +33,6 @@ public:
 	void printConf();
 
 private:
-
-	byte action= B00000000; 
 
 	struct state{
 	
@@ -74,13 +70,9 @@ private:
 	
 		unsigned long inactifTime=0;
 	
-	}actors[8];
-
-	const int clockPin = 4; //clock pin for the shift register
+	}actor;
 	
-	const int dataPin = 15; //data  pin for the shift register
-
-	const int EnI2C=5;	// I2C/Shift pin
+	const int pin = 15; //pin for the actor
 	
 };
 

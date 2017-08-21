@@ -76,6 +76,10 @@ void CoolBoard::begin()
 	coolBoardSensors.begin();
 	delay(100);
 	
+	onBoardActor.config();
+	onBoardActor.begin();
+	delay(100);
+	
 	wifiManager.config();
 	wifiManager.begin();
 	delay(100);
@@ -87,9 +91,15 @@ void CoolBoard::begin()
 #if DEBUG == 1
 
 	coolBoardLed.printConf();
+
 	coolBoardSensors.printConf();
+
+	onBoardActor.printConf();
+
 	wifiManager.printConf();
+
 	mqtt.printConf();
+	
 
 #endif
 
@@ -414,7 +424,14 @@ void CoolBoard::onLineMode()
 		data=this->readSensors();//{..,..,..}
 	}
 	
+
+
+
 	//do action
+	onBoardActor.doAction( data.c_str() );	
+
+	delay(100);
+
 	if (jetpackActive)
 	{
 
@@ -595,6 +612,10 @@ void CoolBoard::offLineMode()
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
 	//do action
+	onBoardActor.doAction( data.c_str() );
+	
+	delay(100);
+
 	if (jetpackActive)
 	{
 	
