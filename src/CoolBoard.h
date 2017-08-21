@@ -92,7 +92,9 @@ private:
 
 	bool externalSensorsActive=0;		
 
-	bool sleepActive=0;	
+	bool sleepActive=0;
+	
+	bool manual=0;	
 
 	unsigned long logInterval=1;//s
 
