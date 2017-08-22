@@ -258,7 +258,7 @@ int CoolBoard::connect()
 	
 	#endif	
 		//logInterval in seconds
-		mqtt.connect(this -> getLogInterval());
+		mqtt.connect(this -> getLogInterval()*2);
 		delay(100);
 	}
 	
