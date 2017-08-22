@@ -15,7 +15,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 

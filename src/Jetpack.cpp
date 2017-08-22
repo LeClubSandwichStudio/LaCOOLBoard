@@ -14,7 +14,7 @@
 #include "Jetpack.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -211,329 +211,108 @@ void Jetpack::doAction( const char* data )
 		//if the value is outside the limits
 		for(int i=0;i<8;i++)
 		{
-			//check if the actor is actif 
+			//check if actor is actif
 			if(this->actors[i].actif==1)
-			{						
-				//if the actor is not temporal
-				if( this->actors[i].temporal==0 ) 
-				{	
-					//regular actor
-					if( (this->actors[i].inverted) == 0 )
+			{
+				//normal actor
+				if(this->actors[i].temporal == 0)
+				{
+					//not inverted actor
+					if(this->actors[i].inverted==0)
 					{
-						//measure >= high limit : stop actor
-						if( ( root[this->actors[i].primaryType] ) >= ( this->actors[i].rangeHigh ) ) 	
-						{	
-							bitWrite( this->action , i , 0 ) ;	
-
-						#if DEBUG == 1
-							
-							Serial.print(F("not inverted Actor N° : "));
-							Serial.println(i);
-
-							Serial.print(F("measured value : "));
-							Serial.println(root[this->actors[i].primaryType].as<float>());
-
-							Serial.print(F("high range : "));
-							Serial.println(this->actors[i].rangeHigh);
-						
-						#endif
-						
-						}
-						//measure <= low limit : start actor
-						else if( ( root[ this->actors[i].primaryType ] ) <= ( this->actors[i].rangeLow ) )
-						{
-							bitWrite( this->action , i , 1 ) ;
-
-						#if DEBUG == 1
-
-							Serial.print(F("not inverted Actor N° : "));
-							Serial.println(i);
-
-							Serial.print(F("measured value : "));
-							Serial.println(root[this->actors[i].primaryType].as<float>());
-
-							Serial.print(F("low range : "));
-							Serial.println(this->actors[i].rangeLow);
-						
-						#endif
-											
-						}
-						/*else 
-						{
-							bitWrite( this->action , i , 1 ) ;						
-						}*/
+						this->normalAction(i,root[this->actors[i].primaryType].as<float>());
+			
 					}
 					//inverted actor
-					else if( (this->actors[i].inverted) == 1 )
+					else if(this->actors[i].inverted==1)
 					{
-						//measure >= high limit : start actor
-						if( ( root[this->actors[i].primaryType] ) >= ( this->actors[i].rangeHigh ) ) 	
-						{	
-							bitWrite( this->action , i , 1 ) ;
-
-						#if DEBUG == 1
-
-							Serial.print(F(" inverted Actor N° : "));
-							Serial.println(i);
-							
-							Serial.print(F("measured value : "));
-							Serial.println(root[this->actors[i].primaryType].as<float>());
-
-							Serial.print(F("high range : "));
-							Serial.println(this->actors[i].rangeHigh);
-						
-						#endif
-							
-						}
-						//measure <= low limit : stop actor
-						else if( ( root[ this->actors[i].primaryType ] ) <= ( this->actors[i].rangeLow ) )
-						{
-							bitWrite( this->action , i , 0 ) ;
-
-						#if DEBUG == 1
-							
-							Serial.print(F("inverted Actor N° : "));
-							Serial.println(i);
-
-							Serial.print(F("measured value : "));
-							Serial.println(root[this->actors[i].primaryType].as<float>());
-
-							Serial.print(F("low range : "));
-							Serial.println(this->actors[i].rangeLow);
-						
-						#endif
-											
-						}
-						/*else 
-						{
-							bitWrite( this->action , i , 1 ) ;						
-						}*/
-
-					
+						this->invertedAction(i,root[this->actors[i].primaryType].as<float>());			
 					}
 				}
-
-				//if the actor is temporal
-				else
+				//temporal actor
+				else if(this->actors[i].temporal == 1 )
 				{
-					//actor has a secondary type (either hour,minute or hourMinute)
-					if( ( this->actors[i].secondaryType ) !="" ) 	
+					//hour actor
+					if(this->actors[i].secondaryType=="hour")
 					{
+						//mixed hour actor
+						if(root[this->actors[i].primaryType].success() )
+						{
+							this->mixedHourAction(i,root[this->actors[i].secondaryType].as<int>(),root[this->actors[i].primaryType].as<float>());
+						}
+						//normal hour actor
+						else
+						{
+							this->hourAction(i,root[this->actors[i].secondaryType].as<int>());
+						}
 					
-					#if DEBUG == 1
-						
-						Serial.print(this->actors[i].secondaryType);
-						Serial.print(" actor N° ");
-						Serial.println(i);
-						Serial.println();
-					#endif
-						//secondary type is hour 	
-						if( ( this->actors[i].secondaryType=="hour" ) )
-						{
-							//time >= hourLow : stop actor
-							if( ( root[this->actors[i].secondaryType] ) >= ( this->actors[i].hourLow ) ) 	
-							{
-						
-							#if DEBUG == 1 
-							
-								Serial.print("deactive actor N° ");
-								Serial.println(i);
-						
-							#endif	
-								bitWrite( this->action , i , 0 ) ;	
-							}
-							//time >= hourHigh : start actor
-							else if( ( root[ this->actors[i].secondaryType ] ) >= ( this->actors[i].hourHigh ) )
-							{
-						
-							#if DEBUG == 1 
-						
-								Serial.print("active actor N° ");
-								Serial.println(i);
-						
-							#endif
-								bitWrite( this->action , i , 1 ) ;					
-							}
-						}
-
-						//secondary type is minute 	
-						if( ( this->actors[i].secondaryType=="minute" ) )
-						{
-							//time >= minuteLow : stop actor
-							if( ( root[this->actors[i].secondaryType] ) >= ( this->actors[i].minuteLow ) ) 	
-							{
-						
-							#if DEBUG == 1 
-							
-								Serial.print("deactive actor N° ");
-								Serial.println(i);
-						
-							#endif	
-								bitWrite( this->action , i , 0 ) ;	
-							}
-							//time >= minuteHigh : start actor
-							else if( ( root[ this->actors[i].secondaryType ] ) >= ( this->actors[i].minuteHigh ) )
-							{
-						
-							#if DEBUG == 1 
-						
-								Serial.print("active actor N° ");
-								Serial.println(i);
-						
-							#endif
-								bitWrite( this->action , i , 1 ) ;					
-							}
-						}
-
-						//secondary type is hourMinute 	
-						if( ( this->actors[i].secondaryType=="hourMinute" ) )
-						{
-							//time == hourLow :
-							if( ( root["hour"] ) == ( this->actors[i].hourLow ) ) 	
-							{
-								//time > minuteLow : stop actor
-								if( (root["minute"])>=(this->actors[i].minuteLow) )						
-								{
-								#if DEBUG == 1 
-						
-									Serial.print(" time.hour == hourLow, time.minute>=minuteLow : deactive actor N° ");
-									Serial.println(i);
-					
-								#endif	
-									bitWrite( this->action , i , 0 ) ;
-								}	
-							}
-							//time > hourLow: stop actor
-							else if( ( root["hour" ] ) > ( this->actors[i].hourLow ) )
-							{
-	
-							#if DEBUG == 1 
-						
-								Serial.print("time.hour>hourLow : deactive actor N° ");
-								Serial.println(i);
-				
-							#endif		
-								bitWrite( this->action , i , 0 ) ;
-													
-							}
-							//time == hourHigh:
-							else if( ( root["hour" ] ) == ( this->actors[i].hourHigh ) )
-							{
-								//time > minuteHigh: start actor
-								if( (root["minute"])>=(this->actors[i].minuteHigh) )
-								{
-						
-								#if DEBUG == 1 
-						
-									Serial.print("time.hour==hourHigh, time.mintue>=minuteHigh : active actor N° ");
-									Serial.println(i);
-						
-								#endif
-									bitWrite( this->action , i , 1 ) ;
-								}					
-							}
-							//time > hourHigh : start actor
-							else if( ( root["hour" ] ) > ( this->actors[i].hourHigh ) )
-							{
-								
-							#if DEBUG == 1 
-						
-								Serial.print("time.hour>hourHigh : active actor N° ");
-								Serial.println(i);
-				
-							#endif		
-
-								bitWrite( this->action , i , 1 ) ;
-													
-							}
-
-						}
-
-
 					}
-					//actor not of type hour
-					else if( ( this->actors[i].secondaryType ) == ( "" ) ) 	 
+					//minute actor
+					else if(this->actors[i].secondaryType=="minute")
 					{
-					
-					#if DEBUG == 1 
-						
-						Serial.println("not hour temporal actor");
-						Serial.println(i);
-						Serial.println(this->actors[i].secondaryType);
-						Serial.println("actifTime : ");
-						Serial.println(this->actors[i].actifTime);
-						Serial.println("millis : ");
-						Serial.println(millis() );
-						Serial.println(" high : ");
-						Serial.println(this->actors[i].timeHigh );
-						Serial.println();
-					
-					#endif
-						//if the actor was actif for highTime or more :
-						if( ( millis()- this->actors[i].actifTime  ) >= (  this->actors[i].timeHigh  ) )
+						//mixed minute actor
+						if(root[this->actors[i].primaryType].success() )
 						{
-							//stop the actor
-							bitWrite( this->action , i , 0) ;
-
-							//make the actor inactif:
-							this->actors[i].actif=0;
-
-							//start the low timer
-							this->actors[i].inactifTime=millis();				
+							this->mixedMinuteAction(i,root[this->actors[i].secondaryType].as<int>(),root[this->actors[i].primaryType].as<float>());
 						}
-					}			
-							
+						//normal minute actor
+						else
+						{
+							this->minuteAction(i,root[this->actors[i].secondaryType].as<int>());
+						}
+					}
+					//hourMinute actor
+					else if(this->actors[i].secondaryType=="hourMinute")
+					{
+						//mixed hourMinute actor
+						if(root[this->actors[i].primaryType].success() )
+						{
+							this->mixedHourMinuteAction(i,root["hour"].as<int>(),root["minute"].as<int>(),root[this->actors[i].primaryType].as<float>());
+						}
+						//normal hourMinute actor
+						else
+						{
+							this->hourMinuteAction(i,root["hour"].as<int>(),root["minute"].as<int>());
+						}
+					}
+					//normal temporal actor
+					else if(this->actors[i].secondaryType=="")
+					{
+						//mixed temporal actor
+						if(root[this->actors[i].primaryType].success() )
+						{
+							this->mixedTemporalActionOff(i,root[this->actors[i].primaryType].as<float>());
+						}
+						//normal temporal actor
+						else
+						{
+							this->temporalActionOff(i);
+						}
+											
+					}
+
 				}
 			}
-			//check if actor is inactif
-			else if(this->actors[i].actif==0)
-			{	//check if actor is temporal
+			//inactif actor
+			else if(this->actors[i].actif == 0 )
+			{
+				//temporal actor
 				if(this->actors[i].temporal==1)
 				{
-					//if the actor was inactif for lowTime or more :
-					if( ( millis() - this->actors[i].inactifTime ) >= (  this->actors[i].timeLow  ) )
+					//mixed temporal actor
+					if(root[this->actors[i].primaryType].success() )
 					{
-						//start the actor
-						bitWrite( this->action , i , 1) ;
-
-						//make the actor actif:
-						this->actors[i].actif=1;
-
-						//start the low timer
-						this->actors[i].actifTime=millis();
-
-					#if DEBUG == 1 
-						
-						Serial.println("inactif temporal actor");
-						Serial.println(this->actors[i].primaryType);
-						Serial.print("temporal : ");
-						Serial.println(this->actors[i].temporal);
-						Serial.println(i);
-						Serial.println("inactifTime : ");
-						Serial.println(this->actors[i].inactifTime);
-						Serial.println("millis : ");
-						Serial.println(millis() );
-						Serial.println(" low : ");
-						Serial.println(this->actors[i].timeLow );
-						Serial.println();
-
-						Serial.println();
-					
-					#endif
-				
-					}			
-			
-				}
+						this->mixedTemporalActionOn(i,root[this->actors[i].primaryType].as<float>());
+					}
+					//normal temporal actor
+					else
+					{
+						this->temporalActionOn(i);
+					}
+				}			
 			}
-		}
-	
-	#if DEBUG == 1 
 
-		Serial.println( F("new action is : ") );
-		Serial.println(this->action,BIN);
-		Serial.println();
-	
-	#endif 
+		}
 
 		this->write(this->action);
 
@@ -868,6 +647,167 @@ void Jetpack::printConf()
 
 	Serial.println();
 }
- 
 
+
+void Jetpack::temporalActionOff(int actorNumber)
+{
+	if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) )
+		{
+			//stop the actor
+			bitWrite( this->action , actorNumber , 0) ;
+
+			//make the actor inactif:
+			this->actors[actorNumber].actif=0;
+
+			//start the low timer
+			this->actors[actorNumber].inactifTime=millis();				
+		}
+	#if DEBUG == 1
+		
+		Serial.print(F("temporal Actor N° : "));
+		Serial.println(actorNumber);
+
+		Serial.print(F("actif Time : "));
+		Serial.println(this->actors[actorNumber].actifTime);
+
+		Serial.print(F("high time : "));
+		Serial.println(this->actors[actorNumber].timeHigh);
+
+	
+	#endif
+	
+}
+
+
+void Jetpack::temporalActionOn(int actorNumber)
+{	
+	 if( ( millis() - this->actors[actorNumber].inactifTime ) >= (  this->actors[actorNumber].timeLow  ) )
+		{
+			//start the actor
+			bitWrite( this->action , actorNumber , 1) ;
+
+			//make the actor actif:
+			this->actors[actorNumber].actif=1;
+
+			//start the low timer
+			this->actors[actorNumber].actifTime=millis();
+		}
+
+	#if DEBUG == 1
+		
+		Serial.print(F("temporal Actor N° : "));
+		Serial.println(actorNumber);
+
+		Serial.print(F("inactif Time : "));
+		Serial.println(this->actors[actorNumber].inactifTime);
+
+		Serial.print(F("low time : "));
+		Serial.println(this->actors[actorNumber].timeLow);
+
+	
+	#endif
+}
+
+void Jetpack::hourAction(int actorNumber, int hour)
+{
+	//starting the actor
+	if(hour >= this->actors[actorNumber].hourHigh)
+	{
+		bitWrite( this->action , actorNumber , 1) ;
+	}
+	//stop the actor	
+	if(hour >= this->actors[actorNumber].hourLow)
+	{
+		bitWrite( this->action , actorNumber , 0) ;
+	}
+	#if DEBUG == 1
+		
+		Serial.print(F("hour Actor N° : "));
+		Serial.println(actorNumber);
+
+		Serial.print(F(" hour : "));
+		Serial.println(hour);
+
+		Serial.print(F("high hour : "));
+		Serial.println(this->actors[actorNumber].hourHigh);
+
+		Serial.print(F("low hour : "));
+		Serial.println(this->actors[actorNumber].hourLow);
+	
+	#endif
+}
+
+void Jetpack::minuteAction(int actorNumber,int minute)
+{
+	//starting the actor
+	if(minute >= this->actors[actorNumber].minuteHigh)
+	{
+		bitWrite( this->action , actorNumber , 1) ;
+	}
+	//stop the actor	
+	else if(minute >= this->actors[actorNumber].minuteLow)
+	{
+		bitWrite( this->action , actorNumber , 0) ;
+	}
+	#if DEBUG == 1
+		
+		Serial.print(F("minute Actor N° : "));
+		Serial.println(actorNumber);
+
+		Serial.print(F(" minute : "));
+		Serial.println(minute);
+
+		Serial.print(F("high minute : "));
+		Serial.println(this->actors[actorNumber].minuteHigh);
+
+		Serial.print(F("low minute : "));
+		Serial.println(this->actors[actorNumber].minuteLow);
+	
+	#endif
+
+} 
+
+void Jetpack::hourMinuteAction(int actorNumber,int hour,int minute)
+{
+	//start the actor
+	if(hour>=this->actors[actorNumber].hourHigh)
+	{
+		if(minute>= this->actors[actorNumber].minuteHigh)
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+		}
+	}
+	//stop the actor
+	else if(hour>=this->actors[actorNumber].hourLow)
+	{
+		if(minute>= this->actors[actorNumber].minuteLow)
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+		}
+	}
+	#if DEBUG == 1
+		
+		Serial.print(F("hourMinute Actor N° : "));
+		Serial.println(actorNumber);
+
+		Serial.print(F(" hour : "));
+		Serial.println(hour);
+		Serial.print(F(" minute : "));
+		Serial.println(minute);
+
+		Serial.print(F("high hour : "));
+		Serial.println(this->actors[actorNumber].hourHigh);
+
+		Serial.print(F("high minute : "));
+		Serial.println(this->actors[actorNumber].minuteHigh);
+
+		Serial.print(F("low hour : "));
+		Serial.println(this->actors[actorNumber].hourLow);
+
+		Serial.print(F("low minute : "));
+		Serial.println(this->actors[actorNumber].minuteLow);
+	
+	#endif
+	
+}
 
