@@ -258,10 +258,10 @@ void Jetpack::doAction( const char* data )
 						#endif
 											
 						}
-						else 
+						/*else 
 						{
-							bitWrite( this->action , i , 0 ) ;						
-						}
+							bitWrite( this->action , i , 1 ) ;						
+						}*/
 					}
 					//inverted actor
 					else if( (this->actors[i].inverted) == 1 )
@@ -304,10 +304,10 @@ void Jetpack::doAction( const char* data )
 						#endif
 											
 						}
-						else 
+						/*else 
 						{
-							bitWrite( this->action , i , 0 ) ;						
-						}
+							bitWrite( this->action , i , 1 ) ;						
+						}*/
 
 					
 					}
