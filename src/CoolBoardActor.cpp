@@ -14,7 +14,7 @@
 #include "CoolBoardActor.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -460,7 +460,6 @@ void CoolBoardActor::doAction( const char* data )
 					Serial.println(this->actor.primaryType);
 					Serial.print("temporal : ");
 					Serial.println(this->actor.temporal);
-					Serial.println(i);
 					Serial.println("inactifTime : ");
 					Serial.println(this->actor.inactifTime);
 					Serial.println("millis : ");

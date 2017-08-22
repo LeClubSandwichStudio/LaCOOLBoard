@@ -15,7 +15,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 
@@ -428,9 +428,6 @@ void CoolBoard::onLineMode()
 
 
 	//do action
-	onBoardActor.doAction( data.c_str() );	
-
-	delay(100);
 
 	if (jetpackActive)
 	{
@@ -445,11 +442,14 @@ void CoolBoard::onLineMode()
 	
 		if(this->manual == 0 )
 		{
+
+			Serial.println( F("jetpack doing action ") );
+
 			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
 
 			jetPack.doAction(data.c_str());
 			
-			Serial.println( F("jetpack doing action ") );
+
 		
 		}
 		
@@ -462,6 +462,13 @@ void CoolBoard::onLineMode()
 			this -> update(answer.c_str());
 		}
 	}
+
+	delay(100);
+
+	onBoardActor.doAction( data.c_str() );	
+
+
+
 	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
 
@@ -612,9 +619,6 @@ void CoolBoard::offLineMode()
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
 	//do action
-	onBoardActor.doAction( data.c_str() );
-	
-	delay(100);
 
 	if (jetpackActive)
 	{
@@ -633,6 +637,11 @@ void CoolBoard::offLineMode()
 		jetPack.doAction( data.c_str() );
 	}
 	
+	delay(100);
+
+	onBoardActor.doAction( data.c_str() );	
+
+
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 	
 	//saving data in the file system
@@ -1044,6 +1053,11 @@ void CoolBoard::update(const char * answer)
 					else if (strcmp(kv.key,"Act7") == 0)
 					{
 						jetPack.writeBit(7,kv.value.as<bool>() ); 
+
+					}
+					else if (strcmp(kv.key,"ActB") == 0)
+					{
+						onBoardActor.write(kv.value.as<bool>() ); 
 
 					}
 								
