@@ -172,7 +172,7 @@ This is a description of the configuration files and what are they used for :
 	adc2.type: the type of the measurments you are making (e.g : co2, temperature,voltage ... )
 
 
-  6/jetPackConfig.json:
+  6/jetPackConfig.json and coolBoardActorConfig.json:
   
   	Act[i].actif: Put this flag to 1(true) in order to use the jetpack output N�i (0..7)
 		
@@ -221,7 +221,9 @@ This is a description of the configuration files and what are they used for :
 													  -hourHigh is the hour to turn on the actor when secondaryType is hour or hourMinute
 													  
 													  -minuteHigh is the minute to turn on the actor when secondaryType is minute or hourMinute
-													  
+		
+       
+       Note that the coolBoardActorConfig.json contains only one Actor.
 
   7/mqttConfig.json:
   
@@ -253,10 +255,7 @@ This is a description of the configuration files and what are they used for :
 		   in nomad mode : the coolBoard will only try to connect to known WiFis.
 		   				   if it fails it will NOT lunch the access point.
 
-	
-	
-	
-
+ 
 
   
 How to run the exemples :
