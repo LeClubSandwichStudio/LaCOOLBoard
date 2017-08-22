@@ -157,6 +157,8 @@ This is a description of the configuration files and what are they used for :
 	reference: the reference of a supported external sensor(e.g NDIR_I2C , DallasTemperature )
 	
 	type: the type of the measurments you are making (e.g : co2, temperature,voltage ... )
+    
+    address : the sensor's address , if it has one (e.g : NDIR_I2C CO2 sensor's address is 77 )
 
 
   5/irene3000Config.json:
