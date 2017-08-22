@@ -38,10 +38,12 @@ void Irene3000::begin()
 	Serial.println( F("Entering Irene3000.begin()") );
 	Serial.println();
 	
-	Serial.println(F("Press the button to calibrate the Ph probe "));
+	
 	
 
 #endif
+	Serial.println(F("Press the button to calibrate the Ph probe "));
+
 	delay(2000);
 
 	int bValue=this->readButton();

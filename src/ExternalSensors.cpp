@@ -51,6 +51,7 @@ void ExternalSensors::begin()
 
 			sensors[i].exSensor= sensorCO2.release();
 			sensors[i].exSensor->begin();
+			sensors[i].exSensor->read();
 
 		}
 		if( (sensors[i].reference) == "DallasTemperature")
