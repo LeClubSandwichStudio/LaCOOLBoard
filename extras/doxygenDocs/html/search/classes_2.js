@@ -1,6 +1,7 @@
 var searchData=
 [
   ['coolboard',['CoolBoard',['../d7/df9/class_cool_board.html',1,'']]],
+  ['coolboardactor',['CoolBoardActor',['../dc/d69/class_cool_board_actor.html',1,'']]],
   ['coolboardled',['CoolBoardLed',['../de/dc0/class_cool_board_led.html',1,'']]],
   ['coolboardsensors',['CoolBoardSensors',['../de/d46/class_cool_board_sensors.html',1,'']]],
   ['coolfilesystem',['CoolFileSystem',['../db/d0c/class_cool_file_system.html',1,'']]],

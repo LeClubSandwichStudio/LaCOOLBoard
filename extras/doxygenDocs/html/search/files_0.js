@@ -4,6 +4,8 @@ var searchData=
   ['cooladafruit_5fads1015_2eh',['CoolAdafruit_ADS1015.h',['../df/d06/_cool_adafruit___a_d_s1015_8h.html',1,'']]],
   ['coolboard_2ecpp',['CoolBoard.cpp',['../d9/d50/_cool_board_8cpp.html',1,'']]],
   ['coolboard_2eh',['CoolBoard.h',['../d5/d51/_cool_board_8h.html',1,'']]],
+  ['coolboardactor_2ecpp',['CoolBoardActor.cpp',['../d2/d4b/_cool_board_actor_8cpp.html',1,'']]],
+  ['coolboardactor_2eh',['CoolBoardActor.h',['../d1/d25/_cool_board_actor_8h.html',1,'']]],
   ['coolboardled_2ecpp',['CoolBoardLed.cpp',['../d5/d32/_cool_board_led_8cpp.html',1,'']]],
   ['coolboardled_2eh',['CoolBoardLed.h',['../d0/da6/_cool_board_led_8h.html',1,'']]],
   ['coolboardsensors_2ecpp',['CoolBoardSensors.cpp',['../dd/ddb/_cool_board_sensors_8cpp.html',1,'']]],

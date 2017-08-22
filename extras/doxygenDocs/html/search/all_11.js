@@ -1,8 +1,8 @@
 var searchData=
 [
   ['readme',['README',['../d6/de5/md__home_ashiroji__arduino_libraries__cool_board__r_e_a_d_m_e.html',1,'']]],
-  ['rangehigh',['rangeHigh',['../da/d35/struct_jetpack_1_1state.html#ae330612c3da637654ecfa89d36620b93',1,'Jetpack::state']]],
-  ['rangelow',['rangeLow',['../da/d35/struct_jetpack_1_1state.html#ad0343b4fd5740c9c1b0876b27f84ace5',1,'Jetpack::state']]],
+  ['rangehigh',['rangeHigh',['../d5/ddc/struct_cool_board_actor_1_1state.html#a6e5cd6c5cd44e2decfd8d4df1853f8e3',1,'CoolBoardActor::state::rangeHigh()'],['../da/d35/struct_jetpack_1_1state.html#ae330612c3da637654ecfa89d36620b93',1,'Jetpack::state::rangeHigh()']]],
+  ['rangelow',['rangeLow',['../d5/ddc/struct_cool_board_actor_1_1state.html#a43f891c9fb3bb63575c27cec860de55a',1,'CoolBoardActor::state::rangeLow()'],['../da/d35/struct_jetpack_1_1state.html#ad0343b4fd5740c9c1b0876b27f84ace5',1,'Jetpack::state::rangeLow()']]],
   ['read',['read',['../de/d46/class_cool_board_sensors.html#a91badb2539d91fda8679f2a597874c48',1,'CoolBoardSensors::read()'],['../d0/dd0/class_cool_m_q_t_t.html#ae3c18f6ae9723746d32765f1c8f176ca',1,'CoolMQTT::read()'],['../d1/d68/class_base_external_sensor.html#a1564f16deacf57b51b9948ac29db4291',1,'BaseExternalSensor::read()'],['../db/d42/class_external_sensor.html#a5fb3afc7d244fb86dac68ab5481bc407',1,'ExternalSensor::read()'],['../db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html#a239d18652e9fb4673842ae9726edf44f',1,'ExternalSensor&lt; NDIR_I2C &gt;::read()'],['../d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#a1e725d9338314515d4e5dc456ed6a6c8',1,'ExternalSensor&lt; DallasTemperature &gt;::read()'],['../d1/d2f/class_external_sensors.html#a53177b81eca3be89508b5511ddcd00fc',1,'ExternalSensors::read()'],['../d6/d03/class_irene3000.html#a852a170feea994ea1df01c6b245b5d9a',1,'Irene3000::read()']]],
   ['read_5fregister',['read_register',['../d6/ddb/class_n_d_i_r___i2_c.html#aa72058e6e7c6174b14466fee4b2df1e0',1,'NDIR_I2C']]],
   ['readadc_5fdifferential_5f0_5f1',['readADC_Differential_0_1',['../df/df6/class_adafruit___a_d_s1015.html#a56582333958e66efaccd3d4a8a47e3ff',1,'Adafruit_ADS1015']]],

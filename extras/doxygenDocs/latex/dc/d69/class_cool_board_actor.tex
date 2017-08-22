@@ -1,0 +1,878 @@
+\hypertarget{class_cool_board_actor}{}\section{Cool\+Board\+Actor Class Reference}
+\label{class_cool_board_actor}\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+
+
+This class manages the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor}.  
+
+
+
+
+{\ttfamily \#include $<$Cool\+Board\+Actor.\+h$>$}
+
+
+
+Collaboration diagram for Cool\+Board\+Actor\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{d6/d3e/class_cool_board_actor__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_cool_board_actor_1_1state}{state}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}{begin} ()
+\item 
+void \hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write} (bool action)
+\item 
+void \hyperlink{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}{do\+Action} (const char $\ast$data)
+\item 
+bool \hyperlink{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}{config} ()
+\item 
+void \hyperlink{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}{print\+Conf} ()
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_cool_board_actor_1_1state}{Cool\+Board\+Actor\+::state} \hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}
+\item 
+const int \hyperlink{class_cool_board_actor_a8b5c0b41fe6033b68d9e1ed00bc2e122}{pin} = 15
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class manages the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor}. 
+
+Definition at line 21 of file Cool\+Board\+Actor.\+h.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}\label{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!begin@{begin}}
+\index{begin@{begin}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{begin()}{begin()}}
+{\footnotesize\ttfamily void Cool\+Board\+Actor\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}{Cool\+Board\+Actor\+::begin()}\+: This method is provided to initialise the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor} pin 
+
+Definition at line 25 of file Cool\+Board\+Actor.\+cpp.
+
+
+\begin{DoxyCode}
+26 \{
+27 
+28 \textcolor{preprocessor}{#if DEBUG == 1 }
+29  
+30     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardActor.begin() "}) );
+31     Serial.println();
+32 
+33 \textcolor{preprocessor}{#endif}
+34 
+35     pinMode(this->\hyperlink{class_cool_board_actor_a8b5c0b41fe6033b68d9e1ed00bc2e122}{pin},OUTPUT);
+36     
+37     
+38 
+39 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=323pt]{dc/d69/class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}\label{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!config@{config}}
+\index{config@{config}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{config()}{config()}}
+{\footnotesize\ttfamily bool Cool\+Board\+Actor\+::config (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}{Cool\+Board\+Actor\+::config()}\+: This method is provided to configure the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor} with a configuration file
+
+\begin{DoxyReturn}{Returns}
+true if successful,false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 490 of file Cool\+Board\+Actor.\+cpp.
+
+
+\begin{DoxyCode}
+491 \{
+492 
+493 \textcolor{preprocessor}{#if DEBUG == 1 }
+494 
+495     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardActor.config() "}) );
+496     Serial.println();
+497 
+498 \textcolor{preprocessor}{#endif}
+499 
+500     File coolBoardActorConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardActorConfig.json"}, \textcolor{stringliteral}{"r"});
+501 
+502     \textcolor{keywordflow}{if} (!coolBoardActorConfig) 
+503     \{
+504 
+505 \textcolor{preprocessor}{    #if DEBUG == 1 }
+506 
+507         Serial.println( F(\textcolor{stringliteral}{"failed to read /coolBoardActorConfig.json "}) );
+508         Serial.println();
+509 
+510 \textcolor{preprocessor}{    #endif}
+511 
+512         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+513     \}
+514     \textcolor{keywordflow}{else}
+515     \{
+516         \textcolor{keywordtype}{size\_t} size = coolBoardActorConfig.size();
+517         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+518         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+519 
+520         coolBoardActorConfig.readBytes(buf.get(), size);
+521         DynamicJsonBuffer jsonBuffer;
+522         JsonObject& json = jsonBuffer.parseObject(buf.get());
+523         \textcolor{keywordflow}{if} (!json.success()) 
+524         \{
+525         
+526 \textcolor{preprocessor}{        #if DEBUG == 1 }
+527 
+528             Serial.println( F(\textcolor{stringliteral}{"failed to parse coolBoardActor Config  json from file "}) );
+529             Serial.println();
+530 
+531 \textcolor{preprocessor}{        #endif}
+532 
+533             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+534         \} 
+535         \textcolor{keywordflow}{else}
+536         \{ 
+537         
+538 \textcolor{preprocessor}{        #if DEBUG == 1 }
+539 
+540             Serial.println( F(\textcolor{stringliteral}{"read configuration file : "}) );
+541             json.printTo(Serial);
+542             Serial.println();
+543 
+544             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+545             Serial.println(jsonBuffer.size());
+546             Serial.println();
+547 
+548         
+549 \textcolor{preprocessor}{        #endif}
+550   
+551             \textcolor{comment}{//parsing actif key}
+552             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"actif"}].success() )
+553             \{
+554                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}=json[\textcolor{stringliteral}{"actif"}];
+555             \}
+556             \textcolor{keywordflow}{else}
+557             \{
+558                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif};
+559             \}
+560             json[\textcolor{stringliteral}{"actif"}]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif};
+561             
+562             \textcolor{comment}{//parsing temporal key}
+563             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"temporal"}].success() )
+564             \{
+565                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal}=json[\textcolor{stringliteral}{"temporal"}];
+566             \}
+567             \textcolor{keywordflow}{else}
+568             \{
+569                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal};
+570             \}
+571             json[\textcolor{stringliteral}{"temporal"}]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal};
+572             
+573             \textcolor{comment}{//parsing inverted key}
+574             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"inverted"}].success() )
+575             \{
+576                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}=json[\textcolor{stringliteral}{"inverted"}];
+577             \}
+578             \textcolor{keywordflow}{else}
+579             \{
+580                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted};
+581             \}
+582             json[\textcolor{stringliteral}{"inverted"}]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted};
+583 
+584             \textcolor{comment}{//parsing inverted key}
+585             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"inverted"}].success() )
+586             \{
+587                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}=json[\textcolor{stringliteral}{"inverted"}];
+588             \}
+589             \textcolor{keywordflow}{else}
+590             \{
+591                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted};
+592             \}
+593             json[\textcolor{stringliteral}{"inverted"}]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted};
+594             
+595             \textcolor{comment}{//parsing low key}
+596             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"low"}].success() )
+597             \{
+598                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow}=json[\textcolor{stringliteral}{"low"}][0];
+599                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow}=json[\textcolor{stringliteral}{"low"}][1];
+600                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow}=json[\textcolor{stringliteral}{"low"}][2];                     
+601                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow}=json[\textcolor{stringliteral}{"low"}][3];                     
+602             \}
+603             \textcolor{keywordflow}{else}
+604             \{
+605                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow};
+606                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow};
+607                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow};
+608                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow};                        
+609             \}
+610             json[\textcolor{stringliteral}{"low"}][0]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow};
+611             json[\textcolor{stringliteral}{"low"}][1]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow};
+612             json[\textcolor{stringliteral}{"low"}][2]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow};
+613             json[\textcolor{stringliteral}{"low"}][3]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow};
+614 
+615             \textcolor{comment}{//parsing high key}
+616             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"high"}].success() )
+617             \{
+618                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh}=json[\textcolor{stringliteral}{"high"}][0];
+619                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh}=json[\textcolor{stringliteral}{"high"}][1];
+620                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh}=json[\textcolor{stringliteral}{"high"}][2];                      
+621                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh}=json[\textcolor{stringliteral}{"high"}][3];                      
+622             \}
+623             \textcolor{keywordflow}{else}
+624             \{
+625                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh};
+626                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh};
+627                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh};
+628                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.
+      \hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh};
+629             \}
+630             json[\textcolor{stringliteral}{"high"}][0]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh};
+631             json[\textcolor{stringliteral}{"high"}][1]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh};
+632             json[\textcolor{stringliteral}{"high"}][2]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh};
+633             json[\textcolor{stringliteral}{"high"}][3]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh};
+634 
+635             \textcolor{comment}{//parsing type key}
+636             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"type"}].success() )
+637             \{
+638                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}=json[\textcolor{stringliteral}{"type"}][0].as<String>();
+639                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}=json[\textcolor{stringliteral}{"type"}][1].as<String>();                       
+640                 
+641             \}
+642             \textcolor{keywordflow}{else}
+643             \{
+644                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.
+      \hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType};
+645                 this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.
+      \hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType};
+646             \}
+647             json[\textcolor{stringliteral}{"type"}][0]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType};
+648             json[\textcolor{stringliteral}{"type"}][1]=this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType};
+649             
+650 
+651             coolBoardActorConfig.close();           
+652             coolBoardActorConfig = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardActorConfig.json"}, \textcolor{stringliteral}{"w"});          
+653             \textcolor{keywordflow}{if}(!coolBoardActorConfig)
+654             \{
+655             
+656 \textcolor{preprocessor}{            #if DEBUG == 1 }
+657 
+658                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardActorConfig.json "}) );
+659                 Serial.println();
+660             
+661 \textcolor{preprocessor}{            #endif}
+662                 
+663                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});          
+664             \}  
+665 
+666             json.printTo(coolBoardActorConfig);
+667             coolBoardActorConfig.close();
+668 
+669 \textcolor{preprocessor}{        #if DEBUG == 1 }
+670             
+671             Serial.println(F(\textcolor{stringliteral}{"saved configuration : "}));
+672             json.printTo(Serial );
+673             Serial.println();       
+674         
+675 \textcolor{preprocessor}{        #endif}
+676 
+677             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
+678         \}
+679     \}   
+680     
+681 
+682 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=326pt]{dc/d69/class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}\label{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!do\+Action@{do\+Action}}
+\index{do\+Action@{do\+Action}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{do\+Action()}{doAction()}}
+{\footnotesize\ttfamily void Cool\+Board\+Actor\+::do\+Action (\begin{DoxyParamCaption}\item[{const char $\ast$}]{data }\end{DoxyParamCaption})}
+
+Cool\+Board\+Actor\+::do\+Action(sensor data )\+: This method is provided to automate the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor}. exemple\+: initial state\+: current Temperature = 23 °C actor.\+actif=1 actor.\+range\+Low=25 °C actor.\+range\+High=30 °C actor.\+primary\+Type=\char`\"{}\+Temperature\char`\"{}
+
+condition verified\+: root\mbox{[}\char`\"{}\+Temperature\char`\"{}\mbox{]} $<$ actor.\+range\+Low
+
+action \+: activate the actor
+
+initial state\+: actor.\+actif=1 actor.\+range\+Low=2°C actor.\+range\+High=12°C actor.\+inverted=1 actor.\+primary\+Type=\char`\"{}\+Temperature\char`\"{}
+
+condition verified\+: root\mbox{[}\char`\"{}\+Temperature\char`\"{}\mbox{]} $>$ actor.\+range\+High
+
+action\+: activate the actor
+
+initial state\+: actor.\+actif=1 actor.\+time\+Low=2500ms actor.\+time\+High=3000ms actor.\+temporal=1
+
+condition verified\+: millis()-\/actor.\+actif\+Time $>$=actor.\+time\+High
+
+action\+: deactivate the actor
+
+initial state\+: actor.\+actif=1 actor.\+hour\+Low=10 actor.\+hour\+High=8 actor.\+temporal=1 actor.\+secondary\+Type=\char`\"{}hour\char`\"{}( or \char`\"{}minute\char`\"{} or \char`\"{}hour\+Minute\char`\"{})
+
+condition verified\+: root\mbox{[}\char`\"{}hour\char`\"{}\mbox{]}$>$=actorhour\+High
+
+action\+: activate the actor 
+
+Definition at line 123 of file Cool\+Board\+Actor.\+cpp.
+
+
+\begin{DoxyCode}
+124 \{
+125 
+126 \textcolor{preprocessor}{#if DEBUG == 1 }
+127 
+128     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardActor.doAction()"}) );
+129     Serial.println();
+130 
+131     Serial.println( F(\textcolor{stringliteral}{"input data is :"}) );
+132     Serial.println(data);
+133     Serial.println();
+134 
+135 \textcolor{preprocessor}{#endif }
+136 
+137     DynamicJsonBuffer jsonBuffer;
+138     JsonObject& root = jsonBuffer.parseObject(data);
+139     
+140     \textcolor{keywordflow}{if} (!root.success()) 
+141     \{
+142     
+143 \textcolor{preprocessor}{    #if DEBUG == 1 }
+144 
+145         Serial.println( F(\textcolor{stringliteral}{"failed to parse json object "}) );
+146         Serial.println();
+147     
+148 \textcolor{preprocessor}{    #endif }
+149 
+150     \}
+151     \textcolor{keywordflow}{else}
+152     \{
+153     
+154 \textcolor{preprocessor}{    #if DEBUG == 1 }
+155 
+156         Serial.println( F(\textcolor{stringliteral}{"created Json object :"}) );
+157         root.printTo(Serial);
+158         Serial.println();
+159 
+160         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
+161         Serial.println(jsonBuffer.size());
+162         Serial.println();
+163 
+164     
+165 \textcolor{preprocessor}{    #endif }
+166 
+167         \textcolor{comment}{//invert the current action state for the actor}
+168         \textcolor{comment}{//if the value is outside the limits}
+169         
+170         \textcolor{comment}{//check if the actor is actif }
+171         \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}==1)
+172         \{                       
+173             \textcolor{comment}{//if the actor is not temporal}
+174             \textcolor{keywordflow}{if}( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal}==0 ) 
+175             \{   
+176                 \textcolor{comment}{//regular actor}
+177                 \textcolor{keywordflow}{if}( (this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}) == 0 )
+178                 \{
+179                     \textcolor{comment}{//measure >= high limit : stop actor}
+180                     \textcolor{keywordflow}{if}( ( root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}] ) >= ( this->actor.rangeHigh ) )    
+181                     \{   
+182                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ; 
+183 
+184 \textcolor{preprocessor}{                    #if DEBUG == 1}
+185                         
+186                         Serial.println(F(\textcolor{stringliteral}{"not inverted Actor "}));
+187 
+188                         Serial.print(F(\textcolor{stringliteral}{"measured value : "}));
+189                         Serial.println(root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}].as<\textcolor{keywordtype}{float}>());
+190 
+191                         Serial.print(F(\textcolor{stringliteral}{"high range : "}));
+192                         Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh});
+193                     
+194 \textcolor{preprocessor}{                    #endif}
+195                     
+196                     \}
+197                     \textcolor{comment}{//measure <= low limit : start actor}
+198                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType} ] ) <= ( this->actor.rangeLow 
+      ) )
+199                     \{
+200                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;
+201 
+202 \textcolor{preprocessor}{                    #if DEBUG == 1}
+203 
+204                         Serial.println(F(\textcolor{stringliteral}{"not inverted Actor "}));
+205 
+206                         Serial.print(F(\textcolor{stringliteral}{"measured value : "}));
+207                         Serial.println(root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}].as<\textcolor{keywordtype}{float}>());
+208 
+209                         Serial.print(F(\textcolor{stringliteral}{"low range : "}));
+210                         Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow});
+211                     
+212 \textcolor{preprocessor}{                    #endif}
+213                                         
+214                     \}
+215                     \textcolor{keywordflow}{else} 
+216                     \{
+217                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ;                     
+218                     \}
+219                 \}
+220                 \textcolor{comment}{//inverted actor}
+221                 \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( (this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted}) == 1 )
+222                 \{
+223                     \textcolor{comment}{//measure >= high limit : start actor}
+224                     \textcolor{keywordflow}{if}( ( root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}] ) >= ( this->actor.rangeHigh ) )    
+225                     \{   
+226                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;
+227 
+228 \textcolor{preprocessor}{                    #if DEBUG == 1}
+229 
+230                         Serial.println(F(\textcolor{stringliteral}{" inverted Actor  "}));
+231                         
+232                         Serial.print(F(\textcolor{stringliteral}{"measured value : "}));
+233                         Serial.println(root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}].as<\textcolor{keywordtype}{float}>());
+234 
+235                         Serial.print(F(\textcolor{stringliteral}{"high range : "}));
+236                         Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh});
+237                     
+238 \textcolor{preprocessor}{                    #endif}
+239                         
+240                     \}
+241                     \textcolor{comment}{//measure <= low limit : stop actor}
+242                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType} ] ) <= ( this->actor.rangeLow 
+      ) )
+243                     \{
+244                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ;
+245 
+246 \textcolor{preprocessor}{                    #if DEBUG == 1}
+247                         
+248                         Serial.print(F(\textcolor{stringliteral}{"inverted Actor "}));
+249                         Serial.println();
+250 
+251                         Serial.print(F(\textcolor{stringliteral}{"measured value : "}));
+252                         Serial.println(root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType}].as<\textcolor{keywordtype}{float}>());
+253 
+254                         Serial.print(F(\textcolor{stringliteral}{"low range : "}));
+255                         Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow});
+256                     
+257 \textcolor{preprocessor}{                    #endif}
+258                                         
+259                     \}
+260                     \textcolor{keywordflow}{else} 
+261                     \{
+262                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ;                     
+263                     \}
+264 
+265                 
+266                 \}
+267             \}
+268 
+269             \textcolor{comment}{//if the actor is temporal}
+270             \textcolor{keywordflow}{else}
+271             \{
+272                 \textcolor{comment}{//actor has a secondary type (either hour,minute or hourMinute)}
+273                 \textcolor{keywordflow}{if}( ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType} ) !=\textcolor{stringliteral}{""} )  
+274                 \{
+275                 
+276 \textcolor{preprocessor}{                #if DEBUG == 1}
+277                     
+278                     Serial.print(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType});
+279                     Serial.print(\textcolor{stringliteral}{" actor "});
+280                     Serial.println();
+281 \textcolor{preprocessor}{                #endif}
+282                     \textcolor{comment}{//secondary type is hour    }
+283                     \textcolor{keywordflow}{if}( ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}==\textcolor{stringliteral}{"hour"} ) )
+284                     \{
+285                         \textcolor{comment}{//time >= hourLow : stop actor}
+286                         \textcolor{keywordflow}{if}( ( root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}] ) >= ( this->actor.hourLow 
+      ) )  
+287                         \{
+288                     
+289 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+290                         
+291                             Serial.print(\textcolor{stringliteral}{"deactive actor "});
+292                             Serial.println();
+293                     
+294 \textcolor{preprocessor}{                        #endif  }
+295                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ; 
+296                         \}
+297                         \textcolor{comment}{//time >= hourHigh : start actor}
+298                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType} ] ) >= ( this->actor.
+      hourHigh ) )
+299                         \{
+300                     
+301 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+302                     
+303                             Serial.print(\textcolor{stringliteral}{"active actor "});
+304                             Serial.println();
+305                     
+306 \textcolor{preprocessor}{                        #endif}
+307                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;                 
+308                         \}
+309                     \}
+310 
+311                     \textcolor{comment}{//secondary type is minute  }
+312                     \textcolor{keywordflow}{if}( ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}==\textcolor{stringliteral}{"minute"} ) )
+313                     \{
+314                         \textcolor{comment}{//time >= minuteLow : stop actor}
+315                         \textcolor{keywordflow}{if}( ( root[this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}] ) >= ( this->actor.
+      minuteLow ) )    
+316                         \{
+317                     
+318 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+319                         
+320                             Serial.print(\textcolor{stringliteral}{"deactive actor "});
+321                             Serial.println( );
+322                     
+323 \textcolor{preprocessor}{                        #endif  }
+324                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ; 
+325                         \}
+326                         \textcolor{comment}{//time >= minuteHigh : start actor}
+327                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[ this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType} ] ) >= ( this->actor.
+      minuteHigh ) )
+328                         \{
+329                     
+330 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+331                     
+332                             Serial.print(\textcolor{stringliteral}{"active actor  "});
+333                             Serial.println();
+334                     
+335 \textcolor{preprocessor}{                        #endif}
+336                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;                 
+337                         \}
+338                     \}
+339 
+340                     \textcolor{comment}{//secondary type is hourMinute  }
+341                     \textcolor{keywordflow}{if}( ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType}==\textcolor{stringliteral}{"hourMinute"} ) )
+342                     \{
+343                         \textcolor{comment}{//time == hourLow :}
+344                         \textcolor{keywordflow}{if}( ( root[\textcolor{stringliteral}{"hour"}] ) == ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow} ) )   
+345                         \{
+346                             \textcolor{comment}{//time > minuteLow : stop actor}
+347                             \textcolor{keywordflow}{if}( (root[\textcolor{stringliteral}{"minute"}])>=(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow}) )                       
+348                             \{
+349 \textcolor{preprocessor}{                            #if DEBUG == 1 }
+350                     
+351                                 Serial.print(\textcolor{stringliteral}{" time.hour == hourLow, time.minute>=minuteLow : deactive
+       actor "});
+352                                 Serial.println();
+353                 
+354 \textcolor{preprocessor}{                            #endif  }
+355                                 this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ;
+356                             \}   
+357                         \}
+358                         \textcolor{comment}{//time > hourLow: stop actor}
+359                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[\textcolor{stringliteral}{"hour"} ] ) > ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow} ) )
+360                         \{
+361 
+362 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+363                     
+364                             Serial.print(\textcolor{stringliteral}{"time.hour>hourLow : deactive actor "});
+365                             Serial.println();
+366             
+367 \textcolor{preprocessor}{                        #endif      }
+368                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0 ) ;
+369                                                 
+370                         \}
+371                         \textcolor{comment}{//time == hourHigh:}
+372                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[\textcolor{stringliteral}{"hour"} ] ) == ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.
+      \hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh} ) )
+373                         \{
+374                             \textcolor{comment}{//time > minuteHigh: start actor}
+375                             \textcolor{keywordflow}{if}( (root[\textcolor{stringliteral}{"minute"}])>=(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh}) )
+376                             \{
+377                     
+378 \textcolor{preprocessor}{                            #if DEBUG == 1 }
+379                     
+380                                 Serial.print(\textcolor{stringliteral}{"time.hour==hourHigh, time.mintue>=minuteHigh : active actor "}
+      );
+381                                 Serial.println();
+382                     
+383 \textcolor{preprocessor}{                            #endif}
+384                                 this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;
+385                             \}                   
+386                         \}
+387                         \textcolor{comment}{//time > hourHigh : start actor}
+388                         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( root[\textcolor{stringliteral}{"hour"} ] ) > ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh} ) )
+389                         \{
+390                             
+391 \textcolor{preprocessor}{                        #if DEBUG == 1 }
+392                     
+393                             Serial.print(\textcolor{stringliteral}{"time.hour>hourHigh : active actor "});
+394                             Serial.println();
+395             
+396 \textcolor{preprocessor}{                        #endif      }
+397 
+398                             this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;
+399                                                 
+400                         \}
+401 
+402                     \}
+403 
+404 
+405                 \}
+406                 \textcolor{comment}{//actor not of type hour}
+407                 \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType} ) == ( \textcolor{stringliteral}{""} ) )     
+408                 \{
+409                 
+410 \textcolor{preprocessor}{                #if DEBUG == 1 }
+411                     
+412                     Serial.println(\textcolor{stringliteral}{"not hour temporal actor"});
+413                     Serial.println();
+414                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType});
+415                     Serial.println(\textcolor{stringliteral}{"actifTime : "});
+416                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a534119a22a09b29ecb446b277d5b2ef5}{actifTime});
+417                     Serial.println(\textcolor{stringliteral}{"millis : "});
+418                     Serial.println(millis() );
+419                     Serial.println(\textcolor{stringliteral}{" high : "});
+420                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh} );
+421                     Serial.println();
+422                 
+423 \textcolor{preprocessor}{                #endif}
+424                     \textcolor{comment}{//if the actor was actif for highTime or more :}
+425                     \textcolor{keywordflow}{if}( ( millis()- this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a534119a22a09b29ecb446b277d5b2ef5}{actifTime}  ) >= (  this->actor.timeHigh  ) )
+426                     \{
+427                         \textcolor{comment}{//stop the actor}
+428                         this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 0) ;
+429 
+430                         \textcolor{comment}{//make the actor inactif:}
+431                         this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}=0;
+432 
+433                         \textcolor{comment}{//start the low timer}
+434                         this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6d88835f4402b3b81cd404784281854b}{inactifTime}=millis();               
+435                     \}
+436                 \}           
+437                         
+438             \}
+439         \}
+440         \textcolor{comment}{//check if actor is inactif}
+441         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}==0)
+442         \{   \textcolor{comment}{//check if actor is temporal}
+443             \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal}==1)
+444             \{
+445                 \textcolor{comment}{//if the actor was inactif for lowTime or more :}
+446                 \textcolor{keywordflow}{if}( ( millis() - this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6d88835f4402b3b81cd404784281854b}{inactifTime} ) >= (  this->actor.timeLow  ) )
+447                 \{
+448                     \textcolor{comment}{//start the actor}
+449                     this->\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}( 1 ) ;
+450 
+451                     \textcolor{comment}{//make the actor actif:}
+452                     this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif}=1;
+453 
+454                     \textcolor{comment}{//start the low timer}
+455                     this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a534119a22a09b29ecb446b277d5b2ef5}{actifTime}=millis();
+456 
+457 \textcolor{preprocessor}{                #if DEBUG == 1 }
+458                     
+459                     Serial.println(\textcolor{stringliteral}{"inactif temporal actor"});
+460                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType});
+461                     Serial.print(\textcolor{stringliteral}{"temporal : "});
+462                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal});
+463                     Serial.println(\textcolor{stringliteral}{"inactifTime : "});
+464                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6d88835f4402b3b81cd404784281854b}{inactifTime});
+465                     Serial.println(\textcolor{stringliteral}{"millis : "});
+466                     Serial.println(millis() );
+467                     Serial.println(\textcolor{stringliteral}{" low : "});
+468                     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow} );
+469                     Serial.println();
+470 
+471                     Serial.println();
+472                 
+473 \textcolor{preprocessor}{                #endif}
+474             
+475                 \}           
+476         
+477             \}
+478         \}
+479         
+480     \} 
+481 \}
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dc/d69/class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dc/d69/class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}\label{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!print\+Conf@{print\+Conf}}
+\index{print\+Conf@{print\+Conf}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{print\+Conf()}{printConf()}}
+{\footnotesize\ttfamily void Cool\+Board\+Actor\+::print\+Conf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}{Cool\+Board\+Actor\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor 
+
+Definition at line 690 of file Cool\+Board\+Actor.\+cpp.
+
+
+\begin{DoxyCode}
+691 \{
+692 
+693 \textcolor{preprocessor}{#if DEBUG == 1 }
+694 
+695     Serial.println( F(\textcolor{stringliteral}{"Enter CoolBoardActor.printConf() "}) );
+696     Serial.println();
+697 
+698 \textcolor{preprocessor}{#endif }
+699     Serial.println(F( \textcolor{stringliteral}{"CoolBoardActor configuration "} ) ) ;
+700  
+701     Serial.print(F(\textcolor{stringliteral}{" actif :"}));
+702     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a7963178c2de01ef0d2861f9f59ad6f3c}{actif});
+703     
+704 
+705     Serial.print(F(\textcolor{stringliteral}{" temporal :"}));
+706     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6442a8c3a30abc48472f3e5284b786ea}{temporal});
+707 
+708 
+709     Serial.print(F(\textcolor{stringliteral}{" inverted :"}));
+710     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_aa4fdca81973fd7b29541877db1cf27bd}{inverted});
+711 
+712 
+713 
+714     Serial.print(F(\textcolor{stringliteral}{" primary Type :"}));
+715     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a8a0b318fd2814cf67fe74ee8164df55e}{primaryType});
+716 
+717     Serial.print(F(\textcolor{stringliteral}{" secondary Type :"}));       
+718     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a44e8f69868f2491b79ed075f84aa0fcb}{secondaryType});
+719 
+720 
+721     Serial.print(F(\textcolor{stringliteral}{" range Low :"}));
+722     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a43f891c9fb3bb63575c27cec860de55a}{rangeLow});
+723 
+724 
+725     Serial.print(F(\textcolor{stringliteral}{" time Low :"}));
+726     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a314c53c146e8c7b12c025323a34fbb9a}{timeLow});
+727 
+728 
+729     Serial.print(F(\textcolor{stringliteral}{" hour low:"}));
+730     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_ae7034bf95b36f1392f9de076fa0c8c0f}{hourLow});
+731 
+732 
+733     Serial.print(F(\textcolor{stringliteral}{" minute low:"}));
+734     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acbcc2902331fd9d757cd475eb403bdd9}{minuteLow});
+735 
+736 
+737     Serial.print(F(\textcolor{stringliteral}{" range High:"}));
+738     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a6e5cd6c5cd44e2decfd8d4df1853f8e3}{rangeHigh});
+739 
+740 
+741     Serial.print(F(\textcolor{stringliteral}{" time High:"}));
+742     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a54cd4976b56aeaa6274fe0576aaebb0f}{timeHigh});
+743 
+744 
+745     Serial.print(F(\textcolor{stringliteral}{" hour high:"}));
+746     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_acd1af3ac2382258a5b05497d814adc01}{hourHigh});
+747 
+748 
+749     Serial.print(F(\textcolor{stringliteral}{" minute high:"}));
+750     Serial.println(this->\hyperlink{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}{actor}.\hyperlink{struct_cool_board_actor_1_1state_a4bff3d61ead74adb60be224764b93006}{minuteHigh});
+751 
+752     Serial.println(); 
+753 
+754 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=339pt]{dc/d69/class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}\label{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!write@{write}}
+\index{write@{write}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{write()}{write()}}
+{\footnotesize\ttfamily void Cool\+Board\+Actor\+::write (\begin{DoxyParamCaption}\item[{bool}]{action }\end{DoxyParamCaption})}
+
+Cool\+Board\+Actor\+::write(action)\+: This method is provided to write the given action to the \hyperlink{class_cool_board_actor}{Cool\+Board\+Actor}. 
+
+Definition at line 48 of file Cool\+Board\+Actor.\+cpp.
+
+
+\begin{DoxyCode}
+49 \{
+50 
+51 \textcolor{preprocessor}{#if DEBUG == 1}
+52 
+53     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoardActor.write()"}) );
+54     Serial.println();
+55 
+56     Serial.println( F(\textcolor{stringliteral}{"writing this action : "}) );
+57     Serial.println(action,BIN);
+58     Serial.println();
+59 
+60 \textcolor{preprocessor}{#endif }
+61     
+62     digitalWrite(this->\hyperlink{class_cool_board_actor_a8b5c0b41fe6033b68d9e1ed00bc2e122}{pin},action);
+63     
+64 
+65 \}
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dc/d69/class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da_icgraph}
+\end{center}
+\end{figure}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}\label{class_cool_board_actor_a8f190db9f7a39fddbcef7f152da970e9}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!actor@{actor}}
+\index{actor@{actor}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{actor}{actor}}
+{\footnotesize\ttfamily struct \hyperlink{struct_cool_board_actor_1_1state}{Cool\+Board\+Actor\+::state} Cool\+Board\+Actor\+::actor\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_cool_board_actor_a8b5c0b41fe6033b68d9e1ed00bc2e122}\label{class_cool_board_actor_a8b5c0b41fe6033b68d9e1ed00bc2e122}} 
+\index{Cool\+Board\+Actor@{Cool\+Board\+Actor}!pin@{pin}}
+\index{pin@{pin}!Cool\+Board\+Actor@{Cool\+Board\+Actor}}
+\subsubsection{\texorpdfstring{pin}{pin}}
+{\footnotesize\ttfamily const int Cool\+Board\+Actor\+::pin = 15\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 75 of file Cool\+Board\+Actor.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_board_actor_8h}{Cool\+Board\+Actor.\+h}\item 
+/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_board_actor_8cpp}{Cool\+Board\+Actor.\+cpp}\end{DoxyCompactItemize}

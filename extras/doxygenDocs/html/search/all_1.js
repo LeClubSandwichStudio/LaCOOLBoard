@@ -1,10 +1,11 @@
 var searchData=
 [
-  ['actif',['actif',['../da/d35/struct_jetpack_1_1state.html#aa177541689bbaea21a4650a083b0df77',1,'Jetpack::state']]],
-  ['actiftime',['actifTime',['../da/d35/struct_jetpack_1_1state.html#af2e1cc323ef9ffcc3cf4d203f85d726b',1,'Jetpack::state']]],
+  ['actif',['actif',['../d5/ddc/struct_cool_board_actor_1_1state.html#a7963178c2de01ef0d2861f9f59ad6f3c',1,'CoolBoardActor::state::actif()'],['../da/d35/struct_jetpack_1_1state.html#aa177541689bbaea21a4650a083b0df77',1,'Jetpack::state::actif()']]],
+  ['actiftime',['actifTime',['../d5/ddc/struct_cool_board_actor_1_1state.html#a534119a22a09b29ecb446b277d5b2ef5',1,'CoolBoardActor::state::actifTime()'],['../da/d35/struct_jetpack_1_1state.html#af2e1cc323ef9ffcc3cf4d203f85d726b',1,'Jetpack::state::actifTime()']]],
   ['action',['action',['../df/d1d/class_jetpack.html#aca3142925a7b0834b34ae91d26af7765',1,'Jetpack']]],
   ['activate',['activate',['../de/dc0/class_cool_board_led.html#ae74fe4b47d06c3a97b468ba220c4eb99',1,'CoolBoardLed']]],
   ['active',['active',['../d2/d18/struct_irene3000_1_1state.html#a879828ace7e7a7bc91ff703bfee36599',1,'Irene3000::state']]],
+  ['actor',['actor',['../dc/d69/class_cool_board_actor.html#a8f190db9f7a39fddbcef7f152da970e9',1,'CoolBoardActor']]],
   ['actors',['actors',['../df/d1d/class_jetpack.html#a7e16d2f97837f9712a2e6de1c50d99db',1,'Jetpack']]],
   ['adafruit_5fads1015',['Adafruit_ADS1015',['../df/df6/class_adafruit___a_d_s1015.html',1,'Adafruit_ADS1015'],['../df/df6/class_adafruit___a_d_s1015.html#a12dfb7b48af1a8e411c59f775c6457ab',1,'Adafruit_ADS1015::Adafruit_ADS1015()']]],
   ['adafruit_5fads1115',['Adafruit_ADS1115',['../d8/dab/class_adafruit___a_d_s1115.html',1,'Adafruit_ADS1115'],['../d8/dab/class_adafruit___a_d_s1115.html#a7058cf2c75b673fb0b0a8936c3edd1fd',1,'Adafruit_ADS1115::Adafruit_ADS1115()']]],

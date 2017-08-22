@@ -1,0 +1,775 @@
+.TH "CoolBoardActor" 3 "Tue Aug 22 2017" "CoolBoardAPI" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+CoolBoardActor \- This class manages the \fBCoolBoardActor\fP\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <CoolBoardActor\&.h>\fP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBstate\fP"
+.br
+.in -1c
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBbegin\fP ()"
+.br
+.ti -1c
+.RI "void \fBwrite\fP (bool action)"
+.br
+.ti -1c
+.RI "void \fBdoAction\fP (const char *data)"
+.br
+.ti -1c
+.RI "bool \fBconfig\fP ()"
+.br
+.ti -1c
+.RI "void \fBprintConf\fP ()"
+.br
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBCoolBoardActor::state\fP \fBactor\fP"
+.br
+.ti -1c
+.RI "const int \fBpin\fP = 15"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This class manages the \fBCoolBoardActor\fP\&. 
+.PP
+Definition at line 21 of file CoolBoardActor\&.h\&.
+.SH "Member Function Documentation"
+.PP 
+.SS "void CoolBoardActor::begin ()"
+\fBCoolBoardActor::begin()\fP: This method is provided to initialise the \fBCoolBoardActor\fP pin 
+.PP
+Definition at line 25 of file CoolBoardActor\&.cpp\&.
+.PP
+.nf
+26 {
+27 
+28 #if DEBUG == 1 
+29  
+30     Serial\&.println( F("Entering CoolBoardActor\&.begin() ") );
+31     Serial\&.println();
+32 
+33 #endif
+34 
+35     pinMode(this->pin,OUTPUT);
+36     
+37     
+38 
+39 }
+.fi
+.SS "bool CoolBoardActor::config ()"
+\fBCoolBoardActor::config()\fP: This method is provided to configure the \fBCoolBoardActor\fP with a configuration file
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful,false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 490 of file CoolBoardActor\&.cpp\&.
+.PP
+.nf
+491 {
+492 
+493 #if DEBUG == 1 
+494 
+495     Serial\&.println( F("Entering CoolBoardActor\&.config() ") );
+496     Serial\&.println();
+497 
+498 #endif
+499 
+500     File coolBoardActorConfig = SPIFFS\&.open("/coolBoardActorConfig\&.json", "r");
+501 
+502     if (!coolBoardActorConfig) 
+503     {
+504 
+505     #if DEBUG == 1 
+506 
+507         Serial\&.println( F("failed to read /coolBoardActorConfig\&.json ") );
+508         Serial\&.println();
+509 
+510     #endif
+511 
+512         return(false);
+513     }
+514     else
+515     {
+516         size_t size = coolBoardActorConfig\&.size();
+517         // Allocate a buffer to store contents of the file\&.
+518         std::unique_ptr<char[]> buf(new char[size]);
+519 
+520         coolBoardActorConfig\&.readBytes(buf\&.get(), size);
+521         DynamicJsonBuffer jsonBuffer;
+522         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+523         if (!json\&.success()) 
+524         {
+525         
+526         #if DEBUG == 1 
+527 
+528             Serial\&.println( F("failed to parse coolBoardActor Config  json from file ") );
+529             Serial\&.println();
+530 
+531         #endif
+532 
+533             return(false);
+534         } 
+535         else
+536         { 
+537         
+538         #if DEBUG == 1 
+539 
+540             Serial\&.println( F("read configuration file : ") );
+541             json\&.printTo(Serial);
+542             Serial\&.println();
+543 
+544             Serial\&.print(F("jsonBuffer size: "));
+545             Serial\&.println(jsonBuffer\&.size());
+546             Serial\&.println();
+547 
+548         
+549         #endif
+550   
+551             //parsing actif key
+552             if(json["actif"]\&.success() )
+553             {
+554                 this->actor\&.actif=json["actif"];
+555             }
+556             else
+557             {
+558                 this->actor\&.actif=this->actor\&.actif;
+559             }
+560             json["actif"]=this->actor\&.actif;
+561             
+562             //parsing temporal key
+563             if(json["temporal"]\&.success() )
+564             {
+565                 this->actor\&.temporal=json["temporal"];
+566             }
+567             else
+568             {
+569                 this->actor\&.temporal=this->actor\&.temporal;
+570             }
+571             json["temporal"]=this->actor\&.temporal;
+572             
+573             //parsing inverted key
+574             if(json["inverted"]\&.success() )
+575             {
+576                 this->actor\&.inverted=json["inverted"];
+577             }
+578             else
+579             {
+580                 this->actor\&.inverted=this->actor\&.inverted;
+581             }
+582             json["inverted"]=this->actor\&.inverted;
+583 
+584             //parsing inverted key
+585             if(json["inverted"]\&.success() )
+586             {
+587                 this->actor\&.inverted=json["inverted"];
+588             }
+589             else
+590             {
+591                 this->actor\&.inverted=this->actor\&.inverted;
+592             }
+593             json["inverted"]=this->actor\&.inverted;
+594             
+595             //parsing low key
+596             if(json["low"]\&.success() )
+597             {
+598                 this->actor\&.rangeLow=json["low"][0];
+599                 this->actor\&.timeLow=json["low"][1];
+600                 this->actor\&.hourLow=json["low"][2];                      
+601                 this->actor\&.minuteLow=json["low"][3];                        
+602             }
+603             else
+604             {
+605                 this->actor\&.rangeLow=this->actor\&.rangeLow;
+606                 this->actor\&.timeLow=this->actor\&.timeLow;
+607                 this->actor\&.hourLow=this->actor\&.hourLow;
+608                 this->actor\&.minuteLow=this->actor\&.minuteLow;                      
+609             }
+610             json["low"][0]=this->actor\&.rangeLow;
+611             json["low"][1]=this->actor\&.timeLow;
+612             json["low"][2]=this->actor\&.hourLow;
+613             json["low"][3]=this->actor\&.minuteLow;
+614 
+615             //parsing high key
+616             if(json["high"]\&.success() )
+617             {
+618                 this->actor\&.rangeHigh=json["high"][0];
+619                 this->actor\&.timeHigh=json["high"][1];
+620                 this->actor\&.hourHigh=json["high"][2];                        
+621                 this->actor\&.minuteHigh=json["high"][3];                      
+622             }
+623             else
+624             {
+625                 this->actor\&.rangeHigh=this->actor\&.rangeHigh;
+626                 this->actor\&.timeHigh=this->actor\&.timeHigh;
+627                 this->actor\&.hourHigh=this->actor\&.hourHigh;
+628                 this->actor\&.minuteHigh=this->actor\&.minuteHigh;
+629             }
+630             json["high"][0]=this->actor\&.rangeHigh;
+631             json["high"][1]=this->actor\&.timeHigh;
+632             json["high"][2]=this->actor\&.hourHigh;
+633             json["high"][3]=this->actor\&.minuteHigh;
+634 
+635             //parsing type key
+636             if(json["type"]\&.success() )
+637             {
+638                 this->actor\&.primaryType=json["type"][0]\&.as<String>();
+639                 this->actor\&.secondaryType=json["type"][1]\&.as<String>();                       
+640                 
+641             }
+642             else
+643             {
+644                 this->actor\&.primaryType=this->actor\&.primaryType;
+645                 this->actor\&.secondaryType=this->actor\&.secondaryType;
+646             }
+647             json["type"][0]=this->actor\&.primaryType;
+648             json["type"][1]=this->actor\&.secondaryType;
+649             
+650 
+651             coolBoardActorConfig\&.close();            
+652             coolBoardActorConfig = SPIFFS\&.open("/coolBoardActorConfig\&.json", "w");            
+653             if(!coolBoardActorConfig)
+654             {
+655             
+656             #if DEBUG == 1 
+657 
+658                 Serial\&.println( F("failed to write to /coolBoardActorConfig\&.json ") );
+659                 Serial\&.println();
+660             
+661             #endif
+662                 
+663                 return(false);          
+664             }  
+665 
+666             json\&.printTo(coolBoardActorConfig);
+667             coolBoardActorConfig\&.close();
+668 
+669         #if DEBUG == 1 
+670             
+671             Serial\&.println(F("saved configuration : "));
+672             json\&.printTo(Serial );
+673             Serial\&.println();        
+674         
+675         #endif
+676 
+677             return(true); 
+678         }
+679     }   
+680     
+681 
+682 }
+.fi
+.SS "void CoolBoardActor::doAction (const char * data)"
+CoolBoardActor::doAction(sensor data ): This method is provided to automate the \fBCoolBoardActor\fP\&. exemple: initial state: current Temperature = 23 °C actor\&.actif=1 actor\&.rangeLow=25 °C actor\&.rangeHigh=30 °C actor\&.primaryType='Temperature'
+.PP
+condition verified: root['Temperature'] < actor\&.rangeLow
+.PP
+action : activate the actor
+.PP
+initial state: actor\&.actif=1 actor\&.rangeLow=2°C actor\&.rangeHigh=12°C actor\&.inverted=1 actor\&.primaryType='Temperature'
+.PP
+condition verified: root['Temperature'] > actor\&.rangeHigh
+.PP
+action: activate the actor
+.PP
+initial state: actor\&.actif=1 actor\&.timeLow=2500ms actor\&.timeHigh=3000ms actor\&.temporal=1
+.PP
+condition verified: millis()-actor\&.actifTime >=actor\&.timeHigh
+.PP
+action: deactivate the actor
+.PP
+initial state: actor\&.actif=1 actor\&.hourLow=10 actor\&.hourHigh=8 actor\&.temporal=1 actor\&.secondaryType='hour'( or 'minute' or 'hourMinute')
+.PP
+condition verified: root['hour']>=actorhourHigh
+.PP
+action: activate the actor 
+.PP
+Definition at line 123 of file CoolBoardActor\&.cpp\&.
+.PP
+.nf
+124 {
+125 
+126 #if DEBUG == 1 
+127 
+128     Serial\&.println( F("Entering CoolBoardActor\&.doAction()") );
+129     Serial\&.println();
+130 
+131     Serial\&.println( F("input data is :") );
+132     Serial\&.println(data);
+133     Serial\&.println();
+134 
+135 #endif 
+136 
+137     DynamicJsonBuffer jsonBuffer;
+138     JsonObject& root = jsonBuffer\&.parseObject(data);
+139     
+140     if (!root\&.success()) 
+141     {
+142     
+143     #if DEBUG == 1 
+144 
+145         Serial\&.println( F("failed to parse json object ") );
+146         Serial\&.println();
+147     
+148     #endif 
+149 
+150     }
+151     else
+152     {
+153     
+154     #if DEBUG == 1 
+155 
+156         Serial\&.println( F("created Json object :") );
+157         root\&.printTo(Serial);
+158         Serial\&.println();
+159 
+160         Serial\&.print(F("jsonBuffer size: "));
+161         Serial\&.println(jsonBuffer\&.size());
+162         Serial\&.println();
+163 
+164     
+165     #endif 
+166 
+167         //invert the current action state for the actor
+168         //if the value is outside the limits
+169         
+170         //check if the actor is actif 
+171         if(this->actor\&.actif==1)
+172         {                       
+173             //if the actor is not temporal
+174             if( this->actor\&.temporal==0 ) 
+175             {   
+176                 //regular actor
+177                 if( (this->actor\&.inverted) == 0 )
+178                 {
+179                     //measure >= high limit : stop actor
+180                     if( ( root[this->actor\&.primaryType] ) >= ( this->actor\&.rangeHigh ) )  
+181                     {   
+182                         this->write( 0 ) ;  
+183 
+184                     #if DEBUG == 1
+185                         
+186                         Serial\&.println(F("not inverted Actor "));
+187 
+188                         Serial\&.print(F("measured value : "));
+189                         Serial\&.println(root[this->actor\&.primaryType]\&.as<float>());
+190 
+191                         Serial\&.print(F("high range : "));
+192                         Serial\&.println(this->actor\&.rangeHigh);
+193                     
+194                     #endif
+195                     
+196                     }
+197                     //measure <= low limit : start actor
+198                     else if( ( root[ this->actor\&.primaryType ] ) <= ( this->actor\&.rangeLow ) )
+199                     {
+200                         this->write( 1 ) ;
+201 
+202                     #if DEBUG == 1
+203 
+204                         Serial\&.println(F("not inverted Actor "));
+205 
+206                         Serial\&.print(F("measured value : "));
+207                         Serial\&.println(root[this->actor\&.primaryType]\&.as<float>());
+208 
+209                         Serial\&.print(F("low range : "));
+210                         Serial\&.println(this->actor\&.rangeLow);
+211                     
+212                     #endif
+213                                         
+214                     }
+215                     else 
+216                     {
+217                         this->write( 0 ) ;                      
+218                     }
+219                 }
+220                 //inverted actor
+221                 else if( (this->actor\&.inverted) == 1 )
+222                 {
+223                     //measure >= high limit : start actor
+224                     if( ( root[this->actor\&.primaryType] ) >= ( this->actor\&.rangeHigh ) )  
+225                     {   
+226                         this->write( 1 ) ;
+227 
+228                     #if DEBUG == 1
+229 
+230                         Serial\&.println(F(" inverted Actor  "));
+231                         
+232                         Serial\&.print(F("measured value : "));
+233                         Serial\&.println(root[this->actor\&.primaryType]\&.as<float>());
+234 
+235                         Serial\&.print(F("high range : "));
+236                         Serial\&.println(this->actor\&.rangeHigh);
+237                     
+238                     #endif
+239                         
+240                     }
+241                     //measure <= low limit : stop actor
+242                     else if( ( root[ this->actor\&.primaryType ] ) <= ( this->actor\&.rangeLow ) )
+243                     {
+244                         this->write( 0 ) ;
+245 
+246                     #if DEBUG == 1
+247                         
+248                         Serial\&.print(F("inverted Actor "));
+249                         Serial\&.println();
+250 
+251                         Serial\&.print(F("measured value : "));
+252                         Serial\&.println(root[this->actor\&.primaryType]\&.as<float>());
+253 
+254                         Serial\&.print(F("low range : "));
+255                         Serial\&.println(this->actor\&.rangeLow);
+256                     
+257                     #endif
+258                                         
+259                     }
+260                     else 
+261                     {
+262                         this->write( 0 ) ;                      
+263                     }
+264 
+265                 
+266                 }
+267             }
+268 
+269             //if the actor is temporal
+270             else
+271             {
+272                 //actor has a secondary type (either hour,minute or hourMinute)
+273                 if( ( this->actor\&.secondaryType ) !="" )     
+274                 {
+275                 
+276                 #if DEBUG == 1
+277                     
+278                     Serial\&.print(this->actor\&.secondaryType);
+279                     Serial\&.print(" actor ");
+280                     Serial\&.println();
+281                 #endif
+282                     //secondary type is hour    
+283                     if( ( this->actor\&.secondaryType=="hour" ) )
+284                     {
+285                         //time >= hourLow : stop actor
+286                         if( ( root[this->actor\&.secondaryType] ) >= ( this->actor\&.hourLow ) )  
+287                         {
+288                     
+289                         #if DEBUG == 1 
+290                         
+291                             Serial\&.print("deactive actor ");
+292                             Serial\&.println();
+293                     
+294                         #endif  
+295                             this->write( 0 ) ;  
+296                         }
+297                         //time >= hourHigh : start actor
+298                         else if( ( root[ this->actor\&.secondaryType ] ) >= ( this->actor\&.hourHigh ) )
+299                         {
+300                     
+301                         #if DEBUG == 1 
+302                     
+303                             Serial\&.print("active actor ");
+304                             Serial\&.println();
+305                     
+306                         #endif
+307                             this->write( 1 ) ;                  
+308                         }
+309                     }
+310 
+311                     //secondary type is minute  
+312                     if( ( this->actor\&.secondaryType=="minute" ) )
+313                     {
+314                         //time >= minuteLow : stop actor
+315                         if( ( root[this->actor\&.secondaryType] ) >= ( this->actor\&.minuteLow ) )    
+316                         {
+317                     
+318                         #if DEBUG == 1 
+319                         
+320                             Serial\&.print("deactive actor ");
+321                             Serial\&.println( );
+322                     
+323                         #endif  
+324                             this->write( 0 ) ;  
+325                         }
+326                         //time >= minuteHigh : start actor
+327                         else if( ( root[ this->actor\&.secondaryType ] ) >= ( this->actor\&.minuteHigh ) )
+328                         {
+329                     
+330                         #if DEBUG == 1 
+331                     
+332                             Serial\&.print("active actor  ");
+333                             Serial\&.println();
+334                     
+335                         #endif
+336                             this->write( 1 ) ;                  
+337                         }
+338                     }
+339 
+340                     //secondary type is hourMinute  
+341                     if( ( this->actor\&.secondaryType=="hourMinute" ) )
+342                     {
+343                         //time == hourLow :
+344                         if( ( root["hour"] ) == ( this->actor\&.hourLow ) )    
+345                         {
+346                             //time > minuteLow : stop actor
+347                             if( (root["minute"])>=(this->actor\&.minuteLow) )                      
+348                             {
+349                             #if DEBUG == 1 
+350                     
+351                                 Serial\&.print(" time\&.hour == hourLow, time\&.minute>=minuteLow : deactive actor ");
+352                                 Serial\&.println();
+353                 
+354                             #endif  
+355                                 this->write( 0 ) ;
+356                             }   
+357                         }
+358                         //time > hourLow: stop actor
+359                         else if( ( root["hour" ] ) > ( this->actor\&.hourLow ) )
+360                         {
+361 
+362                         #if DEBUG == 1 
+363                     
+364                             Serial\&.print("time\&.hour>hourLow : deactive actor ");
+365                             Serial\&.println();
+366             
+367                         #endif      
+368                             this->write( 0 ) ;
+369                                                 
+370                         }
+371                         //time == hourHigh:
+372                         else if( ( root["hour" ] ) == ( this->actor\&.hourHigh ) )
+373                         {
+374                             //time > minuteHigh: start actor
+375                             if( (root["minute"])>=(this->actor\&.minuteHigh) )
+376                             {
+377                     
+378                             #if DEBUG == 1 
+379                     
+380                                 Serial\&.print("time\&.hour==hourHigh, time\&.mintue>=minuteHigh : active actor ");
+381                                 Serial\&.println();
+382                     
+383                             #endif
+384                                 this->write( 1 ) ;
+385                             }                   
+386                         }
+387                         //time > hourHigh : start actor
+388                         else if( ( root["hour" ] ) > ( this->actor\&.hourHigh ) )
+389                         {
+390                             
+391                         #if DEBUG == 1 
+392                     
+393                             Serial\&.print("time\&.hour>hourHigh : active actor ");
+394                             Serial\&.println();
+395             
+396                         #endif      
+397 
+398                             this->write( 1 ) ;
+399                                                 
+400                         }
+401 
+402                     }
+403 
+404 
+405                 }
+406                 //actor not of type hour
+407                 else if( ( this->actor\&.secondaryType ) == ( "" ) )    
+408                 {
+409                 
+410                 #if DEBUG == 1 
+411                     
+412                     Serial\&.println("not hour temporal actor");
+413                     Serial\&.println();
+414                     Serial\&.println(this->actor\&.secondaryType);
+415                     Serial\&.println("actifTime : ");
+416                     Serial\&.println(this->actor\&.actifTime);
+417                     Serial\&.println("millis : ");
+418                     Serial\&.println(millis() );
+419                     Serial\&.println(" high : ");
+420                     Serial\&.println(this->actor\&.timeHigh );
+421                     Serial\&.println();
+422                 
+423                 #endif
+424                     //if the actor was actif for highTime or more :
+425                     if( ( millis()- this->actor\&.actifTime  ) >= (  this->actor\&.timeHigh  ) )
+426                     {
+427                         //stop the actor
+428                         this->write( 0) ;
+429 
+430                         //make the actor inactif:
+431                         this->actor\&.actif=0;
+432 
+433                         //start the low timer
+434                         this->actor\&.inactifTime=millis();                
+435                     }
+436                 }           
+437                         
+438             }
+439         }
+440         //check if actor is inactif
+441         else if(this->actor\&.actif==0)
+442         {   //check if actor is temporal
+443             if(this->actor\&.temporal==1)
+444             {
+445                 //if the actor was inactif for lowTime or more :
+446                 if( ( millis() - this->actor\&.inactifTime ) >= (  this->actor\&.timeLow  ) )
+447                 {
+448                     //start the actor
+449                     this->write( 1 ) ;
+450 
+451                     //make the actor actif:
+452                     this->actor\&.actif=1;
+453 
+454                     //start the low timer
+455                     this->actor\&.actifTime=millis();
+456 
+457                 #if DEBUG == 1 
+458                     
+459                     Serial\&.println("inactif temporal actor");
+460                     Serial\&.println(this->actor\&.primaryType);
+461                     Serial\&.print("temporal : ");
+462                     Serial\&.println(this->actor\&.temporal);
+463                     Serial\&.println("inactifTime : ");
+464                     Serial\&.println(this->actor\&.inactifTime);
+465                     Serial\&.println("millis : ");
+466                     Serial\&.println(millis() );
+467                     Serial\&.println(" low : ");
+468                     Serial\&.println(this->actor\&.timeLow );
+469                     Serial\&.println();
+470 
+471                     Serial\&.println();
+472                 
+473                 #endif
+474             
+475                 }           
+476         
+477             }
+478         }
+479         
+480     } 
+481 }
+.fi
+.SS "void CoolBoardActor::printConf ()"
+\fBCoolBoardActor::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
+.PP
+Definition at line 690 of file CoolBoardActor\&.cpp\&.
+.PP
+.nf
+691 {
+692 
+693 #if DEBUG == 1 
+694 
+695     Serial\&.println( F("Enter CoolBoardActor\&.printConf() ") );
+696     Serial\&.println();
+697 
+698 #endif 
+699     Serial\&.println(F( "CoolBoardActor configuration " ) ) ;
+700  
+701     Serial\&.print(F(" actif :"));
+702     Serial\&.println(this->actor\&.actif);
+703     
+704 
+705     Serial\&.print(F(" temporal :"));
+706     Serial\&.println(this->actor\&.temporal);
+707 
+708 
+709     Serial\&.print(F(" inverted :"));
+710     Serial\&.println(this->actor\&.inverted);
+711 
+712 
+713 
+714     Serial\&.print(F(" primary Type :"));
+715     Serial\&.println(this->actor\&.primaryType);
+716 
+717     Serial\&.print(F(" secondary Type :"));        
+718     Serial\&.println(this->actor\&.secondaryType);
+719 
+720 
+721     Serial\&.print(F(" range Low :"));
+722     Serial\&.println(this->actor\&.rangeLow);
+723 
+724 
+725     Serial\&.print(F(" time Low :"));
+726     Serial\&.println(this->actor\&.timeLow);
+727 
+728 
+729     Serial\&.print(F(" hour low:"));
+730     Serial\&.println(this->actor\&.hourLow);
+731 
+732 
+733     Serial\&.print(F(" minute low:"));
+734     Serial\&.println(this->actor\&.minuteLow);
+735 
+736 
+737     Serial\&.print(F(" range High:"));
+738     Serial\&.println(this->actor\&.rangeHigh);
+739 
+740 
+741     Serial\&.print(F(" time High:"));
+742     Serial\&.println(this->actor\&.timeHigh);
+743 
+744 
+745     Serial\&.print(F(" hour high:"));
+746     Serial\&.println(this->actor\&.hourHigh);
+747 
+748 
+749     Serial\&.print(F(" minute high:"));
+750     Serial\&.println(this->actor\&.minuteHigh);
+751 
+752     Serial\&.println(); 
+753 
+754 }
+.fi
+.SS "void CoolBoardActor::write (bool action)"
+CoolBoardActor::write(action): This method is provided to write the given action to the \fBCoolBoardActor\fP\&. 
+.PP
+Definition at line 48 of file CoolBoardActor\&.cpp\&.
+.PP
+.nf
+49 {
+50 
+51 #if DEBUG == 1
+52 
+53     Serial\&.println( F("Entering CoolBoardActor\&.write()") );
+54     Serial\&.println();
+55 
+56     Serial\&.println( F("writing this action : ") );
+57     Serial\&.println(action,BIN);
+58     Serial\&.println();
+59 
+60 #endif 
+61     
+62     digitalWrite(this->pin,action);
+63     
+64 
+65 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "struct \fBCoolBoardActor::state\fP CoolBoardActor::actor\fC [private]\fP"
+
+.SS "const int CoolBoardActor::pin = 15\fC [private]\fP"
+
+.PP
+Definition at line 75 of file CoolBoardActor\&.h\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.

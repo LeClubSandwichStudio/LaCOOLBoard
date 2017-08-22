@@ -1,6 +1,7 @@
 var searchData=
 [
   ['offlinemode',['offLineMode',['../d7/df9/class_cool_board.html#ae6b5e1274d760462290192acea4adca8',1,'CoolBoard']]],
+  ['onboardactor',['onBoardActor',['../d7/df9/class_cool_board.html#a4ac693895c21025b8808653f2a4316e6',1,'CoolBoard']]],
   ['onewire',['oneWire',['../d9/d09/_external_sensors_8cpp.html#af39fa3dad1ba161b384c0b26b8145e65',1,'ExternalSensors.cpp']]],
   ['onlinemode',['onLineMode',['../d7/df9/class_cool_board.html#aa0bbc4bc605e35618d18e68795c61363',1,'CoolBoard']]],
   ['opampgain',['opampGain',['../d6/d03/class_irene3000.html#a4e588985ca74e5076029d5dee81034f2',1,'Irene3000']]],

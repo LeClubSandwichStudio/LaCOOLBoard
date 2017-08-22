@@ -5,6 +5,11 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "CoolBoard.h", "d5/d51/_cool_board_8h.html", [
       [ "CoolBoard", "d7/df9/class_cool_board.html", "d7/df9/class_cool_board" ]
     ] ],
+    [ "CoolBoardActor.cpp", "d2/d4b/_cool_board_actor_8cpp.html", "d2/d4b/_cool_board_actor_8cpp" ],
+    [ "CoolBoardActor.h", "d1/d25/_cool_board_actor_8h.html", [
+      [ "CoolBoardActor", "dc/d69/class_cool_board_actor.html", "dc/d69/class_cool_board_actor" ],
+      [ "state", "d5/ddc/struct_cool_board_actor_1_1state.html", "d5/ddc/struct_cool_board_actor_1_1state" ]
+    ] ],
     [ "CoolBoardLed.cpp", "d5/d32/_cool_board_led_8cpp.html", "d5/d32/_cool_board_led_8cpp" ],
     [ "CoolBoardLed.h", "d0/da6/_cool_board_led_8h.html", [
       [ "CoolBoardLed", "de/dc0/class_cool_board_led.html", "de/dc0/class_cool_board_led" ]

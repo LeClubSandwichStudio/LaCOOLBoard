@@ -9,7 +9,7 @@ var NAVTREE =
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
-        [ "Variables", "functions_vars.html", null ],
+        [ "Variables", "functions_vars.html", "functions_vars" ],
         [ "Related Functions", "functions_rela.html", null ]
       ] ]
     ] ],
@@ -30,9 +30,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"d2/d82/_wi_fi_manager_read_file_button_8cpp.html",
-"d7/df9/class_cool_board.html#a519de78b807f8ec6463ff484eb925918",
-"df/d06/_cool_adafruit___a_d_s1015_8h.html#a49d39ffb8fb66bdb877d0f2546137cce"
+"d2/d3a/_cool_spark_fun_b_m_e280_8h.html#afe625f2ec64c74d6488a93ba04575b24",
+"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#adb6ba4fcdedef95ad8f6b0c9b6c0f9d1",
+"de/dc0/class_cool_board_led.html#a69f323359e0c9f797422f2152b5d41ef",
+"globals_defs_t.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

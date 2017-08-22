@@ -5,6 +5,7 @@ var annotated_dup =
     [ "BaseExternalSensor", "d1/d68/class_base_external_sensor.html", "d1/d68/class_base_external_sensor" ],
     [ "BME280", "df/dcf/class_b_m_e280.html", "df/dcf/class_b_m_e280" ],
     [ "CoolBoard", "d7/df9/class_cool_board.html", "d7/df9/class_cool_board" ],
+    [ "CoolBoardActor", "dc/d69/class_cool_board_actor.html", "dc/d69/class_cool_board_actor" ],
     [ "CoolBoardLed", "de/dc0/class_cool_board_led.html", "de/dc0/class_cool_board_led" ],
     [ "CoolBoardSensors", "de/d46/class_cool_board_sensors.html", "de/d46/class_cool_board_sensors" ],
     [ "CoolFileSystem", "db/d0c/class_cool_file_system.html", "db/d0c/class_cool_file_system" ],

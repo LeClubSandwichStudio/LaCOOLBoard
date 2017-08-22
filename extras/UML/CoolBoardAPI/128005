@@ -1,6 +1,6 @@
 format 214
 "src" // src
-  revision 4
+  revision 5
   modified_by 5 "ashiroji"
   // class settings
   
@@ -450,6 +450,15 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 	  b parent class_ref 129157 // ExternalSensors
       end
 
+      classrelation 137605 // onBoardActor (<directional composition>)
+	relation 137605 *-->
+	  a role_name "onBoardActor" private
+	    cpp default "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	    classrelation_ref 137605 // onBoardActor (<directional composition>)
+	  b parent class_ref 138373 // CoolBoardActor
+      end
+
       attribute 128005 "userActive"
 	private explicit_type "bool"
 	init_value "= 0"
@@ -503,6 +512,19 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
       end
 
       attribute 128517 "sleepActive"
+	private explicit_type "bool"
+	init_value "= 0"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+      end
+
+      attribute 168709 "manual"
 	private explicit_type "bool"
 	init_value "= 0"
 	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
@@ -3104,7 +3126,6 @@ this is the maximum at which the actor becomes inactif(high[0])"
 	  mysql_decl ""
 	  MysqlColumn
 	end
-
       end
 
       attribute 136709 "clockPin"
@@ -4356,6 +4377,414 @@ ${inlines}
       classdiagramsettings member_max_width 0 end
       size D
     end
+
+    class 138373 "CoolBoardActor"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      mysql_decl ""
+      
+      comment "	\\class CoolBoardActor
+	\\brief This class manages the CoolBoardActor 
+
+"
+      operation 182917 "begin"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoardActor::begin():
+//	This method is provided to
+//	initialise the CoolBoardActor pin
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 183045 "write"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 1
+	  param in name "action" explicit_type "bool"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoardActor::write(action):
+//	This method is provided to write
+//	the given action to the CoolBoardActor.
+//
+//
+
+${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+	comment "starts the CoolBoardActor"
+      end
+
+      operation 183173 "doAction"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 1
+	  param in name "data" explicit_type "char"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} * ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoardActor::doAction(sensor data ):
+//	This method is provided to automate the CoolBoardActor.
+//	exemple:
+//	initial state:
+//		current Temperature = 23 °C
+//		actor.actif=1
+//		actor.rangeLow=25 °C
+//		actor.rangeHigh=30 °C
+//		actor.primaryType=\"Temperature\"
+//		
+//	condition verified:		
+//		root[\"Temperature\"] < actor.rangeLow
+//
+//	action : activate the actor 
+//
+//
+//	initial state:
+//		actor.actif=1
+//		actor.rangeLow=2°C
+//		actor.rangeHigh=12°C
+//		actor.inverted=1
+//		actor.primaryType=\"Temperature\"
+//		
+//	condition verified:		
+//		root[\"Temperature\"] > actor.rangeHigh
+//
+//	action: activate the actor
+//
+//
+//	initial state:
+//		actor.actif=1
+//		actor.timeLow=2500ms
+//		actor.timeHigh=3000ms
+//		actor.temporal=1
+//		
+//	condition verified:		
+//		millis()-actor.actifTime >=actor.timeHigh
+//
+//	action: deactivate the actor 
+//
+//
+//	initial state:
+//		actor.actif=1
+//		actor.hourLow=10
+//		actor.hourHigh=8
+//		actor.temporal=1
+//		actor.secondaryType=\"hour\"( or \"minute\" or \"hourMinute\")
+//		
+//	condition verified:		
+//		root[\"hour\"]>=actorhourHigh
+//
+//	action: activate the actor 
+//
+//
+//
+
+${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+	comment "CoolBoardActor"
+      end
+
+      operation 183301 "config"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoardActor::config():
+//	This method is provided to configure the
+//	CoolBoardActor with a configuration file
+//
+//	\\return true if successful,false otherwise
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 183429 "printConf"
+	preserve_cpp_body_indent public explicit_return_type "void"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoardActor::printConf():
+//	This method is provided to
+//	print the configuration to the 
+//	Serial Monitor
+//
+
+${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      class 138501 "state"
+	visibility package stereotype "struct"
+	cpp_decl "${comment}${template}struct ${name}${inherit} {
+${members}};
+${inlines}
+"
+	java_decl ""
+	php_decl ""
+	python_2_2 python_decl ""
+	idl_decl ""
+	explicit_switch_type ""
+	mysql_decl ""
+	
+	attribute 168837 "actif"
+	  public explicit_type "bool"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 168965 "temporal"
+	  public explicit_type "bool"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 169093 "inverted"
+	  public explicit_type "bool"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 169221 "primaryType"
+	  public explicit_type "String"
+	  init_value "= \"\""
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"type\":[\"temperature\",\"hour\"]
+the primary type is related to the sensor's type (type[0])"
+	end
+
+	attribute 169349 "secondaryType"
+	  public explicit_type "String"
+	  init_value "= \"\""
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment " the secondary type if present is hour or minute or hourMinute (type[1]) "
+	end
+
+	attribute 169477 "rangeLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"low\":[20,5000,18]
+this is the minimum at which the actor becomes actif (low[0])"
+	end
+
+	attribute 169605 "timeLow"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the time the actor is off in temporal mode (low[1])"
+	end
+
+	attribute 169733 "hourLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2])"
+	end
+
+	attribute 169861 "minuteLow"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])"
+	end
+
+	attribute 169989 "rangeHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "\"high\":[30,2000,17]
+this is the maximum at which the actor becomes inactif(high[0])"
+	end
+
+	attribute 170117 "timeHigh"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the time the actor is on in temporal mode(high[1])"
+	end
+
+	attribute 170245 "hourHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])"
+	end
+
+	attribute 170373 "minuteHigh"
+	  public explicit_type "int"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	  comment "this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3])"
+	end
+
+	attribute 170501 "actifTime"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+
+	attribute 170629 "inactifTime"
+	  public explicit_type "ulong"
+	  init_value "= 0"
+	  cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	  java_decl ""
+	  php_decl ""
+	  python_decl ""
+	  idl_decl ""
+	  mysql_decl ""
+	  MysqlColumn
+	end
+      end
+
+      attribute 170757 "pin"
+	const_attribute private explicit_type "int"
+	init_value "=  15"
+	cpp_decl "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${h_value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+	mysql_decl ""
+	MysqlColumn
+	comment "pin for the actor"
+      end
+    end
   end
 
   deploymentview 128005 "src"
@@ -4615,6 +5044,29 @@ ${members}
 ${namespace_end}"
       associated_elems
 	class_ref 128901 // Jetpack
+      end
+    end
+
+    artifact 136581 "CoolBoardActor"
+      stereotype "source"
+      cpp_h "#ifndef ${NAMESPACE}_${NAME}_H
+#define ${NAMESPACE}_${NAME}_H
+
+${comment}
+${includes}
+${declarations}
+${namespace_start}
+${definition}
+${namespace_end}
+#endif
+"
+      cpp_src "${comment}
+${includes}
+${namespace_start}
+${members}
+${namespace_end}"
+      associated_elems
+	class_ref 138373 // CoolBoardActor
       end
     end
   end

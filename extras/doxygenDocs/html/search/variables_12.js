@@ -1,7 +1,7 @@
 var searchData=
 [
   ['saveddata',['savedData',['../db/d0c/class_cool_file_system.html#ad9f5b739a32100f5f21270c3d9ee2b1d',1,'CoolFileSystem']]],
-  ['secondarytype',['secondaryType',['../da/d35/struct_jetpack_1_1state.html#a81cf9af139da095b7d91e2a87e50135b',1,'Jetpack::state']]],
+  ['secondarytype',['secondaryType',['../d5/ddc/struct_cool_board_actor_1_1state.html#a44e8f69868f2491b79ed075f84aa0fcb',1,'CoolBoardActor::state::secondaryType()'],['../da/d35/struct_jetpack_1_1state.html#a81cf9af139da095b7d91e2a87e50135b',1,'Jetpack::state::secondaryType()']]],
   ['sensor',['sensor',['../db/d42/class_external_sensor.html#a6e1f518119abe08c14b498ce24a7e1b3',1,'ExternalSensor::sensor()'],['../db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html#ae541c9cece7c38674b70114cdb74a7dc',1,'ExternalSensor&lt; NDIR_I2C &gt;::sensor()'],['../d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#adb6ba4fcdedef95ad8f6b0c9b6c0f9d1',1,'ExternalSensor&lt; DallasTemperature &gt;::sensor()']]],
   ['sensors',['sensors',['../d1/d2f/class_external_sensors.html#a284233f884fcf00154a44740cf1d9e1e',1,'ExternalSensors']]],
   ['sensorsnumber',['sensorsNumber',['../d1/d2f/class_external_sensors.html#a58e4fbf9adeae787d92be5fa33043b5d',1,'ExternalSensors']]],

@@ -11,6 +11,7 @@ var hierarchy =
     ] ],
     [ "BME280", "df/dcf/class_b_m_e280.html", null ],
     [ "CoolBoard", "d7/df9/class_cool_board.html", null ],
+    [ "CoolBoardActor", "dc/d69/class_cool_board_actor.html", null ],
     [ "CoolBoardLed", "de/dc0/class_cool_board_led.html", null ],
     [ "CoolBoardSensors", "de/d46/class_cool_board_sensors.html", null ],
     [ "CoolFileSystem", "db/d0c/class_cool_file_system.html", null ],
@@ -28,8 +29,9 @@ var hierarchy =
     [ "ExternalSensors::sensor", "dd/d58/struct_external_sensors_1_1sensor.html", null ],
     [ "SensorCalibration", "d0/d9c/struct_sensor_calibration.html", null ],
     [ "SensorSettings", "d8/dd4/struct_sensor_settings.html", null ],
-    [ "Jetpack::state", "da/d35/struct_jetpack_1_1state.html", null ],
     [ "Irene3000::state", "d2/d18/struct_irene3000_1_1state.html", null ],
+    [ "Jetpack::state", "da/d35/struct_jetpack_1_1state.html", null ],
+    [ "CoolBoardActor::state", "d5/ddc/struct_cool_board_actor_1_1state.html", null ],
     [ "WiFiManager", "d4/dc8/class_wi_fi_manager.html", null ],
     [ "WiFiManagerParameter", "d7/d08/class_wi_fi_manager_parameter.html", null ]
 ];
