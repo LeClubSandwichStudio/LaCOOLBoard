@@ -11,7 +11,7 @@
 #define Jetpack_H
 
 #include "Arduino.h"
-#define DEBUG 1
+
 
 /**
 *	\class Jetpack
@@ -30,348 +30,29 @@ public:
  
 	void doAction(const char* data );
 
-	template <typename T> 
-	void normalAction(int actorNumber,T measurment)
-	{
-	
-		//measured value lower than minimum range : activate actor
-		if(measurment < this->actors[actorNumber].rangeLow)
-		{
-			bitWrite( this->action , actorNumber , 1) ;		
-		}
-		//measured value higher than maximum range : deactivate actor
-		else if(measurment > this->actors[actorNumber].rangeHigh)
-		{
-			bitWrite( this->action , actorNumber , 0) ;	
-		}
-	#if DEBUG == 1
-		
-		Serial.print("none inverted Actor N° : ");
-		Serial.println(actorNumber);
+	void normalAction(int actorNumber,float measurment);
 
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-	
-	#endif
-	
-	}
-
-	template <typename T> 
-	void invertedAction(int actorNumber,T measurment)
-	{
-		//measured value lower than minimum range : deactivate actor
-		if(measurment < this->actors[actorNumber].rangeLow)
-		{
-			bitWrite( this->action , actorNumber , 0) ;
-		}
-		//measured value higher than maximum range : activate actor
-		else if(measurment > this->actors[actorNumber].rangeHigh)
-		{
-			bitWrite( this->action , actorNumber , 1) ;
-		}
-
-	#if DEBUG == 1
-		
-		Serial.print("inverted Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-	
-	#endif
-	}
+	void invertedAction(int actorNumber,float measurment);
 
 	void temporalActionOff(int actorNumber);
 
 	void temporalActionOn(int actorNumber);
 
-	template <typename T> 
-	void mixedTemporalActionOff(int actorNumber,T measurment)
-	{
-		if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) )
-			{	
-				if( measurment > this->actors[actorNumber].rangeHigh )
-				{
-					//stop the actor
-					bitWrite( this->action , actorNumber , 0) ;
+	void mixedTemporalActionOff(int actorNumber,float measurment);
 
-					//make the actor inactif:
-					this->actors[actorNumber].actif=0;
-
-					//start the low timer
-					this->actors[actorNumber].inactifTime=millis();
-
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 1) ;				
-				}			
-			}
-	#if DEBUG == 1
-		
-		Serial.print("mixed Temporal Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("time high : ");
-		Serial.println(this->actors[actorNumber].timeHigh);
-
-		Serial.print("actif Time : ");
-		Serial.println(this->actors[actorNumber].actifTime);
-	
-	#endif
-	}
-
-	template <typename T> 
-	void mixedTemporalActionOn(int actorNumber,T measurment)
-	{
-		if( ( millis() - this->actors[actorNumber].inactifTime ) >= (  this->actors[actorNumber].timeLow  ) )
-		{
-			if( measurment < this->actors[actorNumber].rangeLow )
-			{
-				//start the actor
-				bitWrite( this->action , actorNumber , 1) ;
-
-				//make the actor actif:
-				this->actors[actorNumber].actif=1;
-
-				//start the low timer
-				this->actors[actorNumber].actifTime=millis();
-
-			}
-			else 
-			{
-				bitWrite( this->action , actorNumber , 0) ;				
-			}
-
-		}
-
-	#if DEBUG == 1
-		
-		Serial.print("mixed Temporal Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-
-		Serial.print("time low : ");
-		Serial.println(this->actors[actorNumber].timeLow);
-
-		Serial.print("inactif Time : ");
-		Serial.println(this->actors[actorNumber].inactifTime);
-	
-	#endif
-		
-	}
+	void mixedTemporalActionOn(int actorNumber,float measurment);
 
 	void hourAction(int actorNumber, int hour); 
 
-	template <typename T> 
-	void mixedHourAction(int actorNumber,int hour, T measurment)
-	{
-		//starting the actor
-		if(hour >= this->actors[actorNumber].hourHigh)
-		{
-				if( measurment < this->actors[actorNumber].rangeLow )
-				{
-					bitWrite( this->action , actorNumber , 1) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 0) ;				
-				}
-
-		}
-		//stop the actor	
-		else if(hour >= this->actors[actorNumber].hourLow)
-		{
-				if( measurment > this->actors[actorNumber].rangeHigh )
-				{
-					bitWrite( this->action , actorNumber , 0) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 1) ;				
-				}
-		}
-
-	#if DEBUG == 1
-		
-		Serial.print("mixed hour Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print(" hour : ");
-		Serial.println(hour);
-
-		Serial.print("high hour : ");
-		Serial.println(this->actors[actorNumber].hourHigh);
-
-		Serial.print("low hour : ");
-		Serial.println(this->actors[actorNumber].hourLow);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-	
-	#endif
-
-	
-	}
+	void mixedHourAction(int actorNumber,int hour, float measurment);
 
 	void minuteAction(int actorNumber,int minute);
 
-	template <typename T> 
-	void mixedMinuteAction(int actorNumber,int minute,T measurment)
-	{
-		//starting the actor
-		if(minute >= this->actors[actorNumber].minuteHigh)
-		{
-				if( measurment < this->actors[actorNumber].rangeLow )
-				{
-					bitWrite( this->action , actorNumber , 1) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 0) ;				
-				}
-
-		}
-		//stop the actor	
-		else if(minute >= this->actors[actorNumber].minuteLow)
-		{
-				if( measurment > this->actors[actorNumber].rangeHigh )
-				{
-					bitWrite( this->action , actorNumber , 0) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 1) ;				
-				}
-		}
-
-	#if DEBUG == 1
-		
-		Serial.print("minute Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print(" minute : ");
-		Serial.println(minute);
-
-		Serial.print("high minute : ");
-		Serial.println(this->actors[actorNumber].minuteHigh);
-
-		Serial.print("low minute : ");
-		Serial.println(this->actors[actorNumber].minuteLow);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-	
-	#endif
-
-
-	}
+	void mixedMinuteAction(int actorNumber,int minute,float measurment);
 
 	void hourMinuteAction(int actorNumber,int hour,int minute);
 
-	template <typename T> 
-	void mixedHourMinuteAction(int actorNumber,int hour,int minute ,T measurment)
-	{
-		//start the actor
-		if(hour>=this->actors[actorNumber].hourHigh)
-		{
-			if(minute>= this->actors[actorNumber].minuteHigh)
-			{
-				if( measurment < this->actors[actorNumber].rangeLow )
-				{
-					bitWrite( this->action , actorNumber , 1) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 0) ;				
-				}
-			}
-		}
-		//stop the actor
-		else if(hour>=this->actors[actorNumber].hourLow)
-		{
-			if(minute>= this->actors[actorNumber].minuteLow)
-			{
-				if( measurment > this->actors[actorNumber].rangeHigh )
-				{
-					bitWrite( this->action , actorNumber , 0) ;
-				}
-				else 
-				{
-					bitWrite( this->action , actorNumber , 1) ;				
-				}
-			}
-		}
-
-	#if DEBUG == 1
-		
-		Serial.print("hourMinute Actor N° : ");
-		Serial.println(actorNumber);
-
-		Serial.print(" hour : ");
-		Serial.println(hour);
-		Serial.print(" minute : ");
-		Serial.println(minute);
-
-		Serial.print("high hour : ");
-		Serial.println(this->actors[actorNumber].hourHigh);
-
-		Serial.print("high minute : ");
-		Serial.println(this->actors[actorNumber].minuteHigh);
-
-		Serial.print("low hour : ");
-		Serial.println(this->actors[actorNumber].hourLow);
-
-		Serial.print("low minute : ");
-		Serial.println(this->actors[actorNumber].minuteLow);
-
-		Serial.print("measured value : ");
-		Serial.println(measurment);
-
-		Serial.print("high range : ");
-		Serial.println(this->actors[actorNumber].rangeHigh);
-
-		Serial.print("low range : ");
-		Serial.println(this->actors[actorNumber].rangeLow);
-	
-	#endif
-	
-	}
+	void mixedHourMinuteAction(int actorNumber,int hour,int minute ,float measurment);
 
 	bool config();
 

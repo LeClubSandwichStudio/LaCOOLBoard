@@ -110,58 +110,12 @@ void Jetpack::writeBit(byte pin,bool state)
 /**
 *	Jetpack::doAction(sensor data ):
 *	This method is provided to automate the Jetpack.
-*	exemple:
-*	initial state:
-*		current Temperature = 23 °C
-*		actors[i].actif=1
-*		actors[i].rangeLow=25 °C
-*		actors[i].rangeHigh=30 °C
-*		actors[i].primaryType="Temperature"
-*		
-*	condition verified:		
-*		root["Temperature"] < actors[i].rangeLow
-*
-*	action : activate the actor at pin[i]
-*
-*
-*	initial state:
-*		actors[i].actif=1
-*		actors[i].rangeLow=2°C
-*		actors[i].rangeHigh=12°C
-*		actors[i].inverted=1
-*		actors[i].primaryType="Temperature"
-*		
-*	condition verified:		
-*		root["Temperature"] > actors[i].rangeHigh
-*
-*	action: activate the actor at pin[i]
-*
-*
-*	initial state:
-*		actors[i].actif=1
-*		actors[i].timeLow=2500ms
-*		actors[i].timeHigh=3000ms
-*		actors[i].temporal=1
-*		
-*	condition verified:		
-*		millis()-actors[i].actifTime >=actors[i].timeHigh
-*
-*	action: deactivate the actor at pin[i]
-*
-*
-*	initial state:
-*		actors[i].actif=1
-*		actors[i].hourLow=10
-*		actors[i].hourHigh=8
-*		actors[i].temporal=1
-*		actors[i].secondaryType="hour"( or "minute" or "hourMinute")
-*		
-*	condition verified:		
-*		root["hour"]>=actors[i].hourHigh
-*
-*	action: activate the actor at pin[i]
-*
-*
+*	
+*	The result action is the result of
+*	checking the different flags of an actor
+*	(actif , temporal ,inverted, primaryType
+*	and secondaryType ) and the corresponding
+*	call to the appropriate helping method
 */
 void Jetpack::doAction( const char* data )
 {
@@ -281,12 +235,12 @@ void Jetpack::doAction( const char* data )
 						//mixed temporal actor
 						if(root[this->actors[i].primaryType].success() )
 						{
-							this->mixedTemporalActionOff(i,root[this->actors[i].primaryType].as<float>());
+							this->mixedTemporalActionOn(i,root[this->actors[i].primaryType].as<float>());
 						}
 						//normal temporal actor
 						else
 						{
-							this->temporalActionOff(i);
+							this->temporalActionOn(i);
 						}
 											
 					}
@@ -302,12 +256,12 @@ void Jetpack::doAction( const char* data )
 					//mixed temporal actor
 					if(root[this->actors[i].primaryType].success() )
 					{
-						this->mixedTemporalActionOn(i,root[this->actors[i].primaryType].as<float>());
+						this->mixedTemporalActionOff(i,root[this->actors[i].primaryType].as<float>());
 					}
 					//normal temporal actor
 					else
 					{
-						this->temporalActionOn(i);
+						this->temporalActionOff(i);
 					}
 				}			
 			}
@@ -648,10 +602,204 @@ void Jetpack::printConf()
 	Serial.println();
 }
 
+/**
+*	Jetpack::normalAction(actorNumber , measured value):
+*	This method is provided to
+*	handle normal actors.
+*	it changes the action according to wether the
+*	measured value is: > rangeHigh ( deactivate actor)
+*	or < rangeLow (activate actor )
+*/
+void Jetpack::normalAction(int actorNumber,float measurment)
+{
 
+#if DEBUG == 1
+	
+	Serial.print(F("none inverted Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F("measured value : "));
+	Serial.println(measurment);
+
+	Serial.print(F("high range : "));
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print(F("low range : "));
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+#endif
+
+	//measured value lower than minimum range : activate actor
+	if(measurment < this->actors[actorNumber].rangeLow)
+	{
+		bitWrite( this->action , actorNumber , 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+	
+	#endif
+				
+	}
+	//measured value higher than maximum range : deactivate actor
+	else if(measurment > this->actors[actorNumber].rangeHigh)
+	{
+		bitWrite( this->action , actorNumber , 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+	
+	}
+
+
+}
+
+
+/**
+*	Jetpack::invertedAction(actorNumber , measured value):
+*	This method is provided to
+*	handle inverted actors.
+*	it changes the action according to wether the
+*	measured value is:
+*	> rangeHigh (activate actor)
+*	< rangeLow ( deactivate actor )
+*/
+void Jetpack::invertedAction(int actorNumber,float measurment)
+{
+#if DEBUG == 1
+	
+	Serial.print("inverted Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+#endif
+
+	//measured value lower than minimum range : deactivate actor
+	if(measurment < this->actors[actorNumber].rangeLow)
+	{
+		bitWrite( this->action , actorNumber , 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+
+	}
+	//measured value higher than maximum range : activate actor
+	else if(measurment > this->actors[actorNumber].rangeHigh)
+	{
+		bitWrite( this->action , actorNumber , 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+	
+	#endif
+
+	}
+
+
+}
+
+/**
+*	Jetpack::temporalActionOff(actorNumber ):
+*	This method is provided to
+*	handle temporal actors.
+*	it changes the action according to:
+*	
+*	currentTime - startTime > timeHigh : deactivate actor 
+*
+*/
 void Jetpack::temporalActionOff(int actorNumber)
 {
+
+#if DEBUG == 1
+	
+	Serial.print(F("temporal Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+	Serial.print(F("actif Time : "));
+	Serial.println(this->actors[actorNumber].actifTime);
+
+	Serial.print(F("high time : "));
+	Serial.println(this->actors[actorNumber].timeHigh);
+
+
+#endif
+	
 	if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) )
+	{
+		//stop the actor
+		bitWrite( this->action , actorNumber , 0) ;
+
+		//make the actor inactif:
+		this->actors[actorNumber].actif=0;
+
+		//start the low timer
+		this->actors[actorNumber].inactifTime=millis();
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+				
+	}	
+}
+
+
+/**
+*	Jetpack::mixedTemporalActionOff(actorNumber, measured value ):
+*	This method is provided to
+*	handle mixed temporal actors.
+*	it changes the action according to:
+*	
+*	currentTime - startTime >= timeHigh :  
+*		measured value >= rangeHigh : deactivate actor
+*		measured value < rangeHigh : activate actor
+*/
+void Jetpack::mixedTemporalActionOff(int actorNumber,float measurment)
+{
+
+#if DEBUG == 1
+	
+	Serial.print("mixed Temporal Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print("time high : ");
+	Serial.println(this->actors[actorNumber].timeHigh);
+
+	Serial.print("actif Time : ");
+	Serial.println(this->actors[actorNumber].actifTime);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+#endif
+	if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) )
+	{	
+		if( measurment >= this->actors[actorNumber].rangeHigh )
 		{
 			//stop the actor
 			bitWrite( this->action , actorNumber , 0) ;
@@ -660,28 +808,137 @@ void Jetpack::temporalActionOff(int actorNumber)
 			this->actors[actorNumber].actif=0;
 
 			//start the low timer
-			this->actors[actorNumber].inactifTime=millis();				
+			this->actors[actorNumber].inactifTime=millis();
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was on for at least "));
+			Serial.print(this->actors[actorNumber].timeHigh);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actors[actorNumber].rangeHigh);
+
+			
+			Serial.println(F("actor OFF "));
+
+		#endif
+
 		}
-	#if DEBUG == 1
-		
-		Serial.print(F("temporal Actor N° : "));
-		Serial.println(actorNumber);
+		else 
+		{
+			bitWrite( this->action , actorNumber , 1) ;
 
-		Serial.print(F("actif Time : "));
-		Serial.println(this->actors[actorNumber].actifTime);
+		#if DEBUG == 1 
+			
+			Serial.print(F("actor was on for at least "));
+			Serial.print(this->actors[actorNumber].timeHigh);
+			Serial.println(F(" ms "));
 
-		Serial.print(F("high time : "));
-		Serial.println(this->actors[actorNumber].timeHigh);
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actors[actorNumber].rangeHigh);
 
-	
-	#endif
-	
+			Serial.println(F("actor ON "));
+
+		#endif				
+
+		}			
+	}
+
 }
 
 
+/**
+*	Jetpack::temporalActionOn(actorNumber ):
+*	This method is provided to
+*	handle temporal actors.
+*	it changes the action according to :
+*
+*	currentTime - stopTime > timeLow : activate actor 
+*
+*/
 void Jetpack::temporalActionOn(int actorNumber)
-{	
+{
+
+#if DEBUG == 1
+	
+	Serial.print(F("temporal Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+	Serial.print(F("inactif Time : "));
+	Serial.println(this->actors[actorNumber].inactifTime);
+
+	Serial.print(F("low time : "));
+	Serial.println(this->actors[actorNumber].timeLow);
+
+
+#endif
+	
 	 if( ( millis() - this->actors[actorNumber].inactifTime ) >= (  this->actors[actorNumber].timeLow  ) )
+	{
+		//start the actor
+		bitWrite( this->action , actorNumber , 1) ;
+
+		//make the actor actif:
+		this->actors[actorNumber].actif=1;
+
+		//start the low timer
+		this->actors[actorNumber].actifTime=millis();
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif				
+
+	}
+
+}
+
+/**
+*	Jetpack::mixedTemporalActionOn(actorNumber, measured value ):
+*	This method is provided to
+*	handle mixed temporal actors.
+*	it changes the action according to :
+*
+*	currentTime - stopTime > timeLow :   
+*		measured value >= rangeLow : deactivate actor
+*		measured value < rangeLow : activate actor
+*
+*/
+void Jetpack::mixedTemporalActionOn(int actorNumber,float measurment)
+{
+
+#if DEBUG == 1
+	
+	Serial.print("mixed Temporal Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("low range : ");
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+	Serial.print("time low : ");
+	Serial.println(this->actors[actorNumber].timeLow);
+
+	Serial.print("inactif Time : ");
+	Serial.println(this->actors[actorNumber].inactifTime);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+#endif
+
+	if( ( millis() - this->actors[actorNumber].inactifTime ) >= (  this->actors[actorNumber].timeLow  ) )
+	{
+		if( measurment < this->actors[actorNumber].rangeLow )
 		{
 			//start the actor
 			bitWrite( this->action , actorNumber , 1) ;
@@ -691,123 +948,688 @@ void Jetpack::temporalActionOn(int actorNumber)
 
 			//start the low timer
 			this->actors[actorNumber].actifTime=millis();
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was off for at least "));
+			Serial.print(this->actors[actorNumber].timeLow);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actors[actorNumber].rangeLow);
+	
+			Serial.println(F("actor ON "));
+	
+		#endif	
+
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 0) ;	
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was off for at least "));
+			Serial.print(this->actors[actorNumber].timeLow);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actors[actorNumber].rangeLow);
+
+			Serial.println(F("actor OFF "));
+	
+		#endif				
+
 		}
 
-	#if DEBUG == 1
-		
-		Serial.print(F("temporal Actor N° : "));
-		Serial.println(actorNumber);
-
-		Serial.print(F("inactif Time : "));
-		Serial.println(this->actors[actorNumber].inactifTime);
-
-		Serial.print(F("low time : "));
-		Serial.println(this->actors[actorNumber].timeLow);
+	}
 
 	
-	#endif
 }
 
+
+/**
+*	Jetpack::hourAction(actorNumber, current hour ):
+*	This method is provided to
+*	handle hour actors.
+*	it changes the action according to:
+*	
+*	hour >= hourLow : deactivate the actor
+*	hour >= hourHigh : activate the actor 
+*
+*/
 void Jetpack::hourAction(int actorNumber, int hour)
 {
-	//starting the actor
-	if(hour >= this->actors[actorNumber].hourHigh)
-	{
-		bitWrite( this->action , actorNumber , 1) ;
-	}
+
+#if DEBUG == 1
+	
+	Serial.print(F("hour Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F(" hour : "));
+	Serial.println(hour);
+
+	Serial.print(F("high hour : "));
+	Serial.println(this->actors[actorNumber].hourHigh);
+
+	Serial.print(F("low hour : "));
+	Serial.println(this->actors[actorNumber].hourLow);
+
+#endif
+
 	//stop the actor	
 	if(hour >= this->actors[actorNumber].hourLow)
 	{
 		bitWrite( this->action , actorNumber , 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+
+	#endif	
+
 	}
-	#if DEBUG == 1
-		
-		Serial.print(F("hour Actor N° : "));
-		Serial.println(actorNumber);
-
-		Serial.print(F(" hour : "));
-		Serial.println(hour);
-
-		Serial.print(F("high hour : "));
-		Serial.println(this->actors[actorNumber].hourHigh);
-
-		Serial.print(F("low hour : "));
-		Serial.println(this->actors[actorNumber].hourLow);
-	
-	#endif
-}
-
-void Jetpack::minuteAction(int actorNumber,int minute)
-{
 	//starting the actor
-	if(minute >= this->actors[actorNumber].minuteHigh)
+	else if(hour >= this->actors[actorNumber].hourHigh)
 	{
 		bitWrite( this->action , actorNumber , 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif	
+	
 	}
+
+}
+
+
+/**
+*	Jetpack::mixedHourAction(actorNumber, current hour, measured value ):
+*	This method is provided to
+*	handle mixed hour actors.
+*	it changes the action according to :
+*
+*	hour >= hourLow :
+*		-measuredValue >= rangeHigh : deactivate actor
+*		-measured < rangeHigh : activate actor
+*
+*	hour >= hourHigh :
+*		-measuredValue < rangeLow : activate actor
+*		-measuredValue >=rangeLow : activate actor
+*/
+void Jetpack::mixedHourAction(int actorNumber,int hour, float measurment)
+{
+
+#if DEBUG == 1
+	
+	Serial.print("mixed hour Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print(" hour : ");
+	Serial.println(hour);
+
+	Serial.print("high hour : ");
+	Serial.println(this->actors[actorNumber].hourHigh);
+
+	Serial.print("low hour : ");
+	Serial.println(this->actors[actorNumber].hourLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+#endif
 	//stop the actor	
-	else if(minute >= this->actors[actorNumber].minuteLow)
+	if(hour >= this->actors[actorNumber].hourLow)
+	{
+			if( measurment >= this->actors[actorNumber].rangeHigh )
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.print(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
+			}
+	}
+	//starting the actor
+	else if(hour >= this->actors[actorNumber].hourHigh)
+	{
+			if( measurment < this->actors[actorNumber].rangeLow )
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif					
+			}
+
+	}
+
+}
+
+/**
+*	Jetpack::minteAction(actorNumber, current minute ):
+*	This method is provided to
+*	handle minute actors.
+*	it changes the action according to:
+*	
+*	minute >= minuteLow : deactivate the actor
+*	minute >= minuteHigh : activate the actor 
+*
+*/
+void Jetpack::minuteAction(int actorNumber,int minute)
+{
+
+#if DEBUG == 1
+	
+	Serial.print(F("minute Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F(" minute : "));
+	Serial.println(minute);
+
+	Serial.print(F("high minute : "));
+	Serial.println(this->actors[actorNumber].minuteHigh);
+
+	Serial.print(F("low minute : "));
+	Serial.println(this->actors[actorNumber].minuteLow);
+
+#endif
+
+	//stop the actor	
+	if(minute >= this->actors[actorNumber].minuteLow)
 	{
 		bitWrite( this->action , actorNumber , 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+
+	#endif	
+
+	}	
+	//starting the actor
+	else if(minute >= this->actors[actorNumber].minuteHigh)
+	{
+		bitWrite( this->action , actorNumber , 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif	
+
 	}
-	#if DEBUG == 1
-		
-		Serial.print(F("minute Actor N° : "));
-		Serial.println(actorNumber);
-
-		Serial.print(F(" minute : "));
-		Serial.println(minute);
-
-		Serial.print(F("high minute : "));
-		Serial.println(this->actors[actorNumber].minuteHigh);
-
-		Serial.print(F("low minute : "));
-		Serial.println(this->actors[actorNumber].minuteLow);
-	
-	#endif
 
 } 
 
+/**
+*	Jetpack::mixedMinuteAction(actorNumber, current minute, measured value ):
+*	This method is provided to
+*	handle mixed minute actors.
+*	it changes the action according to :
+*
+*	minute >= minuteLow :
+*		-measuredValue >= rangeHigh : deactivate actor
+*		-measured < rangeHigh : activate actor
+*
+*	minute >= minuteHigh :
+*		-measuredValue < rangeLow : activate actor
+*		-measuredValue >=rangeLow : activate actor
+*/
+void Jetpack::mixedMinuteAction(int actorNumber,int minute,float measurment)
+{
+
+#if DEBUG == 1
+	
+	Serial.print("mixed minute Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print(" minute : ");
+	Serial.println(minute);
+
+	Serial.print("high minute : ");
+	Serial.println(this->actors[actorNumber].minuteHigh);
+
+	Serial.print("low minute : ");
+	Serial.println(this->actors[actorNumber].minuteLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+#endif
+	//stop the actor	
+	if(minute >= this->actors[actorNumber].minuteLow)
+	{
+			if( measurment > this->actors[actorNumber].rangeHigh )
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif
+	
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
+			}
+	}	
+	//starting the actor
+	else if(minute >= this->actors[actorNumber].minuteHigh)
+	{
+			if( measurment < this->actors[actorNumber].rangeLow )
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+			
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+				
+			}
+
+	}
+
+}
+
+
+/**
+*	Jetpack::minteAction(actorNumber, current hour,current minute ):
+*	This method is provided to
+*	handle hour minute actors.
+*	it changes the action according to:
+*	
+*	hour == hourLow : 
+*		minute >= minuteLow : deactivate the actor
+*
+*	hour >  hourLow : deactivate the actor
+*
+*	hour == hourHigh : 
+*		minute >= minteHigh : activate the actor 
+*
+*	hour >  hourHigh : activate the actor
+*/
 void Jetpack::hourMinuteAction(int actorNumber,int hour,int minute)
 {
-	//start the actor
-	if(hour>=this->actors[actorNumber].hourHigh)
-	{
-		if(minute>= this->actors[actorNumber].minuteHigh)
-		{
-			bitWrite( this->action , actorNumber , 1) ;
-		}
-	}
+
+#if DEBUG == 1
+
+	Serial.print(F("hourMinute Actor N° : "));
+	Serial.println(actorNumber);
+
+	Serial.print(F(" hour : "));
+	Serial.println(hour);
+	Serial.print(F(" minute : "));
+	Serial.println(minute);
+
+	Serial.print(F("high hour : "));
+	Serial.println(this->actors[actorNumber].hourHigh);
+
+	Serial.print(F("high minute : "));
+	Serial.println(this->actors[actorNumber].minuteHigh);
+
+	Serial.print(F("low hour : "));
+	Serial.println(this->actors[actorNumber].hourLow);
+
+	Serial.print(F("low minute : "));
+	Serial.println(this->actors[actorNumber].minuteLow);
+
+#endif
 	//stop the actor
-	else if(hour>=this->actors[actorNumber].hourLow)
+	if(hour==this->actors[actorNumber].hourLow)
 	{
 		if(minute>= this->actors[actorNumber].minuteLow)
 		{
 			bitWrite( this->action , actorNumber , 0) ;
+		#if DEBUG == 1 
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
 		}
 	}
-	#if DEBUG == 1
-		
-		Serial.print(F("hourMinute Actor N° : "));
-		Serial.println(actorNumber);
+	else if(hour > this->actors[actorNumber].hourLow)
+	{
 
-		Serial.print(F(" hour : "));
-		Serial.println(hour);
-		Serial.print(F(" minute : "));
-		Serial.println(minute);
+		bitWrite( this->action , actorNumber , 0) ;
+	#if DEBUG == 1 
 
-		Serial.print(F("high hour : "));
-		Serial.println(this->actors[actorNumber].hourHigh);
+		Serial.println(F("actor OFF "));
 
-		Serial.print(F("high minute : "));
-		Serial.println(this->actors[actorNumber].minuteHigh);
-
-		Serial.print(F("low hour : "));
-		Serial.println(this->actors[actorNumber].hourLow);
-
-		Serial.print(F("low minute : "));
-		Serial.println(this->actors[actorNumber].minuteLow);
+	#endif	
 	
-	#endif
+	}
+	//start the actor
+	else if(hour==this->actors[actorNumber].hourHigh)
+	{
+		if(minute>= this->actors[actorNumber].minuteHigh)
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+		}
+	}
+	else if(hour > this->actors[actorNumber].hourHigh)
+	{
+
+		bitWrite( this->action , actorNumber , 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif		
+
+	}
+
 	
 }
+
+/**
+*	Jetpack::minteAction(actorNumber, current hour,current minute , measured Value ):
+*	This method is provided to
+*	handle hour minute actors.
+*	it changes the action according to:
+*	
+*	hour == hourLow : 
+*		minute >= minuteLow : 
+*			measuredValue >= rangeHigh : deactivate actor
+*			measuredValue < rangeHigh : activate actor
+*	
+*	hour >  hourLow : 
+*		measuredValue >= rangeHigh : deactivate actor
+*		measuredValue < rangeHigh : activate actor
+*
+*	hour == hourHigh : 
+*		minute >= minteHigh : 
+*			measuredValue >= rangeLow : deactivate actor
+*			measuredValue < rangeLow : activate actor 
+*
+*	hour >  hourHigh :
+*		measuredValue >= rangeLow : deactivate actor
+*		measuredValue < rangeLow : activate actor 
+*
+*/
+void Jetpack::mixedHourMinuteAction(int actorNumber,int hour,int minute ,float measurment)
+{
+
+#if DEBUG == 1
+	
+	Serial.print("hourMinute Actor N° : ");
+	Serial.println(actorNumber);
+
+	Serial.print(" hour : ");
+	Serial.println(hour);
+	Serial.print(" minute : ");
+	Serial.println(minute);
+
+	Serial.print("high hour : ");
+	Serial.println(this->actors[actorNumber].hourHigh);
+
+	Serial.print("high minute : ");
+	Serial.println(this->actors[actorNumber].minuteHigh);
+
+	Serial.print("low hour : ");
+	Serial.println(this->actors[actorNumber].hourLow);
+
+	Serial.print("low minute : ");
+	Serial.println(this->actors[actorNumber].minuteLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actors[actorNumber].rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actors[actorNumber].rangeLow);
+
+#endif
+	//stop the actor
+	if(hour==this->actors[actorNumber].hourLow)
+	{
+		if(minute>= this->actors[actorNumber].minuteLow)
+		{
+			if( measurment >= this->actors[actorNumber].rangeHigh )
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" >= " ));
+				Serial.println(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actors[actorNumber].rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
+			}
+		}
+	}
+	else if(hour > this->actors[actorNumber].hourLow)
+	{
+
+		if( measurment >= this->actors[actorNumber].rangeHigh )
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" >= " ));
+			Serial.println(this->actors[actorNumber].rangeHigh);
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
+
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actors[actorNumber].rangeHigh);
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+			
+		}
+
+
+	}
+	//start the actor
+	else if(hour==this->actors[actorNumber].hourHigh)
+	{
+		if(minute>= this->actors[actorNumber].minuteHigh)
+		{
+			if( measurment < this->actors[actorNumber].rangeLow )
+			{
+				bitWrite( this->action , actorNumber , 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+
+			}
+			else 
+			{
+				bitWrite( this->action , actorNumber , 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.println(F(" > " ));
+				Serial.print(this->actors[actorNumber].rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+				
+			}
+		}
+	}
+	else if(hour > this->actors[actorNumber].hourHigh)
+	{
+
+		if( measurment < this->actors[actorNumber].rangeLow )
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actors[actorNumber].rangeLow);
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.println(F(" > " ));
+			Serial.print(this->actors[actorNumber].rangeLow);
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
+			
+		}
+	
+	}
+
+}
+
 
