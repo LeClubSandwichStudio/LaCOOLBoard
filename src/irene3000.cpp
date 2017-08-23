@@ -19,7 +19,7 @@
 
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
 *	Irene3000::begin():
@@ -54,7 +54,7 @@ void Irene3000::begin()
 		delay(10);	
 	}
 
-	if(  bValue > 10000 )
+	if(  bValue > 20000 )
 	{
 	
 
@@ -443,15 +443,15 @@ int Irene3000::readButton()
 #endif 
 
 	this->setGain(GAIN_TWOTHIRDS);
-
+	int result =this->ads.readADC_SingleEnded(button);
 #if DEBUG == 1
 	
 	Serial.println( F("button value : ") );
-	Serial.println(this->ads.readADC_SingleEnded(button) );
+	Serial.println( result );
 
 #endif 
 
-	return( this->ads.readADC_SingleEnded(button) );
+	return( result );
 	
 }
 
