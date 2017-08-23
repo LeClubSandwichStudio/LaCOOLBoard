@@ -182,12 +182,14 @@ This is a description of the configuration files and what are they used for :
 					Put this flag to 0(false) if the actor is notInverted(e.g : a heater is activated when Temp<TempMin)
 						
 	Act[i].temporal:Put this flag to 1(true) if you want the actor to be actif of a period of time  ,
-					then inactif for another period of time ( this mode doesn't consider measurments at the moment )
+					then inactif for another period of time.
 						
 	Act[i].type:["primaryType","secondaryType"] : this array contains the priamryType and the secondaryType of the actor
 												 -The primaryType is the type associated to the sensors.
 												 (e.g : primaryType : "Temperature" is associated to the sensor of type "Temperature").
-												 
+												 -It can also be empty , in case of PURE temporal actors
+                                                 
+                                                 
 												 -The secondaryType is only used in temporal mode.
 												 it can be : -"" (empty):the actor will be on for a period of timeHigh ms
 												 			 			 the actor will be off for a period of timeLow ms
@@ -202,6 +204,9 @@ This is a description of the configuration files and what are they used for :
 															 										   Hour > hourHigh
 															 			   the actor will be off when : Hour == hourLow AND Minute >= minuteLow
 															 			   								Hour>hourLow
+                                                                                                        
+                                                  /!\ NOTE  that if both primaryType and secondaryType are valid : the actor will be in
+                                                     mixed mode : it will need to valid both Time and measurment conditions to go on or off
 	
 	Act[i].low:[rangeLow,timeLow,hourLow,minuteLow] : this array contains the values previously described:
 													  -rangeLow is the minimum of the range at which 
