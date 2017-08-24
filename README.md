@@ -298,7 +298,7 @@ At the same time, please refrain from putting multiple unrelated changes into a 
 All files under src/internal are modified versions of existing libraries.
 All Credit of the original work goes to their respective authors.
 
-All Other files are provided as is under *insert License here* .
+All Other files are provided as is under the MIT license .
 We can only gurantee that we did our best to have everything working on our side.
 
 
