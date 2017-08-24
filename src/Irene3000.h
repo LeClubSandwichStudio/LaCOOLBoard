@@ -83,7 +83,7 @@ private:
 	struct state
 	{
 		bool active=0;
-		adsGain_t gain=GAIN_ONE;
+		adsGain_t gain=GAIN_TWOTHIRDS;
 		String type="";
 
 	} waterTemp, phProbe,adc2;

@@ -249,18 +249,6 @@ bool Irene3000::config()
 			json["waterTemp"]["active"]=this->waterTemp.active;
 
 			
-			if(json["waterTemp"]["gain"].success() )
-			{			
-				tempGain = json["waterTemp"]["gain"]; 
-				this->waterTemp.gain=this->gainConvert(tempGain);
-			}
-			else
-			{
-				this->waterTemp.gain=this->waterTemp.gain;
-			}
-			json["waterTemp"]["gain"]=this->waterTemp.gain;
-
-			
 			if(json["phProbe"]["active"].success())
 			{
 				this->phProbe.active=json["phProbe"]["active"];
@@ -270,18 +258,6 @@ bool Irene3000::config()
 				this->phProbe.active=this->phProbe.active;
 			}
 			json["phProbe"]["active"]=this->phProbe.active;
-	
-			
-			if(json["phProbe"]["gain"].success() )
-			{		
-				tempGain=json["phProbe"]["gain"];
-				this->phProbe.gain=this->gainConvert(tempGain);			
-			}
-			else
-			{
-				this->phProbe.gain=this->phProbe.gain;
-			}
-			json["phProbe"]["gain"]=this->phProbe.gain;
 
 			
 			if(json["adc2"]["active"].success() )
@@ -493,16 +469,16 @@ int Irene3000::readADSChannel2(adsGain_t gain)
 #endif
 
 	this->setGain(gain);
-
+	int result = this->ads.readADC_SingleEnded(freeAdc);
 #if DEBUG == 1 
 	
 	Serial.println( F("adc2 value : ") );
-	Serial.println(this->ads.readADC_SingleEnded(freeAdc) );
+	Serial.println( );
 	Serial.println();
 
 #endif
 
-	return( this->ads.readADC_SingleEnded(freeAdc) ) ;
+	return( result ) ;
 }
 
 /**
@@ -724,7 +700,7 @@ void Irene3000::resetParams(void)
 }
 
 /**
-*	Irene3000::gainConvert( gain : { 2/3,1,2,4,8,16 } )
+*	Irene3000::gainConvert( gain : { 0.67 ,1,2,4,8,16 } )
 *	This method is provided to convert the gain to
 *	Internal Constants
 *
@@ -742,12 +718,12 @@ adsGain_t Irene3000::gainConvert(uint16_t tempGain)
 	
 	switch(tempGain)
 	{
-		case(2/3): return(GAIN_TWOTHIRDS);
 		case(1): return (GAIN_ONE);
 		case(2) : return(GAIN_TWO);
 		case(4): return(GAIN_FOUR) ;   
 		case(8):return(GAIN_EIGHT)  ;  
-		case(16):return(GAIN_SIXTEEN); 	
+		case(16):return(GAIN_SIXTEEN);
+		default: return(GAIN_TWOTHIRDS); 	
 	}
 
 	return(GAIN_ONE);
@@ -787,8 +763,7 @@ bool Irene3000::saveParams()
 		size_t size = irene3000Config.size();
 		// Allocate a buffer to store contents of the file.
 		std::unique_ptr<char[]> buf(new char[size]);
-	        uint16_t tempGain;
-		irene3000Config.readBytes(buf.get(), size);
+	        irene3000Config.readBytes(buf.get(), size);
 		DynamicJsonBuffer jsonBuffer;
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 
