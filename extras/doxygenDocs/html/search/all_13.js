@@ -6,6 +6,8 @@ var searchData=
   ['temperature',['temperature',['../d7/db6/struct_cool_board_sensors_1_1air_active.html#ac08576736c7ac3bfbfec32e5ee17c686',1,'CoolBoardSensors::airActive']]],
   ['template_2eh',['template.h',['../de/db8/template_8h.html',1,'']]],
   ['temporal',['temporal',['../d5/ddc/struct_cool_board_actor_1_1state.html#a6442a8c3a30abc48472f3e5284b786ea',1,'CoolBoardActor::state::temporal()'],['../da/d35/struct_jetpack_1_1state.html#abd6039e7a48856550b0ffbf8bcff7bdd',1,'Jetpack::state::temporal()']]],
+  ['temporalactionoff',['temporalActionOff',['../dc/d69/class_cool_board_actor.html#a02698bd647df49cabbe74513d4d88918',1,'CoolBoardActor::temporalActionOff()'],['../df/d1d/class_jetpack.html#a2991b302cd99bf89325f9b66b104d575',1,'Jetpack::temporalActionOff()']]],
+  ['temporalactionon',['temporalActionOn',['../dc/d69/class_cool_board_actor.html#ada603785c203fdb0b41cc967d70bdc4d',1,'CoolBoardActor::temporalActionOn()'],['../df/d1d/class_jetpack.html#ad011d904f639accb5f94ef806846ef59',1,'Jetpack::temporalActionOn()']]],
   ['tempoversample',['tempOverSample',['../d8/dd4/struct_sensor_settings.html#abdedc9d05f4850c58005313486958073',1,'SensorSettings']]],
   ['thr',['THR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a5e9787adf3c9afcc4b781e85bb545b35',1,'CoolNDIR_I2C.cpp']]],
   ['timehigh',['timeHigh',['../d5/ddc/struct_cool_board_actor_1_1state.html#a54cd4976b56aeaa6274fe0576aaebb0f',1,'CoolBoardActor::state::timeHigh()'],['../da/d35/struct_jetpack_1_1state.html#a97c594b20b03b46ae0a6ac544f5d6c8d',1,'Jetpack::state::timeHigh()']]],

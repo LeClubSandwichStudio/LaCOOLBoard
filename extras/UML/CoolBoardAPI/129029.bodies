@@ -26,7 +26,7 @@ class Irene3000
 		delay(10);	
 	}
 
-	if(  bValue > 10000 )
+	if(  bValue > 20000 )
 	{
 	
 
@@ -140,18 +140,6 @@ class Irene3000
 			json["waterTemp"]["active"]=this->waterTemp.active;
 
 			
-			if(json["waterTemp"]["gain"].success() )
-			{			
-				tempGain = json["waterTemp"]["gain"]; 
-				this->waterTemp.gain=this->gainConvert(tempGain);
-			}
-			else
-			{
-				this->waterTemp.gain=this->waterTemp.gain;
-			}
-			json["waterTemp"]["gain"]=this->waterTemp.gain;
-
-			
 			if(json["phProbe"]["active"].success())
 			{
 				this->phProbe.active=json["phProbe"]["active"];
@@ -161,18 +149,6 @@ class Irene3000
 				this->phProbe.active=this->phProbe.active;
 			}
 			json["phProbe"]["active"]=this->phProbe.active;
-	
-			
-			if(json["phProbe"]["gain"].success() )
-			{		
-				tempGain=json["phProbe"]["gain"];
-				this->phProbe.gain=this->gainConvert(tempGain);			
-			}
-			else
-			{
-				this->phProbe.gain=this->phProbe.gain;
-			}
-			json["phProbe"]["gain"]=this->phProbe.gain;
 
 			
 			if(json["adc2"]["active"].success() )
@@ -376,15 +352,15 @@ class Irene3000
 #endif 
 
 	this->setGain(GAIN_TWOTHIRDS);
-
+	int result =this->ads.readADC_SingleEnded(button);
 #if DEBUG == 1
 	
 	Serial.println( F("button value : ") );
-	Serial.println(this->ads.readADC_SingleEnded(button) );
+	Serial.println( result );
 
 #endif 
 
-	return( this->ads.readADC_SingleEnded(button) );
+	return( result );
 	
 !!!140677.cpp!!!	setGain(in gain : adsGain_t) : void
 
@@ -407,16 +383,16 @@ class Irene3000
 #endif
 
 	this->setGain(gain);
-
+	int result = this->ads.readADC_SingleEnded(freeAdc);
 #if DEBUG == 1 
 	
 	Serial.println( F("adc2 value : ") );
-	Serial.println(this->ads.readADC_SingleEnded(freeAdc) );
+	Serial.println( );
 	Serial.println();
 
 #endif
 
-	return( this->ads.readADC_SingleEnded(freeAdc) ) ;
+	return( result ) ;
 !!!140933.cpp!!!	readPh(in t : double) : float
 
 #if DEBUG == 1 
@@ -575,12 +551,12 @@ class Irene3000
 	
 	switch(tempGain)
 	{
-		case(2/3): return(GAIN_TWOTHIRDS);
 		case(1): return (GAIN_ONE);
 		case(2) : return(GAIN_TWO);
 		case(4): return(GAIN_FOUR) ;   
 		case(8):return(GAIN_EIGHT)  ;  
-		case(16):return(GAIN_SIXTEEN); 	
+		case(16):return(GAIN_SIXTEEN);
+		default: return(GAIN_TWOTHIRDS); 	
 	}
 
 	return(GAIN_ONE);
@@ -616,8 +592,7 @@ class Irene3000
 		size_t size = irene3000Config.size();
 		// Allocate a buffer to store contents of the file.
 		std::unique_ptr<char[]> buf(new char[size]);
-	        uint16_t tempGain;
-		irene3000Config.readBytes(buf.get(), size);
+	        irene3000Config.readBytes(buf.get(), size);
 		DynamicJsonBuffer jsonBuffer;
 		JsonObject& json = jsonBuffer.parseObject(buf.get());
 		if (!json.success()) 

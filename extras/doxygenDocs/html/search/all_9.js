@@ -13,6 +13,7 @@ var searchData=
   ['initreadi2c',['initReadI2C',['../d7/df9/class_cool_board.html#a397b46fadab8f530a8cf4d914c561366',1,'CoolBoard']]],
   ['intopic',['inTopic',['../d0/dd0/class_cool_m_q_t_t.html#a4492f52a441e83cc5151010317fdb52d',1,'CoolMQTT']]],
   ['inverted',['inverted',['../d5/ddc/struct_cool_board_actor_1_1state.html#aa4fdca81973fd7b29541877db1cf27bd',1,'CoolBoardActor::state::inverted()'],['../da/d35/struct_jetpack_1_1state.html#a6bc03bb8f05b10aa142dbb0c39c87fb5',1,'Jetpack::state::inverted()']]],
+  ['invertedaction',['invertedAction',['../dc/d69/class_cool_board_actor.html#aae82b2e62f91be009d40f93c206f9bda',1,'CoolBoardActor::invertedAction()'],['../df/d1d/class_jetpack.html#adacfc35fab4a621357caf98ce1c9cb54',1,'Jetpack::invertedAction()']]],
   ['iocontrol',['IOCONTROL',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a18ad5a108ad9fd33f7ad5831d6feb493',1,'CoolNDIR_I2C.cpp']]],
   ['iodir',['IODIR',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a27699cacd6e8d59f2daddbdfdc5d24df',1,'CoolNDIR_I2C.cpp']]],
   ['iointena',['IOINTENA',['../df/d2c/_cool_n_d_i_r___i2_c_8cpp.html#a5f98f86f1843563138fed90ac7a97a14',1,'CoolNDIR_I2C.cpp']]],

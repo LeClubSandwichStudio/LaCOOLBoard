@@ -98,7 +98,7 @@ const int \hyperlink{class_cool_board_af1fe1376fc66f93dee80b327ca695377}{En\+I2C
 \subsection{Detailed Description}
 This class manages the \hyperlink{class_cool_board}{Cool\+Board} and all of Its functions. 
 
-Definition at line 34 of file Cool\+Board.\+h.
+Definition at line 54 of file Cool\+Board.\+h.
 
 
 
@@ -111,24 +111,24 @@ Definition at line 34 of file Cool\+Board.\+h.
 
 \hyperlink{class_cool_board_a8b88fd781e22e93025dd63474113b7e4}{Cool\+Board\+::\+Cool\+Board()}\+: This Constructor is provided to start the I2C interface and Init the different used pins 
 
-Definition at line 28 of file Cool\+Board.\+cpp.
+Definition at line 48 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-29 \{
-30 
-31 \textcolor{preprocessor}{#if DEBUG == 1}
-32 
-33     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard Constructor"}) );
-34     Serial.println();
-35 
-36 \textcolor{preprocessor}{#endif}
-37     
-38     Wire.begin(2, 14);                       \textcolor{comment}{//I2C init }
-39 
-40     pinMode(\hyperlink{class_cool_board_af1fe1376fc66f93dee80b327ca695377}{EnI2C}, OUTPUT);           \textcolor{comment}{//Declare I2C Enable pin }
-41 
-42 \}
+49 \{
+50 
+51 \textcolor{preprocessor}{#if DEBUG == 1}
+52 
+53     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard Constructor"}) );
+54     Serial.println();
+55 
+56 \textcolor{preprocessor}{#endif}
+57     
+58     Wire.begin(2, 14);                       \textcolor{comment}{//I2C init }
+59 
+60     pinMode(\hyperlink{class_cool_board_af1fe1376fc66f93dee80b327ca695377}{EnI2C}, OUTPUT);           \textcolor{comment}{//Declare I2C Enable pin }
+61 
+62 \}
 \end{DoxyCode}
 
 
@@ -141,123 +141,122 @@ Definition at line 28 of file Cool\+Board.\+cpp.
 
 \hyperlink{class_cool_board_acba7c5aef7268b2c0044bdb54d3b9d76}{Cool\+Board\+::begin()}\+: This method is provided to configure and start the used Cool\+Kit Parts. It also starts the first connection try If Serial is enabled,it prints the configuration of the used parts. 
 
-Definition at line 53 of file Cool\+Board.\+cpp.
+Definition at line 73 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-54 \{
-55 
-56 \textcolor{preprocessor}{#if DEBUG == 1}
-57 
-58     Serial.println( F(\textcolor{stringliteral}{"Starting the CoolBoard  "})  );
-59     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.begin() "})  );
-60     Serial.println();
-61 \textcolor{preprocessor}{#endif  }
-62 
-63 \textcolor{preprocessor}{#if DEBUG == 0}
-64     Serial.println( F(\textcolor{stringliteral}{"Starting Coolboard..."}));
-65 \textcolor{preprocessor}{#endif}
-66 
-67 
-68     delay(100);
-69     
-70     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a30fadd4cbec17ceea428bf7a32207e87}{write}(255,128,0);\textcolor{comment}{//orange}
-71 
-72     this->\hyperlink{class_cool_board_a397b46fadab8f530a8cf4d914c561366}{initReadI2C}();
-73     delay(50);
-74 
-75     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a9a218895c5423375c33c08f2c56fb23a}{config}();
-76     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a97095823ef7c8f5290812f1405b966b3}{begin}();
-77     delay(100);
-78     
-79     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}{config}();
-80     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}{begin}();
-81     delay(100);
-82     
-83     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a4eb2f6b9b09dd588964b88b6c70122c0}{config}();
-84     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a46942fed90e475112cc10b78a32e7aaa}{begin}();
-85     delay(100);
+74 \{
+75 
+76 \textcolor{preprocessor}{#if DEBUG == 1}
+77 
+78     Serial.println( F(\textcolor{stringliteral}{"Starting the CoolBoard  "})  );
+79     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.begin() "})  );
+80     Serial.println();
+81 \textcolor{preprocessor}{#endif  }
+82 
+83 \textcolor{preprocessor}{#if DEBUG == 0}
+84     Serial.println( F(\textcolor{stringliteral}{"Starting Coolboard..."}));
+85 \textcolor{preprocessor}{#endif}
 86 
-87     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a9b703de4f1358f0ee7a5e8c44979c648}{config}();
-88     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ac9248808641ebf3054ed0620ea9d0100}{begin}();
-89     delay(100);
-90 
-91 \textcolor{preprocessor}{#if DEBUG == 1}
-92 
-93     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a8ed3053a36f0ed4a131f43b5b17efb61}{printConf}();
+87 
+88     delay(100);
+89     
+90     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a30fadd4cbec17ceea428bf7a32207e87}{write}(255,128,0);\textcolor{comment}{//orange}
+91 
+92     this->\hyperlink{class_cool_board_a397b46fadab8f530a8cf4d914c561366}{initReadI2C}();
+93     delay(50);
 94 
-95     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_af6fd79505815b204c178617ecf54c873}{printConf}();
-96 
-97     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}{printConf}();
-98 
-99     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a9e6105c6d13d35ec510f6633da9e0223}{printConf}();
-100 
-101     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a40553a0ad4b5ecf1cb4411ab54ca85fb}{printConf}();
+95     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a9a218895c5423375c33c08f2c56fb23a}{config}();
+96     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a97095823ef7c8f5290812f1405b966b3}{begin}();
+97     delay(100);
+98     
+99     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a5af5538fc7d169f63127e06d5219bcd4}{config}();
+100     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a7f4422fd85a5510bc2cdfd68e109be5e}{begin}();
+101     delay(100);
 102     
-103 
-104 \textcolor{preprocessor}{#endif}
-105 
+103     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a4eb2f6b9b09dd588964b88b6c70122c0}{config}();
+104     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a46942fed90e475112cc10b78a32e7aaa}{begin}();
+105     delay(100);
 106 
-107     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
-108     \{
-109         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_ab065ee83e244265a2223a22f3ee4a719}{config}();
-110         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a5a53e1ebf7aaf3bf3e0d37ea64ca09a7}{begin}();
-111 
-112 \textcolor{preprocessor}{    #if DEBUG == 1}
-113         
-114         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_ac54a7bb4f9166bee32052253d9b1d306}{printConf}();
-115 
-116 \textcolor{preprocessor}{    #endif}
-117         delay(100);
-118     \}
-119 
-120     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive})
-121     \{
-122         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{config}();
-123         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{begin}();
-124 
-125 \textcolor{preprocessor}{    #if DEBUG == 1}
+107     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a9b703de4f1358f0ee7a5e8c44979c648}{config}();
+108     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ac9248808641ebf3054ed0620ea9d0100}{begin}();
+109     delay(100);
+110 
+111 \textcolor{preprocessor}{#if DEBUG == 1}
+112 
+113     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a8ed3053a36f0ed4a131f43b5b17efb61}{printConf}();
+114 
+115     \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_af6fd79505815b204c178617ecf54c873}{printConf}();
+116 
+117     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_aabb10e7aebc3249ffc940530de29f84a}{printConf}();
+118 
+119     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a9e6105c6d13d35ec510f6633da9e0223}{printConf}();
+120 
+121     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a40553a0ad4b5ecf1cb4411ab54ca85fb}{printConf}();
+122     
+123 
+124 \textcolor{preprocessor}{#endif}
+125 
 126 
-127         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{printConf}();
-128 
-129 \textcolor{preprocessor}{    #endif}
-130         delay(100);
-131     \}
-132 
-133     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive})
-134     \{
-135         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{config}();
-136         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{begin}();
-137 
-138 \textcolor{preprocessor}{    #if DEBUG == 1}
+127     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
+128     \{
+129         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_ab065ee83e244265a2223a22f3ee4a719}{config}();
+130         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a5a53e1ebf7aaf3bf3e0d37ea64ca09a7}{begin}();
+131 
+132 \textcolor{preprocessor}{    #if DEBUG == 1}
+133         
+134         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_ac54a7bb4f9166bee32052253d9b1d306}{printConf}();
+135 
+136 \textcolor{preprocessor}{    #endif}
+137         delay(100);
+138     \}
 139 
-140         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{printConf}();
-141 
-142 \textcolor{preprocessor}{    #endif}
-143         delay(100);
-144     \}
-145     
-146     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(255,128,0,0.5);\textcolor{comment}{//orange}
-147 
-148     this->\hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{connect}();
-149     delay(100);
-150 
-151     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}();
-152     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{begin}();
-153 
-154 \textcolor{preprocessor}{#if DEBUG == 1}
-155 
-156     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{printConf}();
+140     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive})
+141     \{
+142         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_afed5c35e4b23963c157847ef27c11e9c}{config}();
+143         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_ad5891806c500ae1007afe52b9e304c2b}{begin}();
+144 
+145 \textcolor{preprocessor}{    #if DEBUG == 1}
+146 
+147         \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_a7bc2414100b5e19eacc6630fa34b2654}{printConf}();
+148 
+149 \textcolor{preprocessor}{    #endif}
+150         delay(100);
+151     \}
+152 
+153     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive})
+154     \{
+155         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a862a4bd11346b37270d0244c2adabe5a}{config}();
+156         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a58ede0d786a86417254708870f04a21e}{begin}();
 157 
-158 \textcolor{preprocessor}{#endif}
-159     delay(100);
-160     
-161     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(0,255,0,0.5);\textcolor{comment}{//green}
-162 
-163 \}
+158 \textcolor{preprocessor}{    #if DEBUG == 1}
+159 
+160         \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a78c2bf55084435dd51d3c559b2d3c6f3}{printConf}();
+161 
+162 \textcolor{preprocessor}{    #endif}
+163         delay(100);
+164     \}
+165     
+166     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(255,128,0,0.5);\textcolor{comment}{//orange}
+167 
+168     this->\hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{connect}();
+169     delay(100);
+170 
+171     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}{config}();
+172     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_ab1976cf718b950bc31e003c3323b8adb}{begin}();
+173 
+174 \textcolor{preprocessor}{#if DEBUG == 1}
+175 
+176     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{printConf}();
+177 
+178 \textcolor{preprocessor}{#endif}
+179     delay(100);
+180     
+181     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(0,255,0,0.5);\textcolor{comment}{//green}
+182 
+183 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -277,199 +276,198 @@ true if configuration is done, false otherwise
 \end{DoxyReturn}
 
 
-Definition at line 705 of file Cool\+Board.\+cpp.
+Definition at line 725 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-706 \{
-707     yield();
-708 
-709 \textcolor{preprocessor}{#if DEBUG == 1}
-710 
-711     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.config() "}) );
-712     Serial.println();
-713 
-714 \textcolor{preprocessor}{#endif}
-715 \textcolor{preprocessor}{#if DEBUG == 0}
-716     Serial.println();
-717     Serial.println( F(\textcolor{stringliteral}{"Loading configuration for this CoolBoard..."}));
-718 \textcolor{preprocessor}{#endif }
-719 
-720     \textcolor{comment}{//open file system}
-721     \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_a6ba6f666ed4c530174f8569d2c636748}{begin}();
-722     
-723     \textcolor{comment}{//start the led}
-724     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a1b60e5e30bea96c49ed62ed1bf1ffc8b}{config}();
-725     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ae3cbde8affcc6f011cbd698c8ef911f6}{begin}();
-726     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(243,171,46,0.5);\textcolor{comment}{//shade of orange     }
-727 
-728     
-729     \textcolor{comment}{//open configuration file}
-730     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"r"});
-731     
-732     \textcolor{keywordflow}{if} (!configFile)
+726 \{
+727     yield();
+728 
+729 \textcolor{preprocessor}{#if DEBUG == 1}
+730 
+731     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.config() "}) );
+732     Serial.println();
 733 
-734     \{
-735     
-736         Serial.println( F(\textcolor{stringliteral}{"failed to read /coolBoardConfig.json  "}) );
-737 
-738         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
-739         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-740     \}
-741 
-742     \textcolor{keywordflow}{else}
-743     \{
-744         \textcolor{keywordtype}{size\_t} size = configFile.size();
-745 
-746         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-747         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-748 
-749         configFile.readBytes(buf.get(), size);
-750 
-751         DynamicJsonBuffer jsonBuffer;
-752 
-753         JsonObject & json = jsonBuffer.parseObject(buf.get());
-754 
-755         \textcolor{keywordflow}{if} (!json.success())
-756         \{
-757         
-758             Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoard Config json object "}) );
-759     
-760             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
-761             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-762         \}
-763 
-764         \textcolor{keywordflow}{else}
-765         \{   
-766         
-767 \textcolor{preprocessor}{        #if DEBUG == 1}
-768             
-769             Serial.println( F(\textcolor{stringliteral}{"configuration json : "}) );
-770             json.printTo(Serial);
-771             Serial.println();
-772             
-773             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size : "}));
-774             Serial.print(jsonBuffer.size());
-775             Serial.println();
-776 
-777 \textcolor{preprocessor}{        #endif}
-778             
-779             \textcolor{comment}{//parsing userActive Key}
-780             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"userActive"}].success())
-781             \{
-782                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive} = json[\textcolor{stringliteral}{"userActive"}];
-783             \}
-784 
-785             \textcolor{keywordflow}{else}
-786             \{
-787                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive};
-788             \}
-789             json[\textcolor{stringliteral}{"userActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive};
-790 
-791             \textcolor{comment}{//parsing logInterval key}
-792             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"logInterval"}].success())
-793             \{
-794                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval} = json[\textcolor{stringliteral}{"logInterval"}];
-795             \}
-796             \textcolor{keywordflow}{else}
-797             \{
-798                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval};
-799             \}
-800             json[\textcolor{stringliteral}{"logInterval"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval};
-801             
-802             \textcolor{comment}{//parsing ireneActive key           }
-803             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"ireneActive"}].success())
-804             \{
-805                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive} = json[\textcolor{stringliteral}{"ireneActive"}];
-806             \}
-807             \textcolor{keywordflow}{else}
-808             \{
-809                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive};
-810             \}
-811             json[\textcolor{stringliteral}{"ireneActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive};
-812             
-813             \textcolor{comment}{//parsing jetpackActive key}
-814             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"jetpackActive"}].success())
-815             \{
-816                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive} = json[\textcolor{stringliteral}{"jetpackActive"}];
-817             \}
-818             \textcolor{keywordflow}{else}
-819             \{
-820                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive};
-821             \}
-822             json[\textcolor{stringliteral}{"jetpackActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive};
-823 
-824             \textcolor{comment}{//parsing externalSensorsActive key}
-825             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"externalSensorsActive"}].success())
-826             \{
-827                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive} = json[\textcolor{stringliteral}{"externalSensorsActive"}];
-828             \}
-829             \textcolor{keywordflow}{else}
-830             \{
-831                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive} = \textcolor{keyword}{this} -> 
-      \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive};
-832             \}
-833             json[\textcolor{stringliteral}{"externalSensorsActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive};
-834 
-835             
-836             \textcolor{comment}{//parsing sleepActive key}
-837             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"sleepActive"}].success())
-838             \{
-839                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive} = json[\textcolor{stringliteral}{"sleepActive"}];
-840             \}
-841             \textcolor{keywordflow}{else}
-842             \{
-843                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive};
-844             \}
-845             json[\textcolor{stringliteral}{"sleepActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive};
-846 
-847 
-848             \textcolor{comment}{//parsing manual key}
-849             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"manual"}].success())
+734 \textcolor{preprocessor}{#endif}
+735 \textcolor{preprocessor}{#if DEBUG == 0}
+736     Serial.println();
+737     Serial.println( F(\textcolor{stringliteral}{"Loading configuration for this CoolBoard..."}));
+738 \textcolor{preprocessor}{#endif }
+739 
+740     \textcolor{comment}{//open file system}
+741     \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_a6ba6f666ed4c530174f8569d2c636748}{begin}();
+742     
+743     \textcolor{comment}{//start the led}
+744     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a1b60e5e30bea96c49ed62ed1bf1ffc8b}{config}();
+745     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ae3cbde8affcc6f011cbd698c8ef911f6}{begin}();
+746     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(243,171,46,0.5);\textcolor{comment}{//shade of orange     }
+747 
+748     
+749     \textcolor{comment}{//open configuration file}
+750     File configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"r"});
+751     
+752     \textcolor{keywordflow}{if} (!configFile)
+753 
+754     \{
+755     
+756         Serial.println( F(\textcolor{stringliteral}{"failed to read /coolBoardConfig.json  "}) );
+757 
+758         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
+759         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+760     \}
+761 
+762     \textcolor{keywordflow}{else}
+763     \{
+764         \textcolor{keywordtype}{size\_t} size = configFile.size();
+765 
+766         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
+767         std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
+768 
+769         configFile.readBytes(buf.get(), size);
+770 
+771         DynamicJsonBuffer jsonBuffer;
+772 
+773         JsonObject & json = jsonBuffer.parseObject(buf.get());
+774 
+775         \textcolor{keywordflow}{if} (!json.success())
+776         \{
+777         
+778             Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoard Config json object "}) );
+779     
+780             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
+781             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+782         \}
+783 
+784         \textcolor{keywordflow}{else}
+785         \{   
+786         
+787 \textcolor{preprocessor}{        #if DEBUG == 1}
+788             
+789             Serial.println( F(\textcolor{stringliteral}{"configuration json : "}) );
+790             json.printTo(Serial);
+791             Serial.println();
+792             
+793             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size : "}));
+794             Serial.print(jsonBuffer.size());
+795             Serial.println();
+796 
+797 \textcolor{preprocessor}{        #endif}
+798             
+799             \textcolor{comment}{//parsing userActive Key}
+800             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"userActive"}].success())
+801             \{
+802                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive} = json[\textcolor{stringliteral}{"userActive"}];
+803             \}
+804 
+805             \textcolor{keywordflow}{else}
+806             \{
+807                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive};
+808             \}
+809             json[\textcolor{stringliteral}{"userActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive};
+810 
+811             \textcolor{comment}{//parsing logInterval key}
+812             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"logInterval"}].success())
+813             \{
+814                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval} = json[\textcolor{stringliteral}{"logInterval"}];
+815             \}
+816             \textcolor{keywordflow}{else}
+817             \{
+818                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval};
+819             \}
+820             json[\textcolor{stringliteral}{"logInterval"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval};
+821             
+822             \textcolor{comment}{//parsing ireneActive key           }
+823             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"ireneActive"}].success())
+824             \{
+825                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive} = json[\textcolor{stringliteral}{"ireneActive"}];
+826             \}
+827             \textcolor{keywordflow}{else}
+828             \{
+829                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive};
+830             \}
+831             json[\textcolor{stringliteral}{"ireneActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive};
+832             
+833             \textcolor{comment}{//parsing jetpackActive key}
+834             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"jetpackActive"}].success())
+835             \{
+836                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive} = json[\textcolor{stringliteral}{"jetpackActive"}];
+837             \}
+838             \textcolor{keywordflow}{else}
+839             \{
+840                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive};
+841             \}
+842             json[\textcolor{stringliteral}{"jetpackActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive};
+843 
+844             \textcolor{comment}{//parsing externalSensorsActive key}
+845             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"externalSensorsActive"}].success())
+846             \{
+847                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive} = json[\textcolor{stringliteral}{"externalSensorsActive"}];
+848             \}
+849             \textcolor{keywordflow}{else}
 850             \{
-851                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} = json[\textcolor{stringliteral}{"manual"}];
+851                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive} = \textcolor{keyword}{this} -> 
+      \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive};
 852             \}
-853             \textcolor{keywordflow}{else}
-854             \{
-855                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual};
-856             \}
-857             json[\textcolor{stringliteral}{"manual"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual};
-858 
-859 
-860 
-861             \textcolor{comment}{//saving the current/correct configuration}
-862             configFile.close();
-863             configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w"});
-864             \textcolor{keywordflow}{if} (!configFile)
-865             \{
-866             
-867                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardConfig.json"}) );
-868                 Serial.println();
-869 
-870                 \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
-871                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+853             json[\textcolor{stringliteral}{"externalSensorsActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive};
+854 
+855             
+856             \textcolor{comment}{//parsing sleepActive key}
+857             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"sleepActive"}].success())
+858             \{
+859                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive} = json[\textcolor{stringliteral}{"sleepActive"}];
+860             \}
+861             \textcolor{keywordflow}{else}
+862             \{
+863                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive};
+864             \}
+865             json[\textcolor{stringliteral}{"sleepActive"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive};
+866 
+867 
+868             \textcolor{comment}{//parsing manual key}
+869             \textcolor{keywordflow}{if} (json[\textcolor{stringliteral}{"manual"}].success())
+870             \{
+871                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} = json[\textcolor{stringliteral}{"manual"}];
 872             \}
-873 
-874             json.printTo(configFile);
-875             configFile.close();
-876 \textcolor{preprocessor}{            #if DEBUG == 0}
-877 
-878                 Serial.println( F(\textcolor{stringliteral}{"Configuration loaded : OK"}));
-879                 Serial.println();
+873             \textcolor{keywordflow}{else}
+874             \{
+875                 \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual};
+876             \}
+877             json[\textcolor{stringliteral}{"manual"}] = \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual};
+878 
+879 
 880 
-881 \textcolor{preprocessor}{            #endif}
-882 
-883             \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-884         \}
-885     \}
-886 
-887     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(243,171,46,0.5);\textcolor{comment}{//shade of orange}
-888     
-889     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(243,171,46,0.5);\textcolor{comment}{//shade of orange               }
-890 \}
+881             \textcolor{comment}{//saving the current/correct configuration}
+882             configFile.close();
+883             configFile = SPIFFS.open(\textcolor{stringliteral}{"/coolBoardConfig.json"}, \textcolor{stringliteral}{"w"});
+884             \textcolor{keywordflow}{if} (!configFile)
+885             \{
+886             
+887                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /coolBoardConfig.json"}) );
+888                 Serial.println();
+889 
+890                 \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(255,0,0,0.5);\textcolor{comment}{//shade of red     }
+891                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
+892             \}
+893 
+894             json.printTo(configFile);
+895             configFile.close();
+896 \textcolor{preprocessor}{            #if DEBUG == 0}
+897 
+898                 Serial.println( F(\textcolor{stringliteral}{"Configuration loaded : OK"}));
+899                 Serial.println();
+900 
+901 \textcolor{preprocessor}{            #endif}
+902 
+903             \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
+904         \}
+905     \}
+906 
+907     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(243,171,46,0.5);\textcolor{comment}{//shade of orange}
+908     
+909     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(243,171,46,0.5);\textcolor{comment}{//shade of orange               }
+910 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -489,77 +487,75 @@ mqtt client state
 \end{DoxyReturn}
 
 
-Definition at line 224 of file Cool\+Board.\+cpp.
+Definition at line 244 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-225 \{
-226 
-227 \textcolor{preprocessor}{#if DEBUG == 1  }
-228 
-229     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.connect "}) );
-230     Serial.println();
-231     Serial.println( F(\textcolor{stringliteral}{"Connecting the CoolBoard  "}) );
-232     delay(100);
-233 
-234 \textcolor{preprocessor}{#endif}
-235     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a30fadd4cbec17ceea428bf7a32207e87}{write}(0,0,255);\textcolor{comment}{//blue}
-236 
-237     
-238             
-239     
-240 \textcolor{preprocessor}{#if DEBUG == 1      }
-241 
-242     Serial.println( F(\textcolor{stringliteral}{"Launching CoolWifi"}) );
-243     Serial.println();
-244 
-245 \textcolor{preprocessor}{#endif}
-246     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_ad060353050f40d032a2dbf9e54a768bf}{connect}();
-247     delay(100);
+245 \{
+246 
+247 \textcolor{preprocessor}{#if DEBUG == 1  }
 248 
-249 
-250     \textcolor{comment}{//only attempt MQTT connection when Wifi is Connected}
-251     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() == WL\_CONNECTED)
-252     \{
+249     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.connect "}) );
+250     Serial.println();
+251     Serial.println( F(\textcolor{stringliteral}{"Connecting the CoolBoard  "}) );
+252     delay(100);
 253 
-254 \textcolor{preprocessor}{    #if DEBUG == 1  }
-255     
-256         Serial.println( F(\textcolor{stringliteral}{"Launching mqtt.connect()"}) );
-257         Serial.println();
-258     
-259 \textcolor{preprocessor}{    #endif  }
-260         \textcolor{comment}{//logInterval in seconds}
-261         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a50075d0ab23a327ab897fd6adad20eda}{connect}(\textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}()*2);
-262         delay(100);
-263     \}
-264     
-265         
-266     
-267     
-268 \textcolor{preprocessor}{#if DEBUG == 1}
+254 \textcolor{preprocessor}{#endif}
+255     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a30fadd4cbec17ceea428bf7a32207e87}{write}(0,0,255);\textcolor{comment}{//blue}
+256 
+257     
+258             
+259     
+260 \textcolor{preprocessor}{#if DEBUG == 1      }
+261 
+262     Serial.println( F(\textcolor{stringliteral}{"Launching CoolWifi"}) );
+263     Serial.println();
+264 
+265 \textcolor{preprocessor}{#endif}
+266     \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_ad060353050f40d032a2dbf9e54a768bf}{connect}();
+267     delay(100);
+268 
 269 
-270     Serial.println( F(\textcolor{stringliteral}{"mqtt state is :"}) );
-271     Serial.println(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());
-272     Serial.println();
-273     delay(100);
-274 
-275 \textcolor{preprocessor}{#endif}
-276 
-277     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(0,0,255,0.5);\textcolor{comment}{//blue}
-278 
-279     \textcolor{keywordflow}{return}(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());
-280 \}
+270     \textcolor{comment}{//only attempt MQTT connection when Wifi is Connected}
+271     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() == WL\_CONNECTED)
+272     \{
+273 
+274 \textcolor{preprocessor}{    #if DEBUG == 1  }
+275     
+276         Serial.println( F(\textcolor{stringliteral}{"Launching mqtt.connect()"}) );
+277         Serial.println();
+278     
+279 \textcolor{preprocessor}{    #endif  }
+280         \textcolor{comment}{//logInterval in seconds}
+281         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a50075d0ab23a327ab897fd6adad20eda}{connect}(\textcolor{keyword}{this} -> \hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}()*2);
+282         delay(100);
+283     \}
+284     
+285         
+286     
+287     
+288 \textcolor{preprocessor}{#if DEBUG == 1}
+289 
+290     Serial.println( F(\textcolor{stringliteral}{"mqtt state is :"}) );
+291     Serial.println(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());
+292     Serial.println();
+293     delay(100);
+294 
+295 \textcolor{preprocessor}{#endif}
+296 
+297     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(0,0,255,0.5);\textcolor{comment}{//blue}
+298 
+299     \textcolor{keywordflow}{return}(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());
+300 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d7/df9/class_cool_board_a519de78b807f8ec6463ff484eb925918_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -579,27 +575,26 @@ interval value in s
 \end{DoxyReturn}
 
 
-Definition at line 1129 of file Cool\+Board.\+cpp.
+Definition at line 1149 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-1130 \{
-1131 
-1132 \textcolor{preprocessor}{#if DEBUG == 1}
-1133 
-1134     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.getLogInterval() "}) );
-1135     Serial.println();
-1136     Serial.println( F(\textcolor{stringliteral}{"log Interval is :"}) );
-1137     Serial.println(\hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
-1138     Serial.println();
-1139 
-1140 \textcolor{preprocessor}{#endif}
-1141 
-1142     \textcolor{keywordflow}{return}(\textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
-1143 \}
+1150 \{
+1151 
+1152 \textcolor{preprocessor}{#if DEBUG == 1}
+1153 
+1154     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.getLogInterval() "}) );
+1155     Serial.println();
+1156     Serial.println( F(\textcolor{stringliteral}{"log Interval is :"}) );
+1157     Serial.println(\hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
+1158     Serial.println();
+1159 
+1160 \textcolor{preprocessor}{#endif}
+1161 
+1162     \textcolor{keywordflow}{return}(\textcolor{keyword}{this} -> \hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
+1163 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -614,25 +609,24 @@ Here is the caller graph for this function\+:
 
 \hyperlink{class_cool_board_a397b46fadab8f530a8cf4d914c561366}{Cool\+Board\+::init\+Read\+I2\+C()}\+: This method is provided to enable the I2C Interface. 
 
-Definition at line 1224 of file Cool\+Board.\+cpp.
+Definition at line 1244 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-1225 \{
-1226 
-1227 \textcolor{preprocessor}{#if DEBUG == 1}
-1228 
-1229     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.initReadI2C()"}) );
-1230     Serial.println();
-1231 
-1232 \textcolor{preprocessor}{#endif}
-1233  
-1234     digitalWrite(\hyperlink{class_cool_board_af1fe1376fc66f93dee80b327ca695377}{EnI2C},HIGH);\textcolor{comment}{//HIGH= I2C Enable}
-1235 
-1236 \}
+1245 \{
+1246 
+1247 \textcolor{preprocessor}{#if DEBUG == 1}
+1248 
+1249     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.initReadI2C()"}) );
+1250     Serial.println();
+1251 
+1252 \textcolor{preprocessor}{#endif}
+1253  
+1254     digitalWrite(\hyperlink{class_cool_board_af1fe1376fc66f93dee80b327ca695377}{EnI2C},HIGH);\textcolor{comment}{//HIGH= I2C Enable}
+1255 
+1256 \}
 \end{DoxyCode}
-Here is the caller graph for this function\+:
-\nopagebreak
+Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -654,51 +648,50 @@ This method is provided to check if the card is connected to Wifi and M\+Q\+TT
 \end{DoxyReturn}
 
 
-Definition at line 176 of file Cool\+Board.\+cpp.
+Definition at line 196 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-177 \{
-178 
-179 \textcolor{preprocessor}{#if DEBUG == 1  }
-180 
-181     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.isConnected "}) );
-182     Serial.println();
-183 
-184 \textcolor{preprocessor}{#endif}
-185     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() != WL\_CONNECTED)
-186     \{
-187     
-188         Serial.println(F(\textcolor{stringliteral}{"Wifi Not Connected"}));
-189 
-190 \textcolor{preprocessor}{    #if DEBUG == 1}
-191 
-192         Serial.println(F(\textcolor{stringliteral}{"Wifi State is "}));
-193         Serial.println(\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}());
-194         
-195 \textcolor{preprocessor}{    #endif}
-196         \textcolor{keywordflow}{return}(-1);
-197     \}
-198     
-199     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}() != 0)
-200     \{
-201         
-202         Serial.println( F(\textcolor{stringliteral}{"MQTT not Connected"}));
+197 \{
+198 
+199 \textcolor{preprocessor}{#if DEBUG == 1  }
+200 
+201     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.isConnected "}) );
+202     Serial.println();
 203 
-204 \textcolor{preprocessor}{    #if DEBUG==1}
-205         Serial.println( F(\textcolor{stringliteral}{"mqtt state is :"}) );
-206         Serial.println(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());  
+204 \textcolor{preprocessor}{#endif}
+205     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() != WL\_CONNECTED)
+206     \{
 207     
-208 \textcolor{preprocessor}{    #endif}
+208         Serial.println(F(\textcolor{stringliteral}{"Wifi Not Connected"}));
 209 
-210     \}
-211     
-212     \textcolor{keywordflow}{return}(0);
-213 
-214 \}
+210 \textcolor{preprocessor}{    #if DEBUG == 1}
+211 
+212         Serial.println(F(\textcolor{stringliteral}{"Wifi State is "}));
+213         Serial.println(\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}());
+214         
+215 \textcolor{preprocessor}{    #endif}
+216         \textcolor{keywordflow}{return}(-1);
+217     \}
+218     
+219     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}() != 0)
+220     \{
+221         
+222         Serial.println( F(\textcolor{stringliteral}{"MQTT not Connected"}));
+223 
+224 \textcolor{preprocessor}{    #if DEBUG==1}
+225         Serial.println( F(\textcolor{stringliteral}{"mqtt state is :"}) );
+226         Serial.println(\hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}());  
+227     
+228 \textcolor{preprocessor}{    #endif}
+229 
+230     \}
+231     
+232     \textcolor{keywordflow}{return}(0);
+233 
+234 \}
 \end{DoxyCode}
-Here is the call graph for this function\+:
-\nopagebreak
+Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -713,158 +706,158 @@ Here is the call graph for this function\+:
 
 Cool\+Board\+::offline\+Mode()\+: This method is provided to manage the off\+Line mode\+: -\/read sensors -\/do actions -\/save data in the file system -\/if there is Wi\+Fi but no Internet \+: make data available over AP -\/if there is no connection \+: retry to connect 
 
-Definition at line 551 of file Cool\+Board.\+cpp.
+Definition at line 571 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-552 \{
-553     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
-554 \textcolor{preprocessor}{#if DEBUG == 1  }
-555     
-556     Serial.println( F(\textcolor{stringliteral}{"Entering off line mode "}) ); 
-557     
-558 \textcolor{preprocessor}{#endif}
-559 
-560 \textcolor{preprocessor}{#if DEBUG == 0}
-561 
-562     Serial.println( F(\textcolor{stringliteral}{"CoolBoard is in Offline Mode"}));
-563 
-564 \textcolor{preprocessor}{#endif}
-565 
-566     \textcolor{comment}{//read user data if user is active}
-567     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive})
-568     \{
-569 
-570         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
-571 
-572 \textcolor{preprocessor}{    #if DEBUG == 1}
-573         
-574         Serial.println( F(\textcolor{stringliteral}{"User is Active"}) );
-575         Serial.println( F(\textcolor{stringliteral}{"Collecting User's data ( mac,username,timeStamp )"}) );
-576         Serial.println();
-577 
-578 \textcolor{preprocessor}{    #endif}
+572 \{
+573     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
+574 \textcolor{preprocessor}{#if DEBUG == 1  }
+575     
+576     Serial.println( F(\textcolor{stringliteral}{"Entering off line mode "}) ); 
+577     
+578 \textcolor{preprocessor}{#endif}
 579 
-580         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(245,237,27,0.5);\textcolor{comment}{//shade of yellow   }
+580 \textcolor{preprocessor}{#if DEBUG == 0}
 581 
-582         \textcolor{comment}{//reading user data}
-583         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
-584 
-585         \textcolor{comment}{//formatting json }
-586         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.setCharAt( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\}'}) , \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
-587         
-588                 
-589         \textcolor{comment}{//read sensors data}
-590 
-591         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
-592         Serial.println();
-593 
-594         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}}
-595 
-596         
+582     Serial.println( F(\textcolor{stringliteral}{"CoolBoard is in Offline Mode"}));
+583 
+584 \textcolor{preprocessor}{#endif}
+585 
+586     \textcolor{comment}{//read user data if user is active}
+587     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive})
+588     \{
+589 
+590         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
+591 
+592 \textcolor{preprocessor}{    #if DEBUG == 1}
+593         
+594         Serial.println( F(\textcolor{stringliteral}{"User is Active"}) );
+595         Serial.println( F(\textcolor{stringliteral}{"Collecting User's data ( mac,username,timeStamp )"}) );
+596         Serial.println();
 597 
-598         \textcolor{comment}{//formatting json correctly}
-599         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.remove(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
-600 
-601         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
-602                 
-603     \}   
-604     \textcolor{keywordflow}{else}
-605     \{
-606         \textcolor{comment}{//read sensors data}
-607 \textcolor{preprocessor}{    #if DEBUG == 1}
-608 
-609         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
-610         Serial.println();
-611 
-612 \textcolor{preprocessor}{    #endif}
+598 \textcolor{preprocessor}{    #endif}
+599 
+600         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(245,237,27,0.5);\textcolor{comment}{//shade of yellow   }
+601 
+602         \textcolor{comment}{//reading user data}
+603         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
+604 
+605         \textcolor{comment}{//formatting json }
+606         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.setCharAt( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\}'}) , \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
+607         
+608                 
+609         \textcolor{comment}{//read sensors data}
+610 
+611         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
+612         Serial.println();
 613 
-614         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(190,100,150,0.5);\textcolor{comment}{//shade of violet        }
+614         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}}
 615 
-616         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{..,..,..\}}
-617     \}
-618 
-619     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
+616         
+617 
+618         \textcolor{comment}{//formatting json correctly}
+619         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.remove(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
 620 
-621     \textcolor{comment}{//do action}
-622 
-623     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
-624     \{
-625     
-626 
-627 
-628 \textcolor{preprocessor}{    #if DEBUG == 1}
-629 
-630         Serial.println( F(\textcolor{stringliteral}{"jetpack is Active "}) );
-631         Serial.println( F(\textcolor{stringliteral}{"jetpack doing action "}) );
-632         Serial.println();
-633     
-634 \textcolor{preprocessor}{    #endif}
-635         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(100,100,150,0.5);\textcolor{comment}{//dark shade of blue }
-636     
-637         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a9e703197093094b963f9ad57817495b8}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );
-638     \}
-639     
-640     delay(100);
-641 
-642     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );  
-643 
-644 
-645     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
-646     
-647     \textcolor{comment}{//saving data in the file system}
-648     
-649     \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_afa3a4feae94871d4d3b6bebb701c2e67}{saveSensorData}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );
-650 
-651 \textcolor{preprocessor}{    #if DEBUG == 0}
-652 
-653         Serial.println( F(\textcolor{stringliteral}{"saving Data in Memory : OK"}));
-654 
-655 \textcolor{preprocessor}{    #endif}
-656 
-657     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(51,100,50,0.5);\textcolor{comment}{//dark shade of green}
-658 
-659     \textcolor{comment}{//case we have wifi but no internet}
-660     \textcolor{keywordflow}{if}( (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() == WL\_CONNECTED) && ( \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.
+621         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
+622                 
+623     \}   
+624     \textcolor{keywordflow}{else}
+625     \{
+626         \textcolor{comment}{//read sensors data}
+627 \textcolor{preprocessor}{    #if DEBUG == 1}
+628 
+629         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
+630         Serial.println();
+631 
+632 \textcolor{preprocessor}{    #endif}
+633 
+634         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(190,100,150,0.5);\textcolor{comment}{//shade of violet        }
+635 
+636         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{..,..,..\}}
+637     \}
+638 
+639     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
+640 
+641     \textcolor{comment}{//do action}
+642 
+643     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
+644     \{
+645     
+646 
+647 
+648 \textcolor{preprocessor}{    #if DEBUG == 1}
+649 
+650         Serial.println( F(\textcolor{stringliteral}{"jetpack is Active "}) );
+651         Serial.println( F(\textcolor{stringliteral}{"jetpack doing action "}) );
+652         Serial.println();
+653     
+654 \textcolor{preprocessor}{    #endif}
+655         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(100,100,150,0.5);\textcolor{comment}{//dark shade of blue }
+656     
+657         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a9e703197093094b963f9ad57817495b8}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );
+658     \}
+659     
+660     delay(100);
+661 
+662     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );  
+663 
+664 
+665     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(51,100,50,0.5);\textcolor{comment}{//dark shade of green  }
+666     
+667     \textcolor{comment}{//saving data in the file system}
+668     
+669     \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_afa3a4feae94871d4d3b6bebb701c2e67}{saveSensorData}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );
+670 
+671 \textcolor{preprocessor}{    #if DEBUG == 0}
+672 
+673         Serial.println( F(\textcolor{stringliteral}{"saving Data in Memory : OK"}));
+674 
+675 \textcolor{preprocessor}{    #endif}
+676 
+677     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(51,100,50,0.5);\textcolor{comment}{//dark shade of green}
+678 
+679     \textcolor{comment}{//case we have wifi but no internet}
+680     \textcolor{keywordflow}{if}( (\hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() == WL\_CONNECTED) && ( \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.
       \hyperlink{class_cool_m_q_t_t_a5d003307eff78efbd585e42b43b72b6d}{state}()!=0 ) )
-661     \{
-662         
-663         Serial.println(F(\textcolor{stringliteral}{"there is Wifi but no Internet"}));
-664         Serial.println(F(\textcolor{stringliteral}{"lunching AP to check saved files"}));
-665         Serial.println(F(\textcolor{stringliteral}{"and Add new WiFi if needed"}));
-666         
-667         \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a7c857f27161782f5ef1d62d552aff971}{connectAP}();
-668         
-669     \}
-670     
-671     \textcolor{comment}{//case we have no connection at all}
-672     \textcolor{keywordflow}{if}( \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() != WL\_CONNECTED )
-673     \{
-674     
-675 \textcolor{preprocessor}{    #if DEBUG == 1}
-676         
-677         Serial.println(F(\textcolor{stringliteral}{"there is No Wifi "}));
-678         Serial.println(F(\textcolor{stringliteral}{"retrying to connect"}));
-679     
-680 \textcolor{preprocessor}{    #endif}
-681 
-682 \textcolor{preprocessor}{    #if DEBUG == 0}
-683         Serial.println( F(\textcolor{stringliteral}{"there is no WiFi..."}));
-684 \textcolor{preprocessor}{    #endif}
-685         
-686         this->\hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{connect}();\textcolor{comment}{//nomad case : just run wifiMulti}
-687                 \textcolor{comment}{//normal case : run wifiMulti+AP}
+681     \{
+682         
+683         Serial.println(F(\textcolor{stringliteral}{"there is Wifi but no Internet"}));
+684         Serial.println(F(\textcolor{stringliteral}{"lunching AP to check saved files"}));
+685         Serial.println(F(\textcolor{stringliteral}{"and Add new WiFi if needed"}));
+686         
+687         \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a7c857f27161782f5ef1d62d552aff971}{connectAP}();
 688         
-689     \}   
-690 
-691 \}
+689     \}
+690     
+691     \textcolor{comment}{//case we have no connection at all}
+692     \textcolor{keywordflow}{if}( \hyperlink{class_cool_board_acd88e6003606b47479ebba81e4aceeca}{wifiManager}.\hyperlink{class_cool_wifi_a1c7b4d82a4098d346e7593dce92039fa}{state}() != WL\_CONNECTED )
+693     \{
+694     
+695 \textcolor{preprocessor}{    #if DEBUG == 1}
+696         
+697         Serial.println(F(\textcolor{stringliteral}{"there is No Wifi "}));
+698         Serial.println(F(\textcolor{stringliteral}{"retrying to connect"}));
+699     
+700 \textcolor{preprocessor}{    #endif}
+701 
+702 \textcolor{preprocessor}{    #if DEBUG == 0}
+703         Serial.println( F(\textcolor{stringliteral}{"there is no WiFi..."}));
+704 \textcolor{preprocessor}{    #endif}
+705         
+706         this->\hyperlink{class_cool_board_a519de78b807f8ec6463ff484eb925918}{connect}();\textcolor{comment}{//nomad case : just run wifiMulti}
+707                 \textcolor{comment}{//normal case : run wifiMulti+AP}
+708         
+709     \}   
+710 
+711 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{d7/df9/class_cool_board_ae6b5e1274d760462290192acea4adca8_cgraph}
+\includegraphics[height=550pt]{d7/df9/class_cool_board_ae6b5e1274d760462290192acea4adca8_cgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_board_aa0bbc4bc605e35618d18e68795c61363}\label{class_cool_board_aa0bbc4bc605e35618d18e68795c61363}} 
@@ -875,265 +868,265 @@ Here is the call graph for this function\+:
 
 \hyperlink{class_cool_board_aa0bbc4bc605e35618d18e68795c61363}{Cool\+Board\+::on\+Line\+Mode()}\+: This method is provided to manage the online mode\+: -\/update clock -\/read sensor -\/do actions -\/publish data -\/read answer -\/update config 
 
-Definition at line 292 of file Cool\+Board.\+cpp.
+Definition at line 312 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-293 \{
-294 
-295     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green}
-296 
-297 \textcolor{preprocessor}{#if DEBUG == 1}
-298 
-299     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.onLineMode() "}) );
-300     Serial.println();
-301 
-302 \textcolor{preprocessor}{#endif}
-303 \textcolor{preprocessor}{#if DEBUG == 0}
-304 
-305     Serial.println( F(\textcolor{stringliteral}{"CoolBoard is in Online Mode"}));
-306 
-307 \textcolor{preprocessor}{#endif}
-308 
-309     \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=\textcolor{stringliteral}{""};
-310     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}=\textcolor{stringliteral}{""};
-311 
-312     \textcolor{comment}{//send saved data if any}
-313     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}{isDataSaved}())
-314     \{
-315 
-316         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
-317 
-318         Serial.println( F(\textcolor{stringliteral}{"There is data saved on the File System"}) );
-319         Serial.println( F(\textcolor{stringliteral}{"Sending saved data over MQTT "}) );
-320         Serial.println();
-321         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,128,255,0.5);\textcolor{comment}{//shade of blue }
-322 
-323         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(\textcolor{stringliteral}{"sending saved data"});
-324         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-325 
+313 \{
+314 
+315     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green}
+316 
+317 \textcolor{preprocessor}{#if DEBUG == 1}
+318 
+319     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.onLineMode() "}) );
+320     Serial.println();
+321 
+322 \textcolor{preprocessor}{#endif}
+323 \textcolor{preprocessor}{#if DEBUG == 0}
+324 
+325     Serial.println( F(\textcolor{stringliteral}{"CoolBoard is in Online Mode"}));
 326 
-327         
-328         \textcolor{keywordtype}{int} size=0;
-329         std::unique\_ptr<String[]> savedData(std::move(\hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.
+327 \textcolor{preprocessor}{#endif}
+328 
+329     \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=\textcolor{stringliteral}{""};
+330     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}=\textcolor{stringliteral}{""};
+331 
+332     \textcolor{comment}{//send saved data if any}
+333     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}{isDataSaved}())
+334     \{
+335 
+336         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
+337 
+338         Serial.println( F(\textcolor{stringliteral}{"There is data saved on the File System"}) );
+339         Serial.println( F(\textcolor{stringliteral}{"Sending saved data over MQTT "}) );
+340         Serial.println();
+341         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,128,255,0.5);\textcolor{comment}{//shade of blue }
+342 
+343         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(\textcolor{stringliteral}{"sending saved data"});
+344         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+345 
+346 
+347         
+348         \textcolor{keywordtype}{int} size=0;
+349         std::unique\_ptr<String[]> savedData(std::move(\hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.
       \hyperlink{class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2}{getSensorSavedData}(size)));\textcolor{comment}{//\{..,..,..\}}
-330 
-331         \textcolor{keywordtype}{int} i=0;
-332         \textcolor{comment}{//loop through the array}
-333         \textcolor{keywordflow}{while}(i<size)
-334         \{
-335             \textcolor{comment}{//formatting data:}
-336         
-337             String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
-338             jsonData += savedData[i]; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
-339             jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
-340 
-341 \textcolor{preprocessor}{        #if DEBUG == 1 }
-342             Serial.println(F(\textcolor{stringliteral}{"Size is : "}));
-343             Serial.println(size);
-344             Serial.print(F(\textcolor{stringliteral}{"sending line N°"}));
-345             Serial.println(i);
-346             Serial.println(jsonData);
-347             Serial.println();
-348 
-349 \textcolor{preprocessor}{        #endif}
 350 
-351             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
-352         
-353             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( jsonData.c\_str() );
-354             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-355         
-356             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
-357             
-358             i++;
-359             yield();
-360         \}       
-361 
-362 
-363 \textcolor{preprocessor}{    #if DEBUG == 1}
-364 
-365         Serial.println( F(\textcolor{stringliteral}{"Saved data sent "}) );
-366         Serial.println();
-367     
-368 \textcolor{preprocessor}{    #endif}
-369 
-370     \}
-371 
-372     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green}
-373 
-374     \textcolor{comment}{//clock update}
-375     Serial.println( F(\textcolor{stringliteral}{"Re-checking RTC..."}));
-376     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
-377 
-378     \textcolor{comment}{//read user data if user is active}
-379     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive})
-380     \{
-381         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
-382     
+351         \textcolor{keywordtype}{int} i=0;
+352         \textcolor{comment}{//loop through the array}
+353         \textcolor{keywordflow}{while}(i<size)
+354         \{
+355             \textcolor{comment}{//formatting data:}
+356         
+357             String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
+358             jsonData += savedData[i]; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
+359             jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
+360 
+361 \textcolor{preprocessor}{        #if DEBUG == 1 }
+362             Serial.println(F(\textcolor{stringliteral}{"Size is : "}));
+363             Serial.println(size);
+364             Serial.print(F(\textcolor{stringliteral}{"sending line N°"}));
+365             Serial.println(i);
+366             Serial.println(jsonData);
+367             Serial.println();
+368 
+369 \textcolor{preprocessor}{        #endif}
+370 
+371             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
+372         
+373             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( jsonData.c\_str() );
+374             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+375         
+376             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,128,255,0.5);\textcolor{comment}{//shade of blue}
+377             
+378             i++;
+379             yield();
+380         \}       
+381 
+382 
 383 \textcolor{preprocessor}{    #if DEBUG == 1}
 384 
-385         Serial.println( F(\textcolor{stringliteral}{"User is Active"}) );
-386         Serial.println( F(\textcolor{stringliteral}{"Collecting User's data ( mac,username,timeStamp )"}) );
-387         Serial.println();
-388     
-389 \textcolor{preprocessor}{    #endif  }
-390         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(245,237,27,0.5);\textcolor{comment}{//shade of yellow   }
+385         Serial.println( F(\textcolor{stringliteral}{"Saved data sent "}) );
+386         Serial.println();
+387     
+388 \textcolor{preprocessor}{    #endif}
+389 
+390     \}
 391 
-392         \textcolor{comment}{//reading user data}
-393         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
-394 
-395         \textcolor{comment}{//formatting json }
-396         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.setCharAt( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\}'}) , \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
-397                 
-398         \textcolor{comment}{//read sensors data}
-399 \textcolor{preprocessor}{    #if DEBUG == 1}
-400 
-401         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
-402         Serial.println();
-403     
-404 \textcolor{preprocessor}{    #endif}
-405 
-406         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}     }
-407 
-408         \textcolor{comment}{//formatting json correctly}
-409         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.remove(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
-410         
-411         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
-412                 
-413     \}   
-414     \textcolor{keywordflow}{else}
-415     \{
-416         \textcolor{comment}{//read sensors data}
-417 \textcolor{preprocessor}{    #if DEBUG == 1}
-418 
-419         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
-420         Serial.println();
-421     
-422 \textcolor{preprocessor}{    #endif}
-423         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(190,100,150,0.5);\textcolor{comment}{//shade of violet        }
-424         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{..,..,..\}}
-425     \}
-426     
+392     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green}
+393 
+394     \textcolor{comment}{//clock update}
+395     Serial.println( F(\textcolor{stringliteral}{"Re-checking RTC..."}));
+396     \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
+397 
+398     \textcolor{comment}{//read user data if user is active}
+399     \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive})
+400     \{
+401         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
+402     
+403 \textcolor{preprocessor}{    #if DEBUG == 1}
+404 
+405         Serial.println( F(\textcolor{stringliteral}{"User is Active"}) );
+406         Serial.println( F(\textcolor{stringliteral}{"Collecting User's data ( mac,username,timeStamp )"}) );
+407         Serial.println();
+408     
+409 \textcolor{preprocessor}{    #endif  }
+410         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(245,237,27,0.5);\textcolor{comment}{//shade of yellow   }
+411 
+412         \textcolor{comment}{//reading user data}
+413         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ae7358fb6e623cfc81b775f5f1734909b}{userData}();\textcolor{comment}{//\{"":"","":"","",""\}}
+414 
+415         \textcolor{comment}{//formatting json }
+416         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.setCharAt( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\}'}) , \textcolor{charliteral}{','});\textcolor{comment}{//\{"":"","":"","","",}
+417                 
+418         \textcolor{comment}{//read sensors data}
+419 \textcolor{preprocessor}{    #if DEBUG == 1}
+420 
+421         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
+422         Serial.println();
+423     
+424 \textcolor{preprocessor}{    #endif}
+425 
+426         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}+=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{"":"","":"","","",\{.......\}     }
 427 
-428 
-429 
-430     \textcolor{comment}{//do action}
-431 
-432     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
-433     \{
-434 
-435 
-436 \textcolor{preprocessor}{    #if DEBUG ==1}
-437 
-438         Serial.println( F(\textcolor{stringliteral}{"jetpack is Active "}) );
-439         Serial.println();
-440 
-441 \textcolor{preprocessor}{    #endif}
-442     
-443         \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 0 )
-444         \{
-445 
-446             Serial.println( F(\textcolor{stringliteral}{"jetpack doing action "}) );
+428         \textcolor{comment}{//formatting json correctly}
+429         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.remove(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.lastIndexOf(\textcolor{charliteral}{'\{'}), 1);\textcolor{comment}{//\{"":"","":"","","",.......\}}
+430         
+431         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(245,237,27,0.5);\textcolor{comment}{//shade of yellow}
+432                 
+433     \}   
+434     \textcolor{keywordflow}{else}
+435     \{
+436         \textcolor{comment}{//read sensors data}
+437 \textcolor{preprocessor}{    #if DEBUG == 1}
+438 
+439         Serial.println( F(\textcolor{stringliteral}{"Collecting sensors data "}) );
+440         Serial.println();
+441     
+442 \textcolor{preprocessor}{    #endif}
+443         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(190,100,150,0.5);\textcolor{comment}{//shade of violet        }
+444         \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}=this->\hyperlink{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}{readSensors}();\textcolor{comment}{//\{..,..,..\}}
+445     \}
+446     
 447 
-448             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(100,100,150,0.5);\textcolor{comment}{//dark shade of blue     }
+448 
 449 
-450             \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a9e703197093094b963f9ad57817495b8}{doAction}(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str());
-451             
-452 
-453         
-454         \}
-455         
-456         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 1 )
-457         \{
-458         
-459             Serial.println(F(\textcolor{stringliteral}{"we are in manual mode"}));
-460             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-461             \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
-462             \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
-463         \}
-464     \}
+450     \textcolor{comment}{//do action}
+451 
+452     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive})
+453     \{
+454 
+455 
+456 \textcolor{preprocessor}{    #if DEBUG ==1}
+457 
+458         Serial.println( F(\textcolor{stringliteral}{"jetpack is Active "}) );
+459         Serial.println();
+460 
+461 \textcolor{preprocessor}{    #endif}
+462     
+463         \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 0 )
+464         \{
 465 
-466     delay(100);
+466             Serial.println( F(\textcolor{stringliteral}{"jetpack doing action "}) );
 467 
-468     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );  
+468             \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_af1cacbaa88db8bcf6042c1083ba41155}{fade}(100,100,150,0.5);\textcolor{comment}{//dark shade of blue     }
 469 
-470 
-471 
-472     
-473     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green}
-474 
-475     \textcolor{comment}{//formatting data:}
-476     String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
-477     jsonData += \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
-478     jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
-479     
-480     \textcolor{comment}{//mqtt client loop to allow data handling}
-481     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-482 
-483     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
-484 
-485     \textcolor{comment}{//read mqtt answer}
-486     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+470             \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a9e703197093094b963f9ad57817495b8}{doAction}(\hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str());
+471             
+472 
+473         
+474         \}
+475         
+476         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 1 )
+477         \{
+478         
+479             Serial.println(F(\textcolor{stringliteral}{"we are in manual mode"}));
+480             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+481             \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+482             \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
+483         \}
+484     \}
+485 
+486     delay(100);
 487 
-488 \textcolor{preprocessor}{#if DEBUG == 1 }
+488     \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a96a45658d32c6b95caa2f385c7da32cd}{doAction}( \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}.c\_str() );  
 489 
-490     Serial.println( F(\textcolor{stringliteral}{"checking if there's an MQTT message "})  );
-491     Serial.println( F(\textcolor{stringliteral}{"answer is : "}) );    
-492     Serial.println(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});   
-493     Serial.println();
+490 
+491 
+492     
+493     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green}
 494 
-495 \textcolor{preprocessor}{#endif  }
-496 
-497     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
-498 
-499     \textcolor{comment}{//check if the configuration needs update }
-500     \textcolor{comment}{//and update it if needed }
-501     \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
-502     
-503     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green  }
+495     \textcolor{comment}{//formatting data:}
+496     String jsonData = \textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
+497     jsonData += \hyperlink{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}{data}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}}
+498     jsonData += \textcolor{stringliteral}{" \} \}"}; \textcolor{comment}{// \{"state":\{"reported":\{..,..,..,..,..,..,..,..\}  \} \}}
+499     
+500     \textcolor{comment}{//mqtt client loop to allow data handling}
+501     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+502 
+503     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
 504 
-505     \textcolor{comment}{//publishing data   }
-506     \textcolor{keywordflow}{if}( this->\hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive}==0 )   
-507     \{   
-508         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(255,0,230,0.5);\textcolor{comment}{//shade of pink}
-509         
-510         \textcolor{comment}{//logInterval in seconds}
-511         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( jsonData.c\_str(), this->\hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}() );
-512         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-513     
-514     \}
-515     \textcolor{keywordflow}{else}
-516     \{
-517         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(230,255,0,0.5);\textcolor{comment}{//shade of yellow  }
+505     \textcolor{comment}{//read mqtt answer}
+506     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+507 
+508 \textcolor{preprocessor}{#if DEBUG == 1 }
+509 
+510     Serial.println( F(\textcolor{stringliteral}{"checking if there's an MQTT message "})  );
+511     Serial.println( F(\textcolor{stringliteral}{"answer is : "}) );    
+512     Serial.println(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});   
+513     Serial.println();
+514 
+515 \textcolor{preprocessor}{#endif  }
+516 
+517     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
 518 
-519         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(jsonData.c\_str());      
-520         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-521         \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
-522         \textcolor{keyword}{this} ->update(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
-523 
-524         \textcolor{comment}{//logInterval in seconds}
-525         this->\hyperlink{class_cool_board_a069952cdcb2e7f68518aa429eceadb6e}{sleep}( this->\hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}() ) ;
-526     \}
-527 
-528     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,50,0.5);\textcolor{comment}{//shade of green        }
-529 
-530     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-531 
-532     \textcolor{comment}{//read mqtt answer}
-533     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
-534     \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str()); 
-535 
-536     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
-537 
+519     \textcolor{comment}{//check if the configuration needs update }
+520     \textcolor{comment}{//and update it if needed }
+521     \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
+522     
+523     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,50,0.5);\textcolor{comment}{//shade of green  }
+524 
+525     \textcolor{comment}{//publishing data   }
+526     \textcolor{keywordflow}{if}( this->\hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive}==0 )   
+527     \{   
+528         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(255,0,230,0.5);\textcolor{comment}{//shade of pink}
+529         
+530         \textcolor{comment}{//logInterval in seconds}
+531         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}( jsonData.c\_str(), this->\hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}() );
+532         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+533     
+534     \}
+535     \textcolor{keywordflow}{else}
+536     \{
+537         \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(230,255,0,0.5);\textcolor{comment}{//shade of yellow  }
 538 
-539 \}
+539         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(jsonData.c\_str());      
+540         \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+541         \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+542         \textcolor{keyword}{this} ->update(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str());
+543 
+544         \textcolor{comment}{//logInterval in seconds}
+545         this->\hyperlink{class_cool_board_a069952cdcb2e7f68518aa429eceadb6e}{sleep}( this->\hyperlink{class_cool_board_a7508e029f2ee17bb747ffab599285e0d}{getLogInterval}() ) ;
+546     \}
+547 
+548     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,50,0.5);\textcolor{comment}{//shade of green        }
+549 
+550     \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
+551 
+552     \textcolor{comment}{//read mqtt answer}
+553     \hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer} = \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ae3c18f6ae9723746d32765f1c8f176ca}{read}();
+554     \textcolor{keyword}{this} -> \hyperlink{class_cool_board_a8612756d3f73198cdde857a66f0fe690}{update}(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer}.c\_str()); 
+555 
+556     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a96e1ea13003eee34c9dbcef340404426}{blink}(128,255,50,0.5);\textcolor{comment}{//shade of green    }
+557 
+558 
+559 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{d7/df9/class_cool_board_aa0bbc4bc605e35618d18e68795c61363_cgraph}
+\includegraphics[height=550pt]{d7/df9/class_cool_board_aa0bbc4bc605e35618d18e68795c61363_cgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_board_a486507b8f0981d3cc671ed31c2145755}\label{class_cool_board_a486507b8f0981d3cc671ed31c2145755}} 
@@ -1144,47 +1137,47 @@ Here is the call graph for this function\+:
 
 \hyperlink{class_cool_board_a486507b8f0981d3cc671ed31c2145755}{Cool\+Board\+::print\+Conf()}\+: This method is provided to print the configuration to the Serial Monitor. 
 
-Definition at line 899 of file Cool\+Board.\+cpp.
+Definition at line 919 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-900 \{
-901 
-902 \textcolor{preprocessor}{#if DEBUG == 1}
-903     
-904     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.printConf() "}) );
-905     Serial.println();
-906 
-907 \textcolor{preprocessor}{#endif}
-908 
-909     Serial.println( F(\textcolor{stringliteral}{"Printing Cool Board Configuration "}));
-910     Serial.print( F(\textcolor{stringliteral}{"log interval       : "}));
-911     Serial.println(this->\hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
-912 
-913     Serial.print( F(\textcolor{stringliteral}{"irene active       : "}));
-914     Serial.println(this->\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive});
-915 
-916     Serial.print( F(\textcolor{stringliteral}{"jetpack active     : "}));
-917     Serial.println(this->\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive});
-918 
-919     Serial.print( F(\textcolor{stringliteral}{"external sensors active    : "}));
-920     Serial.println(this->\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive});
+920 \{
 921 
-922     Serial.print( F(\textcolor{stringliteral}{"sleep active       : "}));
-923     Serial.println(this->\hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive});
-924 
-925     Serial.print( F(\textcolor{stringliteral}{"user active        : "}));
-926     Serial.println(this->\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive});
-927 
-928     Serial.print( F(\textcolor{stringliteral}{"manual active      : "}));
-929     Serial.println(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual});
-930 
-931     Serial.println();
+922 \textcolor{preprocessor}{#if DEBUG == 1}
+923     
+924     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.printConf() "}) );
+925     Serial.println();
+926 
+927 \textcolor{preprocessor}{#endif}
+928 
+929     Serial.println( F(\textcolor{stringliteral}{"Printing Cool Board Configuration "}));
+930     Serial.print( F(\textcolor{stringliteral}{"log interval       : "}));
+931     Serial.println(this->\hyperlink{class_cool_board_a84bc94413b64973e4aba8c467c97006c}{logInterval});
 932 
-933 
-934 
+933     Serial.print( F(\textcolor{stringliteral}{"irene active       : "}));
+934     Serial.println(this->\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive});
 935 
-936 \}
+936     Serial.print( F(\textcolor{stringliteral}{"jetpack active     : "}));
+937     Serial.println(this->\hyperlink{class_cool_board_a9be03a913d26e558328935ca3b59a75e}{jetpackActive});
+938 
+939     Serial.print( F(\textcolor{stringliteral}{"external sensors active    : "}));
+940     Serial.println(this->\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive});
+941 
+942     Serial.print( F(\textcolor{stringliteral}{"sleep active       : "}));
+943     Serial.println(this->\hyperlink{class_cool_board_a0a51b2287139f66c738101fb53139230}{sleepActive});
+944 
+945     Serial.print( F(\textcolor{stringliteral}{"user active        : "}));
+946     Serial.println(this->\hyperlink{class_cool_board_a6395459131d6889a3005f79c7a35e964}{userActive});
+947 
+948     Serial.print( F(\textcolor{stringliteral}{"manual active      : "}));
+949     Serial.println(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual});
+950 
+951     Serial.println();
+952 
+953 
+954 
+955 
+956 \}
 \end{DoxyCode}
 \mbox{\Hypertarget{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}\label{class_cool_board_ad03abdce2e65f520bbf2cff0f2d083cf}} 
 \index{Cool\+Board@{Cool\+Board}!read\+Sensors@{read\+Sensors}}
@@ -1199,74 +1192,74 @@ json string of all the sensors read.
 \end{DoxyReturn}
 
 
-Definition at line 1153 of file Cool\+Board.\+cpp.
+Definition at line 1173 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-1154 \{
-1155 
-1156     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
-1157                 
-1158 \textcolor{preprocessor}{#if DEBUG == 1}
-1159 
-1160     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.readSensors()"}) );
-1161     Serial.println();
-1162 
-1163 \textcolor{preprocessor}{#endif}
-1164     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
-1165 
-1166     String sensorsData;
-1167     
-1168     this->\hyperlink{class_cool_board_a397b46fadab8f530a8cf4d914c561366}{initReadI2C}();
-1169 
-1170     sensorsData = \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a91badb2539d91fda8679f2a597874c48}{read}(); \textcolor{comment}{// \{..,..,..\}}
-1171     
-1172     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive})
-1173     \{
-1174         sensorsData += \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}{read}(); \textcolor{comment}{// \{..,..,..\}\{..,..\}}
+1174 \{
 1175 
-1176         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\}\{..,..,}
-1177         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\},..,..,}
-1178         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,}
-1179         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..\}}
-1180 
-1181     \}
-1182     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive})
-1183     \{
-1184         sensorsData += \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{read}(); \textcolor{comment}{// \{..,..,..,..,..\}\{..,..,..\}}
+1176     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
+1177                 
+1178 \textcolor{preprocessor}{#if DEBUG == 1}
+1179 
+1180     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.readSensors()"}) );
+1181     Serial.println();
+1182 
+1183 \textcolor{preprocessor}{#endif}
+1184     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
 1185 
-1186         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\}\{..,..,..,}
-1187         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\},..,..,..,}
-1188         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,}
-1189         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..,..,..,..\}      }
-1190         
-1191         
-1192     \}
-1193 
-1194     \textcolor{comment}{//getting Hour:}
-1195     tmElements\_t tm;
-1196     tm=\hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
-1197     
-1198     \textcolor{comment}{//adding Hour}
-1199     sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,   }
-1200     sensorsData+=\textcolor{stringliteral}{",\(\backslash\)"hour\(\backslash\)":"};  
-1201     sensorsData+=tm.Hour;
-1202     sensorsData+=\textcolor{stringliteral}{",\(\backslash\)"minute\(\backslash\)":"};
-1203     sensorsData+=tm.Minute;
-1204     sensorsData+=\textcolor{stringliteral}{"\}"};
-1205     
-1206 \textcolor{preprocessor}{#if DEBUG == 1}
-1207     Serial.println();
-1208     Serial.println( F(\textcolor{stringliteral}{"sensors data is "}) );
-1209     Serial.println(sensorsData);
-1210     Serial.println();
-1211 
-1212 \textcolor{preprocessor}{#endif}
-1213     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
-1214 
-1215     \textcolor{keywordflow}{return}(sensorsData);
-1216 
-1217 \}
+1186     String sensorsData;
+1187     
+1188     this->\hyperlink{class_cool_board_a397b46fadab8f530a8cf4d914c561366}{initReadI2C}();
+1189 
+1190     sensorsData = \hyperlink{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}{coolBoardSensors}.\hyperlink{class_cool_board_sensors_a91badb2539d91fda8679f2a597874c48}{read}(); \textcolor{comment}{// \{..,..,..\}}
+1191     
+1192     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}{externalSensorsActive})
+1193     \{
+1194         sensorsData += \hyperlink{class_cool_board_a09e26264839c65873eb56af476eff6b2}{externalSensors}.\hyperlink{class_external_sensors_a53177b81eca3be89508b5511ddcd00fc}{read}(); \textcolor{comment}{// \{..,..,..\}\{..,..\}}
+1195 
+1196         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\}\{..,..,}
+1197         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..\},..,..,}
+1198         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,}
+1199         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..\}}
+1200 
+1201     \}
+1202     \textcolor{keywordflow}{if} (\hyperlink{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}{ireneActive})
+1203     \{
+1204         sensorsData += \hyperlink{class_cool_board_ad103718ce316006c4695b8eb312eaf11}{irene3000}.\hyperlink{class_irene3000_a852a170feea994ea1df01c6b245b5d9a}{read}(); \textcolor{comment}{// \{..,..,..,..,..\}\{..,..,..\}}
+1205 
+1206         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\}\{..,..,..,}
+1207         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{'\{'}), \textcolor{charliteral}{','}); \textcolor{comment}{// \{..,..,..,..,..\},..,..,..,}
+1208         sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,}
+1209         sensorsData.setCharAt(sensorsData.lastIndexOf(\textcolor{charliteral}{','}), \textcolor{charliteral}{'\}'}); \textcolor{comment}{// \{..,..,..,..,..,..,..,..\}      }
+1210         
+1211         
+1212     \}
+1213 
+1214     \textcolor{comment}{//getting Hour:}
+1215     tmElements\_t tm;
+1216     tm=\hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
+1217     
+1218     \textcolor{comment}{//adding Hour}
+1219     sensorsData.remove(sensorsData.lastIndexOf(\textcolor{charliteral}{'\}'}), 1); \textcolor{comment}{// \{..,..,..,..,..,..,..,..,   }
+1220     sensorsData+=\textcolor{stringliteral}{",\(\backslash\)"hour\(\backslash\)":"};  
+1221     sensorsData+=tm.Hour;
+1222     sensorsData+=\textcolor{stringliteral}{",\(\backslash\)"minute\(\backslash\)":"};
+1223     sensorsData+=tm.Minute;
+1224     sensorsData+=\textcolor{stringliteral}{"\}"};
+1225     
+1226 \textcolor{preprocessor}{#if DEBUG == 1}
+1227     Serial.println();
+1228     Serial.println( F(\textcolor{stringliteral}{"sensors data is "}) );
+1229     Serial.println(sensorsData);
+1230     Serial.println();
+1231 
+1232 \textcolor{preprocessor}{#endif}
+1233     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(128,255,0,0.5);\textcolor{comment}{//light shade of green}
+1234 
+1235     \textcolor{keywordflow}{return}(sensorsData);
+1236 
+1237 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
@@ -1292,22 +1285,22 @@ Here is the caller graph for this function\+:
 
 Cool\+Board\+::sleep(int interval)\+: This method is provided to allow the board to enter deep\+Sleep mode for a period of time equal to interval in s 
 
-Definition at line 1293 of file Cool\+Board.\+cpp.
+Definition at line 1313 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-1294 \{
-1295 
-1296     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.sleep() "}) );
-1297     Serial.print( F(\textcolor{stringliteral}{"going to sleep for "}) );
-1298     Serial.print(interval);
-1299     Serial.println(F(\textcolor{stringliteral}{"s"}) );
-1300     Serial.println();
-1301     
-1302     \textcolor{comment}{//interval is in seconds , interval*1000*1000 in µS}
-1303     ESP.deepSleep ( ( interval * 1000 * 1000 ), WAKE\_RF\_DEFAULT) ;
-1304 
-1305 \}
+1314 \{
+1315 
+1316     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.sleep() "}) );
+1317     Serial.print( F(\textcolor{stringliteral}{"going to sleep for "}) );
+1318     Serial.print(interval);
+1319     Serial.println(F(\textcolor{stringliteral}{"s"}) );
+1320     Serial.println();
+1321     
+1322     \textcolor{comment}{//interval is in seconds , interval*1000*1000 in µS}
+1323     ESP.deepSleep ( ( interval * 1000 * 1000 ), WAKE\_RF\_DEFAULT) ;
+1324 
+1325 \}
 \end{DoxyCode}
 Here is the caller graph for this function\+:
 \nopagebreak
@@ -1325,187 +1318,187 @@ Here is the caller graph for this function\+:
 
 Cool\+Board\+::update(mqtt answer)\+: This method is provided to handle the configuration update of the different parts 
 
-Definition at line 943 of file Cool\+Board.\+cpp.
+Definition at line 963 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-944 \{
-945     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(153,76,0,0.5);\textcolor{comment}{//shade of brown        }
-946 
-947 \textcolor{preprocessor}{#if DEBUG == 1}
-948 
-949     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.update() "}) );
-950     Serial.println();
-951     Serial.println( F(\textcolor{stringliteral}{"message is : "}) );
-952     Serial.println(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});
-953     Serial.println();
-954 
-955 \textcolor{preprocessor}{#endif}
-956 
-957     DynamicJsonBuffer jsonBuffer;
-958     JsonObject & root = jsonBuffer.parseObject(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});
-959     JsonObject & stateDesired = root[\textcolor{stringliteral}{"state"}];
-960 
-961 \textcolor{preprocessor}{#if DEBUG == 1}
-962 
-963     Serial.println( F(\textcolor{stringliteral}{"root json : "}) );
-964     root.printTo(Serial);
-965     Serial.println();
+964 \{
+965     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ab778f5e7bed0ab74e3906d82110493c3}{fadeIn}(153,76,0,0.5);\textcolor{comment}{//shade of brown        }
 966 
-967     Serial.println( F(\textcolor{stringliteral}{"stateDesired json : "}));
-968     stateDesired.printTo(Serial);
-969     Serial.println();
-970     
-971     Serial.print( F(\textcolor{stringliteral}{"jsonBuffer size : "}));
-972     Serial.println(jsonBuffer.size());
-973 
-974 \textcolor{preprocessor}{#endif}
-975 
-976     \textcolor{keywordflow}{if} (stateDesired.success())
-977     \{
-978     
-979 \textcolor{preprocessor}{    #if DEBUG == 1}
+967 \textcolor{preprocessor}{#if DEBUG == 1}
+968 
+969     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.update() "}) );
+970     Serial.println();
+971     Serial.println( F(\textcolor{stringliteral}{"message is : "}) );
+972     Serial.println(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});
+973     Serial.println();
+974 
+975 \textcolor{preprocessor}{#endif}
+976 
+977     DynamicJsonBuffer jsonBuffer;
+978     JsonObject & root = jsonBuffer.parseObject(\hyperlink{class_cool_board_a7b835fafd449e5282f7f91d787a2dc15}{answer});
+979     JsonObject & stateDesired = root[\textcolor{stringliteral}{"state"}];
 980 
-981         Serial.println( F(\textcolor{stringliteral}{"update message parsing : success"}) );
-982         Serial.println();
-983     
-984 \textcolor{preprocessor}{    #endif}
-985 
-986             String answerDesired;
-987         
-988             stateDesired.printTo(answerDesired);
-989             
-990 \textcolor{preprocessor}{        #if DEBUG == 1      }
-991         
-992             Serial.println( F(\textcolor{stringliteral}{"update is ok "}) );
-993             Serial.println( F(\textcolor{stringliteral}{"desired update is : "}) );            
-994             Serial.println(answerDesired);
-995             Serial.println(\textcolor{stringliteral}{"json size is : "});
-996             Serial.println(jsonBuffer.size() ) ;                
-997             Serial.println();
-998 
-999         
-1000 \textcolor{preprocessor}{        #endif}
-1001             \textcolor{comment}{//manual mode check}
-1002             \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 1 )
-1003             \{ 
-1004                 JsonObject & manualMode=stateDesired[\textcolor{stringliteral}{"manual"}];
-1005                 \textcolor{comment}{//json parse}
-1006                 \textcolor{keywordflow}{for}(\textcolor{keyword}{auto} kv : manualMode)
-1007                 \{
-1008 \textcolor{preprocessor}{                #if DEBUG == 1}
-1009 
-1010                     Serial.print(F(\textcolor{stringliteral}{"writing to "}));
-1011                     Serial.println(kv.key);
-1012                     Serial.print(F(\textcolor{stringliteral}{"state : "}));
-1013                     Serial.println(kv.value.as<\textcolor{keywordtype}{bool}>());        
-1014                     
-1015 \textcolor{preprocessor}{                #endif              }
-1016 
-1017                     \textcolor{keywordflow}{if}( strcmp(kv.key,\textcolor{stringliteral}{"Act0"}) == 0 )
-1018                     \{
-1019                     
-1020                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(0,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
-1021                         
-1022                     \}
-1023                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act1"}) == 0)
-1024                     \{
-1025                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(1,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
-1026 
-1027                     \}
-1028                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act2"}) == 0)
-1029                     \{
-1030                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(2,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
-1031 
-1032                     \}
-1033                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act3"}) == 0)
-1034                     \{
-1035                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(3,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+981 \textcolor{preprocessor}{#if DEBUG == 1}
+982 
+983     Serial.println( F(\textcolor{stringliteral}{"root json : "}) );
+984     root.printTo(Serial);
+985     Serial.println();
+986 
+987     Serial.println( F(\textcolor{stringliteral}{"stateDesired json : "}));
+988     stateDesired.printTo(Serial);
+989     Serial.println();
+990     
+991     Serial.print( F(\textcolor{stringliteral}{"jsonBuffer size : "}));
+992     Serial.println(jsonBuffer.size());
+993 
+994 \textcolor{preprocessor}{#endif}
+995 
+996     \textcolor{keywordflow}{if} (stateDesired.success())
+997     \{
+998     
+999 \textcolor{preprocessor}{    #if DEBUG == 1}
+1000 
+1001         Serial.println( F(\textcolor{stringliteral}{"update message parsing : success"}) );
+1002         Serial.println();
+1003     
+1004 \textcolor{preprocessor}{    #endif}
+1005 
+1006             String answerDesired;
+1007         
+1008             stateDesired.printTo(answerDesired);
+1009             
+1010 \textcolor{preprocessor}{        #if DEBUG == 1      }
+1011         
+1012             Serial.println( F(\textcolor{stringliteral}{"update is ok "}) );
+1013             Serial.println( F(\textcolor{stringliteral}{"desired update is : "}) );            
+1014             Serial.println(answerDesired);
+1015             Serial.println(\textcolor{stringliteral}{"json size is : "});
+1016             Serial.println(jsonBuffer.size() ) ;                
+1017             Serial.println();
+1018 
+1019         
+1020 \textcolor{preprocessor}{        #endif}
+1021             \textcolor{comment}{//manual mode check}
+1022             \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 1 )
+1023             \{ 
+1024                 JsonObject & manualMode=stateDesired[\textcolor{stringliteral}{"manual"}];
+1025                 \textcolor{comment}{//json parse}
+1026                 \textcolor{keywordflow}{for}(\textcolor{keyword}{auto} kv : manualMode)
+1027                 \{
+1028 \textcolor{preprocessor}{                #if DEBUG == 1}
+1029 
+1030                     Serial.print(F(\textcolor{stringliteral}{"writing to "}));
+1031                     Serial.println(kv.key);
+1032                     Serial.print(F(\textcolor{stringliteral}{"state : "}));
+1033                     Serial.println(kv.value.as<\textcolor{keywordtype}{bool}>());        
+1034                     
+1035 \textcolor{preprocessor}{                #endif              }
 1036 
-1037                     \}
-1038                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act4"}) == 0)
-1039                     \{
-1040                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(4,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
-1041 
+1037                     \textcolor{keywordflow}{if}( strcmp(kv.key,\textcolor{stringliteral}{"Act0"}) == 0 )
+1038                     \{
+1039                     
+1040                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(0,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1041                         
 1042                     \}
-1043                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act5"}) == 0)
+1043                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act1"}) == 0)
 1044                     \{
-1045                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(5,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1045                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(1,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
 1046 
 1047                     \}
-1048                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act6"}) == 0)
+1048                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act2"}) == 0)
 1049                     \{
-1050                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(6,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1050                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(2,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
 1051 
 1052                     \}
-1053                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (strcmp(kv.key,\textcolor{stringliteral}{"Act7"}) == 0)
+1053                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act3"}) == 0)
 1054                     \{
-1055                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(7,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1055                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(3,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
 1056 
 1057                     \}
-1058                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (strcmp(kv.key,\textcolor{stringliteral}{"ActB"}) == 0)
+1058                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act4"}) == 0)
 1059                     \{
-1060                         \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}(kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1060                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(4,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
 1061 
 1062                     \}
-1063                                 
-1064                 
-1065                 \}
+1063                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act5"}) == 0)
+1064                     \{
+1065                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(5,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
 1066 
-1067                 
-1068             \}
-1069 
-1070             \textcolor{comment}{//saving the new configuration}
-1071             \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}{updateConfigFiles}(answerDesired);
-1072 
-1073                 \textcolor{comment}{//answering the update msg:}
-1074             \textcolor{comment}{//reported = received configuration}
-1075             \textcolor{comment}{//desired=null}
-1076         
-1077             String updateAnswer;
-1078             String tempString;
-1079             
-1080             stateDesired.printTo(tempString);
-1081             updateAnswer=\textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
-1082             updateAnswer+=tempString;
-1083             updateAnswer+=\textcolor{stringliteral}{",\(\backslash\)"desired\(\backslash\)":null\}\}"};
-1084 
-1085 \textcolor{preprocessor}{        #if DEBUG == 1}
+1067                     \}
+1068                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(strcmp(kv.key,\textcolor{stringliteral}{"Act6"}) == 0)
+1069                     \{
+1070                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(6,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1071 
+1072                     \}
+1073                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (strcmp(kv.key,\textcolor{stringliteral}{"Act7"}) == 0)
+1074                     \{
+1075                         \hyperlink{class_cool_board_a30b1357881b01ccbec676856a91e48e9}{jetPack}.\hyperlink{class_jetpack_a79ae7bc3c1828a0551a7c005c4f8bd00}{writeBit}(7,kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1076 
+1077                     \}
+1078                     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (strcmp(kv.key,\textcolor{stringliteral}{"ActB"}) == 0)
+1079                     \{
+1080                         \hyperlink{class_cool_board_a4ac693895c21025b8808653f2a4316e6}{onBoardActor}.\hyperlink{class_cool_board_actor_a958786ff01ea1056ee72c72d439f86da}{write}(kv.value.as<\textcolor{keywordtype}{bool}>() ); 
+1081 
+1082                     \}
+1083                                 
+1084                 
+1085                 \}
 1086 
-1087             Serial.println( F(\textcolor{stringliteral}{"preparing answer message "}) );
-1088             Serial.println();
-1089             Serial.println( F(\textcolor{stringliteral}{"updateAnswer : "}) );
-1090             Serial.println(updateAnswer);
-1091         
-1092 \textcolor{preprocessor}{        #endif  }
-1093 
-1094             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(updateAnswer.c\_str());
-1095             
-1096             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
-1097 
-1098             delay(10);
-1099         
-1100             \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 0 )
-1101             \{
-1102                 \textcolor{comment}{//restart the esp to apply the config}
-1103                 ESP.restart();
-1104             \}
-1105     \}
-1106     \textcolor{keywordflow}{else}
-1107     \{
-1108     
-1109 \textcolor{preprocessor}{    #if DEBUG == 1}
-1110 
-1111         Serial.println( F(\textcolor{stringliteral}{"Failed to parse update message( OR no message received )"}) );
-1112         Serial.println();
-1113     
-1114 \textcolor{preprocessor}{    #endif}
-1115     
-1116     \}
+1087                 
+1088             \}
+1089 
+1090             \textcolor{comment}{//saving the new configuration}
+1091             \hyperlink{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}{fileSystem}.\hyperlink{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}{updateConfigFiles}(answerDesired);
+1092 
+1093                 \textcolor{comment}{//answering the update msg:}
+1094             \textcolor{comment}{//reported = received configuration}
+1095             \textcolor{comment}{//desired=null}
+1096         
+1097             String updateAnswer;
+1098             String tempString;
+1099             
+1100             stateDesired.printTo(tempString);
+1101             updateAnswer=\textcolor{stringliteral}{"\{\(\backslash\)"state\(\backslash\)":\{\(\backslash\)"reported\(\backslash\)":"};
+1102             updateAnswer+=tempString;
+1103             updateAnswer+=\textcolor{stringliteral}{",\(\backslash\)"desired\(\backslash\)":null\}\}"};
+1104 
+1105 \textcolor{preprocessor}{        #if DEBUG == 1}
+1106 
+1107             Serial.println( F(\textcolor{stringliteral}{"preparing answer message "}) );
+1108             Serial.println();
+1109             Serial.println( F(\textcolor{stringliteral}{"updateAnswer : "}) );
+1110             Serial.println(updateAnswer);
+1111         
+1112 \textcolor{preprocessor}{        #endif  }
+1113 
+1114             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_ace977b3e90ab14b1199fe5c4fb0a13ec}{publish}(updateAnswer.c\_str());
+1115             
+1116             \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_aa5eaae967b562b62cbcf2b8d81f6e5d5}{mqttLoop}();
 1117 
-1118     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(153,76,0,0.5);\textcolor{comment}{//shade of brown}
-1119     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(153,76,0,0.5);\textcolor{comment}{//shade of brown                              }
-1120 \}
+1118             delay(10);
+1119         
+1120             \textcolor{keywordflow}{if}(\hyperlink{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}{manual} == 0 )
+1121             \{
+1122                 \textcolor{comment}{//restart the esp to apply the config}
+1123                 ESP.restart();
+1124             \}
+1125     \}
+1126     \textcolor{keywordflow}{else}
+1127     \{
+1128     
+1129 \textcolor{preprocessor}{    #if DEBUG == 1}
+1130 
+1131         Serial.println( F(\textcolor{stringliteral}{"Failed to parse update message( OR no message received )"}) );
+1132         Serial.println();
+1133     
+1134 \textcolor{preprocessor}{    #endif}
+1135     
+1136     \}
+1137 
+1138     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_ad5f0de4c628cbfbf49896042831c64ad}{strobe}(153,76,0,0.5);\textcolor{comment}{//shade of brown}
+1139     \hyperlink{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}{coolBoardLed}.\hyperlink{class_cool_board_led_a93d545679237e8cc858324367149775c}{fadeOut}(153,76,0,0.5);\textcolor{comment}{//shade of brown                              }
+1140 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
@@ -1536,48 +1529,48 @@ json string of the user\textquotesingle{}s data
 \end{DoxyReturn}
 
 
-Definition at line 1246 of file Cool\+Board.\+cpp.
+Definition at line 1266 of file Cool\+Board.\+cpp.
 
 
 \begin{DoxyCode}
-1247 \{
-1248 
-1249 \textcolor{preprocessor}{#if DEBUG == 1}
-1250 
-1251     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.userData() "}) );
-1252     Serial.println();
-1253 
-1254 \textcolor{preprocessor}{#endif}
-1255 
-1256     String tempMAC = WiFi.macAddress();
-1257 
-1258     tempMAC.replace(\textcolor{stringliteral}{":"}, \textcolor{stringliteral}{""});
-1259 
-1260     String userJson = \textcolor{stringliteral}{"\{\(\backslash\)"user\(\backslash\)":\(\backslash\)""};
-1261 
-1262     userJson += \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a373cc92fca7760d886f02d8a6e5b3f63}{getUser}();
-1263 
-1264     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"timestamp\(\backslash\)":\(\backslash\)""};
-1265 
-1266     userJson += \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{getESDate}(); \textcolor{comment}{// "timestamp":"20yy-mm-ddThh:mm:ssZ"}
-1267 
-1268     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"mac\(\backslash\)":\(\backslash\)""};
-1269 
-1270     userJson += tempMAC;
-1271 
-1272     userJson += \textcolor{stringliteral}{"\(\backslash\)"\}"};
+1267 \{
+1268 
+1269 \textcolor{preprocessor}{#if DEBUG == 1}
+1270 
+1271     Serial.println( F(\textcolor{stringliteral}{"Entering CoolBoard.userData() "}) );
+1272     Serial.println();
 1273 
-1274 \textcolor{preprocessor}{#if DEBUG == 1}
+1274 \textcolor{preprocessor}{#endif}
 1275 
-1276     Serial.println( F(\textcolor{stringliteral}{"userData is : "}) );
-1277     Serial.println(userJson);
-1278     Serial.println();
+1276     String tempMAC = WiFi.macAddress();
+1277 
+1278     tempMAC.replace(\textcolor{stringliteral}{":"}, \textcolor{stringliteral}{""});
 1279 
-1280 \textcolor{preprocessor}{#endif  }
-1281     
-1282     \textcolor{keywordflow}{return}(userJson);
-1283     
-1284 \}
+1280     String userJson = \textcolor{stringliteral}{"\{\(\backslash\)"user\(\backslash\)":\(\backslash\)""};
+1281 
+1282     userJson += \hyperlink{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}{mqtt}.\hyperlink{class_cool_m_q_t_t_a373cc92fca7760d886f02d8a6e5b3f63}{getUser}();
+1283 
+1284     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"timestamp\(\backslash\)":\(\backslash\)""};
+1285 
+1286     userJson += \hyperlink{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}{rtc}.\hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{getESDate}(); \textcolor{comment}{// "timestamp":"20yy-mm-ddThh:mm:ssZ"}
+1287 
+1288     userJson += \textcolor{stringliteral}{"\(\backslash\)",\(\backslash\)"mac\(\backslash\)":\(\backslash\)""};
+1289 
+1290     userJson += tempMAC;
+1291 
+1292     userJson += \textcolor{stringliteral}{"\(\backslash\)"\}"};
+1293 
+1294 \textcolor{preprocessor}{#if DEBUG == 1}
+1295 
+1296     Serial.println( F(\textcolor{stringliteral}{"userData is : "}) );
+1297     Serial.println(userJson);
+1298     Serial.println();
+1299 
+1300 \textcolor{preprocessor}{#endif  }
+1301     
+1302     \textcolor{keywordflow}{return}(userJson);
+1303     
+1304 \}
 \end{DoxyCode}
 Here is the call graph for this function\+:
 \nopagebreak
@@ -1606,7 +1599,7 @@ Here is the caller graph for this function\+:
 
 
 
-Definition at line 106 of file Cool\+Board.\+h.
+Definition at line 126 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}\label{class_cool_board_a1b1d3c684a5baa56b08486e192fd8e97}} 
 \index{Cool\+Board@{Cool\+Board}!cool\+Board\+Led@{cool\+Board\+Led}}
@@ -1616,7 +1609,7 @@ Definition at line 106 of file Cool\+Board.\+h.
 
 
 
-Definition at line 74 of file Cool\+Board.\+h.
+Definition at line 94 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}\label{class_cool_board_af102be5288bd7f7a8e59b13f86e26a00}} 
 \index{Cool\+Board@{Cool\+Board}!cool\+Board\+Sensors@{cool\+Board\+Sensors}}
@@ -1626,7 +1619,7 @@ Definition at line 74 of file Cool\+Board.\+h.
 
 
 
-Definition at line 72 of file Cool\+Board.\+h.
+Definition at line 92 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}\label{class_cool_board_a427fb753dd8575bdf821c70a5c63d695}} 
 \index{Cool\+Board@{Cool\+Board}!data@{data}}
@@ -1636,7 +1629,7 @@ Definition at line 72 of file Cool\+Board.\+h.
 
 
 
-Definition at line 104 of file Cool\+Board.\+h.
+Definition at line 124 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_af1fe1376fc66f93dee80b327ca695377}\label{class_cool_board_af1fe1376fc66f93dee80b327ca695377}} 
 \index{Cool\+Board@{Cool\+Board}!En\+I2C@{En\+I2C}}
@@ -1646,7 +1639,7 @@ Definition at line 104 of file Cool\+Board.\+h.
 
 
 
-Definition at line 108 of file Cool\+Board.\+h.
+Definition at line 128 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a09e26264839c65873eb56af476eff6b2}\label{class_cool_board_a09e26264839c65873eb56af476eff6b2}} 
 \index{Cool\+Board@{Cool\+Board}!external\+Sensors@{external\+Sensors}}
@@ -1656,7 +1649,7 @@ Definition at line 108 of file Cool\+Board.\+h.
 
 
 
-Definition at line 86 of file Cool\+Board.\+h.
+Definition at line 106 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}\label{class_cool_board_a638b00b76aeb819ecfd4c10b8cdd7bb7}} 
 \index{Cool\+Board@{Cool\+Board}!external\+Sensors\+Active@{external\+Sensors\+Active}}
@@ -1666,7 +1659,7 @@ Definition at line 86 of file Cool\+Board.\+h.
 
 
 
-Definition at line 96 of file Cool\+Board.\+h.
+Definition at line 116 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}\label{class_cool_board_a42c2586fbb13ff7f06538e9284e8538d}} 
 \index{Cool\+Board@{Cool\+Board}!file\+System@{file\+System}}
@@ -1676,7 +1669,7 @@ Definition at line 96 of file Cool\+Board.\+h.
 
 
 
-Definition at line 70 of file Cool\+Board.\+h.
+Definition at line 90 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_ad103718ce316006c4695b8eb312eaf11}\label{class_cool_board_ad103718ce316006c4695b8eb312eaf11}} 
 \index{Cool\+Board@{Cool\+Board}!irene3000@{irene3000}}
@@ -1686,7 +1679,7 @@ Definition at line 70 of file Cool\+Board.\+h.
 
 
 
-Definition at line 84 of file Cool\+Board.\+h.
+Definition at line 104 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}\label{class_cool_board_a9c3f7ac625481ee2ae802a25d97a4ae0}} 
 \index{Cool\+Board@{Cool\+Board}!irene\+Active@{irene\+Active}}
@@ -1696,7 +1689,7 @@ Definition at line 84 of file Cool\+Board.\+h.
 
 
 
-Definition at line 92 of file Cool\+Board.\+h.
+Definition at line 112 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a30b1357881b01ccbec676856a91e48e9}\label{class_cool_board_a30b1357881b01ccbec676856a91e48e9}} 
 \index{Cool\+Board@{Cool\+Board}!jet\+Pack@{jet\+Pack}}
@@ -1706,7 +1699,7 @@ Definition at line 92 of file Cool\+Board.\+h.
 
 
 
-Definition at line 82 of file Cool\+Board.\+h.
+Definition at line 102 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a9be03a913d26e558328935ca3b59a75e}\label{class_cool_board_a9be03a913d26e558328935ca3b59a75e}} 
 \index{Cool\+Board@{Cool\+Board}!jetpack\+Active@{jetpack\+Active}}
@@ -1716,7 +1709,7 @@ Definition at line 82 of file Cool\+Board.\+h.
 
 
 
-Definition at line 94 of file Cool\+Board.\+h.
+Definition at line 114 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a84bc94413b64973e4aba8c467c97006c}\label{class_cool_board_a84bc94413b64973e4aba8c467c97006c}} 
 \index{Cool\+Board@{Cool\+Board}!log\+Interval@{log\+Interval}}
@@ -1726,7 +1719,7 @@ Definition at line 94 of file Cool\+Board.\+h.
 
 
 
-Definition at line 102 of file Cool\+Board.\+h.
+Definition at line 122 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}\label{class_cool_board_a7c8e505a5804b109e112d5a03df6ea2b}} 
 \index{Cool\+Board@{Cool\+Board}!manual@{manual}}
@@ -1736,7 +1729,7 @@ Definition at line 102 of file Cool\+Board.\+h.
 
 
 
-Definition at line 100 of file Cool\+Board.\+h.
+Definition at line 120 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}\label{class_cool_board_a2399f44d7c23c1149a335cb3b46d90f1}} 
 \index{Cool\+Board@{Cool\+Board}!mqtt@{mqtt}}
@@ -1746,7 +1739,7 @@ Definition at line 100 of file Cool\+Board.\+h.
 
 
 
-Definition at line 80 of file Cool\+Board.\+h.
+Definition at line 100 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a4ac693895c21025b8808653f2a4316e6}\label{class_cool_board_a4ac693895c21025b8808653f2a4316e6}} 
 \index{Cool\+Board@{Cool\+Board}!on\+Board\+Actor@{on\+Board\+Actor}}
@@ -1756,7 +1749,7 @@ Definition at line 80 of file Cool\+Board.\+h.
 
 
 
-Definition at line 88 of file Cool\+Board.\+h.
+Definition at line 108 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}\label{class_cool_board_a50d2a6716879d64a85f3c6b44ad63275}} 
 \index{Cool\+Board@{Cool\+Board}!rtc@{rtc}}
@@ -1766,7 +1759,7 @@ Definition at line 88 of file Cool\+Board.\+h.
 
 
 
-Definition at line 76 of file Cool\+Board.\+h.
+Definition at line 96 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a0a51b2287139f66c738101fb53139230}\label{class_cool_board_a0a51b2287139f66c738101fb53139230}} 
 \index{Cool\+Board@{Cool\+Board}!sleep\+Active@{sleep\+Active}}
@@ -1776,7 +1769,7 @@ Definition at line 76 of file Cool\+Board.\+h.
 
 
 
-Definition at line 98 of file Cool\+Board.\+h.
+Definition at line 118 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_a6395459131d6889a3005f79c7a35e964}\label{class_cool_board_a6395459131d6889a3005f79c7a35e964}} 
 \index{Cool\+Board@{Cool\+Board}!user\+Active@{user\+Active}}
@@ -1786,7 +1779,7 @@ Definition at line 98 of file Cool\+Board.\+h.
 
 
 
-Definition at line 90 of file Cool\+Board.\+h.
+Definition at line 110 of file Cool\+Board.\+h.
 
 \mbox{\Hypertarget{class_cool_board_acd88e6003606b47479ebba81e4aceeca}\label{class_cool_board_acd88e6003606b47479ebba81e4aceeca}} 
 \index{Cool\+Board@{Cool\+Board}!wifi\+Manager@{wifi\+Manager}}
@@ -1796,7 +1789,7 @@ Definition at line 90 of file Cool\+Board.\+h.
 
 
 
-Definition at line 78 of file Cool\+Board.\+h.
+Definition at line 98 of file Cool\+Board.\+h.
 
 
 

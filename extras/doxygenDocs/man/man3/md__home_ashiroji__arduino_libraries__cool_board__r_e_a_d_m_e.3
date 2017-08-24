@@ -1,4 +1,4 @@
-.TH "md__home_ashiroji__arduino_libraries__cool_board__r_e_a_d_m_e" 3 "Tue Aug 22 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "md__home_ashiroji__arduino_libraries__cool_board__r_e_a_d_m_e" 3 "Thu Aug 24 2017" "CoolBoardAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -165,28 +165,41 @@ Act[i]\&.actif: Put this flag to 1(true) in order to use the jetpack output N�
 .PP
 Act[i]\&.inverted:Put this flag to 1(true) if the actor is inverted (e\&.g : a cooler is activated when Temp>TempMax) Put this flag to 0(false) if the actor is notInverted(e\&.g : a heater is activated when Temp<TempMin)
 .PP
-Act[i]\&.temporal:Put this flag to 1(true) if you want the actor to be actif of a period of time , then inactif for another period of time ( this mode doesn't consider measurments at the moment )
+Act[i]\&.temporal:Put this flag to 1(true) if you want the actor to be actif of a period of time , then inactif for another period of time\&.
 .PP
-Act[i]\&.type:['primaryType','secondaryType'] : this array contains the priamryType and the secondaryType of the actor -The primaryType is the type associated to the sensors\&. (e\&.g : primaryType : 'Temperature' is associated to the sensor of type 'Temperature')\&.
-.PP
--The secondaryType is only used in temporal mode\&. it can be : -'' (empty):the actor will be on for a period of timeHigh ms the actor will be off for a period of timeLow ms
-.PP
--'hour' :the actor will be on when the Hour is equal or greater then hourHigh the actor will be off when the Hour is equal or greater then hourLow
-.PP
--'minute':the actor will be on when the Minute is equal or greater then minuteHigh :the actor will be off when the Minute is equal or greater then minuteLow
-.PP
--'hourMinute':the actor will be on when : Hour == hourHigh AND Minute >= minuteHigh Hour > hourHigh the actor will be off when : Hour == hourLow AND Minute >= minuteLow Hour>hourLow
-.PP
-Act[i]\&.low:[rangeLow,timeLow,hourLow,minuteLow] : this array contains the values previously described: -rangeLow is the minimum of the range at which to activate(deactivate in inverted mode) the actor
-.PP
--timeLow is the time spent off in temporal mode
-.PP
--hourLow is the hour to turn off the actor when secondaryType is hour or hourMinute
-.PP
--minuteLow is the minute to turn off the actor when secondaryType is minute or hourMinute
+Act[i]\&.type:['primaryType','secondaryType'] : this array contains the priamryType and the secondaryType of the actor -The primaryType is the type associated to the sensors\&. (e\&.g : primaryType : 'Temperature' is associated to the sensor of type 'Temperature')\&. -It can also be empty , in case of PURE temporal actors
 .PP
 .PP
 .nf
+                                             -The secondaryType is only used in temporal mode.
+                                             it can be : -"" (empty):the actor will be on for a period of timeHigh ms
+                                                                     the actor will be off for a period of timeLow ms
+
+                                                         -"hour" :the actor will be on when the Hour is equal or greater then hourHigh
+                                                                  the actor will be off when the Hour is equal or greater then hourLow
+
+                                                         -"minute":the actor will be on when the Minute is equal or greater then minuteHigh
+                                                                  :the actor will be off when the Minute is equal or greater then minuteLow
+
+                                                         -"hourMinute":the actor will be on when : Hour == hourHigh AND Minute >= minuteHigh
+                                                                                                   Hour > hourHigh
+                                                                       the actor will be off when : Hour == hourLow AND Minute >= minuteLow
+                                                                                                    Hour>hourLow
+
+                                              /!\ NOTE  that if both primaryType and secondaryType are valid : the actor will be in
+                                                 mixed mode : it will need to valid both Time and measurment conditions to go on or off
+
+Act[i].low:[rangeLow,timeLow,hourLow,minuteLow] : this array contains the values previously described:
+                                                  -rangeLow is the minimum of the range at which 
+                                                  to activate(deactivate in inverted mode) the actor
+
+                                                  -timeLow is the time spent off in temporal mode
+
+                                                  -hourLow is the hour to turn off the actor when secondaryType is hour or hourMinute
+
+                                                  -minuteLow is the minute to turn off the actor when secondaryType is minute or hourMinute
+
+
 Act[i].high:[rangeHigh,timeHigh,hourHigh,minuteHigh]: this array contains the values previously described:
                                                   -rangeHigh is the maximum of the range at which 
                                                   to deactivate(activate in inverted mode) the actor

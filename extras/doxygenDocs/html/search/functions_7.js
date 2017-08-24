@@ -7,5 +7,7 @@ var searchData=
   ['handlereset',['handleReset',['../d4/dc8/class_wi_fi_manager.html#a94fb1a8fcfbd0d02714c69138bf72f9c',1,'WiFiManager']]],
   ['handleroot',['handleRoot',['../d4/dc8/class_wi_fi_manager.html#a47e4c7df7478f690c53ff9f5125c9760',1,'WiFiManager']]],
   ['handlewifi',['handleWifi',['../d4/dc8/class_wi_fi_manager.html#a57a9048175c1918340ab9d0a2c53601f',1,'WiFiManager']]],
-  ['handlewifisave',['handleWifiSave',['../d4/dc8/class_wi_fi_manager.html#a2a8c2b60aa86dfdeab8a1a90f7122dc7',1,'WiFiManager']]]
+  ['handlewifisave',['handleWifiSave',['../d4/dc8/class_wi_fi_manager.html#a2a8c2b60aa86dfdeab8a1a90f7122dc7',1,'WiFiManager']]],
+  ['houraction',['hourAction',['../dc/d69/class_cool_board_actor.html#adf3b4e15b9d73681082112adf8ef95cb',1,'CoolBoardActor::hourAction()'],['../df/d1d/class_jetpack.html#acd6889af2fe5b057c6bd51b6dac827ef',1,'Jetpack::hourAction()']]],
+  ['hourminuteaction',['hourMinuteAction',['../dc/d69/class_cool_board_actor.html#a1eb1fbca19bc80aad20d2686d52317f8',1,'CoolBoardActor::hourMinuteAction()'],['../df/d1d/class_jetpack.html#ae01c13c785ebdf1b0bb5500234aba1bd',1,'Jetpack::hourMinuteAction()']]]
 ];

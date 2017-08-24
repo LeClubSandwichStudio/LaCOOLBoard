@@ -155,27 +155,40 @@ Act\mbox{[}i\mbox{]}.actif\+: Put this flag to 1(true) in order to use the jetpa
 
 Act\mbox{[}i\mbox{]}.inverted\+:Put this flag to 1(true) if the actor is inverted (e.\+g \+: a cooler is activated when Temp$>$Temp\+Max) Put this flag to 0(false) if the actor is not\+Inverted(e.\+g \+: a heater is activated when Temp$<$Temp\+Min)
 
-Act\mbox{[}i\mbox{]}.temporal\+:Put this flag to 1(true) if you want the actor to be actif of a period of time , then inactif for another period of time ( this mode doesn\textquotesingle{}t consider measurments at the moment )
+Act\mbox{[}i\mbox{]}.temporal\+:Put this flag to 1(true) if you want the actor to be actif of a period of time , then inactif for another period of time.
 
-Act\mbox{[}i\mbox{]}.type\+:\mbox{[}\char`\"{}primary\+Type\char`\"{},\char`\"{}secondary\+Type\char`\"{}\mbox{]} \+: this array contains the priamry\+Type and the secondary\+Type of the actor -\/\+The primary\+Type is the type associated to the sensors. (e.\+g \+: primary\+Type \+: \char`\"{}\+Temperature\char`\"{} is associated to the sensor of type \char`\"{}\+Temperature\char`\"{}).
+Act\mbox{[}i\mbox{]}.type\+:\mbox{[}\char`\"{}primary\+Type\char`\"{},\char`\"{}secondary\+Type\char`\"{}\mbox{]} \+: this array contains the priamry\+Type and the secondary\+Type of the actor -\/\+The primary\+Type is the type associated to the sensors. (e.\+g \+: primary\+Type \+: \char`\"{}\+Temperature\char`\"{} is associated to the sensor of type \char`\"{}\+Temperature\char`\"{}). -\/\+It can also be empty , in case of P\+U\+RE temporal actors
 
--\/\+The secondary\+Type is only used in temporal mode. it can be \+: -\/\char`\"{}\char`\"{} (empty)\+:the actor will be on for a period of time\+High ms the actor will be off for a period of time\+Low ms
+\begin{DoxyVerb}                                             -The secondaryType is only used in temporal mode.
+                                             it can be : -"" (empty):the actor will be on for a period of timeHigh ms
+                                                                     the actor will be off for a period of timeLow ms
 
--\/\char`\"{}hour\char`\"{} \+:the actor will be on when the Hour is equal or greater then hour\+High the actor will be off when the Hour is equal or greater then hour\+Low
+                                                         -"hour" :the actor will be on when the Hour is equal or greater then hourHigh
+                                                                  the actor will be off when the Hour is equal or greater then hourLow
 
--\/\char`\"{}minute\char`\"{}\+:the actor will be on when the Minute is equal or greater then minute\+High \+:the actor will be off when the Minute is equal or greater then minute\+Low
+                                                         -"minute":the actor will be on when the Minute is equal or greater then minuteHigh
+                                                                  :the actor will be off when the Minute is equal or greater then minuteLow
 
--\/\char`\"{}hour\+Minute\char`\"{}\+:the actor will be on when \+: Hour == hour\+High A\+ND Minute $>$= minute\+High Hour $>$ hour\+High the actor will be off when \+: Hour == hour\+Low A\+ND Minute $>$= minute\+Low Hour$>$hour\+Low
+                                                         -"hourMinute":the actor will be on when : Hour == hourHigh AND Minute >= minuteHigh
+                                                                                                   Hour > hourHigh
+                                                                       the actor will be off when : Hour == hourLow AND Minute >= minuteLow
+                                                                                                    Hour>hourLow
 
-Act\mbox{[}i\mbox{]}.low\+:\mbox{[}range\+Low,time\+Low,hour\+Low,minute\+Low\mbox{]} \+: this array contains the values previously described\+: -\/range\+Low is the minimum of the range at which to activate(deactivate in inverted mode) the actor
+                                              /!\ NOTE  that if both primaryType and secondaryType are valid : the actor will be in
+                                                 mixed mode : it will need to valid both Time and measurment conditions to go on or off
 
--\/time\+Low is the time spent off in temporal mode
+Act[i].low:[rangeLow,timeLow,hourLow,minuteLow] : this array contains the values previously described:
+                                                  -rangeLow is the minimum of the range at which 
+                                                  to activate(deactivate in inverted mode) the actor
 
--\/hour\+Low is the hour to turn off the actor when secondary\+Type is hour or hour\+Minute
+                                                  -timeLow is the time spent off in temporal mode
 
--\/minute\+Low is the minute to turn off the actor when secondary\+Type is minute or hour\+Minute
+                                                  -hourLow is the hour to turn off the actor when secondaryType is hour or hourMinute
 
-\begin{DoxyVerb}Act[i].high:[rangeHigh,timeHigh,hourHigh,minuteHigh]: this array contains the values previously described:
+                                                  -minuteLow is the minute to turn off the actor when secondaryType is minute or hourMinute
+
+
+Act[i].high:[rangeHigh,timeHigh,hourHigh,minuteHigh]: this array contains the values previously described:
                                                   -rangeHigh is the maximum of the range at which 
                                                   to deactivate(activate in inverted mode) the actor
 

@@ -74,317 +74,950 @@ class CoolBoardActor
 		//invert the current action state for the actor
 		//if the value is outside the limits
 		
-		//check if the actor is actif 
+		//check if actor is actif
 		if(this->actor.actif==1)
-		{						
-			//if the actor is not temporal
-			if( this->actor.temporal==0 ) 
-			{	
-				//regular actor
-				if( (this->actor.inverted) == 0 )
+		{
+			//normal actor
+			if(this->actor.temporal == 0)
+			{
+				//not inverted actor
+				if(this->actor.inverted==0)
 				{
-					//measure >= high limit : stop actor
-					if( ( root[this->actor.primaryType] ) >= ( this->actor.rangeHigh ) ) 	
-					{	
-						this->write( 0 ) ;	
-
-					#if DEBUG == 1
-						
-						Serial.println(F("not inverted Actor "));
-
-						Serial.print(F("measured value : "));
-						Serial.println(root[this->actor.primaryType].as<float>());
-
-						Serial.print(F("high range : "));
-						Serial.println(this->actor.rangeHigh);
-					
-					#endif
-					
-					}
-					//measure <= low limit : start actor
-					else if( ( root[ this->actor.primaryType ] ) <= ( this->actor.rangeLow ) )
-					{
-						this->write( 1 ) ;
-
-					#if DEBUG == 1
-
-						Serial.println(F("not inverted Actor "));
-
-						Serial.print(F("measured value : "));
-						Serial.println(root[this->actor.primaryType].as<float>());
-
-						Serial.print(F("low range : "));
-						Serial.println(this->actor.rangeLow);
-					
-					#endif
-										
-					}
-					else 
-					{
-						this->write( 0 ) ;						
-					}
+					this->normalAction(root[this->actor.primaryType].as<float>());				
 				}
 				//inverted actor
-				else if( (this->actor.inverted) == 1 )
+				else if(this->actor.inverted==1)
 				{
-					//measure >= high limit : start actor
-					if( ( root[this->actor.primaryType] ) >= ( this->actor.rangeHigh ) ) 	
-					{	
-						this->write( 1 ) ;
-
-					#if DEBUG == 1
-
-						Serial.println(F(" inverted Actor  "));
-						
-						Serial.print(F("measured value : "));
-						Serial.println(root[this->actor.primaryType].as<float>());
-
-						Serial.print(F("high range : "));
-						Serial.println(this->actor.rangeHigh);
-					
-					#endif
-						
-					}
-					//measure <= low limit : stop actor
-					else if( ( root[ this->actor.primaryType ] ) <= ( this->actor.rangeLow ) )
-					{
-						this->write( 0 ) ;
-
-					#if DEBUG == 1
-						
-						Serial.print(F("inverted Actor "));
-						Serial.println();
-
-						Serial.print(F("measured value : "));
-						Serial.println(root[this->actor.primaryType].as<float>());
-
-						Serial.print(F("low range : "));
-						Serial.println(this->actor.rangeLow);
-					
-					#endif
-										
-					}
-					else 
-					{
-						this->write( 0 ) ;						
-					}
-
-				
+					this->invertedAction(root[this->actor.primaryType].as<float>());				
 				}
 			}
-
-			//if the actor is temporal
-			else
+			//temporal actor
+			else if(this->actor.temporal == 1 )
 			{
-				//actor has a secondary type (either hour,minute or hourMinute)
-				if( ( this->actor.secondaryType ) !="" ) 	
+				//hour actor
+				if(this->actor.secondaryType=="hour")
 				{
+					//mixed hour actor
+					if(root[this->actor.primaryType].success() )
+					{
+						this->mixedHourAction(root[this->actor.secondaryType].as<int>(),root[this->actor.primaryType].as<float>());
+					}
+					//normal hour actor
+					else
+					{
+						this->hourAction(root[this->actor.secondaryType].as<int>());
+					}
 				
-				#if DEBUG == 1
-					
-					Serial.print(this->actor.secondaryType);
-					Serial.print(" actor ");
-					Serial.println();
-				#endif
-					//secondary type is hour 	
-					if( ( this->actor.secondaryType=="hour" ) )
-					{
-						//time >= hourLow : stop actor
-						if( ( root[this->actor.secondaryType] ) >= ( this->actor.hourLow ) ) 	
-						{
-					
-						#if DEBUG == 1 
-						
-							Serial.print("deactive actor ");
-							Serial.println();
-					
-						#endif	
-							this->write( 0 ) ;	
-						}
-						//time >= hourHigh : start actor
-						else if( ( root[ this->actor.secondaryType ] ) >= ( this->actor.hourHigh ) )
-						{
-					
-						#if DEBUG == 1 
-					
-							Serial.print("active actor ");
-							Serial.println();
-					
-						#endif
-							this->write( 1 ) ;					
-						}
-					}
-
-					//secondary type is minute 	
-					if( ( this->actor.secondaryType=="minute" ) )
-					{
-						//time >= minuteLow : stop actor
-						if( ( root[this->actor.secondaryType] ) >= ( this->actor.minuteLow ) ) 	
-						{
-					
-						#if DEBUG == 1 
-						
-							Serial.print("deactive actor ");
-							Serial.println( );
-					
-						#endif	
-							this->write( 0 ) ;	
-						}
-						//time >= minuteHigh : start actor
-						else if( ( root[ this->actor.secondaryType ] ) >= ( this->actor.minuteHigh ) )
-						{
-					
-						#if DEBUG == 1 
-					
-							Serial.print("active actor  ");
-							Serial.println();
-					
-						#endif
-							this->write( 1 ) ;					
-						}
-					}
-
-					//secondary type is hourMinute 	
-					if( ( this->actor.secondaryType=="hourMinute" ) )
-					{
-						//time == hourLow :
-						if( ( root["hour"] ) == ( this->actor.hourLow ) ) 	
-						{
-							//time > minuteLow : stop actor
-							if( (root["minute"])>=(this->actor.minuteLow) )						
-							{
-							#if DEBUG == 1 
-					
-								Serial.print(" time.hour == hourLow, time.minute>=minuteLow : deactive actor ");
-								Serial.println();
-				
-							#endif	
-								this->write( 0 ) ;
-							}	
-						}
-						//time > hourLow: stop actor
-						else if( ( root["hour" ] ) > ( this->actor.hourLow ) )
-						{
-
-						#if DEBUG == 1 
-					
-							Serial.print("time.hour>hourLow : deactive actor ");
-							Serial.println();
-			
-						#endif		
-							this->write( 0 ) ;
-												
-						}
-						//time == hourHigh:
-						else if( ( root["hour" ] ) == ( this->actor.hourHigh ) )
-						{
-							//time > minuteHigh: start actor
-							if( (root["minute"])>=(this->actor.minuteHigh) )
-							{
-					
-							#if DEBUG == 1 
-					
-								Serial.print("time.hour==hourHigh, time.mintue>=minuteHigh : active actor ");
-								Serial.println();
-					
-							#endif
-								this->write( 1 ) ;
-							}					
-						}
-						//time > hourHigh : start actor
-						else if( ( root["hour" ] ) > ( this->actor.hourHigh ) )
-						{
-							
-						#if DEBUG == 1 
-					
-							Serial.print("time.hour>hourHigh : active actor ");
-							Serial.println();
-			
-						#endif		
-
-							this->write( 1 ) ;
-												
-						}
-
-					}
-
-
 				}
-				//actor not of type hour
-				else if( ( this->actor.secondaryType ) == ( "" ) ) 	 
+				//minute actor
+				else if(this->actor.secondaryType=="minute")
 				{
-				
-				#if DEBUG == 1 
-					
-					Serial.println("not hour temporal actor");
-					Serial.println();
-					Serial.println(this->actor.secondaryType);
-					Serial.println("actifTime : ");
-					Serial.println(this->actor.actifTime);
-					Serial.println("millis : ");
-					Serial.println(millis() );
-					Serial.println(" high : ");
-					Serial.println(this->actor.timeHigh );
-					Serial.println();
-				
-				#endif
-					//if the actor was actif for highTime or more :
-					if( ( millis()- this->actor.actifTime  ) >= (  this->actor.timeHigh  ) )
+					//mixed minute actor
+					if(root[this->actor.primaryType].success() )
 					{
-						//stop the actor
-						this->write( 0) ;
-
-						//make the actor inactif:
-						this->actor.actif=0;
-
-						//start the low timer
-						this->actor.inactifTime=millis();				
+						this->mixedMinuteAction(root[this->actor.secondaryType].as<int>(),root[this->actor.primaryType].as<float>());
 					}
-				}			
-						
+					//normal minute actor
+					else
+					{
+						this->minuteAction(root[this->actor.secondaryType].as<int>());
+					}
+				}
+				//hourMinute actor
+				else if(this->actor.secondaryType=="hourMinute")
+				{
+					//mixed hourMinute actor
+					if(root[this->actor.primaryType].success() )
+					{
+						this->mixedHourMinuteAction(root["hour"].as<int>(),root["minute"].as<int>(),root[this->actor.primaryType].as<float>());
+					}
+					//normal hourMinute actor
+					else
+					{
+						this->hourMinuteAction(root["hour"].as<int>(),root["minute"].as<int>());
+					}
+				}
+				//normal temporal actor
+				else if(this->actor.secondaryType=="")
+				{
+					//mixed temporal actor
+					if(root[this->actor.primaryType].success() )
+					{
+						this->mixedTemporalActionOn(root[this->actor.primaryType].as<float>());
+					}
+					//normal temporal actor
+					else
+					{
+						this->temporalActionOn();
+					}
+										
+				}
+
 			}
 		}
-		//check if actor is inactif
-		else if(this->actor.actif==0)
-		{	//check if actor is temporal
+		//inactif actor
+		else if(this->actor.actif == 0 )
+		{
+			//temporal actor
 			if(this->actor.temporal==1)
 			{
-				//if the actor was inactif for lowTime or more :
-				if( ( millis() - this->actor.inactifTime ) >= (  this->actor.timeLow  ) )
+				//mixed temporal actor
+				if(root[this->actor.primaryType].success() )
 				{
-					//start the actor
-					this->write( 1 ) ;
+					this->mixedTemporalActionOff(root[this->actor.primaryType].as<float>());
+				}
+				//normal temporal actor
+				else
+				{
+					this->temporalActionOff();
+				}
+			}			
+		}
 
-					//make the actor actif:
-					this->actor.actif=1;
+	} 
+!!!189957.cpp!!!	normalAction(in measurment : float) : void
 
-					//start the low timer
-					this->actor.actifTime=millis();
+#if DEBUG == 1
+	
+	Serial.print(F("none inverted Actor"));
+	Serial.println();
 
-				#if DEBUG == 1 
-					
-					Serial.println("inactif temporal actor");
-					Serial.println(this->actor.primaryType);
-					Serial.print("temporal : ");
-					Serial.println(this->actor.temporal);
-					Serial.println("inactifTime : ");
-					Serial.println(this->actor.inactifTime);
-					Serial.println("millis : ");
-					Serial.println(millis() );
-					Serial.println(" low : ");
-					Serial.println(this->actor.timeLow );
-					Serial.println();
+	Serial.print(F("measured value : "));
+	Serial.println(measurment);
 
-					Serial.println();
+	Serial.print(F("high range : "));
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print(F("low range : "));
+	Serial.println(this->actor.rangeLow);
+
+#endif
+
+	//measured value lower than minimum range : activate actor
+	if(measurment < this->actor.rangeLow)
+	{
+		this->write( 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));s
+	
+	#endif
 				
-				#endif
+	}
+	//measured value higher than maximum range : deactivate actor
+	else if(measurment > this->actor.rangeHigh)
+	{
+		this->write( 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+	
+	}
+
+
+!!!190085.cpp!!!	invertedAction(in measurment : float) : void
+#if DEBUG == 1
+	
+	Serial.print("inverted Actor ");
+	Serial.println();
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actor.rangeLow);
+
+#endif
+
+	//measured value lower than minimum range : deactivate actor
+	if(measurment < this->actor.rangeLow)
+	{
+		this->write( 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+
+	}
+	//measured value higher than maximum range : activate actor
+	else if(measurment > this->actor.rangeHigh)
+	{
+		this->write( 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+	
+	#endif
+
+	}
+
+
+!!!190213.cpp!!!	temporalActionOff() : void
+
+#if DEBUG == 1
+	
+	Serial.print(F("temporal Actor  "));
+	Serial.println();
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+	Serial.print(F("actif Time : "));
+	Serial.println(this->actor.actifTime);
+
+	Serial.print(F("high time : "));
+	Serial.println(this->actor.timeHigh);
+
+
+#endif
+	
+	if( ( millis()- this->actor.actifTime  ) >= (  this->actor.timeHigh  ) )
+	{
+		//stop the actor
+		this->write( 0) ;
+
+		//make the actor inactif:
+		this->actor.actif=0;
+
+		//start the low timer
+		this->actor.inactifTime=millis();
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+	
+	#endif
+				
+	}	
+!!!190341.cpp!!!	temporalActionOn() : void
+
+#if DEBUG == 1
+	
+	Serial.print(F("temporal Actor "));
+	Serial.println();
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+	Serial.print(F("inactif Time : "));
+	Serial.println(this->actor.inactifTime);
+
+	Serial.print(F("low time : "));
+	Serial.println(this->actor.timeLow);
+
+
+#endif
+	
+	 if( ( millis() - this->actor.inactifTime ) >= (  this->actor.timeLow  ) )
+	{
+		//start the actor
+		this->write( 1) ;
+
+		//make the actor actif:
+		this->actor.actif=1;
+
+		//start the low timer
+		this->actor.actifTime=millis();
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif				
+
+	}
+
+!!!190469.cpp!!!	mixedTemporalActionOff(in measurment : float) : void
+
+#if DEBUG == 1
+	
+	Serial.print("mixed Temporal Actor N° : ");
+	Serial.println();
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print("time high : ");
+	Serial.println(this->actor.timeHigh);
+
+	Serial.print("actif Time : ");
+	Serial.println(this->actor.actifTime);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+#endif
+	if( ( millis()- this->actor.actifTime  ) >= (  this->actor.timeHigh  ) )
+	{	
+		if( measurment >= this->actor.rangeHigh )
+		{
+			//stop the actor
+			this->write( 0) ;
+
+			//make the actor inactif:
+			this->actor.actif=0;
+
+			//start the low timer
+			this->actor.inactifTime=millis();
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was on for at least "));
+			Serial.print(this->actor.timeHigh);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actor.rangeHigh);
+
 			
-				}			
-		
+			Serial.println(F("actor OFF "));
+
+		#endif
+
+		}
+		else 
+		{
+			this->write( 1) ;
+
+		#if DEBUG == 1 
+			
+			Serial.print(F("actor was on for at least "));
+			Serial.print(this->actor.timeHigh);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actor.rangeHigh);
+
+			Serial.println(F("actor ON "));
+
+		#endif				
+
+		}			
+	}
+
+!!!190597.cpp!!!	mixedTemporalActionOn(in measurment : float) : void
+
+#if DEBUG == 1
+	
+	Serial.print("mixed Temporal Actor  ");
+	Serial.println();
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("low range : ");
+	Serial.println(this->actor.rangeLow);
+
+	Serial.print("time low : ");
+	Serial.println(this->actor.timeLow);
+
+	Serial.print("inactif Time : ");
+	Serial.println(this->actor.inactifTime);
+
+	Serial.print(F("millis : "));
+	Serial.println(millis());
+
+#endif
+
+	if( ( millis() - this->actor.inactifTime ) >= (  this->actor.timeLow  ) )
+	{
+		if( measurment < this->actor.rangeLow )
+		{
+			//start the actor
+			this->write( 1) ;
+
+			//make the actor actif:
+			this->actor.actif=1;
+
+			//start the low timer
+			this->actor.actifTime=millis();
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was off for at least "));
+			Serial.print(this->actor.timeLow);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actor.rangeLow);
+	
+			Serial.println(F("actor ON "));
+	
+		#endif	
+
+		}
+		else 
+		{
+			this->write( 0) ;	
+
+		#if DEBUG == 1 
+
+			Serial.print(F("actor was off for at least "));
+			Serial.print(this->actor.timeLow);
+			Serial.println(F(" ms "));
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actor.rangeLow);
+
+			Serial.println(F("actor OFF "));
+	
+		#endif				
+
+		}
+
+	}
+
+	
+!!!190725.cpp!!!	hourAction(in hour : int) : void
+
+#if DEBUG == 1
+	
+	Serial.print(F("hour Actor "));
+	Serial.println();
+
+	Serial.print(F(" hour : "));
+	Serial.println(hour);
+
+	Serial.print(F("high hour : "));
+	Serial.println(this->actor.hourHigh);
+
+	Serial.print(F("low hour : "));
+	Serial.println(this->actor.hourLow);
+
+#endif
+
+	//stop the actor	
+	if(hour >= this->actor.hourLow)
+	{
+		this->write( 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+
+	#endif	
+
+	}
+	//starting the actor
+	else if(hour >= this->actor.hourHigh)
+	{
+		this->write( 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif	
+	
+	}
+
+!!!190853.cpp!!!	mixedHourAction(in hour : int, in measurment : float) : void
+
+#if DEBUG == 1
+	
+	Serial.print("mixed hour Actor N° : ");
+	Serial.println();
+
+	Serial.print(" hour : ");
+	Serial.println(hour);
+
+	Serial.print("high hour : ");
+	Serial.println(this->actor.hourHigh);
+
+	Serial.print("low hour : ");
+	Serial.println(this->actor.hourLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actor.rangeLow);
+
+#endif
+	//stop the actor	
+	if(hour >= this->actor.hourLow)
+	{
+			if( measurment >= this->actor.rangeHigh )
+			{
+				this->write( 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actor.rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+
+			}
+			else 
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.print(this->actor.rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
+			}
+	}
+	//starting the actor
+	else if(hour >= this->actor.hourHigh)
+	{
+			if( measurment < this->actor.rangeLow )
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actor.rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+			}
+			else 
+			{
+				this->write( 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actor.rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif					
+			}
+
+	}
+
+!!!190981.cpp!!!	minuteAction(in minute : int) : void
+
+#if DEBUG == 1
+	
+	Serial.print(F("minute Actor "));
+	Serial.println();
+
+	Serial.print(F(" minute : "));
+	Serial.println(minute);
+
+	Serial.print(F("high minute : "));
+	Serial.println(this->actor.minuteHigh);
+
+	Serial.print(F("low minute : "));
+	Serial.println(this->actor.minuteLow);
+
+#endif
+
+	//stop the actor	
+	if(minute >= this->actor.minuteLow)
+	{
+		this->write( 0) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+
+	#endif	
+
+	}	
+	//starting the actor
+	else if(minute >= this->actor.minuteHigh)
+	{
+		this->write( 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif	
+
+	}
+
+!!!191109.cpp!!!	mixedMinuteAction(in minute : int, in measurment : float) : void
+
+#if DEBUG == 1
+	
+	Serial.print("mixed minute Actor ");
+	Serial.println();
+
+	Serial.print(" minute : ");
+	Serial.println(minute);
+
+	Serial.print("high minute : ");
+	Serial.println(this->actor.minuteHigh);
+
+	Serial.print("low minute : ");
+	Serial.println(this->actor.minuteLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actor.rangeLow);
+
+#endif
+	//stop the actor	
+	if(minute >= this->actor.minuteLow)
+	{
+			if( measurment > this->actor.rangeHigh )
+			{
+				this->write( 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actor.rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif
+	
+			}
+			else 
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actor.rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
+			}
+	}	
+	//starting the actor
+	else if(minute >= this->actor.minuteHigh)
+	{
+			if( measurment < this->actor.rangeLow )
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actor.rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+
+			}
+			else 
+			{
+				this->write( 0) ;
+			
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" > " ));
+				Serial.println(this->actor.rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+				
+			}
+
+	}
+
+!!!191237.cpp!!!	hourMinuteAction(in hour : int, in minute : int) : void
+
+#if DEBUG == 1
+
+	Serial.print(F("hourMinute Actor "));
+	Serial.println();
+
+	Serial.print(F(" hour : "));
+	Serial.println(hour);
+	Serial.print(F(" minute : "));
+	Serial.println(minute);
+
+	Serial.print(F("high hour : "));
+	Serial.println(this->actor.hourHigh);
+
+	Serial.print(F("high minute : "));
+	Serial.println(this->actor.minuteHigh);
+
+	Serial.print(F("low hour : "));
+	Serial.println(this->actor.hourLow);
+
+	Serial.print(F("low minute : "));
+	Serial.println(this->actor.minuteLow);
+
+#endif
+	//stop the actor
+	if(hour==this->actor.hourLow)
+	{
+		if(minute>= this->actor.minuteLow)
+		{
+			this->write( 0) ;
+		#if DEBUG == 1 
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
+		}
+	}
+	else if(hour > this->actor.hourLow)
+	{
+
+		this->write( 0) ;
+	#if DEBUG == 1 
+
+		Serial.println(F("actor OFF "));
+
+	#endif	
+	
+	}
+	//start the actor
+	else if(hour==this->actor.hourHigh)
+	{
+		if(minute>= this->actor.minuteHigh)
+		{
+			this->write( 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+		}
+	}
+	else if(hour > this->actor.hourHigh)
+	{
+
+		this->write( 1) ;
+
+	#if DEBUG == 1 
+
+		Serial.println(F("actor ON "));
+
+	#endif		
+
+	}
+
+	
+!!!191365.cpp!!!	mixedHourMinuteAction(in hour : int, in minute : int, in measurment : float) : void
+
+#if DEBUG == 1
+	
+	Serial.print("hourMinute Actor  ");
+	Serial.println();
+
+	Serial.print(" hour : ");
+	Serial.println(hour);
+	Serial.print(" minute : ");
+	Serial.println(minute);
+
+	Serial.print("high hour : ");
+	Serial.println(this->actor.hourHigh);
+
+	Serial.print("high minute : ");
+	Serial.println(this->actor.minuteHigh);
+
+	Serial.print("low hour : ");
+	Serial.println(this->actor.hourLow);
+
+	Serial.print("low minute : ");
+	Serial.println(this->actor.minuteLow);
+
+	Serial.print("measured value : ");
+	Serial.println(measurment);
+
+	Serial.print("high range : ");
+	Serial.println(this->actor.rangeHigh);
+
+	Serial.print("low range : ");
+	Serial.println(this->actor.rangeLow);
+
+#endif
+	//stop the actor
+	if(hour==this->actor.hourLow)
+	{
+		if(minute>= this->actor.minuteLow)
+		{
+			if( measurment >= this->actor.rangeHigh )
+			{
+				this->write( 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" >= " ));
+				Serial.println(this->actor.rangeHigh);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+
+			}
+			else 
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actor.rangeHigh);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+				
 			}
 		}
-		
-	} 
+	}
+	else if(hour > this->actor.hourLow)
+	{
+
+		if( measurment >= this->actor.rangeHigh )
+		{
+			this->write( 0) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" >= " ));
+			Serial.println(this->actor.rangeHigh);
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
+
+		}
+		else 
+		{
+			this->write( 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actor.rangeHigh);
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+			
+		}
+
+
+	}
+	//start the actor
+	else if(hour==this->actor.hourHigh)
+	{
+		if(minute>= this->actor.minuteHigh)
+		{
+			if( measurment < this->actor.rangeLow )
+			{
+				this->write( 1) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.print(F(" < " ));
+				Serial.println(this->actor.rangeLow);
+
+				Serial.println(F("actor ON "));
+
+			#endif	
+
+			}
+			else 
+			{
+				this->write( 0) ;
+
+			#if DEBUG == 1 
+
+				Serial.print(measurment);
+				Serial.println(F(" > " ));
+				Serial.print(this->actor.rangeLow);
+
+				Serial.println(F("actor OFF "));
+
+			#endif	
+				
+			}
+		}
+	}
+	else if(hour > this->actor.hourHigh)
+	{
+
+		if( measurment < this->actor.rangeLow )
+		{
+			this->write( 1) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actor.rangeLow);
+
+			Serial.println(F("actor ON "));
+
+		#endif	
+
+		}
+		else 
+		{
+			this->write( 0) ;
+
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.println(F(" > " ));
+			Serial.print(this->actor.rangeLow);
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
+			
+		}
+	
+	}
+
 !!!183301.cpp!!!	config() : bool
 
 #if DEBUG == 1 
