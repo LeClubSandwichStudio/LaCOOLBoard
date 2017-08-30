@@ -1,4 +1,4 @@
-.TH "CoolBoardSensors" 3 "Thu Aug 24 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "CoolBoardSensors" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -89,113 +89,113 @@ CoolBoardSensors \- This class handles the On-Board Sensors\&.
 .PP 
 This class handles the On-Board Sensors\&. 
 .PP
-Definition at line 45 of file CoolBoardSensors\&.h\&.
+Definition at line 47 of file CoolBoardSensors\&.h\&.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "CoolBoardSensors::CoolBoardSensors ()"
 \fBCoolBoardSensors::CoolBoardSensors()\fP: This Constructor is provided to init the different used pins 
 .PP
-Definition at line 47 of file CoolBoardSensors\&.cpp\&.
+Definition at line 49 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-48 {
-49 
-50 #if DEBUG == 1
+50 {
 51 
-52     Serial\&.println( F("Entering CoolBoardSensors Constructor") );
-53     Serial\&.println();
-54 
-55 #endif
-56     
-57     pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
-58     pinMode(EnMoisture, OUTPUT);             //Declare Moisture enable Pin
-59     digitalWrite(EnMoisture, HIGH);          //Prevent Wearing on the soil moisture fork
-60 
-61 
-62 }
+52 #if DEBUG == 1
+53 
+54     Serial\&.println( F("Entering CoolBoardSensors Constructor") );
+55     Serial\&.println();
+56 
+57 #endif
+58     
+59     pinMode(AnMplex, OUTPUT);                //Declare Analog Multiplexer OUTPUT
+60     pinMode(EnMoisture, OUTPUT);             //Declare Moisture enable Pin
+61     digitalWrite(EnMoisture, HIGH);          //Prevent Wearing on the soil moisture fork
+62 
+63 
+64 }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "void CoolBoardSensors::allActive ()"
 \fBCoolBoardSensors::allActive()\fP: This method is provided to allow activation of all the sensor board sensors without passing by the configuration file/method 
 .PP
-Definition at line 71 of file CoolBoardSensors\&.cpp\&.
+Definition at line 73 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-72 {
-73 
-74 #if DEBUG == 1 
+74 {
 75 
-76     Serial\&.println( F("Entering CoolBoardSensors\&.allActive()") );
-77     Serial\&.println();
-78 
-79 #endif
-80     
-81     this->lightDataActive\&.visible=1;
-82     this->lightDataActive\&.ir=1;
-83     this->lightDataActive\&.uv=1;  
-84 
-85     this->airDataActive\&.temperature=1;
-86     this->airDataActive\&.humidity=1;
-87     this->airDataActive\&.pressure=1;
-88 
-89 
-90     this->vbatActive=1;
+76 #if DEBUG == 1 
+77 
+78     Serial\&.println( F("Entering CoolBoardSensors\&.allActive()") );
+79     Serial\&.println();
+80 
+81 #endif
+82     
+83     this->lightDataActive\&.visible=1;
+84     this->lightDataActive\&.ir=1;
+85     this->lightDataActive\&.uv=1;  
+86 
+87     this->airDataActive\&.temperature=1;
+88     this->airDataActive\&.humidity=1;
+89     this->airDataActive\&.pressure=1;
+90 
 91 
-92     this->soilMoistureActive=1;
-93     
-94 
-95 
-96 }
+92     this->vbatActive=1;
+93 
+94     this->soilMoistureActive=1;
+95     
+96 
+97 
+98 }
 .fi
 .SS "void CoolBoardSensors::begin ()"
 \fBCoolBoardSensors::begin()\fP: This method is provided to start the sensors that are on the sensor board 
 .PP
-Definition at line 104 of file CoolBoardSensors\&.cpp\&.
+Definition at line 106 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-105 {  
-106 
-107 #if DEBUG == 1 
-108      
-109     Serial\&.println( F("Entering CoolBoardSensors\&.begin()") );
-110     Serial\&.println();
-111 
-112 #endif
+107 {  
+108 
+109 #if DEBUG == 1 
+110      
+111     Serial\&.println( F("Entering CoolBoardSensors\&.begin()") );
+112     Serial\&.println();
 113 
-114     while (!lightSensor\&.Begin()) 
-115     {
-116     
-117     #if DEBUG == 1
-118 
-119         Serial\&.println( F("Si1145 is not ready!  1 second") );
+114 #endif
+115 
+116     while (!lightSensor\&.Begin()) 
+117     {
+118     
+119     #if DEBUG == 1
 120 
-121     #endif
+121         Serial\&.println( F("Si1145 is not ready!  1 second") );
 122 
-123         delay(1000);
-124     }
-125      
-126     this->setEnvSensorSettings();
-127     delay(10);  //Make sure sensor had enough time to turn on\&. BME280 requires 2ms to start up\&.
-128     this->envSensor\&.begin();
+123     #endif
+124 
+125         delay(1000);
+126     }
+127      
+128     this->setEnvSensorSettings();
 129     delay(10);  //Make sure sensor had enough time to turn on\&. BME280 requires 2ms to start up\&.
-130 
-131 #if DEBUG == 1 
-132     
-133     Serial\&.print( F("BME280 begin answer is :") );
-134     Serial\&.println(envSensor\&.begin(), HEX);
-135     Serial\&.println();
-136 
-137 #endif
+130     this->envSensor\&.begin();
+131     delay(10);  //Make sure sensor had enough time to turn on\&. BME280 requires 2ms to start up\&.
+132 
+133 #if DEBUG == 1 
+134     
+135     Serial\&.print( F("BME280 begin answer is :") );
+136     Serial\&.println(envSensor\&.begin(), HEX);
+137     Serial\&.println();
 138 
-139 #if DEBUG == 0
+139 #endif
 140 
-141     Serial\&.println( F("Onboard Sensors : OK"));
-142     Serial\&.println();
-143 
-144 #endif
+141 #if DEBUG == 0
+142 
+143     Serial\&.println( F("Onboard Sensors : OK"));
+144     Serial\&.println();
 145 
-146 }
+146 #endif
+147 
+148 }
 .fi
 .SS "bool CoolBoardSensors::config ()"
 \fBCoolBoardSensors::config()\fP: This method is provided to configure the sensor board : -activate 1 -deactivate 0
@@ -207,248 +207,248 @@ true if configuration is successful, false otherwise
 .PP
 
 .PP
-Definition at line 270 of file CoolBoardSensors\&.cpp\&.
+Definition at line 272 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-271 {
-272 
-273 #if DEBUG == 1
+273 {
 274 
-275     Serial\&.println( F("Entering CoolBoardSensors\&.config()") );
-276     Serial\&.println();
-277 
-278 #endif
+275 #if DEBUG == 1
+276 
+277     Serial\&.println( F("Entering CoolBoardSensors\&.config()") );
+278     Serial\&.println();
 279 
-280 #if DEBUG == 0
+280 #endif
 281 
-282     Serial\&.println( F("Reading Sensor Configuration\&.\&.\&."));
+282 #if DEBUG == 0
 283 
-284 #endif
-285     //read config file
-286     //update data
-287     File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "r");
-288 
-289     if (!coolBoardSensorsConfig) 
-290     {
-291     
-292         Serial\&.println( F("failed to read /coolBoardSensorsConfig\&.json") );
-293         Serial\&.println();
-294 
-295         return(false);
-296     }
-297     else
-298     {
-299         size_t size = coolBoardSensorsConfig\&.size();
-300         // Allocate a buffer to store contents of the file\&.
-301         std::unique_ptr<char[]> buf(new char[size]);
-302 
-303         coolBoardSensorsConfig\&.readBytes(buf\&.get(), size);
-304         DynamicJsonBuffer jsonBuffer;
-305         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-306         if (!json\&.success()) 
-307         {
-308 
-309             Serial\&.println( F("failed to parse coolBoardSensorsConfig json") );
-310             Serial\&.println();
-311     
-312             return(false);
-313         } 
-314         else
-315         {
-316 
-317         #if DEBUG == 1
+284     Serial\&.println( F("Reading Sensor Configuration\&.\&.\&."));
+285 
+286 #endif
+287     //read config file
+288     //update data
+289     File coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "r");
+290 
+291     if (!coolBoardSensorsConfig) 
+292     {
+293     
+294         Serial\&.println( F("failed to read /coolBoardSensorsConfig\&.json") );
+295         Serial\&.println();
+296 
+297         return(false);
+298     }
+299     else
+300     {
+301         size_t size = coolBoardSensorsConfig\&.size();
+302         // Allocate a buffer to store contents of the file\&.
+303         std::unique_ptr<char[]> buf(new char[size]);
+304 
+305         coolBoardSensorsConfig\&.readBytes(buf\&.get(), size);
+306         DynamicJsonBuffer jsonBuffer;
+307         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+308         if (!json\&.success()) 
+309         {
+310 
+311             Serial\&.println( F("failed to parse coolBoardSensorsConfig json") );
+312             Serial\&.println();
+313     
+314             return(false);
+315         } 
+316         else
+317         {
 318 
-319             Serial\&.println( F("Configuration Json is :") );
-320             json\&.printTo(Serial);
-321             Serial\&.println();
-322 
-323             Serial\&.print(F("jsonBuffer size: "));
-324             Serial\&.println(jsonBuffer\&.size());
-325             Serial\&.println();
-326         
-327         #endif
-328             
-329             if(json["BME280"]["temperature"]\&.success() )
-330             {           
-331                 this->airDataActive\&.temperature=json["BME280"]["temperature"];
-332             }
-333             else
-334             {
-335                 this->airDataActive\&.temperature=this->airDataActive\&.temperature;          
-336             }
-337             json["BME280"]["temperature"]=this->airDataActive\&.temperature;
-338             
-339             
-340             if(json["BME280"]["humidity"]\&.success() )
-341             {           
-342             
-343                 this->airDataActive\&.humidity=json["BME280"]["humidity"];
-344             }
-345             else
-346             {
-347                 this->airDataActive\&.humidity=this->airDataActive\&.humidity;
-348             }
-349             json["BME280"]["humidity"]=this->airDataActive\&.humidity;
-350             
-351             
-352             if(json["BME280"]["pressure"]\&.success() )
-353             {
-354                 this->airDataActive\&.pressure=json["BME280"]["pressure"];
-355             }
-356             else
-357             {
-358                 this->airDataActive\&.pressure=this->airDataActive\&.pressure;
-359             }
-360             json["BME280"]["pressure"]=this->airDataActive\&.pressure;
-361 
-362             
-363             if(json["SI114X"]["visible"]\&.success() )
-364             {
-365                 this->lightDataActive\&.visible=json["SI114X"]["visible"];
-366             }
-367             else
-368             {
-369                 this->lightDataActive\&.visible=this->lightDataActive\&.visible;
-370             }
-371             json["SI114X"]["visible"]=this->lightDataActive\&.visible;
-372             
-373             
-374             if(json["SI114X"]["ir"]\&.success() )
-375             {           
-376                 this->lightDataActive\&.ir=json["SI114X"]["ir"];
-377             }
-378             else
-379             {
-380                 this->lightDataActive\&.ir=this->lightDataActive\&.ir;
-381             }
-382             json["SI114X"]["ir"]=this->lightDataActive\&.ir;
-383 
-384             
-385             if(json["SI114X"]["uv"]\&.success() )          
-386             {           
-387                 this->lightDataActive\&.uv=json["SI114X"]["uv"];
-388             }
-389             else
-390             {
-391                 this->lightDataActive\&.uv=this->lightDataActive\&.uv;
-392             }
-393             json["SI114X"]["uv"]=this->lightDataActive\&.uv;
-394 
-395 
-396             if(json["vbat"]\&.success() )
-397             {
-398                 this->vbatActive=json["vbat"];
-399             }
-400             else
-401             {
-402                 this->vbatActive=this->vbatActive;
-403             }
-404             json["vbat"]=this->vbatActive;
-405 
-406             
-407             if(json["soilMoisture"]\&.success() )
-408             {           
-409                 this->soilMoistureActive= json["soilMoisture"];
-410             }
-411             else
-412             {
-413                 this->soilMoistureActive=this->soilMoistureActive;
-414             }
-415             json["soilMoisture"]=this->soilMoistureActive;
-416 
-417             coolBoardSensorsConfig\&.close();          
-418             coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w");            
-419             if(!coolBoardSensorsConfig)
-420             {
-421 
-422                 Serial\&.println( F("failed to write to /coolBoardSensorsConfig\&.json") );
-423                 Serial\&.println();
-424 
-425                 return(false);          
-426             }  
-427 
-428             json\&.printTo(coolBoardSensorsConfig);
-429             coolBoardSensorsConfig\&.close();          
-430             
-431         #if DEBUG == 1
-432 
-433             Serial\&.println( F("Saved Configuration Json is : ") );
-434             json\&.printTo(Serial);
-435             Serial\&.println();
-436         
-437         #endif
-438 
-439         #if DEBUG == 0
-440             Serial\&.println( F("Configuration loaded : OK"));
-441         #endif
-442 
-443             return(true); 
-444         }
-445     }   
-446 
-447 }
+319         #if DEBUG == 1
+320 
+321             Serial\&.println( F("Configuration Json is :") );
+322             json\&.printTo(Serial);
+323             Serial\&.println();
+324 
+325             Serial\&.print(F("jsonBuffer size: "));
+326             Serial\&.println(jsonBuffer\&.size());
+327             Serial\&.println();
+328         
+329         #endif
+330             
+331             if(json["BME280"]["temperature"]\&.success() )
+332             {           
+333                 this->airDataActive\&.temperature=json["BME280"]["temperature"];
+334             }
+335             else
+336             {
+337                 this->airDataActive\&.temperature=this->airDataActive\&.temperature;          
+338             }
+339             json["BME280"]["temperature"]=this->airDataActive\&.temperature;
+340             
+341             
+342             if(json["BME280"]["humidity"]\&.success() )
+343             {           
+344             
+345                 this->airDataActive\&.humidity=json["BME280"]["humidity"];
+346             }
+347             else
+348             {
+349                 this->airDataActive\&.humidity=this->airDataActive\&.humidity;
+350             }
+351             json["BME280"]["humidity"]=this->airDataActive\&.humidity;
+352             
+353             
+354             if(json["BME280"]["pressure"]\&.success() )
+355             {
+356                 this->airDataActive\&.pressure=json["BME280"]["pressure"];
+357             }
+358             else
+359             {
+360                 this->airDataActive\&.pressure=this->airDataActive\&.pressure;
+361             }
+362             json["BME280"]["pressure"]=this->airDataActive\&.pressure;
+363 
+364             
+365             if(json["SI114X"]["visible"]\&.success() )
+366             {
+367                 this->lightDataActive\&.visible=json["SI114X"]["visible"];
+368             }
+369             else
+370             {
+371                 this->lightDataActive\&.visible=this->lightDataActive\&.visible;
+372             }
+373             json["SI114X"]["visible"]=this->lightDataActive\&.visible;
+374             
+375             
+376             if(json["SI114X"]["ir"]\&.success() )
+377             {           
+378                 this->lightDataActive\&.ir=json["SI114X"]["ir"];
+379             }
+380             else
+381             {
+382                 this->lightDataActive\&.ir=this->lightDataActive\&.ir;
+383             }
+384             json["SI114X"]["ir"]=this->lightDataActive\&.ir;
+385 
+386             
+387             if(json["SI114X"]["uv"]\&.success() )          
+388             {           
+389                 this->lightDataActive\&.uv=json["SI114X"]["uv"];
+390             }
+391             else
+392             {
+393                 this->lightDataActive\&.uv=this->lightDataActive\&.uv;
+394             }
+395             json["SI114X"]["uv"]=this->lightDataActive\&.uv;
+396 
+397 
+398             if(json["vbat"]\&.success() )
+399             {
+400                 this->vbatActive=json["vbat"];
+401             }
+402             else
+403             {
+404                 this->vbatActive=this->vbatActive;
+405             }
+406             json["vbat"]=this->vbatActive;
+407 
+408             
+409             if(json["soilMoisture"]\&.success() )
+410             {           
+411                 this->soilMoistureActive= json["soilMoisture"];
+412             }
+413             else
+414             {
+415                 this->soilMoistureActive=this->soilMoistureActive;
+416             }
+417             json["soilMoisture"]=this->soilMoistureActive;
+418 
+419             coolBoardSensorsConfig\&.close();          
+420             coolBoardSensorsConfig = SPIFFS\&.open("/coolBoardSensorsConfig\&.json", "w");            
+421             if(!coolBoardSensorsConfig)
+422             {
+423 
+424                 Serial\&.println( F("failed to write to /coolBoardSensorsConfig\&.json") );
+425                 Serial\&.println();
+426 
+427                 return(false);          
+428             }  
+429 
+430             json\&.printTo(coolBoardSensorsConfig);
+431             coolBoardSensorsConfig\&.close();          
+432             
+433         #if DEBUG == 1
+434 
+435             Serial\&.println( F("Saved Configuration Json is : ") );
+436             json\&.printTo(Serial);
+437             Serial\&.println();
+438         
+439         #endif
+440 
+441         #if DEBUG == 0
+442             Serial\&.println( F("Configuration loaded : OK"));
+443         #endif
+444 
+445             return(true); 
+446         }
+447     }   
+448 
+449 }
 .fi
 .SS "void CoolBoardSensors::end ()"
 \fBCoolBoardSensors::end()\fP: This method is provided to end the sensors on the sensor board 
 .PP
-Definition at line 153 of file CoolBoardSensors\&.cpp\&.
+Definition at line 155 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-154 {
-155 
-156 #if DEBUG == 1  
-157     Serial\&.println( F("Entering CoolBoardSensors\&.end()") );
-158     Serial\&.println();
-159 
-160 #endif
+156 {
+157 
+158 #if DEBUG == 1  
+159     Serial\&.println( F("Entering CoolBoardSensors\&.end()") );
+160     Serial\&.println();
 161 
-162     lightSensor\&.DeInit();
+162 #endif
 163 
-164 }
+164     lightSensor\&.DeInit();
+165 
+166 }
 .fi
 .SS "void CoolBoardSensors::printConf ()"
 \fBCoolBoardSensors::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
-Definition at line 455 of file CoolBoardSensors\&.cpp\&.
+Definition at line 457 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-456 {
-457 
-458 #if DEBUG == 1
+458 {
 459 
-460     Serial\&.println( F("Entering CoolBoardSensors\&.printConf()") );
-461     Serial\&.println();
-462 
-463 #endif
+460 #if DEBUG == 1
+461 
+462     Serial\&.println( F("Entering CoolBoardSensors\&.printConf()") );
+463     Serial\&.println();
 464 
-465     Serial\&.println( F("Sensors Configuration : "));
-466     
-467     Serial\&.print( F("airDataActive\&.temperature : "));
-468     Serial\&.println(this->airDataActive\&.temperature);
-469 
-470     Serial\&.print( F("airDataActive\&.humidity : "));
-471     Serial\&.println(airDataActive\&.humidity);
-472 
-473     Serial\&.print( F("airDataActive\&.pressure : "));
-474     Serial\&.println(airDataActive\&.pressure);
-475 
-476     Serial\&.print( F("lightDataActive\&.visible : "));
-477     Serial\&.println(lightDataActive\&.visible);
-478 
-479     Serial\&.print( F("lightDataActive\&.ir : "));
-480     Serial\&.println(lightDataActive\&.ir);
-481 
-482     Serial\&.print( F("lightDataActive\&.uv : "));
-483     Serial\&.println(lightDataActive\&.uv);
-484     
-485     Serial\&.print( F("vbatActive : "));
-486     Serial\&.println(vbatActive);
-487 
-488     Serial\&.print( F("soilMoitureActive : "));
-489     Serial\&.println(soilMoistureActive);
-490 
-491     Serial\&.println();
-492 }
+465 #endif
+466 
+467     Serial\&.println( F("Sensors Configuration : "));
+468     
+469     Serial\&.print( F("airDataActive\&.temperature : "));
+470     Serial\&.println(this->airDataActive\&.temperature);
+471 
+472     Serial\&.print( F("airDataActive\&.humidity : "));
+473     Serial\&.println(airDataActive\&.humidity);
+474 
+475     Serial\&.print( F("airDataActive\&.pressure : "));
+476     Serial\&.println(airDataActive\&.pressure);
+477 
+478     Serial\&.print( F("lightDataActive\&.visible : "));
+479     Serial\&.println(lightDataActive\&.visible);
+480 
+481     Serial\&.print( F("lightDataActive\&.ir : "));
+482     Serial\&.println(lightDataActive\&.ir);
+483 
+484     Serial\&.print( F("lightDataActive\&.uv : "));
+485     Serial\&.println(lightDataActive\&.uv);
+486     
+487     Serial\&.print( F("vbatActive : "));
+488     Serial\&.println(vbatActive);
+489 
+490     Serial\&.print( F("soilMoitureActive : "));
+491     Serial\&.println(soilMoistureActive);
+492 
+493     Serial\&.println();
+494 }
 .fi
 .SS "String CoolBoardSensors::read ()"
 \fBCoolBoardSensors::read()\fP: This method is provided to return the data read by the sensor board
@@ -460,94 +460,94 @@ a json string containing the sensors data
 .PP
 
 .PP
-Definition at line 174 of file CoolBoardSensors\&.cpp\&.
+Definition at line 176 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-175 {
-176 
-177 #if DEBUG == 1 
-178     
-179     Serial\&.println( F("Entering CoolBoardSensors\&.read()") );
-180     Serial\&.println();
-181 
-182 #endif
+177 {
+178 
+179 #if DEBUG == 1 
+180     
+181     Serial\&.println( F("Entering CoolBoardSensors\&.read()") );
+182     Serial\&.println();
 183 
-184 #if DEBUG == 0
+184 #endif
 185 
-186     Serial\&.println( F("Reading Sensors\&.\&.\&."));
+186 #if DEBUG == 0
 187 
-188 #endif
+188     Serial\&.println( F("Reading Sensors\&.\&.\&."));
 189 
-190     String data;
-191     DynamicJsonBuffer  jsonBuffer ;
-192     JsonObject& root = jsonBuffer\&.createObject();
-193 
-194     delay(100);
-195     //light data
-196     if(lightDataActive\&.visible)
-197     {
-198         root["visibleLight"] =lightSensor\&.ReadVisible() ;
-199     }
-200     
-201     if(lightDataActive\&.ir)
-202     {
-203         root["infraRed"] = lightSensor\&.ReadIR();
-204     }
-205 
-206     if(lightDataActive\&.uv)
-207     {
-208         float tempUV = (float)lightSensor\&.ReadUV()/100 ;
-209         root["ultraViolet"] = tempUV;
-210     }
-211     
-212     //BME280 data
-213     if(airDataActive\&.pressure)   
-214     {
-215         root["Pressure"] =envSensor\&.readFloatPressure();
-216     }
-217     
-218         
-219     if(airDataActive\&.humidity)   
-220     {   
-221         root["Humidity"] =envSensor\&.readFloatHumidity() ;
-222     }   
-223     
-224     if(airDataActive\&.temperature)
-225     {
-226         root["Temperature"]=envSensor\&.readTempC();
-227     }
-228     
-229     //Vbat
-230     if(vbatActive)  
-231     {   
-232         root["Vbat"]=this->readVBat();
-233     }
-234     
-235     //earth Moisture
-236     if(soilMoistureActive)
-237     {   
-238         root["soilMoisture"]=this->readMoisture();
-239     }
-240     
-241     
-242     root\&.printTo(data);
-243 
-244     Serial\&.println( F("CoolBoardSensors data is :") );
-245     root\&.printTo(Serial);
-246     Serial\&.println();
-247     Serial\&.println();
-248 
-249 #if DEBUG == 1
-250     Serial\&.print(F("jsonBuffer size: "));
-251     Serial\&.println(jsonBuffer\&.size());
-252     Serial\&.println();
-253 
-254 #endif
+190 #endif
+191 
+192     String data;
+193     DynamicJsonBuffer  jsonBuffer ;
+194     JsonObject& root = jsonBuffer\&.createObject();
+195 
+196     delay(100);
+197     //light data
+198     if(lightDataActive\&.visible)
+199     {
+200         root["visibleLight"] =lightSensor\&.ReadVisible() ;
+201     }
+202     
+203     if(lightDataActive\&.ir)
+204     {
+205         root["infraRed"] = lightSensor\&.ReadIR();
+206     }
+207 
+208     if(lightDataActive\&.uv)
+209     {
+210         float tempUV = (float)lightSensor\&.ReadUV()/100 ;
+211         root["ultraViolet"] = tempUV;
+212     }
+213     
+214     //BME280 data
+215     if(airDataActive\&.pressure)   
+216     {
+217         root["Pressure"] =envSensor\&.readFloatPressure();
+218     }
+219     
+220         
+221     if(airDataActive\&.humidity)   
+222     {   
+223         root["Humidity"] =envSensor\&.readFloatHumidity() ;
+224     }   
+225     
+226     if(airDataActive\&.temperature)
+227     {
+228         root["Temperature"]=envSensor\&.readTempC();
+229     }
+230     
+231     //Vbat
+232     if(vbatActive)  
+233     {   
+234         root["Vbat"]=this->readVBat();
+235     }
+236     
+237     //earth Moisture
+238     if(soilMoistureActive)
+239     {   
+240         root["soilMoisture"]=this->readMoisture();
+241     }
+242     
+243     
+244     root\&.printTo(data);
+245 
+246     Serial\&.println( F("CoolBoardSensors data is :") );
+247     root\&.printTo(Serial);
+248     Serial\&.println();
+249     Serial\&.println();
+250 
+251 #if DEBUG == 1
+252     Serial\&.print(F("jsonBuffer size: "));
+253     Serial\&.println(jsonBuffer\&.size());
+254     Serial\&.println();
 255 
-256     return(data);   
-257     
-258 
-259 }
+256 #endif
+257 
+258     return(data);   
+259     
+260 
+261 }
 .fi
 .SS "float CoolBoardSensors::readMoisture ()"
 \fBCoolBoardSensors::readMoisture()\fP: This method is provided to red the Soil Moisture
@@ -559,45 +559,45 @@ a float represnting the soil moisture
 .PP
 
 .PP
-Definition at line 578 of file CoolBoardSensors\&.cpp\&.
+Definition at line 580 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-579 {
-580 
-581 #if DEBUG == 1
-582     
-583     Serial\&.println( F("Entering CoolBoardSensors\&.readMoisture()") );
-584     Serial\&.println();
-585     
-586 #endif
-587 
-588     digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
+581 {
+582 
+583 #if DEBUG == 1
+584     
+585     Serial\&.println( F("Entering CoolBoardSensors\&.readMoisture()") );
+586     Serial\&.println();
+587     
+588 #endif
 589 
-590     digitalWrite(AnMplex, HIGH);            //enable analog Switch to get the moisture
+590     digitalWrite(EnMoisture, LOW);                 //enable moisture sensor and waith a bit
 591 
-592     delay(2000);
+592     digitalWrite(AnMplex, HIGH);            //enable analog Switch to get the moisture
 593 
-594     int val = analogRead(A0);                       //read the value form the moisture sensor
+594     delay(2000);
 595 
-596     if (val >= 891){
-597         val = 890;
-598     }
-599     float result = (float)map(val, 0, 890, 0, 100); 
-600 
-601     digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
-602     
-603 #if DEBUG == 1 
-604 
-605     Serial\&.println( F("RAW Moisture  is : "));
-606     Serial\&.println(val);
-607     Serial\&.println( F("Soil Moisture is : ") );
-608     Serial\&.println(result);
-609     Serial\&.println();
-610 
-611 #endif 
+596     int val = analogRead(A0);                       //read the value form the moisture sensor
+597 
+598     if (val >= 891){
+599         val = 890;
+600     }
+601     float result = (float)map(val, 0, 890, 0, 100); 
+602 
+603     digitalWrite(EnMoisture, HIGH);                  //disable moisture sensor for minimum wear
+604     
+605 #if DEBUG == 1 
+606 
+607     Serial\&.println( F("RAW Moisture  is : "));
+608     Serial\&.println(val);
+609     Serial\&.println( F("Soil Moisture is : ") );
+610     Serial\&.println(result);
+611     Serial\&.println();
 612 
-613     return (result);
-614 }
+613 #endif 
+614 
+615     return (result);
+616 }
 .fi
 .SS "float CoolBoardSensors::readVBat ()"
 \fBCoolBoardSensors::readVBat()\fP: This method is provided to read the Battery Voltage\&.
@@ -609,100 +609,100 @@ a float representing the battery voltage
 .PP
 
 .PP
-Definition at line 541 of file CoolBoardSensors\&.cpp\&.
+Definition at line 543 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-542 {
-543 
-544 #if DEBUG == 1
+544 {
 545 
-546     Serial\&.println( F("Entering CoolBoardSensors\&.readVBat()") );
-547     Serial\&.println();
-548 
-549 #endif
+546 #if DEBUG == 1
+547 
+548     Serial\&.println( F("Entering CoolBoardSensors\&.readVBat()") );
+549     Serial\&.println();
 550 
-551     digitalWrite(this->AnMplex, LOW);                            //Enable Analog Switch to get the batterie tension
-552     
-553     delay(200);
+551 #endif
+552 
+553     digitalWrite(this->AnMplex, LOW);                            //Enable Analog Switch to get the batterie tension
 554     
-555     int raw = analogRead(A0);                                    //read in batterie tension
+555     delay(200);
 556     
-557     float val = 6\&.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
+557     int raw = analogRead(A0);                                    //read in batterie tension
 558     
-559 #if DEBUG == 1
-560 
-561     Serial\&.println( F("Vbat is : ") );
-562     Serial\&.println(val);
-563     Serial\&.println();
-564 
-565 #endif
+559     float val = 6\&.04 / 1024 * raw;                               //convert it apprimatly right tension in volts
+560     
+561 #if DEBUG == 1
+562 
+563     Serial\&.println( F("Vbat is : ") );
+564     Serial\&.println(val);
+565     Serial\&.println();
 566 
-567     return (val);   
-568 }
+567 #endif
+568 
+569     return (val);   
+570 }
 .fi
 .SS "void CoolBoardSensors::setEnvSensorSettings (uint8_t commInterface = \fC\fBI2C_MODE\fP\fP, uint8_t I2CAddress = \fC0x76\fP, uint8_t runMode = \fC3\fP, uint8_t tStandby = \fC0\fP, uint8_t filter = \fC0\fP, uint8_t tempOverSample = \fC1\fP, uint8_t pressOverSample = \fC1\fP, uint8_t humidOverSample = \fC1\fP)"
 CoolBoardSensors::setEnvSensorSetting(): This method is provided to set the enviornment sensor settings , if argument is ommitted , default value will be assigned 
 .PP
-Definition at line 501 of file CoolBoardSensors\&.cpp\&.
+Definition at line 503 of file CoolBoardSensors\&.cpp\&.
 .PP
 .nf
-506 {
-507 
-508 #if DEBUG == 1
-509     
-510     Serial\&.println( F("Entering CoolBoardSensors\&.setEnvSensorSettings()") );
-511     Serial\&.println();
-512 
-513 #endif
-514   
-515     this->envSensor\&.settings\&.commInterface = commInterface;      
-516 
-517     this->envSensor\&.settings\&.I2CAddress = I2CAddress;
+508 {
+509 
+510 #if DEBUG == 1
+511     
+512     Serial\&.println( F("Entering CoolBoardSensors\&.setEnvSensorSettings()") );
+513     Serial\&.println();
+514 
+515 #endif
+516   
+517     this->envSensor\&.settings\&.commInterface = commInterface;      
 518 
-519     this->envSensor\&.settings\&.runMode = runMode; 
+519     this->envSensor\&.settings\&.I2CAddress = I2CAddress;
 520 
-521     this->envSensor\&.settings\&.tStandby = tStandby; 
+521     this->envSensor\&.settings\&.runMode = runMode; 
 522 
-523     this->envSensor\&.settings\&.filter = filter; 
+523     this->envSensor\&.settings\&.tStandby = tStandby; 
 524 
-525     this->envSensor\&.settings\&.tempOverSample = tempOverSample;
+525     this->envSensor\&.settings\&.filter = filter; 
 526 
-527     this->envSensor\&.settings\&.pressOverSample = pressOverSample;
+527     this->envSensor\&.settings\&.tempOverSample = tempOverSample;
 528 
-529     this->envSensor\&.settings\&.humidOverSample = humidOverSample;
+529     this->envSensor\&.settings\&.pressOverSample = pressOverSample;
 530 
-531 }
+531     this->envSensor\&.settings\&.humidOverSample = humidOverSample;
+532 
+533 }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "struct \fBCoolBoardSensors::airActive\fP CoolBoardSensors::airDataActive\fC [private]\fP"
 
 .SS "const int CoolBoardSensors::AnMplex = 12\fC [private]\fP"
-
+Analog Multiplexer LOW=Vbat , HIGH=Moisture 
 .PP
-Definition at line 107 of file CoolBoardSensors\&.h\&.
+Definition at line 138 of file CoolBoardSensors\&.h\&.
 .SS "const int CoolBoardSensors::EnMoisture = 13\fC [private]\fP"
-
+Moisture Enable Pin 
 .PP
-Definition at line 106 of file CoolBoardSensors\&.h\&.
+Definition at line 133 of file CoolBoardSensors\&.h\&.
 .SS "\fBBME280\fP CoolBoardSensors::envSensor"
-
+\fBBME280\fP environment sensor instance 
 .PP
-Definition at line 85 of file CoolBoardSensors\&.h\&.
+Definition at line 93 of file CoolBoardSensors\&.h\&.
 .SS "struct \fBCoolBoardSensors::lightActive\fP CoolBoardSensors::lightDataActive\fC [private]\fP"
 
 .SS "\fBCoolSI114X\fP CoolBoardSensors::lightSensor"
-
+SI114X light sensor instance 
 .PP
-Definition at line 83 of file CoolBoardSensors\&.h\&.
+Definition at line 88 of file CoolBoardSensors\&.h\&.
 .SS "bool CoolBoardSensors::soilMoistureActive =0\fC [private]\fP"
-
+set soilMoistureActive to 1 to have soil Moisture Readings 
 .PP
-Definition at line 111 of file CoolBoardSensors\&.h\&.
+Definition at line 148 of file CoolBoardSensors\&.h\&.
 .SS "bool CoolBoardSensors::vbatActive =0\fC [private]\fP"
-
+set vbatActive to 1 to have battery voltage Readings 
 .PP
-Definition at line 109 of file CoolBoardSensors\&.h\&.
+Definition at line 143 of file CoolBoardSensors\&.h\&.
 
 .SH "Author"
 .PP 

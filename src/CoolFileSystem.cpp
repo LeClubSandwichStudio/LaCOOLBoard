@@ -3,7 +3,7 @@
 *  	\brief	CoolBoard Header file
 *	\version 1.0  
 *	\author	Mehdi Zemzem
-*	version 0 by Simon Juif
+*	\author version 0 by Simon Juif
 *  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
@@ -28,7 +28,6 @@
 *	SOFTWARE.
 *
 */
-
 
 #include <FS.h>
 #include "CoolFileSystem.h"
