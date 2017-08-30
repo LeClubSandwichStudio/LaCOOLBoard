@@ -1,9 +1,10 @@
 /**
-*	\file CoolWifi.cpp
-*	\brief CoolWifi Source File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -27,7 +28,6 @@
 *	SOFTWARE.
 *
 */
-
 
 #include "FS.h"
 #include "Arduino.h"  

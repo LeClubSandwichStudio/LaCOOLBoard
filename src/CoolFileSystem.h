@@ -1,9 +1,10 @@
 /**
-*	\file CoolFileSystem.h
-*	\brief CoolFileSystem Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -27,6 +28,7 @@
 *	SOFTWARE.
 *
 */
+
 
 #ifndef CoolFileSystem_H
 #define CoolFileSystem_H
@@ -65,8 +67,16 @@ public:
 		
 private:
 	
+	/**
+	*	Number of lines to read when
+	*	retrieving saved Data
+	*/
 	int savedData=0;
 	
+	/**
+	*	Number of lines to Skip
+	*	when retrieving saved Data
+	*/
 	int linesToSkip=0;	
 
 };

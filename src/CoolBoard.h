@@ -1,8 +1,9 @@
 /**
 *	\file	CoolBoard.h
 *  	\brief	CoolBoard Header file
-*	\author	Mehdi Zemzem
 *	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
 *  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
@@ -87,47 +88,125 @@ public:
 
 private:
 
+	/**
+	*	fileSystem handler instance
+	*/
 	CoolFileSystem fileSystem; 
 
+	/**
+	*	Sensor Board handler instance
+	*/
 	CoolBoardSensors coolBoardSensors;
 
+	/**
+	*	Led handler instance
+	*/
 	CoolBoardLed coolBoardLed;
 
+	/**
+	*	RTC handler instance
+	*/
 	CoolTime rtc;
 	
+	/**
+	*	Wifi handler instance
+	*/
 	CoolWifi wifiManager;
 
+	/**
+	*	MQTT handler instance
+	*/
 	CoolMQTT mqtt;
 
+	/**
+	*	Jetpack handler instance
+	*/
 	Jetpack jetPack;
 
+	/**
+	*	Irene3000 handler instance
+	*/
 	Irene3000 irene3000;
 
+	/**
+	*	External Sensors handler instance
+	*/
 	ExternalSensors externalSensors;
 	
+	/**
+	*	On Board Actor handler instance
+	*/
 	CoolBoardActor	onBoardActor;
 
+	/**
+	*	userActive flag,
+	*	set to 1 to collect userData(MAC,userName,TimeStamp) 
+	*/
 	bool userActive=0;
 
+	/**
+	*	ireneActive flag,
+	*	set to 1 when using an Irene module
+	*/
 	bool ireneActive=0;
 
+	/**
+	*	jetpackActive flag,
+	*	set to 1 when using a Jetpack module
+	*/
 	bool jetpackActive=0;
 
+	/**
+	*	externalSensors flag,
+	*	set to 1 when using 1/many external Sensor(s)
+	*/
 	bool externalSensorsActive=0;		
 
+	/**
+	*	sleepActive flag,
+	*	set to 1 when using sleep Mode
+	*	in Sleep mode : the CoolBoard will do
+	*	a cycle (init, read sensors, do action,log)
+	*	and go to sleep for a LogInterval period of time
+	*/
 	bool sleepActive=0;
 	
+	/**
+	*	manual flag,
+	*	set to 1 when using manual mode
+	*	in manual Mode , user can activate/deactivate
+	*	actors through a specific MQTT command
+	*
+	*	/!\ in manual Mode, receving an update will not reset the CoolBoard
+	*	/!\ resetting the CoolBoard in manual mode will deactivate all actors 
+	*/
 	bool manual=0;	
 
+	/**
+	*	log Interval value,
+	*	the period of time between logs
+	-	in Seconds
+	*/
 	unsigned long logInterval=1;//s
 
+	/**
+	*	data string,
+	*	string that contains sensors data
+	*/
 	String data="";
 
+	/**
+	*	answer string,
+	*	string that contains received MQTT messages
+	*/
 	String answer="";
 
-	const int EnI2C = 5;                            // double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch
-							// All I2C is over pins (2,14)
-
+	/**
+	*	Enable I2C pin,
+	*	double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch
+	* 	All I2C is over pins (2,14)
+	*/
+	const int EnI2C = 5;                            
 
 
 };

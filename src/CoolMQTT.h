@@ -1,9 +1,10 @@
 /**
-*	\file CoolMQTT.h
-*	\brief CoolMQTT Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -71,24 +72,55 @@ public:
 
 private:
 	
+	/**
+	*	MQTT Server name/ip
+	*/
 	char mqttServer[50]={'0'};
 
+	/**
+	*	String to store incoming messages
+	*/
 	String msg="";
 
+	/**
+	*	MQTT Topic to subscribe/listen to 
+	*/
 	char inTopic[50]={'0'};
 
+	/**
+	*	MQTT topic to publish/write to
+	*/
 	char outTopic[50]={'0'};
 
+	/**
+	*	MQTT user name
+	*/
 	char user[50]={'0'};
-
+	
+	/**
+	*	MQTT inner bufferSize
+	*/
 	int bufferSize=3000;	
-
+	
+	/**
+	*	WifiClient instance
+	*/
 	WiFiClient espClient;
-
+	
+	/**
+	*	MQTT Client instance
+	*/
 	CoolPubSubClient client;
 
+	/**
+	*	new message flag
+	*/
 	bool newMsg=0;
-
+	
+	/**
+	*	last time the Client sent a Message over MQTT
+	*	in ms
+	*/
 	unsigned long previousLogTime=0;
 
 

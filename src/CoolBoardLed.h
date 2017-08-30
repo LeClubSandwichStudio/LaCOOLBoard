@@ -1,8 +1,10 @@
 /**
-*	\file CoolBoardLed.h	
-*	\brief CoolBoardLed Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -26,6 +28,7 @@
 *	SOFTWARE.
 *
 */
+
 
 #ifndef CoolOnBoardLed_H
 #define CoolOnBoardLed_H
@@ -74,9 +77,15 @@ public:
 
 private:
 
-
+	/**
+	*	NeoPixel Led Instance
+	*/
 	NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* neoPixelLed = NULL; //template instance must be dynamic
 
+	/**
+	*	ledActive flag 
+	*	set to 1 if you want LED animation	
+	*/
 	bool ledActive=0;
 
 };

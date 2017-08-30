@@ -1,9 +1,10 @@
 /**
-*	\file ExternalSensor.h
-*	\brief ExternalSensor Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -122,7 +123,7 @@ public:
 *	provide the following methods :
 *		- constructor(void);
 *		- uint8_t/bool begin(void);
-*		- int read(void);
+*		- float read(void);
 *
 *	If your sensor doesn't provide these methods
 *	or is not present in the specialized templates

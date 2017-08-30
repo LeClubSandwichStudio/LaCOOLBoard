@@ -1,9 +1,10 @@
 /**
-*	\file CoolWifi.h
-*	\brief CoolWifi Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -70,17 +71,39 @@ public:
 	bool addWifi( String ssid , String pass="" );
 
 private:
-		
+	
+	/**
+	*	ESP8266WiFiMulti instance
+	*/	
 	ESP8266WiFiMulti wifiMulti;
 	
+	/**
+	*	number of saved WiFi's
+	*/
 	int wifiCount=0;
 	
+	/**
+	*	WiFi SSID Array
+	*/
 	String ssid[50]={"0"};
-	
+
+	/**
+	*	WiFi PASS Array
+	*/
 	String pass[50]={"0"};
 	
-	int timeOut=0;//access point Timeout in seconds
+	/**
+	*	WiFi Access Point TimeOut Value in Seconds
+	*/
+	int timeOut=0;
 	
+	/**
+	*	nomad Mode Flag
+	*	in Nomad Mode , the Wifi Access Point will
+	*	Only Lunch on Start when there's NO saved wifis ( wifiCount = 0)
+	*	After that, the Wifi will ONLY try to connect to known Wifis via
+	*	WifiMulti
+	*/
 	bool nomad=0;
 		
 

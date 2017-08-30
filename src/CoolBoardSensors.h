@@ -1,9 +1,10 @@
 /**
-*	\file CoolBoardSensors.h
-*	\brief CoolBoardSensors Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -27,6 +28,7 @@
 *	SOFTWARE.
 *
 */
+
 
 #ifndef CoolBoardSensors_H
 #define CoolBoardSensors_H
@@ -80,12 +82,26 @@ public:
 	float readMoisture();
 
 	//sensor objects :
-	CoolSI114X lightSensor;			// light sensor	
+	/**
+	*	SI114X light sensor instance
+	*/
+	CoolSI114X lightSensor;				
 	
-	BME280 envSensor;			        // environment sensor
+	/**
+	*	BME280 environment sensor instance
+	*/
+	BME280 envSensor;			        
 	
 private:
-	//sensors control structs :
+	/**
+	*	lightActive structure
+	*
+	*	set visible to 1 to have visibleLight Readings
+	*
+	*	set ir to 1 to have infraRed Readings
+	*
+	*	set uv to 1 to have ultraViolet Readings
+	*/	
 	struct lightActive
 	{
 		bool visible=0;
@@ -94,7 +110,15 @@ private:
 
 	}lightDataActive;
 
-
+	/**
+	*	airActive structure
+	*
+	*	set temperature to 1 to have temperature Readings
+	*
+	*	set humidity to 1 to have humidity Readings
+	*
+	*	set pressure to 1 to have pressure Readings
+	*/	
 	struct airActive
 	{
 		bool temperature=0;
@@ -103,11 +127,24 @@ private:
 
 	}airDataActive;
 
-	const int EnMoisture = 13;                      // Moisture Enable Pin
-	const int AnMplex = 12;                         // Analog Multiplexer  LOW=Vbat , HIGH=Moisture
+	/**
+	*	 Moisture Enable Pin
+	*/
+	const int EnMoisture = 13;                      
 
+	/**
+	*	Analog Multiplexer  LOW=Vbat , HIGH=Moisture
+	*/
+	const int AnMplex = 12;                        
+
+	/**
+	*	set vbatActive to 1 to have battery voltage Readings
+	*/
         bool vbatActive=0;
 
+	/**
+	*	set soilMoistureActive to 1 to have soil Moisture Readings
+	*/
 	bool soilMoistureActive=0;
 
 };

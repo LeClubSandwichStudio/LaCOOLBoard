@@ -1,9 +1,10 @@
 /**
-*	\file CoolTime.h
-*	\brief CoolTime Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -83,18 +84,41 @@ public:
 
 private:
 	
+	/**
+	*	last Time the RTC syncronised with the NTP server
+	*	unix Time
+	*/
 	unsigned long timeSync=0;
 	
-	IPAddress timeServer; // time-a.timefreq.bldrdoc.gov
+	/**
+	*	NTP Server IP Address
+	*/
+	IPAddress timeServer; 
 	
+	/**
+	*	UDP Client instance
+	*/
 	WiFiUDP Udp;
 	
-	unsigned int localPort=0;  // local port to listen for UDP packets
+	/**
+	*	port number for UDP packets
+	*/
+	unsigned int localPort=0;  
 
-	byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+	/**
+	*	UDP buffer
+	*	to hold incoming & outgoing packets
+	*/
+	byte packetBuffer[NTP_PACKET_SIZE]; 
 	
+	/**
+	*	Time Elements Instance to hold various Time Values
+	*/
 	tmElements_t tmSet;
-	
+
+	/**
+	*	RTC instance
+	*/	
 	DS1337RTC rtc;
 
 };

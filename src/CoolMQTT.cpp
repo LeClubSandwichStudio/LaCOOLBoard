@@ -1,9 +1,10 @@
 /**
-*	\file CoolMQTT.cpp
-*	\brief CoolMQTT Source File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -27,6 +28,7 @@
 *	SOFTWARE.
 *
 */
+
 
 
 #include "FS.h"
@@ -225,7 +227,7 @@ bool CoolMQTT::publish(const char* data,unsigned long logInterval)
 	Serial.println();
 
 #endif 
-	//log interval is passed in seconds, logInteral*1000 = logInterval in ms
+	//log interval is passed in seconds, logInterval*1000 = logInterval in ms
 	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) )
 	{
 	

@@ -1,9 +1,10 @@
 /**
-*	\file Jetpack.h
-*	\brief Jetpack Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -27,6 +28,7 @@
 *	SOFTWARE.
 *
 */
+
 
 #ifndef Jetpack_H
 #define Jetpack_H
@@ -81,51 +83,114 @@ public:
 
 private:
 
+	/**
+	*	the Jetpack's Action	
+	*/
 	byte action= B00000000; 
 
+	/**
+	*	the Actor's state
+	*/
 	struct state{
 	
+		/**
+		*	actif flag
+		*	set to 1 when using an actor
+		*	set to 0 otherwise
+		*/
 		bool actif=0;
 
+		/**
+		*	temporal flag
+		*	set to 1 to declare a temporal actor
+		*	set to 0 otherwise
+		*/
 		bool temporal=0;
 
+		/**
+		*	inverted flag
+		*	set to 1 to declare an inverted actor
+		*	set to 0 to declare a normal actor
+		*/
 		bool inverted=0;
 		
-		//"type":["temperature","hour"]
-		String primaryType="";//the primary type is related to the sensor's type (type[0])
+		/**
+		*	"type":["temperature","hour"]
+		*	the primary type is related to the sensor's type (type[0])
+		*	the secondary type if present is hour or minute or hourMinute (type[1])
+		*	if both types are present and valid, the actor is a mixedActor
+		*/	
+		String primaryType="";
 
-		String secondaryType="";// the secondary type if present is hour or minute or hourMinute (type[1]) 
+		String secondaryType="";  
 		
-		//"low":[20,5000,18]
-		int rangeLow=0;//this is the minimum at which the actor becomes actif (low[0])
+		/**
+		*	"low":[20,5000,18,10]
+		*
+		*	rangeLow : this is the minimum at which the actor becomes actif (low[0])
+		*
+		*	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
+		*
+		*	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )
+		*
+		*	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
+		*/
+		int rangeLow=0;
 		
-		unsigned long timeLow=0;//this is the time the actor is off in temporal mode (low[1])
+		unsigned long timeLow=0;
 		
-		int hourLow=0; //this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2])
+		int hourLow=0; 
 		
-		int minuteLow=0;//this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
+		int minuteLow=0;
 
 
-		//"high":[30,2000,17]
-		int rangeHigh=0;//this is the maximum at which the actor becomes inactif(high[0])
+		/**
+		*	"high":[30,2000,17,1]
+		*	
+		*	rangeHigh : this is the maximum at which the actor becomes inactif(high[0])
+		*	
+		*	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
+		*	
+		*	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
+		*
+		*	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
+		*/
+		int rangeHigh=0;
 		
-		unsigned long timeHigh=0;//this is the time the actor is on in temporal mode(high[1])
+		unsigned long timeHigh=0;
 		
-		int hourHigh=0; //this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
+		int hourHigh=0; 
 
-		int minuteHigh=0;//this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3])
+		int minuteHigh=0;
 
+		/**
+		*	actifTime : period of Time spent actif , used in Temporal mode
+		*	in ms
+		*/
 		unsigned long actifTime=0;
 	
+		/**
+		*	inactifTime : period of Time spent inactif , used in Temporal mode
+		*	in ms
+		*/
 		unsigned long inactifTime=0;
 	
 	}actors[8];
 
-	const int clockPin = 4; //clock pin for the shift register
-	
-	const int dataPin = 15; //data  pin for the shift register
+	/**
+	*	clock pin for the shift register
+	*/
+	const int clockPin = 4; 
 
-	const int EnI2C=5;	// I2C/Shift pin
+	/**
+	*	data pin for the shift register
+	*/
+	const int dataPin = 15; 
+
+	/**
+	*	I2C Enable pin
+	*/
+	const int EnI2C=5;	
 	
 };
 

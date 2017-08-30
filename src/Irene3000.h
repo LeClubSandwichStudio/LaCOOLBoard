@@ -1,9 +1,10 @@
 /**
-*	\file Irene3000.h
-*	\brief Irene3000 Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -90,10 +91,22 @@ public:
 
 
 private:
+	
+	/**
+	*	ADS1115 instance
+	*/
+	Adafruit_ADS1115 ads;                                                                                           
 
-	Adafruit_ADS1115 ads;                                                                                           // ADC Object
-
-
+	/**
+	*	PH Sensor Calibration parameters
+	*
+	*	pH7Cal : PH 7 Calibration value
+	*		
+	*	pH4Cal : PH 4 Calibration value
+	*
+	*	pHStep : PH Slope Step value
+	*	
+	*/
 	struct parameters_T
 	{
 		unsigned int WriteCheck=0;
@@ -101,6 +114,16 @@ private:
 		float pHStep=1;
 	}params;
 
+	/**
+	*	Irene sensors state struct
+	*
+	*	active : if the related sensor is active or not
+	*		
+	*	gain : what is the used gain for the related sensor (used only for the free channel)
+	*
+	*	type : the type of the used sensor(used only for the free channel )
+	*	
+	*/
 	struct state
 	{
 		bool active=0;
@@ -109,9 +132,15 @@ private:
 
 	} waterTemp, phProbe,adc2;
 
-	const float vRef = 1.024;                                                            //Our vRef into the ADC wont be exa
-
-	const float opampGain = 5.25;                                 //what is our Op-Amps gain (stage 1)
+	/**
+	*	vRef constant used for ADC conversion
+	*/
+	const float vRef = 1.024;                                                            
+	
+	/**
+	*	opAmpGain constant used for ADC conversion
+	*/
+	const float opampGain = 5.25;                               
 
 };
 

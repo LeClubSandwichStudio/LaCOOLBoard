@@ -1,9 +1,10 @@
 /**
-*	\file ExternalSensors.h
-*	\brief ExternalSensors Header File
-*	\author Mehdi Zemzem
-*	\version 1.0
-*	\date 27/06/2017
+*	\file	CoolBoard.h
+*  	\brief	CoolBoard Header file
+*	\version 1.0  
+*	\author	Mehdi Zemzem
+*	version 0 by Simon Juif
+*  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license
 *	Copyright (c) 2017 La Cool Co SAS
@@ -57,6 +58,20 @@ public:
 	void printConf();
 
 private:
+	
+	/**
+	*	Array of 50 External Sensors 
+	*	
+	*	An External Sensor is described by :	
+	*
+	*	sensor.reference : the sensor's reference ( NDIR_I2C...)
+	*
+	*	sensor.type : the sensor's Type ( CO2 , Temperature , .... )
+	*
+	*	sensor.address : the sensor's Address if it has one
+	*
+	*	sensor.exSensor : pointer to the dynmacially instanciated sensor
+	*/
 	struct sensor
 	{		
 		String reference="";
@@ -65,6 +80,10 @@ private:
 		BaseExternalSensor *exSensor=NULL;
 	}sensors[50];
 
+/**
+*	External Sensors Number
+*	Maximum is 50
+*/
 int sensorsNumber=0;
 
 };
