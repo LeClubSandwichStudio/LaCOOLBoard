@@ -1,5 +1,8 @@
 var NAVTREEINDEX2 =
 {
+"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#a5de0c37120d2d927bd0f37ff4a215baf":[1,0,15,0],
+"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#a7d9e9d2893e453638fcf440e5d8d9082":[1,0,15,3],
+"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#ac5275129b05e2ff8df45d5b222a661d9":[1,0,15,1],
 "d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#adb6ba4fcdedef95ad8f6b0c9b6c0f9d1":[1,0,15,4],
 "d7/db6/struct_cool_board_sensors_1_1air_active.html":[1,0,7,0],
 "d7/db6/struct_cool_board_sensors_1_1air_active.html#a15932ccfb6ee6603713d937ec9b76b72":[1,0,7,0,1],
@@ -180,9 +183,6 @@ var NAVTREEINDEX2 =
 "db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html#aa06970ea689679c0e1deb5360e05a0a4":[1,0,16,0],
 "db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html#ac6f3614d94968ef0cc11b2b4d69cef03":[1,0,16,1],
 "db/dba/class_external_sensor_3_01_n_d_i_r___i2_c_01_4.html#ae541c9cece7c38674b70114cdb74a7dc":[1,0,16,3],
-"db/dd5/irene3000_8cpp.html":[2,0,0,20],
-"db/dd5/irene3000_8cpp.html#ad72dbcf6d0153db1b8d8a58001feed83":[2,0,0,20,0],
-"db/dd5/irene3000_8cpp_source.html":[2,0,0,20],
 "dc/d38/_cool_wifi_8h.html":[2,0,0,16],
 "dc/d38/_cool_wifi_8h_source.html":[2,0,0,16],
 "dc/d69/class_cool_board_actor.html":[1,0,5],

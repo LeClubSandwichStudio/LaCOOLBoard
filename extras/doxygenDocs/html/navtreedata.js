@@ -31,7 +31,7 @@ var NAVTREEINDEX =
 [
 "annotated.html",
 "d2/d3a/_cool_spark_fun_b_m_e280_8h.html#afe625f2ec64c74d6488a93ba04575b24",
-"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#adb6ba4fcdedef95ad8f6b0c9b6c0f9d1",
+"d7/d59/class_external_sensor_3_01_dallas_temperature_01_4.html#a5de0c37120d2d927bd0f37ff4a215baf",
 "de/d46/class_cool_board_sensors.html#ac711c27d0927eb5e73be77f092c48be0",
 "functions_vars_t.html"
 ];

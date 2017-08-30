@@ -40,7 +40,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
       [ "ExternalSensors", "d1/d2f/class_external_sensors.html", "d1/d2f/class_external_sensors" ],
       [ "sensor", "dd/d58/struct_external_sensors_1_1sensor.html", "dd/d58/struct_external_sensors_1_1sensor" ]
     ] ],
-    [ "irene3000.cpp", "db/dd5/irene3000_8cpp.html", "db/dd5/irene3000_8cpp" ],
+    [ "Irene3000.cpp", "d5/df3/_irene3000_8cpp.html", "d5/df3/_irene3000_8cpp" ],
     [ "Irene3000.h", "d7/d31/_irene3000_8h.html", "d7/d31/_irene3000_8h" ],
     [ "Jetpack.cpp", "d8/dcb/_jetpack_8cpp.html", "d8/dcb/_jetpack_8cpp" ],
     [ "Jetpack.h", "db/d6c/_jetpack_8h.html", [

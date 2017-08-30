@@ -1,9 +1,10 @@
 /**
-*	\file	CoolBoard.h
-*  	\brief	CoolBoard Header file
+*	\file	CoolBoardLed.cpp
+*  	\brief	CoolBoardLed Source file
 *	\version 1.0  
 *	\author	Mehdi Zemzem
-*	\author version 0 by Simon Juif
+*	\version 0.0  
+*	\author Simon Juif
 *  	\date	27/06/2017
 *	\copyright La Cool Co SAS 
 *	\copyright MIT license

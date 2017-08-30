@@ -87,138 +87,138 @@ CoolMQTT \- This class handles the mqtt client\&.
 .PP 
 This class handles the mqtt client\&. 
 .PP
-Definition at line 44 of file CoolMQTT\&.h\&.
+Definition at line 45 of file CoolMQTT\&.h\&.
 .SH "Member Function Documentation"
 .PP 
 .SS "void CoolMQTT::begin ()"
 \fBCoolMQTT::begin()\fP: This method is provided to set the mqtt client's parameters: -client -server -callback method -buffer size 
 .PP
-Definition at line 53 of file CoolMQTT\&.cpp\&.
+Definition at line 54 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-54 { 
-55 
-56 #if DEBUG == 1 
-57 
-58     Serial\&.println( F("Entering CoolMQTT\&.begin()") );
-59     Serial\&.println();
-60 
-61 #endif
-62 
-63     client\&.setClient(espClient);
-64     client\&.setServer(mqttServer, 1883);  
-65     client\&.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
-66     client\&.setBufferSize((unsigned short)bufferSize);
-67 
-68 }
+55 { 
+56 
+57 #if DEBUG == 1 
+58 
+59     Serial\&.println( F("Entering CoolMQTT\&.begin()") );
+60     Serial\&.println();
+61 
+62 #endif
+63 
+64     client\&.setClient(espClient);
+65     client\&.setServer(mqttServer, 1883);  
+66     client\&.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->callback(topic, payload, length); });
+67     client\&.setBufferSize((unsigned short)bufferSize);
+68 
+69 }
 .fi
 .SS "void CoolMQTT::callback (char * topic, byte * payload, unsigned int length)"
 CoolMQTT::callback(in topic, incoming message , message length): This method is provided to handle incoming messages from the subscribed inTopic\&.
 .PP
 Arguments are automatically assigned in client\&.setCallback() 
 .PP
-Definition at line 309 of file CoolMQTT\&.cpp\&.
+Definition at line 310 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-310 {
-311 
-312 #if DEBUG == 1
-313 
-314     Serial\&.println( F("Entering CoolMQTT\&.callback() ") );
-315     Serial\&.println();
-316 
-317 #endif 
-318 
-319     if(this->newMsg==false)
-320     {
-321         char temp[length+1];
-322 
-323     #if DEBUG == 1
-324 
-325         Serial\&.println( F("received temp msg : ") );
-326         
-327     #endif
-328         
-329         for (unsigned int i = 0; i < length; i++) 
-330         {
-331             temp[i]=(char)payload[i];
-332         
-333         #if DEBUG == 1 
-334 
-335             Serial\&.print( (char)payload[i] );
-336         
-337         #endif
-338 
-339         }
-340     
-341     #if DEBUG == 1 
-342 
-343         Serial\&.println();
-344         Serial\&.println( F("storing new message : ") );
-345 
-346         Serial\&.print(F("length : "));
-347         Serial\&.println(length);
-348         
-349         Serial\&.print(F("size : "));
-350         Serial\&.print(sizeof(payload));
-351         Serial\&.println();
-352     
-353     #endif
-354 
-355         this->newMsg=true;
-356 
-357         temp[length+1]='\0';
-358 
-359         this->msg=String(temp);
-360         this->msg\&.remove(length,1);
-361     
-362     #if DEBUG == 1 
-363 
-364         Serial\&.println( F("stored message : ") );
-365         Serial\&.println(this->msg);
-366     
-367     #endif
-368 
-369     }
-370     else
-371     {
-372     
-373     #if DEBUG == 1
-374 
-375         Serial\&.println( F("did not read last message") );
-376     
-377     #endif 
-378         
-379     }
-380 
-381 }
+311 {
+312 
+313 #if DEBUG == 1
+314 
+315     Serial\&.println( F("Entering CoolMQTT\&.callback() ") );
+316     Serial\&.println();
+317 
+318 #endif 
+319 
+320     if(this->newMsg==false)
+321     {
+322         char temp[length+1];
+323 
+324     #if DEBUG == 1
+325 
+326         Serial\&.println( F("received temp msg : ") );
+327         
+328     #endif
+329         
+330         for (unsigned int i = 0; i < length; i++) 
+331         {
+332             temp[i]=(char)payload[i];
+333         
+334         #if DEBUG == 1 
+335 
+336             Serial\&.print( (char)payload[i] );
+337         
+338         #endif
+339 
+340         }
+341     
+342     #if DEBUG == 1 
+343 
+344         Serial\&.println();
+345         Serial\&.println( F("storing new message : ") );
+346 
+347         Serial\&.print(F("length : "));
+348         Serial\&.println(length);
+349         
+350         Serial\&.print(F("size : "));
+351         Serial\&.print(sizeof(payload));
+352         Serial\&.println();
+353     
+354     #endif
+355 
+356         this->newMsg=true;
+357 
+358         temp[length+1]='\0';
+359 
+360         this->msg=String(temp);
+361         this->msg\&.remove(length,1);
+362     
+363     #if DEBUG == 1 
+364 
+365         Serial\&.println( F("stored message : ") );
+366         Serial\&.println(this->msg);
+367     
+368     #endif
+369 
+370     }
+371     else
+372     {
+373     
+374     #if DEBUG == 1
+375 
+376         Serial\&.println( F("did not read last message") );
+377     
+378     #endif 
+379         
+380     }
+381 
+382 }
 .fi
 .SS "void CoolMQTT::config (const char mqttServer[], const char inTopic[], const char outTopic[], const char user[], int bufferSize)"
 CoolMQTT::config(server,in topic, out topic , user Id, buffer size): This method is provided to manually configure the mqtt client 
 .PP
-Definition at line 626 of file CoolMQTT\&.cpp\&.
+Definition at line 627 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-627 {
-628 
-629 #if DEBUG == 1
-630 
-631     Serial\&.println( F("Entering CoolMQTT\&.config() , no SPIFFS variant") );
-632     Serial\&.println();
-633 
-634 #endif
-635 
-636     for(int i =0;i< 50 ;i++)
-637     {
-638         this->mqttServer[i]=mqttServer[i];
-639         this->inTopic[i]=inTopic[i];
-640         this->outTopic[i]=outTopic[i];
-641         this->user[i]=user[i];
-642     }
-643     this->bufferSize=bufferSize;
-644     
-645 
-646 }
+628 {
+629 
+630 #if DEBUG == 1
+631 
+632     Serial\&.println( F("Entering CoolMQTT\&.config() , no SPIFFS variant") );
+633     Serial\&.println();
+634 
+635 #endif
+636 
+637     for(int i =0;i< 50 ;i++)
+638     {
+639         this->mqttServer[i]=mqttServer[i];
+640         this->inTopic[i]=inTopic[i];
+641         this->outTopic[i]=outTopic[i];
+642         this->user[i]=user[i];
+643     }
+644     this->bufferSize=bufferSize;
+645     
+646 
+647 }
 .fi
 .SS "bool CoolMQTT::config ()"
 \fBCoolMQTT::config()\fP: This method is provided to configure the mqttClient : -server -inTopic -outTopic -client Id -buffer size
@@ -230,199 +230,199 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 429 of file CoolMQTT\&.cpp\&.
+Definition at line 430 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-430 {
-431 
-432 #if DEBUG == 1 
-433 
-434     Serial\&.println( F("Entering CoolMQTT\&.config()") );
-435     Serial\&.println();
-436 
-437 #endif
-438 
-439     //read config file
-440     //update data
-441     File configFile = SPIFFS\&.open("/mqttConfig\&.json", "r");
-442 
-443     if (!configFile) 
-444     {
-445     
-446     #if DEBUG == 1 
-447 
-448         Serial\&.println( F("failed to read /mqttConfig\&.json") );
-449         Serial\&.println();
-450 
-451     #endif
-452 
-453         return(false);
-454     }
-455     else
-456     {
-457         size_t size = configFile\&.size();
-458         // Allocate a buffer to store contents of the file\&.
-459         std::unique_ptr<char[]> buf(new char[size]);
-460 
-461         configFile\&.readBytes(buf\&.get(), size);
-462         DynamicJsonBuffer jsonBuffer;
-463         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-464         if (!json\&.success()) 
-465         {
-466         
-467         #if DEBUG == 1 
-468 
-469             Serial\&.println( F("failed to parse json ") );
-470             Serial\&.println();
-471         
-472         #endif
-473             
-474             return(false);
-475         } 
-476         else
-477         {
-478         
-479         #if DEBUG == 1 
-480         
-481             Serial\&.println( F("configuration json is ") );
-482             json\&.printTo(Serial);
-483             Serial\&.println();
-484 
-485             Serial\&.print(F("jsonBuffer size: "));
-486             Serial\&.println(jsonBuffer\&.size());
-487             Serial\&.println();
-488 
+431 {
+432 
+433 #if DEBUG == 1 
+434 
+435     Serial\&.println( F("Entering CoolMQTT\&.config()") );
+436     Serial\&.println();
+437 
+438 #endif
+439 
+440     //read config file
+441     //update data
+442     File configFile = SPIFFS\&.open("/mqttConfig\&.json", "r");
+443 
+444     if (!configFile) 
+445     {
+446     
+447     #if DEBUG == 1 
+448 
+449         Serial\&.println( F("failed to read /mqttConfig\&.json") );
+450         Serial\&.println();
+451 
+452     #endif
+453 
+454         return(false);
+455     }
+456     else
+457     {
+458         size_t size = configFile\&.size();
+459         // Allocate a buffer to store contents of the file\&.
+460         std::unique_ptr<char[]> buf(new char[size]);
+461 
+462         configFile\&.readBytes(buf\&.get(), size);
+463         DynamicJsonBuffer jsonBuffer;
+464         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
+465         if (!json\&.success()) 
+466         {
+467         
+468         #if DEBUG == 1 
+469 
+470             Serial\&.println( F("failed to parse json ") );
+471             Serial\&.println();
+472         
+473         #endif
+474             
+475             return(false);
+476         } 
+477         else
+478         {
+479         
+480         #if DEBUG == 1 
+481         
+482             Serial\&.println( F("configuration json is ") );
+483             json\&.printTo(Serial);
+484             Serial\&.println();
+485 
+486             Serial\&.print(F("jsonBuffer size: "));
+487             Serial\&.println(jsonBuffer\&.size());
+488             Serial\&.println();
 489 
-490         #endif
-491 
-492             if(json["mqttServer"]\&.success() )
-493             {           
-494                 const char* tempmqttServer = json["mqttServer"]; 
-495                 for(int i =0;i< 50 ;i++)
-496                 {
-497                     mqttServer[i]=tempmqttServer[i];
-498                 }
-499             }
-500             else
-501             {
-502                 for(int i =0;i< 50 ;i++)
-503                 {
-504                     this->mqttServer[i]=this->mqttServer[i];
-505                 }
-506 
-507             }
-508             json["mqttServer"]=this->mqttServer;
-509 
-510             
-511             if(json["inTopic"]\&.success() )
-512             {
-513                 const char* tempInTopic = json["inTopic"]; 
-514                 for(int i =0;i< 50;i++)
-515                 {
-516                     inTopic[i]=tempInTopic[i];
-517                 }
-518             }
-519             else
-520             {
-521                 String tempMAC = WiFi\&.macAddress();
-522                 tempMAC\&.replace(":","");
-523                 snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC\&.c_str());    
-524             
-525             #if DEBUG == 1              
-526                 
-527                 Serial\&.print( F("Set Incomming MQTT Channel to : ") );
-528                 Serial\&.println(inTopic);
-529             
-530             #endif  
-531 
-532             }
-533             json["inTopic"]=this->inTopic;
-534             
+490 
+491         #endif
+492 
+493             if(json["mqttServer"]\&.success() )
+494             {           
+495                 const char* tempmqttServer = json["mqttServer"]; 
+496                 for(int i =0;i< 50 ;i++)
+497                 {
+498                     mqttServer[i]=tempmqttServer[i];
+499                 }
+500             }
+501             else
+502             {
+503                 for(int i =0;i< 50 ;i++)
+504                 {
+505                     this->mqttServer[i]=this->mqttServer[i];
+506                 }
+507 
+508             }
+509             json["mqttServer"]=this->mqttServer;
+510 
+511             
+512             if(json["inTopic"]\&.success() )
+513             {
+514                 const char* tempInTopic = json["inTopic"]; 
+515                 for(int i =0;i< 50;i++)
+516                 {
+517                     inTopic[i]=tempInTopic[i];
+518                 }
+519             }
+520             else
+521             {
+522                 String tempMAC = WiFi\&.macAddress();
+523                 tempMAC\&.replace(":","");
+524                 snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta", tempMAC\&.c_str());    
+525             
+526             #if DEBUG == 1              
+527                 
+528                 Serial\&.print( F("Set Incomming MQTT Channel to : ") );
+529                 Serial\&.println(inTopic);
+530             
+531             #endif  
+532 
+533             }
+534             json["inTopic"]=this->inTopic;
 535             
-536             if(json["outTopic"]\&.success() )
-537             {
-538                 const char* tempOutTopic = json["outTopic"]; 
-539                 for(int i =0;i<50;i++)
-540                 {
-541                     outTopic[i]=tempOutTopic[i];
-542                 }
-543             }
-544             else
-545             {
-546                 String tempMAC = WiFi\&.macAddress();
-547                 tempMAC\&.replace(":","");
-548                 snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC\&.c_str());
-549             
-550             #if DEBUG == 1 
-551 
-552                 Serial\&.print( F("Set Outgoing MQTT Channel to : ") );
-553                 Serial\&.println(outTopic);
-554             
-555             #endif
-556 
-557             }
-558             json["outTopic"]=this->outTopic;
-559         
-560             
-561             if(json["user"]\&.success() )
-562             {               
-563                 const char* tempUser = json["user"]; 
-564                 for(int i =0;i<50;i++)
-565                 {
-566                     user[i]=tempUser[i];
-567                 }
-568             }
-569             else
-570             {
-571                 for(int i=0;i<50;i++)
-572                 {
-573                     this->user[i]=this->user[i];
-574                 }               
-575             }
-576             json["user"]=this->user;
-577             
-578             if(json["bufferSize"]\&.success() )
-579             {
-580                 int tempBufferSize = json["bufferSize"]; 
-581                 bufferSize=tempBufferSize;
-582             }
-583             else
-584             {
-585                 this->bufferSize=this->bufferSize;
-586             }
-587             json["bufferSize"]=this->bufferSize;
-588 
-589             configFile\&.close();
-590             configFile = SPIFFS\&.open("/mqttConfig\&.json", "w");
-591             if(!configFile)
-592             {
-593             
-594             #if DEBUG == 1 
-595 
-596                 Serial\&.println( F("failed to write to /mqttConfig\&.json") );
-597             
-598             #endif
-599 
-600                 return(false);              
-601             }
-602             
-603             json\&.printTo(configFile);
-604             configFile\&.close();
-605 
-606         #if DEBUG == 1 
-607 
-608             Serial\&.println( F("saved configuration is :") );
-609             json\&.printTo(Serial);
-610             Serial\&.println();
-611         
-612         #endif
-613 
-614             return(true); 
-615         }
-616     }   
-617     
-618 
-619 }
+536             
+537             if(json["outTopic"]\&.success() )
+538             {
+539                 const char* tempOutTopic = json["outTopic"]; 
+540                 for(int i =0;i<50;i++)
+541                 {
+542                     outTopic[i]=tempOutTopic[i];
+543                 }
+544             }
+545             else
+546             {
+547                 String tempMAC = WiFi\&.macAddress();
+548                 tempMAC\&.replace(":","");
+549                 snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC\&.c_str());
+550             
+551             #if DEBUG == 1 
+552 
+553                 Serial\&.print( F("Set Outgoing MQTT Channel to : ") );
+554                 Serial\&.println(outTopic);
+555             
+556             #endif
+557 
+558             }
+559             json["outTopic"]=this->outTopic;
+560         
+561             
+562             if(json["user"]\&.success() )
+563             {               
+564                 const char* tempUser = json["user"]; 
+565                 for(int i =0;i<50;i++)
+566                 {
+567                     user[i]=tempUser[i];
+568                 }
+569             }
+570             else
+571             {
+572                 for(int i=0;i<50;i++)
+573                 {
+574                     this->user[i]=this->user[i];
+575                 }               
+576             }
+577             json["user"]=this->user;
+578             
+579             if(json["bufferSize"]\&.success() )
+580             {
+581                 int tempBufferSize = json["bufferSize"]; 
+582                 bufferSize=tempBufferSize;
+583             }
+584             else
+585             {
+586                 this->bufferSize=this->bufferSize;
+587             }
+588             json["bufferSize"]=this->bufferSize;
+589 
+590             configFile\&.close();
+591             configFile = SPIFFS\&.open("/mqttConfig\&.json", "w");
+592             if(!configFile)
+593             {
+594             
+595             #if DEBUG == 1 
+596 
+597                 Serial\&.println( F("failed to write to /mqttConfig\&.json") );
+598             
+599             #endif
+600 
+601                 return(false);              
+602             }
+603             
+604             json\&.printTo(configFile);
+605             configFile\&.close();
+606 
+607         #if DEBUG == 1 
+608 
+609             Serial\&.println( F("saved configuration is :") );
+610             json\&.printTo(Serial);
+611             Serial\&.println();
+612         
+613         #endif
+614 
+615             return(true); 
+616         }
+617     }   
+618     
+619 
+620 }
 .fi
 .SS "int CoolMQTT::connect (unsigned long keepAlive)"
 CoolMQTT::connect( time to keep the connection alive in seconds ): This method is provided to connect the client to the server, publish to the out topic , subscribe to the in topic and set the keepAlive time\&.
@@ -434,80 +434,80 @@ mqtt client state
 .PP
 
 .PP
-Definition at line 109 of file CoolMQTT\&.cpp\&.
+Definition at line 110 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-110 {       
-111 
-112     int i=0;
-113 
-114 #if DEBUG == 1 
-115 
-116     Serial\&.println( F("Entering CoolMQTT\&.connect()") );
-117 
-118 #endif
-119     Serial\&.println( F("MQTT connecting\&.\&.\&.") );
-120     
-121     while( ( !this->client\&.connected() ) && ( i<100 ) ) 
-122     {
-123         // Attempt to connect
-124         if( this->client\&.connect( this-> user,keepAlive*10  ) )
-125         {
-126             client\&.subscribe( this->inTopic );
-127 
-128         #if DEBUG == 1 
-129 
-130             Serial\&.println( F(" subscribed , leavin ") ) ;
-131         
-132         #endif
-133 
-134             return( this->state() );
-135         }
-136 
-137         else
-138         {
-139         
-140         #if DEBUG == 1 
-141 
-142             Serial\&.println( F("not connected , retrying") );
-143         
-144         #endif
-145 
-146             
-147         }
-148 
-149     delay(5);
-150     i++;
-151     }
-152     if (state() == 0)
-153     {
-154         Serial\&.println( F("MQTT connected : OK") );
-155         Serial\&.println();
-156     }
-157     else Serial\&.println( F("MQTT not jet connected\&.\&.\&."));
-158     return( this->state() );
-159 
-160 }
+111 {       
+112 
+113     int i=0;
+114 
+115 #if DEBUG == 1 
+116 
+117     Serial\&.println( F("Entering CoolMQTT\&.connect()") );
+118 
+119 #endif
+120     Serial\&.println( F("MQTT connecting\&.\&.\&.") );
+121     
+122     while( ( !this->client\&.connected() ) && ( i<100 ) ) 
+123     {
+124         // Attempt to connect
+125         if( this->client\&.connect( this-> user,keepAlive*10  ) )
+126         {
+127             client\&.subscribe( this->inTopic );
+128 
+129         #if DEBUG == 1 
+130 
+131             Serial\&.println( F(" subscribed , leavin ") ) ;
+132         
+133         #endif
+134 
+135             return( this->state() );
+136         }
+137 
+138         else
+139         {
+140         
+141         #if DEBUG == 1 
+142 
+143             Serial\&.println( F("not connected , retrying") );
+144         
+145         #endif
+146 
+147             
+148         }
+149 
+150     delay(5);
+151     i++;
+152     }
+153     if (state() == 0)
+154     {
+155         Serial\&.println( F("MQTT connected : OK") );
+156         Serial\&.println();
+157     }
+158     else Serial\&.println( F("MQTT not jet connected\&.\&.\&."));
+159     return( this->state() );
+160 
+161 }
 .fi
 .SS "String CoolMQTT::getUser ()"
 \fBCoolMQTT::getUser()\fP: This method is provided to get the user name 
 .PP
-Definition at line 689 of file CoolMQTT\&.cpp\&.
+Definition at line 690 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-690 {
-691 
-692 #if DEBUG == 1 
-693     Serial\&.println( F("Entering CoolMQTT\&.getUser()") );
-694     Serial\&.println();
-695     
-696     Serial\&.print( F("user : ") );
-697     Serial\&.println(this->user);
-698 
-699 #endif
-700 
-701     return String(this->user);
-702 }
+691 {
+692 
+693 #if DEBUG == 1 
+694     Serial\&.println( F("Entering CoolMQTT\&.getUser()") );
+695     Serial\&.println();
+696     
+697     Serial\&.print( F("user : ") );
+698     Serial\&.println(this->user);
+699 
+700 #endif
+701 
+702     return String(this->user);
+703 }
 .fi
 .SS "bool CoolMQTT::mqttLoop ()"
 \fBCoolMQTT::mqttLoop()\fP: This method is provided to allow the client to process the data
@@ -519,73 +519,73 @@ true if successful,false otherwise
 .PP
 
 .PP
-Definition at line 273 of file CoolMQTT\&.cpp\&.
+Definition at line 274 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-274 {
-275 
-276     unsigned long lastTime=millis();
-277 
-278 #if DEBUG == 1
-279 
-280     Serial\&.println( F("Entering CoolMQTT\&.mqttLoop()") );
-281     Serial\&.println();
-282 
-283 #endif  
-284 
-285     while( ( millis() - lastTime ) < 1000)
-286     {
-287         this->client\&.loop();
-288         yield();
-289     }
-290 
-291 #if DEBUG == 1 
-292     
-293     Serial\&.print( F("loop result : ") );
-294     Serial\&.println( this->client\&.loop() );
-295     Serial\&.println();
-296 
-297 #endif
-298 
-299     return( this->client\&.loop() );
-300 }
+275 {
+276 
+277     unsigned long lastTime=millis();
+278 
+279 #if DEBUG == 1
+280 
+281     Serial\&.println( F("Entering CoolMQTT\&.mqttLoop()") );
+282     Serial\&.println();
+283 
+284 #endif  
+285 
+286     while( ( millis() - lastTime ) < 1000)
+287     {
+288         this->client\&.loop();
+289         yield();
+290     }
+291 
+292 #if DEBUG == 1 
+293     
+294     Serial\&.print( F("loop result : ") );
+295     Serial\&.println( this->client\&.loop() );
+296     Serial\&.println();
+297 
+298 #endif
+299 
+300     return( this->client\&.loop() );
+301 }
 .fi
 .SS "void CoolMQTT::printConf ()"
 \fBCoolMQTT::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
-Definition at line 653 of file CoolMQTT\&.cpp\&.
+Definition at line 654 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-654 {
-655 
-656 #if DEBUG == 1 
-657 
-658     Serial\&.println( F("Entering CoolMQTT\&.printConf()") );
-659     Serial\&.println();    
-660 
-661 #endif
-662     
-663     Serial\&.println("MQTT configuration ");
-664 
-665     Serial\&.print("mqttServer : ");
-666     Serial\&.println(this->mqttServer);
-667 
-668     Serial\&.print("inTopic : ");
-669     Serial\&.println(this->inTopic);
-670 
-671     Serial\&.print("outTopic : ");
-672     Serial\&.println(this->outTopic);
-673 
-674     Serial\&.print("user : ");
-675     Serial\&.println(this->user);
-676 
-677     Serial\&.print("bufferSize : ");
-678     Serial\&.println(this->bufferSize);
-679 
-680     Serial\&.println();
-681 
+655 {
+656 
+657 #if DEBUG == 1 
+658 
+659     Serial\&.println( F("Entering CoolMQTT\&.printConf()") );
+660     Serial\&.println();    
+661 
+662 #endif
+663     
+664     Serial\&.println("MQTT configuration ");
+665 
+666     Serial\&.print("mqttServer : ");
+667     Serial\&.println(this->mqttServer);
+668 
+669     Serial\&.print("inTopic : ");
+670     Serial\&.println(this->inTopic);
+671 
+672     Serial\&.print("outTopic : ");
+673     Serial\&.println(this->outTopic);
+674 
+675     Serial\&.print("user : ");
+676     Serial\&.println(this->user);
+677 
+678     Serial\&.print("bufferSize : ");
+679     Serial\&.println(this->bufferSize);
+680 
+681     Serial\&.println();
 682 
-683 }
+683 
+684 }
 .fi
 .SS "bool CoolMQTT::publish (const char * data)"
 CoolMQTT::publish(data): This method is provided to publish data to the out topic
@@ -597,50 +597,50 @@ true if publish successful, false otherwise
 .PP
 
 .PP
-Definition at line 170 of file CoolMQTT\&.cpp\&.
+Definition at line 171 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-171 {
-172 
-173 #if DEBUG == 1 
-174 
-175     Serial\&.println( F("Entering CoolMQTT\&.publish()") );
-176     Serial\&.println();
-177     //data is in JSON, publish it directly
-178 
-179     Serial\&.println( F("data to publish : ") );
-180     Serial\&.println(data);
-181     Serial\&.print( F("data size : ") );
-182     Serial\&.println(strlen(data));
-183 
-184     Serial\&.println();
-185 
-186 #endif
-187 #if DEBUG == 0
-188     Serial\&.println( F("Publishing Message : "));
-189     Serial\&.println(data);
-190     Serial\&.println();
-191 #endif
-192 
-193     bool pub=client\&.publish( this->outTopic,(byte*) data,strlen(data),false  );
-194 
-195 #if DEBUG == 1 
-196 
-197     Serial\&.print( F("success : ") );
-198     Serial\&.println(pub); 
-199 
-200 #endif
-201 #if DEBUG == 0
-202     if (pub == 1)
-203     {
-204         Serial\&.println( F("Publish : OK"));
-205     }
-206     else Serial\&.println( F("Publish : FAIL!!!"));
-207 #endif
-208 
-209     return(pub);
-210 
-211 }
+172 {
+173 
+174 #if DEBUG == 1 
+175 
+176     Serial\&.println( F("Entering CoolMQTT\&.publish()") );
+177     Serial\&.println();
+178     //data is in JSON, publish it directly
+179 
+180     Serial\&.println( F("data to publish : ") );
+181     Serial\&.println(data);
+182     Serial\&.print( F("data size : ") );
+183     Serial\&.println(strlen(data));
+184 
+185     Serial\&.println();
+186 
+187 #endif
+188 #if DEBUG == 0
+189     Serial\&.println( F("Publishing Message : "));
+190     Serial\&.println(data);
+191     Serial\&.println();
+192 #endif
+193 
+194     bool pub=client\&.publish( this->outTopic,(byte*) data,strlen(data),false  );
+195 
+196 #if DEBUG == 1 
+197 
+198     Serial\&.print( F("success : ") );
+199     Serial\&.println(pub); 
+200 
+201 #endif
+202 #if DEBUG == 0
+203     if (pub == 1)
+204     {
+205         Serial\&.println( F("Publish : OK"));
+206     }
+207     else Serial\&.println( F("Publish : FAIL!!!"));
+208 #endif
+209 
+210     return(pub);
+211 
+212 }
 .fi
 .SS "bool CoolMQTT::publish (const char * data, unsigned long logInterval)"
 CoolMQTT::publish(data): This method is provided to publish data to the out topic every logInterval in seconds
@@ -652,86 +652,86 @@ true if publish successful, false otherwise
 .PP
 
 .PP
-Definition at line 221 of file CoolMQTT\&.cpp\&.
+Definition at line 222 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-222 {
-223 
-224 #if DEBUG == 1 
-225 
-226     Serial\&.println( F("Entering CoolMQTT\&.publish() every logInterval ") );
-227     Serial\&.println();
-228 
-229 #endif 
-230     //log interval is passed in seconds, logInterval*1000 = logInterval in ms
-231     if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) )
-232     {
-233     
-234     #if DEBUG == 1
-235 
-236         Serial\&.println( F("log Interval has passed ") );
-237         Serial\&.println();
-238     
-239     #endif
-240 
-241         this->publish(data);
-242 
-243         this->previousLogTime=millis();
-244     
-245     #if DEBUG == 1 
-246 
-247         Serial\&.print( F("last log time : ") );
-248         Serial\&.println(this->previousLogTime);
-249 
-250     #endif
-251 
-252         return(true);
-253     }
-254 
-255 #if DEBUG == 1 
-256 
-257     Serial\&.println( F("log Interval still didn't pass ") );  
-258     Serial\&.println();
-259 
-260 #endif
-261 
-262     return(false);
-263 }
+223 {
+224 
+225 #if DEBUG == 1 
+226 
+227     Serial\&.println( F("Entering CoolMQTT\&.publish() every logInterval ") );
+228     Serial\&.println();
+229 
+230 #endif 
+231     //log interval is passed in seconds, logInterval*1000 = logInterval in ms
+232     if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) )
+233     {
+234     
+235     #if DEBUG == 1
+236 
+237         Serial\&.println( F("log Interval has passed ") );
+238         Serial\&.println();
+239     
+240     #endif
+241 
+242         this->publish(data);
+243 
+244         this->previousLogTime=millis();
+245     
+246     #if DEBUG == 1 
+247 
+248         Serial\&.print( F("last log time : ") );
+249         Serial\&.println(this->previousLogTime);
+250 
+251     #endif
+252 
+253         return(true);
+254     }
+255 
+256 #if DEBUG == 1 
+257 
+258     Serial\&.println( F("log Interval still didn't pass ") );  
+259     Serial\&.println();
+260 
+261 #endif
+262 
+263     return(false);
+264 }
 .fi
 .SS "String CoolMQTT::read ()"
 \fBCoolMQTT::read()\fP: This method is provided to return the last read message\&. 
 .PP
-Definition at line 388 of file CoolMQTT\&.cpp\&.
+Definition at line 389 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-389 { 
-390 
-391 #if DEBUG == 1 
-392 
-393     Serial\&.println( F("Entering CoolMQTT\&.read()") );
-394     Serial\&.println();
-395 
-396 #endif 
-397 
-398     if(this->newMsg==true)
-399     {
-400         
-401         this->newMsg=false;
-402 
-403 #if DEBUG == 1 
-404         Serial\&.println( F("received new message") );
-405         Serial\&.println( F("message : ") );
-406         Serial\&.println(this->msg);
-407         Serial\&.println();
-408 
-409 #endif
-410 
-411         return(this->msg);
-412         
-413     }
-414     return("");
-415 
-416 }
+390 { 
+391 
+392 #if DEBUG == 1 
+393 
+394     Serial\&.println( F("Entering CoolMQTT\&.read()") );
+395     Serial\&.println();
+396 
+397 #endif 
+398 
+399     if(this->newMsg==true)
+400     {
+401         
+402         this->newMsg=false;
+403 
+404 #if DEBUG == 1 
+405         Serial\&.println( F("received new message") );
+406         Serial\&.println( F("message : ") );
+407         Serial\&.println(this->msg);
+408         Serial\&.println();
+409 
+410 #endif
+411 
+412         return(this->msg);
+413         
+414     }
+415     return("");
+416 
+417 }
 .fi
 .SS "int CoolMQTT::state ()"
 \fBCoolMQTT::state()\fP: This method is provided to return the mqtt client's state\&. 
@@ -743,65 +743,65 @@ mqtt client state: -4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond with
 .PP
 
 .PP
-Definition at line 86 of file CoolMQTT\&.cpp\&.
+Definition at line 87 of file CoolMQTT\&.cpp\&.
 .PP
 .nf
-87 {
-88 
-89 #if DEBUG == 1 
-90 
-91     Serial\&.println( F("Entering CoolMQTT\&.state()") );
-92     Serial\&.println();    
-93     Serial\&.print( F("state : ") );
-94     Serial\&.println( this->client\&.state() );
-95 
-96 #endif
-97     
-98     return( this->client\&.state() );
-99 }
+88 {
+89 
+90 #if DEBUG == 1 
+91 
+92     Serial\&.println( F("Entering CoolMQTT\&.state()") );
+93     Serial\&.println();    
+94     Serial\&.print( F("state : ") );
+95     Serial\&.println( this->client\&.state() );
+96 
+97 #endif
+98     
+99     return( this->client\&.state() );
+100 }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "int CoolMQTT::bufferSize =3000\fC [private]\fP"
 MQTT inner bufferSize 
 .PP
-Definition at line 103 of file CoolMQTT\&.h\&.
+Definition at line 104 of file CoolMQTT\&.h\&.
 .SS "\fBCoolPubSubClient\fP CoolMQTT::client\fC [private]\fP"
 MQTT Client instance 
 .PP
-Definition at line 113 of file CoolMQTT\&.h\&.
+Definition at line 114 of file CoolMQTT\&.h\&.
 .SS "WiFiClient CoolMQTT::espClient\fC [private]\fP"
 WifiClient instance 
 .PP
-Definition at line 108 of file CoolMQTT\&.h\&.
+Definition at line 109 of file CoolMQTT\&.h\&.
 .SS "char CoolMQTT::inTopic[50] ={'0'}\fC [private]\fP"
 MQTT Topic to subscribe/listen to 
 .PP
-Definition at line 88 of file CoolMQTT\&.h\&.
+Definition at line 89 of file CoolMQTT\&.h\&.
 .SS "char CoolMQTT::mqttServer[50] ={'0'}\fC [private]\fP"
 MQTT Server name/ip 
 .PP
-Definition at line 78 of file CoolMQTT\&.h\&.
+Definition at line 79 of file CoolMQTT\&.h\&.
 .SS "String CoolMQTT::msg =''\fC [private]\fP"
 String to store incoming messages 
 .PP
-Definition at line 83 of file CoolMQTT\&.h\&.
+Definition at line 84 of file CoolMQTT\&.h\&.
 .SS "bool CoolMQTT::newMsg =0\fC [private]\fP"
 new message flag 
 .PP
-Definition at line 118 of file CoolMQTT\&.h\&.
+Definition at line 119 of file CoolMQTT\&.h\&.
 .SS "char CoolMQTT::outTopic[50] ={'0'}\fC [private]\fP"
 MQTT topic to publish/write to 
 .PP
-Definition at line 93 of file CoolMQTT\&.h\&.
+Definition at line 94 of file CoolMQTT\&.h\&.
 .SS "unsigned long CoolMQTT::previousLogTime =0\fC [private]\fP"
 last time the Client sent a Message over MQTT in ms 
 .PP
-Definition at line 124 of file CoolMQTT\&.h\&.
+Definition at line 125 of file CoolMQTT\&.h\&.
 .SS "char CoolMQTT::user[50] ={'0'}\fC [private]\fP"
 MQTT user name 
 .PP
-Definition at line 98 of file CoolMQTT\&.h\&.
+Definition at line 99 of file CoolMQTT\&.h\&.
 
 .SH "Author"
 .PP 

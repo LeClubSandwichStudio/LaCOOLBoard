@@ -54,7 +54,7 @@ CoolFileSystem \- This class handles the file system\&.
 .PP 
 This class handles the file system\&. 
 .PP
-Definition at line 45 of file CoolFileSystem\&.h\&.
+Definition at line 46 of file CoolFileSystem\&.h\&.
 .SH "Member Function Documentation"
 .PP 
 .SS "bool CoolFileSystem::begin ()"
@@ -67,28 +67,28 @@ true if SPIFFS was initialized correctly, false otherwise
 .PP
 
 .PP
-Definition at line 49 of file CoolFileSystem\&.cpp\&.
+Definition at line 50 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-50 {
-51     bool sResult=SPIFFS\&.begin();
-52     
-53 
-54 #if DEBUG == 1
-55 
-56     Serial\&.println( F("Entering CoolFileSystem\&.begin()") );
-57     Serial\&.println();    
-58     Serial\&.print( F("SPIFFS success ? ") );
-59     Serial\&.println(sResult);
-60     Serial\&.println(  );
-61 
-62 #endif
-63     //get the data from the files
-64     this->getsavedData();
-65 
-66     return( sResult  );                                   //Initialize Filesystem
-67 
-68 }
+51 {
+52     bool sResult=SPIFFS\&.begin();
+53     
+54 
+55 #if DEBUG == 1
+56 
+57     Serial\&.println( F("Entering CoolFileSystem\&.begin()") );
+58     Serial\&.println();    
+59     Serial\&.print( F("SPIFFS success ? ") );
+60     Serial\&.println(sResult);
+61     Serial\&.println(  );
+62 
+63 #endif
+64     //get the data from the files
+65     this->getsavedData();
+66 
+67     return( sResult  );                                   //Initialize Filesystem
+68 
+69 }
 .fi
 .SS "bool CoolFileSystem::fileUpdate (String update, const char * path)"
 CoolFileSystem::fileUpdate( update msg, file path): This method is provided to ensure the correct update for each configuration file in the File system
@@ -100,194 +100,194 @@ true if successful , false otherwise
 .PP
 
 .PP
-Definition at line 1002 of file CoolFileSystem\&.cpp\&.
+Definition at line 1003 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-1003 {
-1004 
-1005 #if DEBUG == 1
-1006 
-1007     Serial\&.println( F("Entering CoolFileSystem\&.fileUpdate()") );
-1008     Serial\&.println();
-1009     
-1010     Serial\&.println(F("update msg is :"));
-1011     Serial\&.println(update);
-1012     
-1013     Serial\&.println(F("file path is : "));
-1014     Serial\&.println(path);    
-1015 
-1016 #endif
-1017     //transfer update String to json
-1018     DynamicJsonBuffer updateBuffer;
-1019     JsonObject& updateJson = updateBuffer\&.parseObject(update\&.c_str() );
-1020     
-1021     if(updateJson\&.success())
-1022     {
-1023     
-1024     #if DEBUG ==1
-1025         
-1026         Serial\&.println(F("root parsing success :"));
-1027         updateJson\&.printTo(Serial);
-1028     
-1029     #endif
-1030 
-1031     }
-1032     else
-1033     {
-1034     
-1035     #if DEBUG == 1 
-1036     
-1037         Serial\&.println(F("root parsing failure "));
-1038     
-1039     #endif
-1040         
-1041         return(false);  
-1042 
-1043     }
-1044     
-1045     //open file in read mode
-1046     File configFile = SPIFFS\&.open( path , "r");
-1047     
-1048     if(!configFile)
-1049     {   
-1050     #if DEBUG == 1
-1051         
-1052         Serial\&.print( F("failed to read ") );
-1053         Serial\&.println(path);
-1054 
-1055     #endif
-1056         return(false);
-1057     }
-1058 
-1059     //copy file to a json
-1060     size_t size = configFile\&.size();
-1061 
-1062     // Allocate a buffer to store contents of the file\&.
-1063     std::unique_ptr < char[] > buf(new char[size]);
-1064 
-1065     configFile\&.readBytes(buf\&.get(), size);
-1066 
-1067     DynamicJsonBuffer fileBuffer;
-1068 
-1069     JsonObject & fileJson = fileBuffer\&.parseObject(buf\&.get());
-1070 
-1071     if (!fileJson\&.success())
-1072     {
-1073 
-1074     #if DEBUG == 1
-1075 
-1076         Serial\&.println( F("failed to parse json") );
-1077 
-1078     #endif
-1079 
-1080         return(false);
-1081     }
-1082     
-1083     //modify root to contain all the json keys: updated ones and non updated ones
-1084     for (auto kv : fileJson) 
-1085     {
-1086         if( updateJson[kv\&.key]\&.success() )
-1087         {
-1088             fileJson[kv\&.key]=updateJson[kv\&.key];          
-1089         }
-1090         else
-1091         {
-1092             fileJson[kv\&.key]=fileJson[kv\&.key];
-1093         }
-1094 
-1095                 
-1096     }
-1097 
-1098 #if DEBUG == 1
-1099 
-1100     Serial\&.println(F("fileJson is now : "));
-1101     fileJson\&.printTo(Serial);
-1102 
-1103 #endif
-1104 
-1105     //close the file
-1106     configFile\&.close();
-1107 
-1108     //open file in w mode
-1109     configFile = SPIFFS\&.open( path , "w");
-1110     
-1111     if(!configFile)
-1112     {   
-1113     #if DEBUG == 1
-1114         
-1115         Serial\&.print( F("failed to open ") );
-1116         Serial\&.println(path);
-1117 
-1118     #endif
-1119         return(false);
-1120     }
-1121     //print json to file    
-1122     
-1123     fileJson\&.printTo(configFile);
-1124     
-1125     //close file
-1126     configFile\&.close();
-1127 
+1004 {
+1005 
+1006 #if DEBUG == 1
+1007 
+1008     Serial\&.println( F("Entering CoolFileSystem\&.fileUpdate()") );
+1009     Serial\&.println();
+1010     
+1011     Serial\&.println(F("update msg is :"));
+1012     Serial\&.println(update);
+1013     
+1014     Serial\&.println(F("file path is : "));
+1015     Serial\&.println(path);    
+1016 
+1017 #endif
+1018     //transfer update String to json
+1019     DynamicJsonBuffer updateBuffer;
+1020     JsonObject& updateJson = updateBuffer\&.parseObject(update\&.c_str() );
+1021     
+1022     if(updateJson\&.success())
+1023     {
+1024     
+1025     #if DEBUG ==1
+1026         
+1027         Serial\&.println(F("root parsing success :"));
+1028         updateJson\&.printTo(Serial);
+1029     
+1030     #endif
+1031 
+1032     }
+1033     else
+1034     {
+1035     
+1036     #if DEBUG == 1 
+1037     
+1038         Serial\&.println(F("root parsing failure "));
+1039     
+1040     #endif
+1041         
+1042         return(false);  
+1043 
+1044     }
+1045     
+1046     //open file in read mode
+1047     File configFile = SPIFFS\&.open( path , "r");
+1048     
+1049     if(!configFile)
+1050     {   
+1051     #if DEBUG == 1
+1052         
+1053         Serial\&.print( F("failed to read ") );
+1054         Serial\&.println(path);
+1055 
+1056     #endif
+1057         return(false);
+1058     }
+1059 
+1060     //copy file to a json
+1061     size_t size = configFile\&.size();
+1062 
+1063     // Allocate a buffer to store contents of the file\&.
+1064     std::unique_ptr < char[] > buf(new char[size]);
+1065 
+1066     configFile\&.readBytes(buf\&.get(), size);
+1067 
+1068     DynamicJsonBuffer fileBuffer;
+1069 
+1070     JsonObject & fileJson = fileBuffer\&.parseObject(buf\&.get());
+1071 
+1072     if (!fileJson\&.success())
+1073     {
+1074 
+1075     #if DEBUG == 1
+1076 
+1077         Serial\&.println( F("failed to parse json") );
+1078 
+1079     #endif
+1080 
+1081         return(false);
+1082     }
+1083     
+1084     //modify root to contain all the json keys: updated ones and non updated ones
+1085     for (auto kv : fileJson) 
+1086     {
+1087         if( updateJson[kv\&.key]\&.success() )
+1088         {
+1089             fileJson[kv\&.key]=updateJson[kv\&.key];          
+1090         }
+1091         else
+1092         {
+1093             fileJson[kv\&.key]=fileJson[kv\&.key];
+1094         }
+1095 
+1096                 
+1097     }
+1098 
+1099 #if DEBUG == 1
+1100 
+1101     Serial\&.println(F("fileJson is now : "));
+1102     fileJson\&.printTo(Serial);
+1103 
+1104 #endif
+1105 
+1106     //close the file
+1107     configFile\&.close();
+1108 
+1109     //open file in w mode
+1110     configFile = SPIFFS\&.open( path , "w");
+1111     
+1112     if(!configFile)
+1113     {   
+1114     #if DEBUG == 1
+1115         
+1116         Serial\&.print( F("failed to open ") );
+1117         Serial\&.println(path);
+1118 
+1119     #endif
+1120         return(false);
+1121     }
+1122     //print json to file    
+1123     
+1124     fileJson\&.printTo(configFile);
+1125     
+1126     //close file
+1127     configFile\&.close();
 1128 
-1129 #if DEBUG == 1
-1130 
-1131     Serial\&.println( F("config is") );
-1132     fileJson\&.printTo(Serial);
-1133     Serial\&.println();
-1134 
-1135 #endif
-1136     
-1137     return(true);
-1138     
-1139 }
+1129 
+1130 #if DEBUG == 1
+1131 
+1132     Serial\&.println( F("config is") );
+1133     fileJson\&.printTo(Serial);
+1134     Serial\&.println();
+1135 
+1136 #endif
+1137     
+1138     return(true);
+1139     
+1140 }
 .fi
 .SS "void CoolFileSystem::getsavedData ()"
 \fBCoolFileSystem::getsavedData()\fP: This method is provided to get the savedData flag from the file system 
 .PP
-Definition at line 1201 of file CoolFileSystem\&.cpp\&.
+Definition at line 1202 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-1202 {
-1203 
+1203 {
 1204 
-1205 #if DEBUG == 1
-1206     
-1207     Serial\&.println(F("Entering CoolFileSystem\&.getsavedData()"));  
-1208     
-1209 #endif
-1210     //open file
-1211     File file=SPIFFS\&.open("/savedDataFlag\&.txt","r");  
-1212     //read file
-1213     if( !file)  
-1214     {
-1215         Serial\&.println( F("failed to read savedDataFlag\&.txt") );
-1216         
-1217     }
-1218     else
-1219     {       
-1220         //read from file    
-1221         String temp=file\&.readStringUntil(' ');
-1222         
-1223         this->savedData=temp\&.toInt();
-1224 
-1225         
-1226         temp=file\&.readStringUntil('\n');
-1227         this-> linesToSkip=temp\&.toInt();;    
-1228         
-1229         file\&.close();    
-1230     }
-1231     
-1232 #if DEBUG == 1
-1233 
-1234     Serial\&.print(F("number of lines to read :"));
-1235     Serial\&.println(this->savedData);
-1236     
-1237     Serial\&.print(F("number of lines to skip :"));
-1238     Serial\&.println(this->linesToSkip);
-1239 
-1240 #endif
-1241     
-1242 }
+1205 
+1206 #if DEBUG == 1
+1207     
+1208     Serial\&.println(F("Entering CoolFileSystem\&.getsavedData()"));  
+1209     
+1210 #endif
+1211     //open file
+1212     File file=SPIFFS\&.open("/savedDataFlag\&.txt","r");  
+1213     //read file
+1214     if( !file)  
+1215     {
+1216         Serial\&.println( F("failed to read savedDataFlag\&.txt") );
+1217         
+1218     }
+1219     else
+1220     {       
+1221         //read from file    
+1222         String temp=file\&.readStringUntil(' ');
+1223         
+1224         this->savedData=temp\&.toInt();
+1225 
+1226         
+1227         temp=file\&.readStringUntil('\n');
+1228         this-> linesToSkip=temp\&.toInt();;    
+1229         
+1230         file\&.close();    
+1231     }
+1232     
+1233 #if DEBUG == 1
+1234 
+1235     Serial\&.print(F("number of lines to read :"));
+1236     Serial\&.println(this->savedData);
+1237     
+1238     Serial\&.print(F("number of lines to skip :"));
+1239     Serial\&.println(this->linesToSkip);
+1240 
+1241 #endif
+1242     
+1243 }
 .fi
 .SS "String * CoolFileSystem::getSensorSavedData (int & lines)"
 CoolFileSystem::getSensorData(int &lines): This method is provided to return the sensor data saved in the File System 10 lines at a time
@@ -299,159 +299,159 @@ String array containing 50 first lines from the file modifies tge lines argument
 .PP
 
 .PP
-Definition at line 841 of file CoolFileSystem\&.cpp\&.
+Definition at line 842 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-842 {
-843     int maxString=50;
-844     String *sensorsDataArray=new String[maxString];
-845     lines=0;
-846 
-847 #if DEBUG == 1 
-848 
-849     Serial\&.println( F("Entering CoolFileSystem\&.getSensorSavedData()") );
-850     Serial\&.println();
-851 
-852 #endif
-853 
-854     //open sensors data file
-855     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
-856     
-857     if (!sensorsData)
-858     {
-859 
-860     #if DEBUG == 1 
-861 
-862         Serial\&.println( F("Failed to read /sensorsData\&.json") );
-863 
-864     #endif
-865          
-866         sensorsDataArray[0]="Failed to read /sensorsData\&.json";
-867         lines++;
-868 
-869         //result=sensorsDataArray;
-870         return(sensorsDataArray);
-871 
-872     }
-873 
-874     else
-875     {
-876         //read the file line by line and put it in the String array(aka String*)        
-877 
-878         //while loop until EOF is reached
-879         String temp;
-880         while(sensorsData\&.available())
-881         {
-882             yield();
-883             
-884             temp=sensorsData\&.readStringUntil('\r');
-885 
-886             if(linesToSkip>0)
-887             {
-888 
-889                 linesToSkip--;
-890         
-891             }
-892             else
-893             {
-894 
-895             #if DEBUG == 1
-896 
-897                 Serial\&.println(F("temp String : "));
-898                 Serial\&.println(temp);
-899                 Serial\&.println();
-900             
-901             #endif
-902             
-903                 sensorsDataArray[lines]=temp;
-904                 sensorsData\&.read();
-905             
+843 {
+844     int maxString=50;
+845     String *sensorsDataArray=new String[maxString];
+846     lines=0;
+847 
+848 #if DEBUG == 1 
+849 
+850     Serial\&.println( F("Entering CoolFileSystem\&.getSensorSavedData()") );
+851     Serial\&.println();
+852 
+853 #endif
+854 
+855     //open sensors data file
+856     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+857     
+858     if (!sensorsData)
+859     {
+860 
+861     #if DEBUG == 1 
+862 
+863         Serial\&.println( F("Failed to read /sensorsData\&.json") );
+864 
+865     #endif
+866          
+867         sensorsDataArray[0]="Failed to read /sensorsData\&.json";
+868         lines++;
+869 
+870         //result=sensorsDataArray;
+871         return(sensorsDataArray);
+872 
+873     }
+874 
+875     else
+876     {
+877         //read the file line by line and put it in the String array(aka String*)        
+878 
+879         //while loop until EOF is reached
+880         String temp;
+881         while(sensorsData\&.available())
+882         {
+883             yield();
+884             
+885             temp=sensorsData\&.readStringUntil('\r');
+886 
+887             if(linesToSkip>0)
+888             {
+889 
+890                 linesToSkip--;
+891         
+892             }
+893             else
+894             {
+895 
+896             #if DEBUG == 1
+897 
+898                 Serial\&.println(F("temp String : "));
+899                 Serial\&.println(temp);
+900                 Serial\&.println();
+901             
+902             #endif
+903             
+904                 sensorsDataArray[lines]=temp;
+905                 sensorsData\&.read();
 906             
-907         
-908             #if DEBUG== 1
-909      
-910                 Serial\&.print(F("read String N°"));
-911                 Serial\&.print(lines);
-912                 Serial\&.println(F(" is : "));
-913                 Serial\&.println( sensorsDataArray[lines] );
-914                 Serial\&.println();
-915                 Serial\&.println(F("next char is : "));
-916                 Serial\&.println((char)sensorsData\&.peek());
-917                 Serial\&.println();            
-918             
-919             #endif
-920                 lines++;
-921             
-922                 //maximum size is maxString(index : 0\&.\&.maxString-1)
-923                 if(lines>=maxString)
-924                 {
-925                     break;
-926                 }
-927             
-928                 yield();
-929             
-930             }
-931 
-932         }
-933         
-934                     
-935         //close the file
-936         sensorsData\&.close();
-937 
-938         //position the saved data flag to the number of unread lines
-939         this->savedData=savedData-lines;
-940         
-941         //position the number of lines to skip to the number of read lines  
-942         this->linesToSkip=lines;
-943 
-944         //delete data in the file only if savedData<=0
-945         if(this->savedData<=0)
-946         {
-947             File sensorsData=SPIFFS\&.open("/sensorsData\&.json","w");
-948             File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","w");
-949             if( (!sensorsData)||(!sensorsDataCSV) ) 
-950             {
-951             #if DEBUG == 1
-952     
-953                 Serial\&.println( F("failed to delete data in the file") );
-954     
-955             #endif
-956                 lines++;
-957                 sensorsDataArray[lines]="failed to delete data in the file";
-958 
-959                 return(sensorsDataArray);
-960 
-961             }
-962 
-963             sensorsData\&.close();
-964             sensorsDataCSV\&.close();
-965             
-966             this->linesToSkip=0;
-967         
-968         }
-969 
-970         //save the changes to linesToSkip and savedData in the file system
-971         this->incrementsavedData();
-972 
-973         //return the string
-974         #if DEBUG == 1
-975         
-976             for(int i=0;i<lines;i++)
-977             {
-978                 Serial\&.print(F("String N°"));
-979                 Serial\&.println(i);
-980                 Serial\&.println(sensorsDataArray[i]);
-981                 Serial\&.println();            
-982             }
-983     
-984         #endif
-985         return(sensorsDataArray);
-986         
+907             
+908         
+909             #if DEBUG== 1
+910      
+911                 Serial\&.print(F("read String N°"));
+912                 Serial\&.print(lines);
+913                 Serial\&.println(F(" is : "));
+914                 Serial\&.println( sensorsDataArray[lines] );
+915                 Serial\&.println();
+916                 Serial\&.println(F("next char is : "));
+917                 Serial\&.println((char)sensorsData\&.peek());
+918                 Serial\&.println();            
+919             
+920             #endif
+921                 lines++;
+922             
+923                 //maximum size is maxString(index : 0\&.\&.maxString-1)
+924                 if(lines>=maxString)
+925                 {
+926                     break;
+927                 }
+928             
+929                 yield();
+930             
+931             }
+932 
+933         }
+934         
+935                     
+936         //close the file
+937         sensorsData\&.close();
+938 
+939         //position the saved data flag to the number of unread lines
+940         this->savedData=savedData-lines;
+941         
+942         //position the number of lines to skip to the number of read lines  
+943         this->linesToSkip=lines;
+944 
+945         //delete data in the file only if savedData<=0
+946         if(this->savedData<=0)
+947         {
+948             File sensorsData=SPIFFS\&.open("/sensorsData\&.json","w");
+949             File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","w");
+950             if( (!sensorsData)||(!sensorsDataCSV) ) 
+951             {
+952             #if DEBUG == 1
+953     
+954                 Serial\&.println( F("failed to delete data in the file") );
+955     
+956             #endif
+957                 lines++;
+958                 sensorsDataArray[lines]="failed to delete data in the file";
+959 
+960                 return(sensorsDataArray);
+961 
+962             }
+963 
+964             sensorsData\&.close();
+965             sensorsDataCSV\&.close();
+966             
+967             this->linesToSkip=0;
+968         
+969         }
+970 
+971         //save the changes to linesToSkip and savedData in the file system
+972         this->incrementsavedData();
+973 
+974         //return the string
+975         #if DEBUG == 1
+976         
+977             for(int i=0;i<lines;i++)
+978             {
+979                 Serial\&.print(F("String N°"));
+980                 Serial\&.println(i);
+981                 Serial\&.println(sensorsDataArray[i]);
+982                 Serial\&.println();            
+983             }
+984     
+985         #endif
+986         return(sensorsDataArray);
 987         
 988         
-989     }
-990 
-991 }
+989         
+990     }
+991 
+992 }
 .fi
 .SS "bool CoolFileSystem::incrementsavedData ()"
 \fBCoolFileSystem::incrementsavedData()\fP: This method is provided to increment the savedData flag
@@ -463,51 +463,51 @@ true if successful , false otherwise
 .PP
 
 .PP
-Definition at line 1151 of file CoolFileSystem\&.cpp\&.
+Definition at line 1152 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-1152 {
-1153 
+1153 {
 1154 
-1155 #if DEBUG == 1
-1156     
-1157     Serial\&.println(F("Entering CoolFileSystem\&.incrementsavedData()"));    
-1158     
-1159 #endif
-1160     //open file
-1161     File file=SPIFFS\&.open("/savedDataFlag\&.txt","w");  
-1162     //read file
-1163     if( !file)  
-1164     {
-1165         Serial\&.println( F("failed to open savedDataFlag\&.txt") );
-1166         
-1167         return(false);      
-1168     }
-1169     else
-1170     {       
-1171         //write to file 
-1172         file\&.print(this->savedData);
-1173         
-1174         file\&.print(" ");
-1175         
-1176         file\&.println(this->linesToSkip);
-1177     
-1178         file\&.close();
-1179 
-1180     #if DEBUG == 1
-1181 
-1182         Serial\&.print(F("number of lines to read :"));
-1183         Serial\&.println(this->savedData);
-1184     
-1185         Serial\&.print(F("number of lines to skip :"));
-1186         Serial\&.println(this->linesToSkip);
-1187 
-1188     #endif
-1189         
-1190         return(true);
-1191     }
-1192     
-1193 }
+1155 
+1156 #if DEBUG == 1
+1157     
+1158     Serial\&.println(F("Entering CoolFileSystem\&.incrementsavedData()"));    
+1159     
+1160 #endif
+1161     //open file
+1162     File file=SPIFFS\&.open("/savedDataFlag\&.txt","w");  
+1163     //read file
+1164     if( !file)  
+1165     {
+1166         Serial\&.println( F("failed to open savedDataFlag\&.txt") );
+1167         
+1168         return(false);      
+1169     }
+1170     else
+1171     {       
+1172         //write to file 
+1173         file\&.print(this->savedData);
+1174         
+1175         file\&.print(" ");
+1176         
+1177         file\&.println(this->linesToSkip);
+1178     
+1179         file\&.close();
+1180 
+1181     #if DEBUG == 1
+1182 
+1183         Serial\&.print(F("number of lines to read :"));
+1184         Serial\&.println(this->savedData);
+1185     
+1186         Serial\&.print(F("number of lines to skip :"));
+1187         Serial\&.println(this->linesToSkip);
+1188 
+1189     #endif
+1190         
+1191         return(true);
+1192     }
+1193     
+1194 }
 .fi
 .SS "int CoolFileSystem::isDataSaved ()"
 \fBCoolFileSystem::isDataSaved()\fP: This method is provided to report wether there is sensor data saved in the File System\&.
@@ -519,55 +519,55 @@ true if there is data saved, false otherwise
 .PP
 
 .PP
-Definition at line 781 of file CoolFileSystem\&.cpp\&.
+Definition at line 782 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-782 {
-783 
-784 #if DEBUG == 1 
-785 
-786     Serial\&.println( F("Entering CoolFileSystem\&.isDataSaved()") );
-787     Serial\&.println();
-788 
-789     FSInfo fs_info;
-790 
-791     if(SPIFFS\&.info(fs_info)==true)
-792     {
-793         Serial\&.print(F("used bytes/total bytes : "));    
-794         Serial\&.print(fs_info\&.usedBytes);
-795         Serial\&.print(F("/"));
-796         Serial\&.print(fs_info\&.totalBytes);
-797         Serial\&.println();
-798 
-799     }
-800 
-801     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
-802     File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","r");
-803     
-804     if( (!sensorsData)||(!sensorsDataCSV) ) 
-805     {
-806         Serial\&.println( F("failed to open files") );     
-807     }
-808     else
-809     {       
-810             Serial\&.print(F("sensors Data file size in bytes : "));
-811             Serial\&.println(sensorsData\&.size());
-812             Serial\&.println();
-813             
-814             Serial\&.print(F("sensors Data CSV file size in bytes : "));               
-815             Serial\&.println(sensorsDataCSV\&.size());
-816             Serial\&.println();
-817     }
-818 
+783 {
+784 
+785 #if DEBUG == 1 
+786 
+787     Serial\&.println( F("Entering CoolFileSystem\&.isDataSaved()") );
+788     Serial\&.println();
+789 
+790     FSInfo fs_info;
+791 
+792     if(SPIFFS\&.info(fs_info)==true)
+793     {
+794         Serial\&.print(F("used bytes/total bytes : "));    
+795         Serial\&.print(fs_info\&.usedBytes);
+796         Serial\&.print(F("/"));
+797         Serial\&.print(fs_info\&.totalBytes);
+798         Serial\&.println();
+799 
+800     }
+801 
+802     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+803     File sensorsDataCSV=SPIFFS\&.open("/sensorsData\&.csv","r");
+804     
+805     if( (!sensorsData)||(!sensorsDataCSV) ) 
+806     {
+807         Serial\&.println( F("failed to open files") );     
+808     }
+809     else
+810     {       
+811             Serial\&.print(F("sensors Data file size in bytes : "));
+812             Serial\&.println(sensorsData\&.size());
+813             Serial\&.println();
+814             
+815             Serial\&.print(F("sensors Data CSV file size in bytes : "));               
+816             Serial\&.println(sensorsDataCSV\&.size());
+817             Serial\&.println();
+818     }
 819 
 820 
-821     Serial\&.print( F("savedData : ") );
-822     Serial\&.println(this->savedData);
-823 
-824 #endif
-825 
-826     return( this->savedData );
-827 }
+821 
+822     Serial\&.print( F("savedData : ") );
+823     Serial\&.println(this->savedData);
+824 
+825 #endif
+826 
+827     return( this->savedData );
+828 }
 .fi
 .SS "bool CoolFileSystem::saveSensorData (const char * data)"
 CoolFileSystem::saveSensorData( data ): This method is provided to save the data on the local memory when there is no internet available
@@ -581,102 +581,102 @@ true if the data was saved, false otherwise
 .PP
 
 .PP
-Definition at line 80 of file CoolFileSystem\&.cpp\&.
+Definition at line 81 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-81 {
-82 
-83 #if DEBUG == 1
-84 
-85     Serial\&.println( F("Entering CoolFileSystem\&.saveSensorData()") );
-86     Serial\&.println();
-87 
-88 #endif
-89     
-90     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","a");
-91 
-92     if(!sensorsData)
-93     {
-94     
-95     #if DEBUG == 1
-96     
-97         Serial\&.println( F("failed to append to /sensorsData\&.json") );
-98         Serial\&.println();
-99     
-100     #endif
-101         //keep the old data
-102         this->savedData=savedData;
-103 
-104         return (false); 
-105     }   
-106 
-107     DynamicJsonBuffer jsonBuffer;
-108     JsonObject& root = jsonBuffer\&.parseObject(data);
-109 
-110     if( root\&.success() )
-111     {
-112         root\&.printTo(sensorsData);
-113         sensorsData\&.println();
-114         sensorsData\&.close();
-115 
+82 {
+83 
+84 #if DEBUG == 1
+85 
+86     Serial\&.println( F("Entering CoolFileSystem\&.saveSensorData()") );
+87     Serial\&.println();
+88 
+89 #endif
+90     
+91     File sensorsData=SPIFFS\&.open("/sensorsData\&.json","a");
+92 
+93     if(!sensorsData)
+94     {
+95     
+96     #if DEBUG == 1
+97     
+98         Serial\&.println( F("failed to append to /sensorsData\&.json") );
+99         Serial\&.println();
+100     
+101     #endif
+102         //keep the old data
+103         this->savedData=savedData;
+104 
+105         return (false); 
+106     }   
+107 
+108     DynamicJsonBuffer jsonBuffer;
+109     JsonObject& root = jsonBuffer\&.parseObject(data);
+110 
+111     if( root\&.success() )
+112     {
+113         root\&.printTo(sensorsData);
+114         sensorsData\&.println();
+115         sensorsData\&.close();
 116 
-117     #if DEBUG == 1
-118         
-119         Serial\&.print(F("jsonBuffer size: "));
-120         Serial\&.println(jsonBuffer\&.size());
-121         Serial\&.println();
-122 
-123         sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
-124         
-125         if(!sensorsData)
-126         {
-127             
-128             Serial\&.println(F("failed to reopen /sensorsData\&.json"));
-129             return(true);
-130                         
-131         }
-132     
-133         Serial\&.println( F("saved data is : ") );
-134         root\&.printTo(Serial);
-135         Serial\&.println();
-136 
-137         Serial\&.println(F("/sensorsData\&.json") );
-138         while (sensorsData\&.available()) 
-139         {
-140             Serial\&.println(sensorsData\&.readString()) ;
-141         }
-142         
-143         Serial\&.println();
-144         
-145         sensorsData\&.close();
-146     
-147     #endif
-148 
-149         this->saveSensorDataCSV(data);      
-150 
-151         //new data
-152         this->savedData++;
-153 
-154         this->incrementsavedData();
-155         
-156         return (true);      
-157     }
-158     else
-159     {
-160     
-161     #if DEBUG == 1
-162 
-163         Serial\&.println( F("failed to parse json") );
-164     
-165     #endif
-166         //old data
-167         this->savedData=savedData;
-168 
-169         return(false);
-170     }
-171     
-172 
-173 }
+117 
+118     #if DEBUG == 1
+119         
+120         Serial\&.print(F("jsonBuffer size: "));
+121         Serial\&.println(jsonBuffer\&.size());
+122         Serial\&.println();
+123 
+124         sensorsData=SPIFFS\&.open("/sensorsData\&.json","r");
+125         
+126         if(!sensorsData)
+127         {
+128             
+129             Serial\&.println(F("failed to reopen /sensorsData\&.json"));
+130             return(true);
+131                         
+132         }
+133     
+134         Serial\&.println( F("saved data is : ") );
+135         root\&.printTo(Serial);
+136         Serial\&.println();
+137 
+138         Serial\&.println(F("/sensorsData\&.json") );
+139         while (sensorsData\&.available()) 
+140         {
+141             Serial\&.println(sensorsData\&.readString()) ;
+142         }
+143         
+144         Serial\&.println();
+145         
+146         sensorsData\&.close();
+147     
+148     #endif
+149 
+150         this->saveSensorDataCSV(data);      
+151 
+152         //new data
+153         this->savedData++;
+154 
+155         this->incrementsavedData();
+156         
+157         return (true);      
+158     }
+159     else
+160     {
+161     
+162     #if DEBUG == 1
+163 
+164         Serial\&.println( F("failed to parse json") );
+165     
+166     #endif
+167         //old data
+168         this->savedData=savedData;
+169 
+170         return(false);
+171     }
+172     
+173 
+174 }
 .fi
 .SS "bool CoolFileSystem::saveSensorDataCSV (const char * data)"
 CoolFileSystem::saveSensorDataCSV( data ): This method is provided to save the data on the local memory in CSV format\&.
@@ -688,203 +688,203 @@ true if the data was saved, false otherwise
 .PP
 
 .PP
-Definition at line 184 of file CoolFileSystem\&.cpp\&.
+Definition at line 185 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-185 {
-186 #if DEBUG == 1
-187 
-188     Serial\&.println( F("Entering CoolFileSystem\&.saveSensorDataCSV()") );
-189     Serial\&.println();
-190 
-191 #endif
-192     //parsing json
-193     DynamicJsonBuffer jsonBuffer;
-194     JsonObject& root = jsonBuffer\&.parseObject(data);
-195     String header="",values="";
-196     
-197     //if json parse success
-198     if( root\&.success() )
-199     {       
-200         for (auto kv : root) 
-201         {
-202             //print the header(json keys ) to header string
-203             header+=kv\&.key;
-204             header+=',';
-205             
-206             //print the values to header string
-207             values+=( kv\&.value\&.as<char*>() );
-208             values+=',';
-209         }
-210 
-211         header\&.remove(header\&.lastIndexOf(','), 1);
-212         values\&.remove(values\&.lastIndexOf(','), 1);        
-213     
-214     #if DEBUG == 1
-215     
-216         Serial\&.println( F(" data is : ") );
-217         root\&.printTo(Serial);
-218         Serial\&.println();
-219         
-220         Serial\&.println(F(" header is :" ) ) ;
-221         Serial\&.println(header);
-222         Serial\&.println(F(" values are : "));
-223         Serial\&.println(values);
-224         
-225         Serial\&.print(F("jsonBuffer size: "));
-226         Serial\&.println(jsonBuffer\&.size());
-227         Serial\&.println();
-228 
-229     
-230     #endif
-231     
-232     }
-233     //failed to parse json
-234     else
-235     {
-236     
-237     #if DEBUG == 1
-238 
-239         Serial\&.println( F("failed to parse json") );
-240     
-241     #endif
-242 
-243         return(false);
-244     }
-245 
-246     //check if file exists
-247     File sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
-248     
-249     //file doesn't exist
-250     if( (!sensorsData) || (sensorsData\&.size()==0 ) )
-251     {
-252     
-253     #if DEBUG == 1
-254     
-255         Serial\&.println( F("/sensorsData\&.csv not found") );
-256         Serial\&.println( F("creating /sensorsData\&.csv") );
-257         Serial\&.println();
-258     
-259     #endif
-260         //create file
-261         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","w");
-262         
-263         if(!sensorsData)
-264         {
-265 
-266         #if DEBUG == 1
-267         
-268             Serial\&.println( F("failed to create /sensorsData\&.csv") );
-269             Serial\&.println();
-270         
-271         #endif
-272         
-273             return(false);
-274 
-275         }
-276         
-277         //print the header(json keys ) to the CSV file
-278         sensorsData\&.println(header);
-279 
-280         //print the values to the CSV file
-281         sensorsData\&.println(values);
-282         
-283         sensorsData\&.close();
-284     
-285     #if DEBUG == 1
-286 
-287         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
-288         
-289         if(!sensorsData)
-290         {
-291             Serial\&.println(F("failed to reopen /sensorsData\&.csv "));
-292             return(false);      
-293         }
-294 
-295         Serial\&.println( F("/sensorsData\&.csv : ") );
-296 
-297         while (sensorsData\&.available()) 
-298         {
-299             Serial\&.print(sensorsData\&.readString()) ;
-300         }
-301         Serial\&.println();
-302 
-303         //close the file
-304         sensorsData\&.close();
-305 
-306     #endif
-307         
-308 
-309         
-310         return(true);
-311         
-312     }
-313 
-314     //file exist
-315     else
-316     {
-317 
-318     #if DEBUG == 1
-319     
-320         Serial\&.println( F("/sensorsData\&.csv  found") );
-321         Serial\&.println( F("appending to /sensorsData\&.csv") );
-322         Serial\&.println();
-323     
-324     #endif
-325 
-326         //append to file
-327         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","a");
-328         
-329         if(!sensorsData)
-330         {
-331         
-332         #if DEBUG == 1
-333             
-334             Serial\&.println( F("failed to open /sensorsData\&.csv") );
-335             Serial\&.println();
-336 
-337         #endif
-338             
-339             return(false);
-340         
-341         }
-342 
-343         //print the values to the CSV file
-344         sensorsData\&.println(values);
-345         
-346         sensorsData\&.close();
-347 
-348     #if DEBUG == 1
-349 
-350         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
-351         
-352         if(!sensorsData)
-353         {
-354             Serial\&.println(F("failed to reopen /sensorsData\&.csv "));
-355             return(false);      
-356         }
-357 
-358         
-359         Serial\&.println( F("/sensorsData\&.csv : ") );
-360 
-361         while (sensorsData\&.available()) 
-362         {
-363             Serial\&.println(sensorsData\&.readString()) ;
-364         }
-365         
-366         Serial\&.println();
-367         
-368         sensorsData\&.close();
-369         
-370     #endif      
-371         
-372         return(true);
-373     
-374     }   
-375 
+186 {
+187 #if DEBUG == 1
+188 
+189     Serial\&.println( F("Entering CoolFileSystem\&.saveSensorDataCSV()") );
+190     Serial\&.println();
+191 
+192 #endif
+193     //parsing json
+194     DynamicJsonBuffer jsonBuffer;
+195     JsonObject& root = jsonBuffer\&.parseObject(data);
+196     String header="",values="";
+197     
+198     //if json parse success
+199     if( root\&.success() )
+200     {       
+201         for (auto kv : root) 
+202         {
+203             //print the header(json keys ) to header string
+204             header+=kv\&.key;
+205             header+=',';
+206             
+207             //print the values to header string
+208             values+=( kv\&.value\&.as<char*>() );
+209             values+=',';
+210         }
+211 
+212         header\&.remove(header\&.lastIndexOf(','), 1);
+213         values\&.remove(values\&.lastIndexOf(','), 1);        
+214     
+215     #if DEBUG == 1
+216     
+217         Serial\&.println( F(" data is : ") );
+218         root\&.printTo(Serial);
+219         Serial\&.println();
+220         
+221         Serial\&.println(F(" header is :" ) ) ;
+222         Serial\&.println(header);
+223         Serial\&.println(F(" values are : "));
+224         Serial\&.println(values);
+225         
+226         Serial\&.print(F("jsonBuffer size: "));
+227         Serial\&.println(jsonBuffer\&.size());
+228         Serial\&.println();
+229 
+230     
+231     #endif
+232     
+233     }
+234     //failed to parse json
+235     else
+236     {
+237     
+238     #if DEBUG == 1
+239 
+240         Serial\&.println( F("failed to parse json") );
+241     
+242     #endif
+243 
+244         return(false);
+245     }
+246 
+247     //check if file exists
+248     File sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
+249     
+250     //file doesn't exist
+251     if( (!sensorsData) || (sensorsData\&.size()==0 ) )
+252     {
+253     
+254     #if DEBUG == 1
+255     
+256         Serial\&.println( F("/sensorsData\&.csv not found") );
+257         Serial\&.println( F("creating /sensorsData\&.csv") );
+258         Serial\&.println();
+259     
+260     #endif
+261         //create file
+262         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","w");
+263         
+264         if(!sensorsData)
+265         {
+266 
+267         #if DEBUG == 1
+268         
+269             Serial\&.println( F("failed to create /sensorsData\&.csv") );
+270             Serial\&.println();
+271         
+272         #endif
+273         
+274             return(false);
+275 
+276         }
+277         
+278         //print the header(json keys ) to the CSV file
+279         sensorsData\&.println(header);
+280 
+281         //print the values to the CSV file
+282         sensorsData\&.println(values);
+283         
+284         sensorsData\&.close();
+285     
+286     #if DEBUG == 1
+287 
+288         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
+289         
+290         if(!sensorsData)
+291         {
+292             Serial\&.println(F("failed to reopen /sensorsData\&.csv "));
+293             return(false);      
+294         }
+295 
+296         Serial\&.println( F("/sensorsData\&.csv : ") );
+297 
+298         while (sensorsData\&.available()) 
+299         {
+300             Serial\&.print(sensorsData\&.readString()) ;
+301         }
+302         Serial\&.println();
+303 
+304         //close the file
+305         sensorsData\&.close();
+306 
+307     #endif
+308         
+309 
+310         
+311         return(true);
+312         
+313     }
+314 
+315     //file exist
+316     else
+317     {
+318 
+319     #if DEBUG == 1
+320     
+321         Serial\&.println( F("/sensorsData\&.csv  found") );
+322         Serial\&.println( F("appending to /sensorsData\&.csv") );
+323         Serial\&.println();
+324     
+325     #endif
+326 
+327         //append to file
+328         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","a");
+329         
+330         if(!sensorsData)
+331         {
+332         
+333         #if DEBUG == 1
+334             
+335             Serial\&.println( F("failed to open /sensorsData\&.csv") );
+336             Serial\&.println();
+337 
+338         #endif
+339             
+340             return(false);
+341         
+342         }
+343 
+344         //print the values to the CSV file
+345         sensorsData\&.println(values);
+346         
+347         sensorsData\&.close();
+348 
+349     #if DEBUG == 1
+350 
+351         sensorsData=SPIFFS\&.open("/sensorsData\&.csv","r");
+352         
+353         if(!sensorsData)
+354         {
+355             Serial\&.println(F("failed to reopen /sensorsData\&.csv "));
+356             return(false);      
+357         }
+358 
+359         
+360         Serial\&.println( F("/sensorsData\&.csv : ") );
+361 
+362         while (sensorsData\&.available()) 
+363         {
+364             Serial\&.println(sensorsData\&.readString()) ;
+365         }
+366         
+367         Serial\&.println();
+368         
+369         sensorsData\&.close();
+370         
+371     #endif      
+372         
+373         return(true);
+374     
+375     }   
 376 
 377 
-378 }
+378 
+379 }
 .fi
 .SS "bool CoolFileSystem::updateConfigFiles (String answer)"
 CoolFileSystem::updateConfigFiles( mqtt answer ): This method is provided to update the configuration files when the appropriate mqtt answer is received
@@ -896,401 +896,401 @@ true if the files are updated correctly, false otherwise
 .PP
 
 .PP
-Definition at line 389 of file CoolFileSystem\&.cpp\&.
+Definition at line 390 of file CoolFileSystem\&.cpp\&.
 .PP
 .nf
-390 {
-391 
-392 #if DEBUG == 1
-393 
-394     Serial\&.println( F("Entering CoolFileSystem\&.updateConfigFiles") );
-395     Serial\&.println();
-396     
-397     Serial\&.println( F("input answer : ") );
-398     Serial\&.println(answer);
-399 #endif
-400 
-401     //total json object 
-402     DynamicJsonBuffer jsonBuffer;
-403     JsonObject& root = jsonBuffer\&.parseObject( answer\&.c_str() );
-404 
-405 #if DEBUG == 1
-406     
-407     Serial\&.println( F("json object : ") );   
-408     root\&.printTo(Serial);
-409     Serial\&.println();
-410     
-411     Serial\&.print(F("jsonBuffer size: "));
-412     Serial\&.println(jsonBuffer\&.size());
-413     Serial\&.println();
-414 
+391 {
+392 
+393 #if DEBUG == 1
+394 
+395     Serial\&.println( F("Entering CoolFileSystem\&.updateConfigFiles") );
+396     Serial\&.println();
+397     
+398     Serial\&.println( F("input answer : ") );
+399     Serial\&.println(answer);
+400 #endif
+401 
+402     //total json object 
+403     DynamicJsonBuffer jsonBuffer;
+404     JsonObject& root = jsonBuffer\&.parseObject( answer\&.c_str() );
+405 
+406 #if DEBUG == 1
+407     
+408     Serial\&.println( F("json object : ") );   
+409     root\&.printTo(Serial);
+410     Serial\&.println();
+411     
+412     Serial\&.print(F("jsonBuffer size: "));
+413     Serial\&.println(jsonBuffer\&.size());
+414     Serial\&.println();
 415 
-416 #endif
-417 
-418     if(! ( root\&.success() ))
-419     {
-420     
-421     #if DEBUG == 1
-422 
-423         Serial\&.println( F("failed to parse root ") );
-424         Serial\&.println();
-425     
-426     #endif
-427 
-428         return(false);
-429     }
-430     else
-431     {
-432     #if DEBUG == 1
-433         
-434         Serial\&.println( F("success to parse root ") );
-435         Serial\&.println();
-436         
-437     #endif  
-438     }
-439     
-440 #if DEBUG == 1
-441 
-442     Serial\&.println( F("input message is : ") );
-443     root\&.printTo(Serial);
-444     Serial\&.println();
-445 
-446 #endif
-447     //temp string
-448     String temp;
-449 
-450     //CoolBoard Configuration File
-451 
-452         JsonObject& jsonCoolBoard=root["CoolBoard"];
-453 
-454 #if DEBUG == 1
-455 
-456     Serial\&.println( F("before config CoolBoard json") );
-457     jsonCoolBoard\&.printTo(Serial);
-458 
-459 #endif
-460 
-461     if(jsonCoolBoard\&.success())
-462     {
-463         String update;
-464     
-465         jsonCoolBoard\&.printTo(update);
-466 
-467         this->fileUpdate(update,"/coolBoardConfig\&.json");        
-468         
-469     }
-470     else
-471     {
-472     
-473     #if DEBUG == 1 
-474 
-475         Serial\&.println( F("failed to parse CoolBoard ") );
-476     
-477     #endif
-478 
-479     }       
-480 
-481     
-482     //Cool Board Sensors Configuration File
-483         JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];
-484 
-485 #if DEBUG == 1 
-486 
-487     Serial\&.println( F("before config CoolSensorsBoard json") );
-488     jsonSensorsBoard\&.printTo(Serial);
-489 
-490 #endif 
-491     
-492     if(jsonSensorsBoard\&.success())
-493     {   
-494         String update;
-495     
-496         jsonSensorsBoard\&.printTo(update);
-497 
-498         this->fileUpdate(update,"/coolBoardSensorsConfig\&.json");     
-499 
-500     }
-501     else
-502     {
-503 
-504     #if DEBUG == 1
-505 
-506         Serial\&.println( F("failed to parse CoolSensorsBoard sensors ") );    
-507     
-508     #endif
-509 
-510     }
-511 
-512     //Cool Board Actor Configuration File
-513         JsonObject& jsonCoolBoardActor=root["CoolBoardActor"];
-514 
-515 #if DEBUG == 1 
-516 
-517     Serial\&.println( F("before config CoolBoardActor json") );
-518     jsonCoolBoardActor\&.printTo(Serial);
-519 
-520 #endif 
-521     
-522     if(jsonCoolBoardActor\&.success())
-523     {   
-524         String update;
-525     
-526         jsonCoolBoardActor\&.printTo(update);
-527 
-528         this->fileUpdate(update,"/coolBoardActorConfig\&.json");       
-529 
-530     }
-531     else
-532     {
-533 
-534     #if DEBUG == 1
-535 
-536         Serial\&.println( F("failed to parse CoolBoardActor json ") ); 
-537     
-538     #endif
-539 
-540     }
-541 
-542     
-543     //rtc configuration file
-544         JsonObject& jsonRTC=root["rtc"];
-545 
-546 #if DEBUG == 1 
-547     
-548     Serial\&.println( F("before config rtc json") );
-549     jsonRTC\&.printTo(Serial);
-550 
-551 #endif
-552     if(jsonRTC\&.success() )
-553     {
-554         String update;
-555 
-556         jsonRTC\&.printTo(update);
-557 
-558         this->fileUpdate(update,"/rtcConfig\&.json");          
-559     }
-560     else
-561     {
-562     
-563     #if DEBUG == 1 
-564 
-565         Serial\&.println( F("failed to parse rtc ") );
-566     
-567     #endif
-568 
-569     }
-570     
+416 
+417 #endif
+418 
+419     if(! ( root\&.success() ))
+420     {
+421     
+422     #if DEBUG == 1
+423 
+424         Serial\&.println( F("failed to parse root ") );
+425         Serial\&.println();
+426     
+427     #endif
+428 
+429         return(false);
+430     }
+431     else
+432     {
+433     #if DEBUG == 1
+434         
+435         Serial\&.println( F("success to parse root ") );
+436         Serial\&.println();
+437         
+438     #endif  
+439     }
+440     
+441 #if DEBUG == 1
+442 
+443     Serial\&.println( F("input message is : ") );
+444     root\&.printTo(Serial);
+445     Serial\&.println();
+446 
+447 #endif
+448     //temp string
+449     String temp;
+450 
+451     //CoolBoard Configuration File
+452 
+453         JsonObject& jsonCoolBoard=root["CoolBoard"];
+454 
+455 #if DEBUG == 1
+456 
+457     Serial\&.println( F("before config CoolBoard json") );
+458     jsonCoolBoard\&.printTo(Serial);
+459 
+460 #endif
+461 
+462     if(jsonCoolBoard\&.success())
+463     {
+464         String update;
+465     
+466         jsonCoolBoard\&.printTo(update);
+467 
+468         this->fileUpdate(update,"/coolBoardConfig\&.json");        
+469         
+470     }
+471     else
+472     {
+473     
+474     #if DEBUG == 1 
+475 
+476         Serial\&.println( F("failed to parse CoolBoard ") );
+477     
+478     #endif
+479 
+480     }       
+481 
+482     
+483     //Cool Board Sensors Configuration File
+484         JsonObject& jsonSensorsBoard=root["CoolSensorsBoard"];
+485 
+486 #if DEBUG == 1 
+487 
+488     Serial\&.println( F("before config CoolSensorsBoard json") );
+489     jsonSensorsBoard\&.printTo(Serial);
+490 
+491 #endif 
+492     
+493     if(jsonSensorsBoard\&.success())
+494     {   
+495         String update;
+496     
+497         jsonSensorsBoard\&.printTo(update);
+498 
+499         this->fileUpdate(update,"/coolBoardSensorsConfig\&.json");     
+500 
+501     }
+502     else
+503     {
+504 
+505     #if DEBUG == 1
+506 
+507         Serial\&.println( F("failed to parse CoolSensorsBoard sensors ") );    
+508     
+509     #endif
+510 
+511     }
+512 
+513     //Cool Board Actor Configuration File
+514         JsonObject& jsonCoolBoardActor=root["CoolBoardActor"];
+515 
+516 #if DEBUG == 1 
+517 
+518     Serial\&.println( F("before config CoolBoardActor json") );
+519     jsonCoolBoardActor\&.printTo(Serial);
+520 
+521 #endif 
+522     
+523     if(jsonCoolBoardActor\&.success())
+524     {   
+525         String update;
+526     
+527         jsonCoolBoardActor\&.printTo(update);
+528 
+529         this->fileUpdate(update,"/coolBoardActorConfig\&.json");       
+530 
+531     }
+532     else
+533     {
+534 
+535     #if DEBUG == 1
+536 
+537         Serial\&.println( F("failed to parse CoolBoardActor json ") ); 
+538     
+539     #endif
+540 
+541     }
+542 
+543     
+544     //rtc configuration file
+545         JsonObject& jsonRTC=root["rtc"];
+546 
+547 #if DEBUG == 1 
+548     
+549     Serial\&.println( F("before config rtc json") );
+550     jsonRTC\&.printTo(Serial);
+551 
+552 #endif
+553     if(jsonRTC\&.success() )
+554     {
+555         String update;
+556 
+557         jsonRTC\&.printTo(update);
+558 
+559         this->fileUpdate(update,"/rtcConfig\&.json");          
+560     }
+561     else
+562     {
+563     
+564     #if DEBUG == 1 
+565 
+566         Serial\&.println( F("failed to parse rtc ") );
+567     
+568     #endif
+569 
+570     }
 571     
-572         //cool board led configuration
-573         JsonObject& jsonLedBoard=root["led"];
-574     
-575 #if DEBUG == 1 
-576 
-577     Serial\&.println( F("before config Led json") );
-578     jsonLedBoard\&.printTo(Serial);
-579 
-580 #endif
-581 
-582     if(jsonLedBoard\&.success())
-583     {   
-584         String update;
-585     
-586         jsonLedBoard\&.printTo(update);
-587 
-588         this->fileUpdate(update,"/coolBoardLedConfig\&.json");     
-589 
-590     
-591     }
-592     else
-593     {
-594     
-595     #if DEBUG == 1 
-596 
-597         Serial\&.println( F("failed to parse led") );
-598     
-599     #endif 
-600 
-601     }
-602         
-603 
-604     
-605 
-606     //jetpack configuration
-607         JsonObject& jsonJetpack=root["jetPack"];
-608 
-609 #if DEBUG == 1 
-610 
-611     Serial\&.println( F("before config jetpack json") );
-612     jsonJetpack\&.printTo(Serial);
-613 
-614 #endif
-615 
-616     if(jsonJetpack\&.success())
-617     {
-618     
-619         String update;
-620     
-621         jsonJetpack\&.printTo(update);
-622 
-623         this->fileUpdate(update,"/jetPackConfig\&.json");      
-624 
-625     }
-626 
-627     else
-628     {
-629     
-630     #if DEBUG == 1 
-631 
-632         Serial\&.println( F("failed to parse jetpack") );  
-633     
-634     #endif
-635 
-636     }
-637     
-638     //irene configuration   
-639         JsonObject& jsonIrene=root["irene3000"];
-640     
-641 #if DEBUG == 1 
-642 
-643     Serial\&.println( F("before config irene json") ); 
-644     jsonIrene\&.printTo(Serial);
-645 
-646 #endif 
-647 
-648     if(jsonIrene\&.success())
-649     {
-650 
-651         String update;
-652     
-653         jsonIrene\&.printTo(update);
-654 
-655         this->fileUpdate(update,"/irene3000Config\&.json");        
-656     
-657     }
-658     else
-659     {
-660     
-661     #if DEBUG == 1 
-662 
-663         Serial\&.println( F("failed to parse irene") );    
-664     
-665     #endif 
-666 
+572     
+573         //cool board led configuration
+574         JsonObject& jsonLedBoard=root["led"];
+575     
+576 #if DEBUG == 1 
+577 
+578     Serial\&.println( F("before config Led json") );
+579     jsonLedBoard\&.printTo(Serial);
+580 
+581 #endif
+582 
+583     if(jsonLedBoard\&.success())
+584     {   
+585         String update;
+586     
+587         jsonLedBoard\&.printTo(update);
+588 
+589         this->fileUpdate(update,"/coolBoardLedConfig\&.json");     
+590 
+591     
+592     }
+593     else
+594     {
+595     
+596     #if DEBUG == 1 
+597 
+598         Serial\&.println( F("failed to parse led") );
+599     
+600     #endif 
+601 
+602     }
+603         
+604 
+605     
+606 
+607     //jetpack configuration
+608         JsonObject& jsonJetpack=root["jetPack"];
+609 
+610 #if DEBUG == 1 
+611 
+612     Serial\&.println( F("before config jetpack json") );
+613     jsonJetpack\&.printTo(Serial);
+614 
+615 #endif
+616 
+617     if(jsonJetpack\&.success())
+618     {
+619     
+620         String update;
+621     
+622         jsonJetpack\&.printTo(update);
+623 
+624         this->fileUpdate(update,"/jetPackConfig\&.json");      
+625 
+626     }
+627 
+628     else
+629     {
+630     
+631     #if DEBUG == 1 
+632 
+633         Serial\&.println( F("failed to parse jetpack") );  
+634     
+635     #endif
+636 
+637     }
+638     
+639     //irene configuration   
+640         JsonObject& jsonIrene=root["irene3000"];
+641     
+642 #if DEBUG == 1 
+643 
+644     Serial\&.println( F("before config irene json") ); 
+645     jsonIrene\&.printTo(Serial);
+646 
+647 #endif 
+648 
+649     if(jsonIrene\&.success())
+650     {
+651 
+652         String update;
+653     
+654         jsonIrene\&.printTo(update);
+655 
+656         this->fileUpdate(update,"/irene3000Config\&.json");        
+657     
+658     }
+659     else
+660     {
+661     
+662     #if DEBUG == 1 
+663 
+664         Serial\&.println( F("failed to parse irene") );    
+665     
+666     #endif 
 667 
-668     }
-669     
-670     //external sensors
-671         JsonObject& jsonExternalSensors=root["externalSensors"];
-672 
-673 #if DEBUG == 1 
-674 
-675     Serial\&.println( F("before config external Sensors json") );
-676     jsonExternalSensors\&.printTo(Serial);
-677 
-678 #endif
-679 
-680     if(jsonExternalSensors\&.success())
-681     {
-682 
-683         String update;
-684     
-685         jsonExternalSensors\&.printTo(update);
-686 
-687         this->fileUpdate(update,"/externalSensorsConfig\&.json");      
-688 
-689     }
-690 
-691     else
-692     {   
-693 
-694     #if DEBUG == 1
-695         
-696         Serial\&.println( F("failed to parse external sensors") );
-697 
-698     #endif
-699 
+668 
+669     }
+670     
+671     //external sensors
+672         JsonObject& jsonExternalSensors=root["externalSensors"];
+673 
+674 #if DEBUG == 1 
+675 
+676     Serial\&.println( F("before config external Sensors json") );
+677     jsonExternalSensors\&.printTo(Serial);
+678 
+679 #endif
+680 
+681     if(jsonExternalSensors\&.success())
+682     {
+683 
+684         String update;
+685     
+686         jsonExternalSensors\&.printTo(update);
+687 
+688         this->fileUpdate(update,"/externalSensorsConfig\&.json");      
+689 
+690     }
+691 
+692     else
+693     {   
+694 
+695     #if DEBUG == 1
+696         
+697         Serial\&.println( F("failed to parse external sensors") );
+698 
+699     #endif
 700 
-701     }
-702 
-703     
-704     //mqtt config
-705         JsonObject& jsonMQTT=root["mqtt"];
-706     
-707 #if DEBUG == 1 
-708 
-709     Serial\&.println( F("before config mqtt json") );
-710     jsonMQTT\&.printTo(Serial);
-711 
-712 #endif
-713 
-714     if(jsonMQTT\&.success())
-715     {
-716 
-717         String update;
-718     
-719         jsonMQTT\&.printTo(update);
-720 
-721         this->fileUpdate(update,"/mqttConfig\&.json");     
-722 
-723     }
-724     else
-725     {
-726 
-727     #if DEBUG == 1 
-728 
-729         Serial\&.println( F("failed to parse mqtt") );
-730     
-731     #endif
-732 
-733     
-734     }   
-735 
-736     //wifi config
-737         JsonObject& jsonWifi=root["wifi"];
-738     
-739 #if DEBUG == 1 
-740 
-741     Serial\&.println( F("before config wifi json") );
-742     jsonWifi\&.printTo(Serial);
-743 
-744 #endif
-745 
-746     if(jsonWifi\&.success())
-747     {
-748 
-749         String update;
-750     
-751         jsonWifi\&.printTo(update);
-752 
-753         this->fileUpdate(update,"/wifiConfig\&.json");     
-754 
-755     }
-756     else
-757     {
-758 
-759     #if DEBUG == 1 
-760 
-761         Serial\&.println( F("failed to parse wifi") );
-762     
-763     #endif
-764 
-765     
-766     }   
-767         
-768     return true;
-769 
-770 }   
+701 
+702     }
+703 
+704     
+705     //mqtt config
+706         JsonObject& jsonMQTT=root["mqtt"];
+707     
+708 #if DEBUG == 1 
+709 
+710     Serial\&.println( F("before config mqtt json") );
+711     jsonMQTT\&.printTo(Serial);
+712 
+713 #endif
+714 
+715     if(jsonMQTT\&.success())
+716     {
+717 
+718         String update;
+719     
+720         jsonMQTT\&.printTo(update);
+721 
+722         this->fileUpdate(update,"/mqttConfig\&.json");     
+723 
+724     }
+725     else
+726     {
+727 
+728     #if DEBUG == 1 
+729 
+730         Serial\&.println( F("failed to parse mqtt") );
+731     
+732     #endif
+733 
+734     
+735     }   
+736 
+737     //wifi config
+738         JsonObject& jsonWifi=root["wifi"];
+739     
+740 #if DEBUG == 1 
+741 
+742     Serial\&.println( F("before config wifi json") );
+743     jsonWifi\&.printTo(Serial);
+744 
+745 #endif
+746 
+747     if(jsonWifi\&.success())
+748     {
+749 
+750         String update;
+751     
+752         jsonWifi\&.printTo(update);
+753 
+754         this->fileUpdate(update,"/wifiConfig\&.json");     
+755 
+756     }
+757     else
+758     {
+759 
+760     #if DEBUG == 1 
+761 
+762         Serial\&.println( F("failed to parse wifi") );
+763     
+764     #endif
+765 
+766     
+767     }   
+768         
+769     return true;
+770 
+771 }   
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "int CoolFileSystem::linesToSkip =0\fC [private]\fP"
 Number of lines to Skip when retrieving saved Data 
 .PP
-Definition at line 79 of file CoolFileSystem\&.h\&.
+Definition at line 80 of file CoolFileSystem\&.h\&.
 .SS "int CoolFileSystem::savedData =0\fC [private]\fP"
 Number of lines to read when retrieving saved Data 
 .PP
-Definition at line 73 of file CoolFileSystem\&.h\&.
+Definition at line 74 of file CoolFileSystem\&.h\&.
 
 .SH "Author"
 .PP 
