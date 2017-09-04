@@ -117,12 +117,20 @@ private:
 		
 		/**
 		*	"type":["temperature","hour"]
+		*
 		*	the primary type is related to the sensor's type (type[0])
-		*	the secondary type if present is hour or minute or hourMinute (type[1])
+		*
 		*	if both types are present and valid, the actor is a mixedActor
 		*/	
 		String primaryType="";
 
+		/**
+		*	"type":["temperature","hour"]
+		*
+		*	the secondary type if present is hour or minute or hourMinute (type[1])
+		*
+		*	if both types are present and valid, the actor is a mixedActor
+		*/
 		String secondaryType="";  
 		
 		/**
@@ -130,18 +138,28 @@ private:
 		*
 		*	rangeLow : this is the minimum at which the actor becomes actif (low[0])
 		*
-		*	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
+		*/
+		int rangeLow=0;
+
+		/**
+		*	"low":[20,5000,18,10]
 		*
-		*	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )
+		*	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
+		*/
+		unsigned long timeLow=0;
+		
+		/**
+		*	"low":[20,5000,18,10]
+		*
+		*	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )		
+		*/		
+		int hourLow=0;
+ 
+		/**
+		*	"low":[20,5000,18,10]
 		*
 		*	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
 		*/
-		int rangeLow=0;
-		
-		unsigned long timeLow=0;
-		
-		int hourLow=0; 
-		
 		int minuteLow=0;
 
 
@@ -149,19 +167,28 @@ private:
 		*	"high":[30,2000,17,1]
 		*	
 		*	rangeHigh : this is the maximum at which the actor becomes inactif(high[0])
-		*	
-		*	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
-		*	
-		*	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
-		*
-		*	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
 		*/
 		int rangeHigh=0;
 		
+		/**
+		*	"high":[30,2000,17,1]
+		*
+		*	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
+		*/
 		unsigned long timeHigh=0;
 		
+		/**
+		*	"high":[30,2000,17,1]
+		*
+		*	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
+		*/
 		int hourHigh=0; 
 
+		/**
+		*	"high":[30,2000,17,1]
+		*		
+		*	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
+		*/
 		int minuteHigh=0;
 
 		/**

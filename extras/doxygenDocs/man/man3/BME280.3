@@ -1,4 +1,4 @@
-.TH "BME280" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "BME280" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -74,23 +74,7 @@ Definition at line 143 of file CoolSparkFunBME280\&.h\&.
 .PP
 Definition at line 43 of file CoolSparkFunBME280\&.cpp\&.
 .PP
-.nf
-44 {
-45     //Construct with these default settings if nothing is specified
-46 
-47     //Select interface mode
-48     settings\&.commInterface = I2C_MODE; //Can be I2C_MODE, SPI_MODE
-49     //Select address for I2C\&.  Does nothing for SPI
-50     settings\&.I2CAddress = 0x77; //Ignored for SPI_MODE
-51     //Select CS pin for SPI\&.  Does nothing for I2C
-52     settings\&.chipSelectPin = 10;
-53     settings\&.runMode = 0;
-54     settings\&.tempOverSample = 0;
-55     settings\&.pressOverSample = 0;
-56     settings\&.humidOverSample = 0;
-57 
-58 }
-.fi
+References SensorSettings::chipSelectPin, SensorSettings::commInterface, SensorSettings::humidOverSample, I2C_MODE, SensorSettings::I2CAddress, SensorSettings::pressOverSample, SensorSettings::runMode, settings, and SensorSettings::tempOverSample\&.
 .SH "Member Function Documentation"
 .PP 
 .SS "uint8_t BME280::begin (void)"
@@ -98,381 +82,110 @@ Definition at line 43 of file CoolSparkFunBME280\&.cpp\&.
 .PP
 Definition at line 70 of file CoolSparkFunBME280\&.cpp\&.
 .PP
-.nf
-71 {
-72     //Check the settings structure values to determine how to setup the device
-73     uint8_t dataToWrite = 0;  //Temporary variable
-74 
-75     switch (settings\&.commInterface)
-76     {
-77 
-78     case I2C_MODE:
-79         Wire\&.begin(2,14);
-80         break;
-81 
-82     case SPI_MODE:
-83         // start the SPI library:
-84         SPI\&.begin();
-85         // Maximum SPI frequency is 10MHz, could divide by 2 here:
-86         SPI\&.setClockDivider(SPI_CLOCK_DIV32);
-87         // Data is read and written MSb first\&.
-88         SPI\&.setBitOrder(MSBFIRST);
-89         // Data is captured on rising edge of clock (CPHA = 0)
-90         // Base value of the clock is HIGH (CPOL = 1)
-91         // This was SPI_MODE3 for RedBoard, but I had to change to
-92         // MODE0 for Teensy 3\&.1 operation
-93         SPI\&.setDataMode(SPI_MODE3);
-94         // initalize the  data ready and chip select pins:
-95         pinMode(settings\&.chipSelectPin, OUTPUT);
-96         digitalWrite(settings\&.chipSelectPin, HIGH);
-97         break;
-98 
-99     default:
-100         break;
-101     }
-102 
-103     //Reading all compensation data, range 0x88:A1, 0xE1:E7
-104     
-105     calibration\&.dig_T1 = ((uint16_t)((readRegister(BME280_DIG_T1_MSB_REG) << 8) + readRegister(BME280_DIG_T1_LSB_REG)));
-106     calibration\&.dig_T2 = ((int16_t)((readRegister(BME280_DIG_T2_MSB_REG) << 8) + readRegister(BME280_DIG_T2_LSB_REG)));
-107     calibration\&.dig_T3 = ((int16_t)((readRegister(BME280_DIG_T3_MSB_REG) << 8) + readRegister(BME280_DIG_T3_LSB_REG)));
-108 
-109     calibration\&.dig_P1 = ((uint16_t)((readRegister(BME280_DIG_P1_MSB_REG) << 8) + readRegister(BME280_DIG_P1_LSB_REG)));
-110     calibration\&.dig_P2 = ((int16_t)((readRegister(BME280_DIG_P2_MSB_REG) << 8) + readRegister(BME280_DIG_P2_LSB_REG)));
-111     calibration\&.dig_P3 = ((int16_t)((readRegister(BME280_DIG_P3_MSB_REG) << 8) + readRegister(BME280_DIG_P3_LSB_REG)));
-112     calibration\&.dig_P4 = ((int16_t)((readRegister(BME280_DIG_P4_MSB_REG) << 8) + readRegister(BME280_DIG_P4_LSB_REG)));
-113     calibration\&.dig_P5 = ((int16_t)((readRegister(BME280_DIG_P5_MSB_REG) << 8) + readRegister(BME280_DIG_P5_LSB_REG)));
-114     calibration\&.dig_P6 = ((int16_t)((readRegister(BME280_DIG_P6_MSB_REG) << 8) + readRegister(BME280_DIG_P6_LSB_REG)));
-115     calibration\&.dig_P7 = ((int16_t)((readRegister(BME280_DIG_P7_MSB_REG) << 8) + readRegister(BME280_DIG_P7_LSB_REG)));
-116     calibration\&.dig_P8 = ((int16_t)((readRegister(BME280_DIG_P8_MSB_REG) << 8) + readRegister(BME280_DIG_P8_LSB_REG)));
-117     calibration\&.dig_P9 = ((int16_t)((readRegister(BME280_DIG_P9_MSB_REG) << 8) + readRegister(BME280_DIG_P9_LSB_REG)));
-118 
-119     calibration\&.dig_H1 = ((uint8_t)(readRegister(BME280_DIG_H1_REG)));
-120     calibration\&.dig_H2 = ((int16_t)((readRegister(BME280_DIG_H2_MSB_REG) << 8) + readRegister(BME280_DIG_H2_LSB_REG)));
-121     calibration\&.dig_H3 = ((uint8_t)(readRegister(BME280_DIG_H3_REG)));
-122     calibration\&.dig_H4 = ((int16_t)((readRegister(BME280_DIG_H4_MSB_REG) << 4) + (readRegister(BME280_DIG_H4_LSB_REG) & 0x0F)));
-123     calibration\&.dig_H5 = ((int16_t)((readRegister(BME280_DIG_H5_MSB_REG) << 4) + ((readRegister(BME280_DIG_H4_LSB_REG) >> 4) & 0x0F)));
-124     calibration\&.dig_H6 = ((uint8_t)readRegister(BME280_DIG_H6_REG));
-125 
-126     //Set the oversampling control words\&.
-127     //config will only be writeable in sleep mode, so first insure that\&.
-128     writeRegister(BME280_CTRL_MEAS_REG, 0x00);
-129     
-130     //Set the config word
-131     dataToWrite = (settings\&.tStandby << 0x5) & 0xE0;
-132     dataToWrite |= (settings\&.filter << 0x02) & 0x1C;
-133     writeRegister(BME280_CONFIG_REG, dataToWrite);
-134     
-135     //Set ctrl_hum first, then ctrl_meas to activate ctrl_hum
-136     dataToWrite = settings\&.humidOverSample & 0x07; //all other bits can be ignored
-137     writeRegister(BME280_CTRL_HUMIDITY_REG, dataToWrite);
-138     
-139     //set ctrl_meas
-140     //First, set temp oversampling
-141     dataToWrite = (settings\&.tempOverSample << 0x5) & 0xE0;
-142     //Next, pressure oversampling
-143     dataToWrite |= (settings\&.pressOverSample << 0x02) & 0x1C;
-144     //Last, set mode
-145     dataToWrite |= (settings\&.runMode) & 0x03;
-146     //Load the byte
-147     writeRegister(BME280_CTRL_MEAS_REG, dataToWrite);
-148     
-149     return readRegister(0xD0);
-150 }
-.fi
-.SS "float BME280::readFloatAltitudeFeet (void)"
-
+References BME280_CONFIG_REG, BME280_CTRL_HUMIDITY_REG, BME280_CTRL_MEAS_REG, BME280_DIG_H1_REG, BME280_DIG_H2_LSB_REG, BME280_DIG_H2_MSB_REG, BME280_DIG_H3_REG, BME280_DIG_H4_LSB_REG, BME280_DIG_H4_MSB_REG, BME280_DIG_H5_MSB_REG, BME280_DIG_H6_REG, BME280_DIG_P1_LSB_REG, BME280_DIG_P1_MSB_REG, BME280_DIG_P2_LSB_REG, BME280_DIG_P2_MSB_REG, BME280_DIG_P3_LSB_REG, BME280_DIG_P3_MSB_REG, BME280_DIG_P4_LSB_REG, BME280_DIG_P4_MSB_REG, BME280_DIG_P5_LSB_REG, BME280_DIG_P5_MSB_REG, BME280_DIG_P6_LSB_REG, BME280_DIG_P6_MSB_REG, BME280_DIG_P7_LSB_REG, BME280_DIG_P7_MSB_REG, BME280_DIG_P8_LSB_REG, BME280_DIG_P8_MSB_REG, BME280_DIG_P9_LSB_REG, BME280_DIG_P9_MSB_REG, BME280_DIG_T1_LSB_REG, BME280_DIG_T1_MSB_REG, BME280_DIG_T2_LSB_REG, BME280_DIG_T2_MSB_REG, BME280_DIG_T3_LSB_REG, BME280_DIG_T3_MSB_REG, calibration, SensorSettings::chipSelectPin, SensorSettings::commInterface, SensorCalibration::dig_H1, SensorCalibration::dig_H2, SensorCalibration::dig_H3, SensorCalibration::dig_H4, SensorCalibration::dig_H5, SensorCalibration::dig_H6, SensorCalibration::dig_P1, SensorCalibration::dig_P2, SensorCalibration::dig_P3, SensorCalibration::dig_P4, SensorCalibration::dig_P5, SensorCalibration::dig_P6, SensorCalibration::dig_P7, SensorCalibration::dig_P8, SensorCalibration::dig_P9, SensorCalibration::dig_T1, SensorCalibration::dig_T2, SensorCalibration::dig_T3, SensorSettings::filter, SensorSettings::humidOverSample, I2C_MODE, SensorSettings::pressOverSample, readRegister(), SensorSettings::runMode, settings, SPI_MODE, SensorSettings::tempOverSample, SensorSettings::tStandby, and writeRegister()\&.
 .PP
-Definition at line 201 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-202 {
-203     float heightOutput = 0;
-204     
-205     heightOutput = readFloatAltitudeMeters() * 3\&.28084;
-206     return heightOutput;
-207     
-208 }
-.fi
-.SS "float BME280::readFloatAltitudeMeters (void)"
-
-.PP
-Definition at line 192 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-193 {
-194     float heightOutput = 0;
-195     
-196     heightOutput = ((float)-45846\&.2)*(pow(((float)readFloatPressure()/(float)101325), 0\&.190263) - (float)1);
-197     return heightOutput;
-198     
-199 }
-.fi
-.SS "float BME280::readFloatHumidity (void)"
-
-.PP
-Definition at line 215 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-216 {
-217     
-218     // Returns humidity in %RH as unsigned 32 bit integer in Q22\&. 10 format (22 integer and 10 fractional bits)\&.
-219     // Output value of “47445” represents 47445/1024 = 46\&. 333 %RH
-220     int32_t adc_H = ((uint32_t)readRegister(BME280_HUMIDITY_MSB_REG) << 8) | ((uint32_t)readRegister(BME280_HUMIDITY_LSB_REG));
-221     
-222     int32_t var1;
-223     var1 = (t_fine - ((int32_t)76800));
-224     var1 = (((((adc_H << 14) - (((int32_t)calibration\&.dig_H4) << 20) - (((int32_t)calibration\&.dig_H5) * var1)) +
-225     ((int32_t)16384)) >> 15) * (((((((var1 * ((int32_t)calibration\&.dig_H6)) >> 10) * (((var1 * ((int32_t)calibration\&.dig_H3)) >> 11) + ((int32_t)32768))) >> 10) + ((int32_t)2097152)) *
-226     ((int32_t)calibration\&.dig_H2) + 8192) >> 14));
-227     var1 = (var1 - (((((var1 >> 15) * (var1 >> 15)) >> 7) * ((int32_t)calibration\&.dig_H1)) >> 4));
-228     var1 = (var1 < 0 ? 0 : var1);
-229     var1 = (var1 > 419430400 ? 419430400 : var1);
-230 
-231     return (float)(var1>>12) / 1024\&.0;
-232 
-233 }
-.fi
-.SS "float BME280::readFloatPressure (void)"
-
-.PP
-Definition at line 164 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-165 {
-166 
-167     // Returns pressure in Pa as unsigned 32 bit integer in Q24\&.8 format (24 integer bits and 8 fractional bits)\&.
-168     // Output value of “24674867” represents 24674867/256 = 96386\&.2 Pa = 963\&.862 hPa
-169     int32_t adc_P = ((uint32_t)readRegister(BME280_PRESSURE_MSB_REG) << 12) | ((uint32_t)readRegister(BME280_PRESSURE_LSB_REG) << 4) | ((readRegister(BME280_PRESSURE_XLSB_REG) >> 4) & 0x0F);
-170     
-171     int64_t var1, var2, p_acc;
-172     var1 = ((int64_t)t_fine) - 128000;
-173     var2 = var1 * var1 * (int64_t)calibration\&.dig_P6;
-174     var2 = var2 + ((var1 * (int64_t)calibration\&.dig_P5)<<17);
-175     var2 = var2 + (((int64_t)calibration\&.dig_P4)<<35);
-176     var1 = ((var1 * var1 * (int64_t)calibration\&.dig_P3)>>8) + ((var1 * (int64_t)calibration\&.dig_P2)<<12);
-177     var1 = (((((int64_t)1)<<47)+var1))*((int64_t)calibration\&.dig_P1)>>33;
-178     if (var1 == 0)
-179     {
-180         return 0; // avoid exception caused by division by zero
-181     }
-182     p_acc = 1048576 - adc_P;
-183     p_acc = (((p_acc<<31) - var2)*3125)/var1;
-184     var1 = (((int64_t)calibration\&.dig_P9) * (p_acc>>13) * (p_acc>>13)) >> 25;
-185     var2 = (((int64_t)calibration\&.dig_P8) * p_acc) >> 19;
-186     p_acc = ((p_acc + var1 + var2) >> 8) + (((int64_t)calibration\&.dig_P7)<<4);
-187     
-188     return (float)p_acc / 256\&.0;
-189     
-190 }
-.fi
-.SS "uint8_t BME280::readRegister (uint8_t offset)"
-
-.PP
-Definition at line 325 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-326 {
-327     //Return value
-328     uint8_t result;
-329     uint8_t numBytes = 1;
-330     switch (settings\&.commInterface) {
-331 
-332     case I2C_MODE:
-333         Wire\&.beginTransmission(settings\&.I2CAddress);
-334         Wire\&.write(offset);
-335         Wire\&.endTransmission();
-336 
-337         Wire\&.requestFrom(settings\&.I2CAddress, numBytes);
-338         while ( Wire\&.available() ) // slave may send less than requested
-339         {
-340             result = Wire\&.read(); // receive a byte as a proper uint8_t
-341         }
-342         break;
-343 
-344     case SPI_MODE:
-345         // take the chip select low to select the device:
-346         digitalWrite(settings\&.chipSelectPin, LOW);
-347         // send the device the register you want to read:
-348         SPI\&.transfer(offset | 0x80);  //Ored with "read request" bit
-349         // send a value of 0 to read the first byte returned:
-350         result = SPI\&.transfer(0x00);
-351         // take the chip select high to de-select:
-352         digitalWrite(settings\&.chipSelectPin, HIGH);
-353         break;
-354 
-355     default:
-356         break;
-357     }
-358     return result;
-359 }
-.fi
-.SS "int16_t BME280::readRegisterInt16 (uint8_t offset)"
-
-.PP
-Definition at line 361 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-362 {
-363     uint8_t myBuffer[2];
-364     readRegisterRegion(myBuffer, offset, 2);  //Does memory transfer
-365     int16_t output = (int16_t)myBuffer[0] | int16_t(myBuffer[1] << 8);
-366     
-367     return output;
-368 }
-.fi
-.SS "void BME280::readRegisterRegion (uint8_t * outputPointer, uint8_t offset, uint8_t length)"
-
-.PP
-Definition at line 278 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-279 {
-280     //define pointer that will point to the external space
-281     uint8_t i = 0;
-282     char c = 0;
-283 
-284     switch (settings\&.commInterface)
-285     {
-286 
-287     case I2C_MODE:
-288         Wire\&.beginTransmission(settings\&.I2CAddress);
-289         Wire\&.write(offset);
-290         Wire\&.endTransmission();
-291 
-292         // request bytes from slave device
-293         Wire\&.requestFrom(settings\&.I2CAddress, length);
-294         while ( (Wire\&.available()) && (i < length))  // slave may send less than requested
-295         {
-296             c = Wire\&.read(); // receive a byte as character
-297             *outputPointer = c;
-298             outputPointer++;
-299             i++;
-300         }
-301         break;
-302 
-303     case SPI_MODE:
-304         // take the chip select low to select the device:
-305         digitalWrite(settings\&.chipSelectPin, LOW);
-306         // send the device the register you want to read:
-307         SPI\&.transfer(offset | 0x80);  //Ored with "read request" bit
-308         while ( i < length ) // slave may send less than requested
-309         {
-310             c = SPI\&.transfer(0x00); // receive a byte as character
-311             *outputPointer = c;
-312             outputPointer++;
-313             i++;
-314         }
-315         // take the chip select high to de-select:
-316         digitalWrite(settings\&.chipSelectPin, HIGH);
-317         break;
-318 
-319     default:
-320         break;
-321     }
-322 
-323 }
-.fi
-.SS "float BME280::readTempC (void)"
-
-.PP
-Definition at line 243 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-244 {
-245     // Returns temperature in DegC, resolution is 0\&.01 DegC\&. Output value of “5123” equals 51\&.23 DegC\&.
-246     // t_fine carries fine temperature as global value
-247 
-248     //get the reading (adc_T);
-249     int32_t adc_T = ((uint32_t)readRegister(BME280_TEMPERATURE_MSB_REG) << 12) | ((uint32_t)readRegister(BME280_TEMPERATURE_LSB_REG) << 4) | ((readRegister(BME280_TEMPERATURE_XLSB_REG) >> 4) & 0x0F);
-250 
-251     //By datasheet, calibrate
-252     int64_t var1, var2;
-253 
-254     var1 = ((((adc_T>>3) - ((int32_t)calibration\&.dig_T1<<1))) * ((int32_t)calibration\&.dig_T2)) >> 11;
-255     var2 = (((((adc_T>>4) - ((int32_t)calibration\&.dig_T1)) * ((adc_T>>4) - ((int32_t)calibration\&.dig_T1))) >> 12) *
-256     ((int32_t)calibration\&.dig_T3)) >> 14;
-257     t_fine = var1 + var2;
-258     float output = (t_fine * 5 + 128) >> 8;
-259 
-260     output = output / 100;
-261     
-262     return output;
-263 }
-.fi
-.SS "float BME280::readTempF (void)"
-
-.PP
-Definition at line 265 of file CoolSparkFunBME280\&.cpp\&.
-.PP
-.nf
-266 {
-267     float output = readTempC();
-268     output = (output * 9) / 5 + 32;
-269 
-270     return output;
-271 }
-.fi
+Referenced by CoolBoardSensors::begin()\&.
 .SS "void BME280::reset (void)"
 
 .PP
 Definition at line 153 of file CoolSparkFunBME280\&.cpp\&.
 .PP
-.nf
-154 {
-155     writeRegister(BME280_RST_REG, 0xB6);
-156     
-157 }
-.fi
+References BME280_RST_REG, and writeRegister()\&.
+.SS "float BME280::readFloatPressure (void)"
+
+.PP
+Definition at line 164 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References BME280_PRESSURE_LSB_REG, BME280_PRESSURE_MSB_REG, BME280_PRESSURE_XLSB_REG, calibration, SensorCalibration::dig_P1, SensorCalibration::dig_P2, SensorCalibration::dig_P3, SensorCalibration::dig_P4, SensorCalibration::dig_P5, SensorCalibration::dig_P6, SensorCalibration::dig_P7, SensorCalibration::dig_P8, SensorCalibration::dig_P9, readRegister(), and t_fine\&.
+.PP
+Referenced by CoolBoardSensors::read(), and readFloatAltitudeMeters()\&.
+.SS "float BME280::readFloatAltitudeMeters (void)"
+
+.PP
+Definition at line 192 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References readFloatPressure()\&.
+.PP
+Referenced by readFloatAltitudeFeet()\&.
+.SS "float BME280::readFloatAltitudeFeet (void)"
+
+.PP
+Definition at line 201 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References readFloatAltitudeMeters()\&.
+.SS "float BME280::readFloatHumidity (void)"
+
+.PP
+Definition at line 215 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References BME280_HUMIDITY_LSB_REG, BME280_HUMIDITY_MSB_REG, calibration, SensorCalibration::dig_H1, SensorCalibration::dig_H2, SensorCalibration::dig_H3, SensorCalibration::dig_H4, SensorCalibration::dig_H5, SensorCalibration::dig_H6, readRegister(), and t_fine\&.
+.PP
+Referenced by CoolBoardSensors::read()\&.
+.SS "float BME280::readTempC (void)"
+
+.PP
+Definition at line 243 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References BME280_TEMPERATURE_LSB_REG, BME280_TEMPERATURE_MSB_REG, BME280_TEMPERATURE_XLSB_REG, calibration, SensorCalibration::dig_T1, SensorCalibration::dig_T2, SensorCalibration::dig_T3, readRegister(), and t_fine\&.
+.PP
+Referenced by CoolBoardSensors::read(), and readTempF()\&.
+.SS "float BME280::readTempF (void)"
+
+.PP
+Definition at line 265 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References readTempC()\&.
+.SS "void BME280::readRegisterRegion (uint8_t * outputPointer, uint8_t offset, uint8_t length)"
+
+.PP
+Definition at line 278 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References SensorSettings::chipSelectPin, SensorSettings::commInterface, I2C_MODE, SensorSettings::I2CAddress, settings, and SPI_MODE\&.
+.PP
+Referenced by readRegisterInt16()\&.
+.SS "uint8_t BME280::readRegister (uint8_t offset)"
+
+.PP
+Definition at line 325 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References SensorSettings::chipSelectPin, SensorSettings::commInterface, I2C_MODE, SensorSettings::I2CAddress, settings, and SPI_MODE\&.
+.PP
+Referenced by begin(), readFloatHumidity(), readFloatPressure(), and readTempC()\&.
+.SS "int16_t BME280::readRegisterInt16 (uint8_t offset)"
+
+.PP
+Definition at line 361 of file CoolSparkFunBME280\&.cpp\&.
+.PP
+References readRegisterRegion()\&.
 .SS "void BME280::writeRegister (uint8_t offset, uint8_t dataToWrite)"
 
 .PP
 Definition at line 370 of file CoolSparkFunBME280\&.cpp\&.
 .PP
-.nf
-371 {
-372     switch (settings\&.commInterface)
-373     {
-374     case I2C_MODE:
-375         //Write the byte
-376         Wire\&.beginTransmission(settings\&.I2CAddress);
-377         Wire\&.write(offset);
-378         Wire\&.write(dataToWrite);
-379         Wire\&.endTransmission();
-380         break;
-381 
-382     case SPI_MODE:
-383         // take the chip select low to select the device:
-384         digitalWrite(settings\&.chipSelectPin, LOW);
-385         // send the device the register you want to read:
-386         SPI\&.transfer(offset & 0x7F);
-387         // send a value of 0 to read the first byte returned:
-388         SPI\&.transfer(dataToWrite);
-389         // decrement the number of bytes left to read:
-390         // take the chip select high to de-select:
-391         digitalWrite(settings\&.chipSelectPin, HIGH);
-392         break;
-393 
-394     default:
-395         break;
-396     }
-397 }
-.fi
+References SensorSettings::chipSelectPin, SensorSettings::commInterface, I2C_MODE, SensorSettings::I2CAddress, settings, and SPI_MODE\&.
+.PP
+Referenced by begin(), and reset()\&.
 .SH "Member Data Documentation"
 .PP 
-.SS "\fBSensorCalibration\fP BME280::calibration"
-
-.PP
-Definition at line 148 of file CoolSparkFunBME280\&.h\&.
 .SS "\fBSensorSettings\fP BME280::settings"
 
 .PP
 Definition at line 147 of file CoolSparkFunBME280\&.h\&.
+.PP
+Referenced by begin(), BME280(), readRegister(), readRegisterRegion(), CoolBoardSensors::setEnvSensorSettings(), and writeRegister()\&.
+.SS "\fBSensorCalibration\fP BME280::calibration"
+
+.PP
+Definition at line 148 of file CoolSparkFunBME280\&.h\&.
+.PP
+Referenced by begin(), readFloatHumidity(), readFloatPressure(), and readTempC()\&.
 .SS "int32_t BME280::t_fine"
 
 .PP
 Definition at line 149 of file CoolSparkFunBME280\&.h\&.
+.PP
+Referenced by readFloatHumidity(), readFloatPressure(), and readTempC()\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

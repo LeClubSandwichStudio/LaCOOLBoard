@@ -1,8 +1,8 @@
-.TH "/home/ashiroji/Arduino/libraries/CoolBoard/src/internals/CoolAdafruit_ADS1015.cpp" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "CoolAdafruit_ADS1015.cpp" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-/home/ashiroji/Arduino/libraries/CoolBoard/src/internals/CoolAdafruit_ADS1015.cpp
+CoolAdafruit_ADS1015.cpp
 .SH SYNOPSIS
 .br
 .PP
@@ -42,15 +42,7 @@ Abstract away platform differences in Arduino wire library\&.
 .PP
 Definition at line 36 of file CoolAdafruit_ADS1015\&.cpp\&.
 .PP
-.nf
-36                              {
-37   #if ARDUINO >= 100
-38   return Wire\&.read();
-39   #else
-40   return Wire\&.receive();
-41   #endif
-42 }
-.fi
+Referenced by readRegister()\&.
 .SS "static void i2cwrite (uint8_t x)\fC [static]\fP"
 
 .PP
@@ -58,31 +50,7 @@ Abstract away platform differences in Arduino wire library\&.
 .PP
 Definition at line 49 of file CoolAdafruit_ADS1015\&.cpp\&.
 .PP
-.nf
-49                                 {
-50   #if ARDUINO >= 100
-51   Wire\&.write((uint8_t)x);
-52   #else
-53   Wire\&.send(x);
-54   #endif
-55 }
-.fi
-.SS "static uint16_t readRegister (uint8_t i2cAddress, uint8_t reg)\fC [static]\fP"
-
-.PP
-Writes 16-bits to the specified destination register\&. 
-.PP
-Definition at line 75 of file CoolAdafruit_ADS1015\&.cpp\&.
-.PP
-.nf
-75                                                               {
-76   Wire\&.beginTransmission(i2cAddress);
-77   i2cwrite(ADS1015_REG_POINTER_CONVERT);
-78   Wire\&.endTransmission();
-79   Wire\&.requestFrom(i2cAddress, (uint8_t)2);
-80   return ((i2cread() << 8) | i2cread());  
-81 }
-.fi
+Referenced by readRegister(), and writeRegister()\&.
 .SS "static void writeRegister (uint8_t i2cAddress, uint8_t reg, uint16_t value)\fC [static]\fP"
 
 .PP
@@ -90,15 +58,19 @@ Writes 16-bits to the specified destination register\&.
 .PP
 Definition at line 62 of file CoolAdafruit_ADS1015\&.cpp\&.
 .PP
-.nf
-62                                                                            {
-63   Wire\&.beginTransmission(i2cAddress);
-64   i2cwrite((uint8_t)reg);
-65   i2cwrite((uint8_t)(value>>8));
-66   i2cwrite((uint8_t)(value & 0xFF));
-67   Wire\&.endTransmission();
-68 }
-.fi
+References i2cwrite()\&.
+.PP
+Referenced by Adafruit_ADS1015::readADC_Differential_0_1(), Adafruit_ADS1015::readADC_Differential_2_3(), Adafruit_ADS1015::readADC_SingleEnded(), and Adafruit_ADS1015::startComparator_SingleEnded()\&.
+.SS "static uint16_t readRegister (uint8_t i2cAddress, uint8_t reg)\fC [static]\fP"
+
+.PP
+Writes 16-bits to the specified destination register\&. 
+.PP
+Definition at line 75 of file CoolAdafruit_ADS1015\&.cpp\&.
+.PP
+References ADS1015_REG_POINTER_CONVERT, i2cread(), and i2cwrite()\&.
+.PP
+Referenced by Adafruit_ADS1015::getLastConversionResults(), Adafruit_ADS1015::readADC_Differential_0_1(), Adafruit_ADS1015::readADC_Differential_2_3(), and Adafruit_ADS1015::readADC_SingleEnded()\&.
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

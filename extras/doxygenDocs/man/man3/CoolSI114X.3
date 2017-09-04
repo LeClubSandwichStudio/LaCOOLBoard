@@ -1,4 +1,4 @@
-.TH "CoolSI114X" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "CoolSI114X" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -62,206 +62,94 @@ Definition at line 165 of file CoolSI114X\&.h\&.
 .PP
 Definition at line 91 of file CoolSI114X\&.cpp\&.
 .PP
-.nf
-92 {
-93   Wire\&.begin(2,14);
-94   //
-95   //Init IIC  and reset si1145
-96   //
-97   if(ReadByte(CoolSI114X_PART_ID)!=0X45)
-98   {
-99     return false;
-100   }
-101   Reset();
-102   //
-103   //INIT 
-104   //
-105   DeInit();
-106   return true;
-107 }
-.fi
-.SS "void CoolSI114X::DeInit (void)"
-
+References CoolSI114X_PART_ID, DeInit(), ReadByte(), and Reset()\&.
 .PP
-Definition at line 41 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-42 {  
-43   //ENABLE UV reading  
-44   //these reg must be set to the fixed value
-45   WriteByte(CoolSI114X_UCOEFF0, 0x29);
-46   WriteByte(CoolSI114X_UCOEFF1, 0x89);
-47   WriteByte(CoolSI114X_UCOEFF2, 0x02);
-48   WriteByte(CoolSI114X_UCOEFF3, 0x00);
-49   WriteParamData(CoolSI114X_CHLIST, CoolSI114X_CHLIST_ENUV |CoolSI114X_CHLIST_ENALSIR | CoolSI114X_CHLIST_ENALSVIS |CoolSI114X_CHLIST_ENPS1);
-50   //
-51   //set LED1 CURRENT(22\&.4mA)(It is a normal value for many LED)
-52   //
-53   WriteParamData(CoolSI114X_PS1_ADCMUX, CoolSI114X_ADCMUX_LARGE_IR);
-54   WriteByte(CoolSI114X_PS_LED21, CoolSI114X_LED_CURRENT_22MA);
-55   WriteParamData(CoolSI114X_PSLED12_SELECT, CoolSI114X_PSLED12_SELECT_PS1_LED1); //
-56   //
-57   //PS ADC SETTING
-58   //
-59   WriteParamData(CoolSI114X_PS_ADC_GAIN, CoolSI114X_ADC_GAIN_DIV1);
-60   WriteParamData(CoolSI114X_PS_ADC_COUNTER, CoolSI114X_ADC_COUNTER_511ADCCLK);
-61   WriteParamData(CoolSI114X_PS_ADC_MISC, CoolSI114X_ADC_MISC_HIGHRANGE|CoolSI114X_ADC_MISC_ADC_RAWADC); 
-62   //
-63   //VIS ADC SETTING
-64   //
-65   WriteParamData(CoolSI114X_ALS_VIS_ADC_GAIN, CoolSI114X_ADC_GAIN_DIV1);
-66   WriteParamData(CoolSI114X_ALS_VIS_ADC_COUNTER, CoolSI114X_ADC_COUNTER_511ADCCLK);
-67   WriteParamData(CoolSI114X_ALS_VIS_ADC_MISC, CoolSI114X_ADC_MISC_HIGHRANGE);
-68   //
-69   //IR ADC SETTING
-70   //
-71   WriteParamData(CoolSI114X_ALS_IR_ADC_GAIN, CoolSI114X_ADC_GAIN_DIV1);
-72   WriteParamData(CoolSI114X_ALS_IR_ADC_COUNTER, CoolSI114X_ADC_COUNTER_511ADCCLK);
-73   WriteParamData(CoolSI114X_ALS_IR_ADC_MISC, CoolSI114X_ADC_MISC_HIGHRANGE);
-74   //
-75   //interrupt enable
-76   //
-77   WriteByte(CoolSI114X_INT_CFG, CoolSI114X_INT_CFG_INTOE);  
-78   WriteByte(CoolSI114X_IRQ_ENABLE, CoolSI114X_IRQEN_ALS);  
-79   //
-80   //AUTO RUN
-81   //
-82   WriteByte(CoolSI114X_MEAS_RATE0, 0xFF);
-83   WriteByte(CoolSI114X_COMMAND, CoolSI114X_PSALS_AUTO);
-84 }
-.fi
-.SS "uint8_t CoolSI114X::ReadByte (uint8_t Reg)\fC [private]\fP"
-
-.PP
-Definition at line 143 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-144 {
-145     Wire\&.beginTransmission(CoolSI114X_ADDR);
-146     Wire\&.write(Reg);
-147     Wire\&.endTransmission();
-148     Wire\&.requestFrom(CoolSI114X_ADDR, 1);  
-149     return Wire\&.read();
-150 }
-.fi
-.SS "uint16_t CoolSI114X::ReadHalfWord (uint8_t Reg)\fC [private]\fP"
-
-.PP
-Definition at line 155 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-156 {
-157   uint16_t Value;
-158   Wire\&.beginTransmission(CoolSI114X_ADDR);
-159   Wire\&.write(Reg); 
-160   Wire\&.endTransmission(); 
-161   Wire\&.requestFrom(CoolSI114X_ADDR, 2);
-162   Value = Wire\&.read();
-163   Value |= (uint16_t)Wire\&.read() << 8; 
-164   return Value;
-165 }
-.fi
-.SS "uint16_t CoolSI114X::ReadIR (void)"
-
-.PP
-Definition at line 200 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-201 {
-202   return ReadHalfWord(CoolSI114X_ALS_IR_DATA0);     
-203 } 
-.fi
-.SS "uint8_t CoolSI114X::ReadParamData (uint8_t Reg)"
-
-.PP
-Definition at line 170 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-171 {
-172     WriteByte(CoolSI114X_COMMAND, Reg | CoolSI114X_QUERY);
-173     return ReadByte(CoolSI114X_RD);
-174 }
-.fi
-.SS "uint16_t CoolSI114X::ReadProximity (uint8_t PSn)"
-
-.PP
-Definition at line 208 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-209 {
-210   return ReadHalfWord(PSn);     
-211 }
-.fi
-.SS "uint16_t CoolSI114X::ReadUV (void)"
-
-.PP
-Definition at line 217 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-218 {
-219   return (ReadHalfWord(CoolSI114X_AUX_DATA0_UVINDEX0));     
-220 }
-.fi
-.SS "uint16_t CoolSI114X::ReadVisible (void)"
-
-.PP
-Definition at line 192 of file CoolSI114X\&.cpp\&.
-.PP
-.nf
-193 {
-194   return ReadHalfWord(CoolSI114X_ALS_VIS_DATA0);    
-195 }
-.fi
+Referenced by CoolBoardSensors::begin()\&.
 .SS "void CoolSI114X::Reset (void)"
 
 .PP
 Definition at line 113 of file CoolSI114X\&.cpp\&.
 .PP
-.nf
-114 {
-115   WriteByte(CoolSI114X_MEAS_RATE0, 0);
-116   WriteByte(CoolSI114X_MEAS_RATE1, 0);
-117   WriteByte(CoolSI114X_IRQ_ENABLE, 0);
-118   WriteByte(CoolSI114X_IRQ_MODE1, 0);
-119   WriteByte(CoolSI114X_IRQ_MODE2, 0);
-120   WriteByte(CoolSI114X_INT_CFG, 0);
-121   WriteByte(CoolSI114X_IRQ_STATUS, 0xFF);
-122 
-123   WriteByte(CoolSI114X_COMMAND, CoolSI114X_RESET);
-124   delay(10);
-125   WriteByte(CoolSI114X_HW_KEY, 0x17);
-126   delay(10);
-127 }
-.fi
-.SS "void CoolSI114X::WriteByte (uint8_t Reg, uint8_t Value)\fC [private]\fP"
+References CoolSI114X_COMMAND, CoolSI114X_HW_KEY, CoolSI114X_INT_CFG, CoolSI114X_IRQ_ENABLE, CoolSI114X_IRQ_MODE1, CoolSI114X_IRQ_MODE2, CoolSI114X_IRQ_STATUS, CoolSI114X_MEAS_RATE0, CoolSI114X_MEAS_RATE1, CoolSI114X_RESET, and WriteByte()\&.
+.PP
+Referenced by Begin()\&.
+.SS "void CoolSI114X::DeInit (void)"
 
 .PP
-Definition at line 132 of file CoolSI114X\&.cpp\&.
+Definition at line 41 of file CoolSI114X\&.cpp\&.
 .PP
-.nf
-133 {
-134   Wire\&.beginTransmission(CoolSI114X_ADDR); 
-135   Wire\&.write(Reg); 
-136   Wire\&.write(Value); 
-137   Wire\&.endTransmission(); 
-138 }
-.fi
+References CoolSI114X_ADC_COUNTER_511ADCCLK, CoolSI114X_ADC_GAIN_DIV1, CoolSI114X_ADC_MISC_ADC_RAWADC, CoolSI114X_ADC_MISC_HIGHRANGE, CoolSI114X_ADCMUX_LARGE_IR, CoolSI114X_ALS_IR_ADC_COUNTER, CoolSI114X_ALS_IR_ADC_GAIN, CoolSI114X_ALS_IR_ADC_MISC, CoolSI114X_ALS_VIS_ADC_COUNTER, CoolSI114X_ALS_VIS_ADC_GAIN, CoolSI114X_ALS_VIS_ADC_MISC, CoolSI114X_CHLIST, CoolSI114X_CHLIST_ENALSIR, CoolSI114X_CHLIST_ENALSVIS, CoolSI114X_CHLIST_ENPS1, CoolSI114X_CHLIST_ENUV, CoolSI114X_COMMAND, CoolSI114X_INT_CFG, CoolSI114X_INT_CFG_INTOE, CoolSI114X_IRQ_ENABLE, CoolSI114X_IRQEN_ALS, CoolSI114X_LED_CURRENT_22MA, CoolSI114X_MEAS_RATE0, CoolSI114X_PS1_ADCMUX, CoolSI114X_PS_ADC_COUNTER, CoolSI114X_PS_ADC_GAIN, CoolSI114X_PS_ADC_MISC, CoolSI114X_PS_LED21, CoolSI114X_PSALS_AUTO, CoolSI114X_PSLED12_SELECT, CoolSI114X_PSLED12_SELECT_PS1_LED1, CoolSI114X_UCOEFF0, CoolSI114X_UCOEFF1, CoolSI114X_UCOEFF2, CoolSI114X_UCOEFF3, WriteByte(), and WriteParamData()\&.
+.PP
+Referenced by Begin(), and CoolBoardSensors::end()\&.
+.SS "uint8_t CoolSI114X::ReadParamData (uint8_t Reg)"
+
+.PP
+Definition at line 170 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_COMMAND, CoolSI114X_QUERY, CoolSI114X_RD, ReadByte(), and WriteByte()\&.
 .SS "uint8_t CoolSI114X::WriteParamData (uint8_t Reg, uint8_t Value)"
 
 .PP
 Definition at line 179 of file CoolSI114X\&.cpp\&.
 .PP
-.nf
-180 {
-181     //write Value into PARAMWR reg first
-182    WriteByte(CoolSI114X_WR, Value);
-183    WriteByte(CoolSI114X_COMMAND, Reg | CoolSI114X_SET);
-184    //CoolSI114X writes value out to PARAM_RD,read and confirm its right
-185    return ReadByte(CoolSI114X_RD);
-186 }
-.fi
+References CoolSI114X_COMMAND, CoolSI114X_RD, CoolSI114X_SET, CoolSI114X_WR, ReadByte(), and WriteByte()\&.
+.PP
+Referenced by DeInit()\&.
+.SS "uint16_t CoolSI114X::ReadVisible (void)"
 
+.PP
+Definition at line 192 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_ALS_VIS_DATA0, and ReadHalfWord()\&.
+.PP
+Referenced by CoolBoardSensors::read()\&.
+.SS "uint16_t CoolSI114X::ReadIR (void)"
+
+.PP
+Definition at line 200 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_ALS_IR_DATA0, and ReadHalfWord()\&.
+.PP
+Referenced by CoolBoardSensors::read()\&.
+.SS "uint16_t CoolSI114X::ReadProximity (uint8_t PSn)"
+
+.PP
+Definition at line 208 of file CoolSI114X\&.cpp\&.
+.PP
+References ReadHalfWord()\&.
+.SS "uint16_t CoolSI114X::ReadUV (void)"
+
+.PP
+Definition at line 217 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_AUX_DATA0_UVINDEX0, and ReadHalfWord()\&.
+.PP
+Referenced by CoolBoardSensors::read()\&.
+.SS "void CoolSI114X::WriteByte (uint8_t Reg, uint8_t Value)\fC [private]\fP"
+
+.PP
+Definition at line 132 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_ADDR\&.
+.PP
+Referenced by DeInit(), ReadParamData(), Reset(), and WriteParamData()\&.
+.SS "uint8_t CoolSI114X::ReadByte (uint8_t Reg)\fC [private]\fP"
+
+.PP
+Definition at line 143 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_ADDR\&.
+.PP
+Referenced by Begin(), ReadParamData(), and WriteParamData()\&.
+.SS "uint16_t CoolSI114X::ReadHalfWord (uint8_t Reg)\fC [private]\fP"
+
+.PP
+Definition at line 155 of file CoolSI114X\&.cpp\&.
+.PP
+References CoolSI114X_ADDR\&.
+.PP
+Referenced by ReadIR(), ReadProximity(), ReadUV(), and ReadVisible()\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

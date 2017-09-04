@@ -1,4 +1,4 @@
-.TH "Jetpack" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "Jetpack" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -98,6 +98,87 @@ Jetpack \- This class manages the \fBJetpack\fP shield\&.
 This class manages the \fBJetpack\fP shield\&. 
 .PP
 Definition at line 45 of file Jetpack\&.h\&.
+.SH "Class Documentation"
+.PP 
+.SH "struct Jetpack::state"
+.PP 
+the Actor's state 
+.PP
+Definition at line 95 of file Jetpack\&.h\&.
+.PP
+\fBClass Members:\fP
+.RS 4
+bool \fIactif\fP actif flag set to 1 when using an actor set to 0 otherwise 
+.br
+.PP
+bool \fItemporal\fP temporal flag set to 1 to declare a temporal actor set to 0 otherwise 
+.br
+.PP
+bool \fIinverted\fP inverted flag set to 1 to declare an inverted actor set to 0 to declare a normal actor 
+.br
+.PP
+String \fIprimaryType\fP 'type':['temperature','hour']
+.PP
+the primary type is related to the sensor's type (type[0])
+.PP
+if both types are present and valid, the actor is a mixedActor 
+.br
+.PP
+String \fIsecondaryType\fP 'type':['temperature','hour']
+.PP
+the secondary type if present is hour or minute or hourMinute (type[1])
+.PP
+if both types are present and valid, the actor is a mixedActor 
+.br
+.PP
+int \fIrangeLow\fP 'low':[20,5000,18,10]
+.PP
+rangeLow : this is the minimum at which the actor becomes actif (low[0]) 
+.br
+.PP
+unsigned long \fItimeLow\fP 'low':[20,5000,18,10]
+.PP
+timeLow : this is the time the actor is off in temporal mode (low[1]) (ms) 
+.br
+.PP
+int \fIhourLow\fP 'low':[20,5000,18,10]
+.PP
+hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] ) 
+.br
+.PP
+int \fIminuteLow\fP 'low':[20,5000,18,10]
+.PP
+minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3]) 
+.br
+.PP
+int \fIrangeHigh\fP 'high':[30,2000,17,1]
+.PP
+rangeHigh : this is the maximum at which the actor becomes inactif(high[0]) 
+.br
+.PP
+unsigned long \fItimeHigh\fP 'high':[30,2000,17,1]
+.PP
+timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms) 
+.br
+.PP
+int \fIhourHigh\fP 'high':[30,2000,17,1]
+.PP
+hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2]) 
+.br
+.PP
+int \fIminuteHigh\fP 'high':[30,2000,17,1]
+.PP
+minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
+.br
+.PP
+unsigned long \fIactifTime\fP actifTime : period of Time spent actif , used in Temporal mode in ms 
+.br
+.PP
+unsigned long \fIinactifTime\fP inactifTime : period of Time spent inactif , used in Temporal mode in ms 
+.br
+.PP
+.RE
+.PP
 .SH "Member Function Documentation"
 .PP 
 .SS "void Jetpack::begin (void)"
@@ -105,266 +186,25 @@ Definition at line 45 of file Jetpack\&.h\&.
 .PP
 Definition at line 50 of file Jetpack\&.cpp\&.
 .PP
-.nf
-51 {
-52 
-53 #if DEBUG == 1 
-54  
-55     Serial\&.println( F("Entering Jetpack\&.begin() ") );
-56     Serial\&.println();
-57 
-58 #endif
-59 
-60     pinMode(EnI2C,OUTPUT);
-61     pinMode(dataPin,OUTPUT);
-62     pinMode(clockPin,OUTPUT);
-63     
-64     
-65 
-66 }
-.fi
-.SS "bool Jetpack::config ()"
-\fBJetpack::config()\fP: This method is provided to configure the \fBJetpack\fP with a configuration file
+References clockPin, dataPin, and EnI2C\&.
 .PP
-\fBReturns:\fP
-.RS 4
-true if successful,false otherwise 
-.RE
+Referenced by CoolBoard::begin()\&.
+.SS "void Jetpack::write (byte action)"
+Jetpack::write(action): This method is provided to write the given action to the entire \fBJetpack\fP action is a Byte (8 bits ), each bit goes to an output\&. MSBFirst 
 .PP
-
+Definition at line 77 of file Jetpack\&.cpp\&.
 .PP
-Definition at line 307 of file Jetpack\&.cpp\&.
+References action, clockPin, dataPin, and EnI2C\&.
 .PP
-.nf
-308 {
-309 
-310 #if DEBUG == 1 
-311 
-312     Serial\&.println( F("Entering Jetpack\&.config() ") );
-313     Serial\&.println();
-314 
-315 #endif
-316 
-317     File jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "r");
-318 
-319     if (!jetPackConfig) 
-320     {
-321 
-322     #if DEBUG == 1 
-323 
-324         Serial\&.println( F("failed to read /jetPackConfig\&.json ") );
-325         Serial\&.println();
-326 
-327     #endif
-328 
-329         return(false);
-330     }
-331     else
-332     {
-333         size_t size = jetPackConfig\&.size();
-334         // Allocate a buffer to store contents of the file\&.
-335         std::unique_ptr<char[]> buf(new char[size]);
-336 
-337         jetPackConfig\&.readBytes(buf\&.get(), size);
-338         DynamicJsonBuffer jsonBuffer;
-339         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-340         if (!json\&.success()) 
-341         {
-342         
-343         #if DEBUG == 1 
-344 
-345             Serial\&.println( F("failed to parse jetpack config json from file ") );
-346             Serial\&.println();
-347 
-348         #endif
-349 
-350             return(false);
-351         } 
-352         else
-353         { 
-354         
-355         #if DEBUG == 1 
-356 
-357             Serial\&.println( F("read configuration file : ") );
-358             json\&.printTo(Serial);
-359             Serial\&.println();
-360 
-361             Serial\&.print(F("jsonBuffer size: "));
-362             Serial\&.println(jsonBuffer\&.size());
-363             Serial\&.println();
-364 
-365         
-366         #endif
-367   
-368             for(int i=0;i<8;i++)
-369             {   
-370                 if(json[String("Act")+String(i)]\&.success())
-371                 {
-372                     //parsing actif key
-373                     if(json[String("Act")+String(i)]["actif"]\&.success() )
-374                     {
-375                         this->actors[i]\&.actif=json[String("Act")+String(i)]["actif"];
-376                     }
-377                     else
-378                     {
-379                         this->actors[i]\&.actif=this->actors[i]\&.actif;
-380                     }
-381                     json[String("Act")+String(i)]["actif"]=this->actors[i]\&.actif;
-382                     
-383                     //parsing temporal key
-384                     if(json[String("Act")+String(i)]["temporal"]\&.success() )
-385                     {
-386                         this->actors[i]\&.temporal=json[String("Act")+String(i)]["temporal"];
-387                     }
-388                     else
-389                     {
-390                         this->actors[i]\&.temporal=this->actors[i]\&.temporal;
-391                     }
-392                     json[String("Act")+String(i)]["temporal"]=this->actors[i]\&.temporal;
-393                     
-394                     //parsing inverted key
-395                     if(json[String("Act")+String(i)]["inverted"]\&.success() )
-396                     {
-397                         this->actors[i]\&.inverted=json[String("Act")+String(i)]["inverted"];
-398                     }
-399                     else
-400                     {
-401                         this->actors[i]\&.inverted=this->actors[i]\&.inverted;
-402                     }
-403                     json[String("Act")+String(i)]["inverted"]=this->actors[i]\&.inverted;
-404 
-405                     //parsing inverted key
-406                     if(json[String("Act")+String(i)]["inverted"]\&.success() )
-407                     {
-408                         this->actors[i]\&.inverted=json[String("Act")+String(i)]["inverted"];
-409                     }
-410                     else
-411                     {
-412                         this->actors[i]\&.inverted=this->actors[i]\&.inverted;
-413                     }
-414                     json[String("Act")+String(i)]["inverted"]=this->actors[i]\&.inverted;
-415                     
-416                     //parsing low key
-417                     if(json[String("Act")+String(i)]["low"]\&.success() )
-418                     {
-419                         this->actors[i]\&.rangeLow=json[String("Act")+String(i)]["low"][0];
-420                         this->actors[i]\&.timeLow=json[String("Act")+String(i)]["low"][1];
-421                         this->actors[i]\&.hourLow=json[String("Act")+String(i)]["low"][2];                     
-422                         this->actors[i]\&.minuteLow=json[String("Act")+String(i)]["low"][3];                       
-423                     }
-424                     else
-425                     {
-426                         this->actors[i]\&.rangeLow=this->actors[i]\&.rangeLow;
-427                         this->actors[i]\&.timeLow=this->actors[i]\&.timeLow;
-428                         this->actors[i]\&.hourLow=this->actors[i]\&.hourLow;
-429                         this->actors[i]\&.minuteLow=this->actors[i]\&.minuteLow;                      
-430                     }
-431                     json[String("Act")+String(i)]["low"][0]=this->actors[i]\&.rangeLow;
-432                     json[String("Act")+String(i)]["low"][1]=this->actors[i]\&.timeLow;
-433                     json[String("Act")+String(i)]["low"][2]=this->actors[i]\&.hourLow;
-434                     json[String("Act")+String(i)]["low"][3]=this->actors[i]\&.minuteLow;
-435 
-436                     //parsing high key
-437                     if(json[String("Act")+String(i)]["high"]\&.success() )
-438                     {
-439                         this->actors[i]\&.rangeHigh=json[String("Act")+String(i)]["high"][0];
-440                         this->actors[i]\&.timeHigh=json[String("Act")+String(i)]["high"][1];
-441                         this->actors[i]\&.hourHigh=json[String("Act")+String(i)]["high"][2];                       
-442                         this->actors[i]\&.minuteHigh=json[String("Act")+String(i)]["high"][3];                     
-443                     }
-444                     else
-445                     {
-446                         this->actors[i]\&.rangeHigh=this->actors[i]\&.rangeHigh;
-447                         this->actors[i]\&.timeHigh=this->actors[i]\&.timeHigh;
-448                         this->actors[i]\&.hourHigh=this->actors[i]\&.hourHigh;
-449                         this->actors[i]\&.minuteHigh=this->actors[i]\&.minuteHigh;
-450                     }
-451                     json[String("Act")+String(i)]["high"][0]=this->actors[i]\&.rangeHigh;
-452                     json[String("Act")+String(i)]["high"][1]=this->actors[i]\&.timeHigh;
-453                     json[String("Act")+String(i)]["high"][2]=this->actors[i]\&.hourHigh;
-454                     json[String("Act")+String(i)]["high"][3]=this->actors[i]\&.minuteHigh;
-455 
-456                     //parsing type key
-457                     if(json[String("Act")+String(i)]["type"]\&.success() )
-458                     {
-459                         this->actors[i]\&.primaryType=json[String("Act")+String(i)]["type"][0]\&.as<String>();
-460                         this->actors[i]\&.secondaryType=json[String("Act")+String(i)]["type"][1]\&.as<String>();                      
-461                         
-462                     }
-463                     else
-464                     {
-465                         this->actors[i]\&.primaryType=this->actors[i]\&.primaryType;
-466                         this->actors[i]\&.secondaryType=this->actors[i]\&.secondaryType;
-467                     }
-468                     json[String("Act")+String(i)]["type"][0]=this->actors[i]\&.primaryType;
-469                     json[String("Act")+String(i)]["type"][1]=this->actors[i]\&.secondaryType;
-470                         
-471 
-472 
-473                     
-474                     
-475                      
-476                 }
-477                 else
-478                 {
-479                     this->actors[i]=this->actors[i];
-480                 }
-481                 
-482                 json[String("Act")+String(i)]["actif"]=this->actors[i]\&.actif;
-483                 json[String("Act")+String(i)]["temporal"]=this->actors[i]\&.temporal;
-484                 json[String("Act")+String(i)]["inverted"]=this->actors[i]\&.inverted;
-485 
-486                 json[String("Act")+String(i)]["low"][0]=this->actors[i]\&.rangeLow;
-487                 json[String("Act")+String(i)]["low"][1]=this->actors[i]\&.timeLow;
-488                 json[String("Act")+String(i)]["low"][2]=this->actors[i]\&.hourLow;
-489                 json[String("Act")+String(i)]["low"][3]=this->actors[i]\&.minuteLow;
-490 
-491                 json[String("Act")+String(i)]["high"][0]=this->actors[i]\&.rangeHigh;
-492                 json[String("Act")+String(i)]["high"][1]=this->actors[i]\&.timeHigh;
-493                 json[String("Act")+String(i)]["high"][2]=this->actors[i]\&.hourHigh;
-494                 json[String("Act")+String(i)]["high"][3]=this->actors[i]\&.minuteHigh;
-495 
-496                 json[String("Act")+String(i)]["type"][0]=this->actors[i]\&.primaryType;
-497                 json[String("Act")+String(i)]["type"][1]=this->actors[i]\&.secondaryType;
-498 
-499 
-500 
-501             }
-502             
-503 
-504             jetPackConfig\&.close();           
-505             jetPackConfig = SPIFFS\&.open("/jetPackConfig\&.json", "w");          
-506             if(!jetPackConfig)
-507             {
-508             
-509             #if DEBUG == 1 
-510 
-511                 Serial\&.println( F("failed to write to /jetPackConfig\&.json ") );
-512                 Serial\&.println();
-513             
-514             #endif
-515                 
-516                 return(false);          
-517             }  
-518 
-519             json\&.printTo(jetPackConfig);
-520             jetPackConfig\&.close();
-521 
-522         #if DEBUG == 1 
-523             
-524             Serial\&.println(F("saved configuration : "));
-525             json\&.printTo(Serial );
-526             Serial\&.println();        
-527         
-528         #endif
-529 
-530             return(true); 
-531         }
-532     }   
-533     
-534 
-535 }
-.fi
+Referenced by doAction()\&.
+.SS "void Jetpack::writeBit (byte pin, bool state)"
+Jetpack::writeBit(pin,state): This method is provided to write the given state to the given pin 
+.PP
+Definition at line 108 of file Jetpack\&.cpp\&.
+.PP
+References action, clockPin, dataPin, and EnI2C\&.
+.PP
+Referenced by CoolBoard::update()\&.
 .SS "void Jetpack::doAction (const char * data)"
 Jetpack::doAction(sensor data ): This method is provided to automate the \fBJetpack\fP\&.
 .PP
@@ -372,162 +212,71 @@ The result action is the result of checking the different flags of an actor (act
 .PP
 Definition at line 144 of file Jetpack\&.cpp\&.
 .PP
-.nf
-145 {
-146 
-147 #if DEBUG == 1 
-148 
-149     Serial\&.println( F("Entering Jetpack\&.doAction()") );
-150     Serial\&.println();
-151 
-152     Serial\&.println( F("input data is :") );
-153     Serial\&.println(data);
-154     Serial\&.println();
-155 
-156 #endif 
-157 
-158     DynamicJsonBuffer jsonBuffer;
-159     JsonObject& root = jsonBuffer\&.parseObject(data);
-160     
-161     if (!root\&.success()) 
-162     {
-163     
-164     #if DEBUG == 1 
-165 
-166         Serial\&.println( F("failed to parse json object ") );
-167         Serial\&.println();
-168     
-169     #endif 
-170 
-171     }
-172     else
-173     {
-174     
-175     #if DEBUG == 1 
-176 
-177         Serial\&.println( F("created Json object :") );
-178         root\&.printTo(Serial);
-179         Serial\&.println();
-180 
-181         Serial\&.print(F("jsonBuffer size: "));
-182         Serial\&.println(jsonBuffer\&.size());
-183         Serial\&.println();
-184 
-185     
-186     #endif 
-187 
-188         //invert the current action state for each actor
-189         //if the value is outside the limits
-190         for(int i=0;i<8;i++)
-191         {
-192             //check if actor is actif
-193             if(this->actors[i]\&.actif==1)
-194             {
-195                 //normal actor
-196                 if(this->actors[i]\&.temporal == 0)
-197                 {
-198                     //not inverted actor
-199                     if(this->actors[i]\&.inverted==0)
-200                     {
-201                         this->normalAction(i,root[this->actors[i]\&.primaryType]\&.as<float>());
-202             
-203                     }
-204                     //inverted actor
-205                     else if(this->actors[i]\&.inverted==1)
-206                     {
-207                         this->invertedAction(i,root[this->actors[i]\&.primaryType]\&.as<float>());            
-208                     }
-209                 }
-210                 //temporal actor
-211                 else if(this->actors[i]\&.temporal == 1 )
-212                 {
-213                     //hour actor
-214                     if(this->actors[i]\&.secondaryType=="hour")
-215                     {
-216                         //mixed hour actor
-217                         if(root[this->actors[i]\&.primaryType]\&.success() )
-218                         {
-219                             this->mixedHourAction(i,root[this->actors[i]\&.secondaryType]\&.as<int>(),root[this->actors[i]\&.primaryType]\&.as<float>());
-220                         }
-221                         //normal hour actor
-222                         else
-223                         {
-224                             this->hourAction(i,root[this->actors[i]\&.secondaryType]\&.as<int>());
-225                         }
-226                     
-227                     }
-228                     //minute actor
-229                     else if(this->actors[i]\&.secondaryType=="minute")
-230                     {
-231                         //mixed minute actor
-232                         if(root[this->actors[i]\&.primaryType]\&.success() )
-233                         {
-234                             this->mixedMinuteAction(i,root[this->actors[i]\&.secondaryType]\&.as<int>(),root[this->actors[i]\&.primaryType]\&.as<float>());
-235                         }
-236                         //normal minute actor
-237                         else
-238                         {
-239                             this->minuteAction(i,root[this->actors[i]\&.secondaryType]\&.as<int>());
-240                         }
-241                     }
-242                     //hourMinute actor
-243                     else if(this->actors[i]\&.secondaryType=="hourMinute")
-244                     {
-245                         //mixed hourMinute actor
-246                         if(root[this->actors[i]\&.primaryType]\&.success() )
-247                         {
-248                             this->mixedHourMinuteAction(i,root["hour"]\&.as<int>(),root["minute"]\&.as<int>(),root[this->actors[i]\&.primaryType]\&.as<float>());
-249                         }
-250                         //normal hourMinute actor
-251                         else
-252                         {
-253                             this->hourMinuteAction(i,root["hour"]\&.as<int>(),root["minute"]\&.as<int>());
-254                         }
-255                     }
-256                     //normal temporal actor
-257                     else if(this->actors[i]\&.secondaryType=="")
-258                     {
-259                         //mixed temporal actor
-260                         if(root[this->actors[i]\&.primaryType]\&.success() )
-261                         {
-262                             this->mixedTemporalActionOn(i,root[this->actors[i]\&.primaryType]\&.as<float>());
-263                         }
-264                         //normal temporal actor
-265                         else
-266                         {
-267                             this->temporalActionOn(i);
-268                         }
-269                                             
-270                     }
-271 
-272                 }
-273             }
-274             //inactif actor
-275             else if(this->actors[i]\&.actif == 0 )
-276             {
-277                 //temporal actor
-278                 if(this->actors[i]\&.temporal==1)
-279                 {
-280                     //mixed temporal actor
-281                     if(root[this->actors[i]\&.primaryType]\&.success() )
-282                     {
-283                         this->mixedTemporalActionOff(i,root[this->actors[i]\&.primaryType]\&.as<float>());
-284                     }
-285                     //normal temporal actor
-286                     else
-287                     {
-288                         this->temporalActionOff(i);
-289                     }
-290                 }           
-291             }
-292 
-293         }
-294 
-295         this->write(this->action);
-296 
-297     } 
-298 }
-.fi
+References action, actors, hourAction(), hourMinuteAction(), invertedAction(), minuteAction(), mixedHourAction(), mixedHourMinuteAction(), mixedMinuteAction(), mixedTemporalActionOff(), mixedTemporalActionOn(), normalAction(), temporalActionOff(), temporalActionOn(), and write()\&.
+.PP
+Referenced by CoolBoard::offLineMode(), and CoolBoard::onLineMode()\&.
+.SS "void Jetpack::normalAction (int actorNumber, float measurment)"
+Jetpack::normalAction(actorNumber , measured value): This method is provided to handle normal actors\&. it changes the action according to wether the measured value is: > rangeHigh ( deactivate actor) or < rangeLow (activate actor ) 
+.PP
+Definition at line 637 of file Jetpack\&.cpp\&.
+.PP
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::invertedAction (int actorNumber, float measurment)"
+Jetpack::invertedAction(actorNumber , measured value): This method is provided to handle inverted actors\&. it changes the action according to wether the measured value is: 
+.PP
+.RS 4
+rangeHigh (activate actor) 
+.RE
+.PP
+< rangeLow ( deactivate actor ) 
+.PP
+Definition at line 694 of file Jetpack\&.cpp\&.
+.PP
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::temporalActionOff (int actorNumber)"
+Jetpack::temporalActionOff(actorNumber ): This method is provided to handle temporal actors\&. it changes the action according to:
+.PP
+currentTime - startTime > timeHigh : deactivate actor 
+.PP
+Definition at line 749 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, action, actors, and Jetpack::state::inactifTime\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::temporalActionOn (int actorNumber)"
+Jetpack::temporalActionOn(actorNumber ): This method is provided to handle temporal actors\&. it changes the action according to :
+.PP
+currentTime - stopTime > timeLow : activate actor 
+.PP
+Definition at line 886 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, Jetpack::state::actifTime, action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::mixedTemporalActionOff (int actorNumber, float measurment)"
+Jetpack::mixedTemporalActionOff(actorNumber, measured value ): This method is provided to handle mixed temporal actors\&. it changes the action according to:
+.PP
+currentTime - startTime >= timeHigh : measured value >= rangeHigh : deactivate actor measured value < rangeHigh : activate actor 
+.PP
+Definition at line 800 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, action, actors, and Jetpack::state::inactifTime\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::mixedTemporalActionOn (int actorNumber, float measurment)"
+Jetpack::mixedTemporalActionOn(actorNumber, measured value ): This method is provided to handle mixed temporal actors\&. it changes the action according to :
+.PP
+currentTime - stopTime > timeLow : measured value >= rangeLow : deactivate actor measured value < rangeLow : activate actor 
+.PP
+Definition at line 938 of file Jetpack\&.cpp\&.
+.PP
+References Jetpack::state::actif, Jetpack::state::actifTime, action, and actors\&.
+.PP
+Referenced by doAction()\&.
 .SS "void Jetpack::hourAction (int actorNumber, int hour)"
 Jetpack::hourAction(actorNumber, current hour ): This method is provided to handle hour actors\&. it changes the action according to:
 .PP
@@ -535,52 +284,43 @@ hour >= hourLow : deactivate the actor hour >= hourHigh : activate the actor
 .PP
 Definition at line 1027 of file Jetpack\&.cpp\&.
 .PP
-.nf
-1028 {
-1029 
-1030 #if DEBUG == 1
-1031     
-1032     Serial\&.print(F("hour Actor N° : "));
-1033     Serial\&.println(actorNumber);
-1034 
-1035     Serial\&.print(F(" hour : "));
-1036     Serial\&.println(hour);
-1037 
-1038     Serial\&.print(F("high hour : "));
-1039     Serial\&.println(this->actors[actorNumber]\&.hourHigh);
-1040 
-1041     Serial\&.print(F("low hour : "));
-1042     Serial\&.println(this->actors[actorNumber]\&.hourLow);
-1043 
-1044 #endif
-1045 
-1046     //stop the actor    
-1047     if(hour >= this->actors[actorNumber]\&.hourLow)
-1048     {
-1049         bitWrite( this->action , actorNumber , 0) ;
-1050 
-1051     #if DEBUG == 1 
-1052 
-1053         Serial\&.println(F("actor OFF "));
-1054 
-1055     #endif  
-1056 
-1057     }
-1058     //starting the actor
-1059     else if(hour >= this->actors[actorNumber]\&.hourHigh)
-1060     {
-1061         bitWrite( this->action , actorNumber , 1) ;
-1062 
-1063     #if DEBUG == 1 
-1064 
-1065         Serial\&.println(F("actor ON "));
-1066 
-1067     #endif  
-1068     
-1069     }
-1070 
-1071 }
-.fi
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::mixedHourAction (int actorNumber, int hour, float measurment)"
+Jetpack::mixedHourAction(actorNumber, current hour, measured value ): This method is provided to handle mixed hour actors\&. it changes the action according to :
+.PP
+hour >= hourLow : -measuredValue >= rangeHigh : deactivate actor -measured < rangeHigh : activate actor
+.PP
+hour >= hourHigh : -measuredValue < rangeLow : activate actor -measuredValue >=rangeLow : activate actor 
+.PP
+Definition at line 1088 of file Jetpack\&.cpp\&.
+.PP
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::minuteAction (int actorNumber, int minute)"
+Jetpack::minteAction(actorNumber, current minute ): This method is provided to handle minute actors\&. it changes the action according to:
+.PP
+minute >= minuteLow : deactivate the actor minute >= minuteHigh : activate the actor 
+.PP
+Definition at line 1195 of file Jetpack\&.cpp\&.
+.PP
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
+.SS "void Jetpack::mixedMinuteAction (int actorNumber, int minute, float measurment)"
+Jetpack::mixedMinuteAction(actorNumber, current minute, measured value ): This method is provided to handle mixed minute actors\&. it changes the action according to :
+.PP
+minute >= minuteLow : -measuredValue >= rangeHigh : deactivate actor -measured < rangeHigh : activate actor
+.PP
+minute >= minuteHigh : -measuredValue < rangeLow : activate actor -measuredValue >=rangeLow : activate actor 
+.PP
+Definition at line 1255 of file Jetpack\&.cpp\&.
+.PP
+References action, and actors\&.
+.PP
+Referenced by doAction()\&.
 .SS "void Jetpack::hourMinuteAction (int actorNumber, int hour, int minute)"
 Jetpack::minteAction(actorNumber, current hour,current minute ): This method is provided to handle hour minute actors\&. it changes the action according to:
 .PP
@@ -594,302 +334,9 @@ hour > hourHigh : activate the actor
 .PP
 Definition at line 1371 of file Jetpack\&.cpp\&.
 .PP
-.nf
-1372 {
-1373 
-1374 #if DEBUG == 1
-1375 
-1376     Serial\&.print(F("hourMinute Actor N° : "));
-1377     Serial\&.println(actorNumber);
-1378 
-1379     Serial\&.print(F(" hour : "));
-1380     Serial\&.println(hour);
-1381     Serial\&.print(F(" minute : "));
-1382     Serial\&.println(minute);
-1383 
-1384     Serial\&.print(F("high hour : "));
-1385     Serial\&.println(this->actors[actorNumber]\&.hourHigh);
-1386 
-1387     Serial\&.print(F("high minute : "));
-1388     Serial\&.println(this->actors[actorNumber]\&.minuteHigh);
-1389 
-1390     Serial\&.print(F("low hour : "));
-1391     Serial\&.println(this->actors[actorNumber]\&.hourLow);
-1392 
-1393     Serial\&.print(F("low minute : "));
-1394     Serial\&.println(this->actors[actorNumber]\&.minuteLow);
-1395 
-1396 #endif
-1397     //stop the actor
-1398     if(hour==this->actors[actorNumber]\&.hourLow)
-1399     {
-1400         if(minute>= this->actors[actorNumber]\&.minuteLow)
-1401         {
-1402             bitWrite( this->action , actorNumber , 0) ;
-1403         #if DEBUG == 1 
-1404 
-1405             Serial\&.println(F("actor OFF "));
-1406 
-1407         #endif  
-1408         }
-1409     }
-1410     else if(hour > this->actors[actorNumber]\&.hourLow)
-1411     {
-1412 
-1413         bitWrite( this->action , actorNumber , 0) ;
-1414     #if DEBUG == 1 
-1415 
-1416         Serial\&.println(F("actor OFF "));
-1417 
-1418     #endif  
-1419     
-1420     }
-1421     //start the actor
-1422     else if(hour==this->actors[actorNumber]\&.hourHigh)
-1423     {
-1424         if(minute>= this->actors[actorNumber]\&.minuteHigh)
-1425         {
-1426             bitWrite( this->action , actorNumber , 1) ;
-1427 
-1428         #if DEBUG == 1 
-1429 
-1430             Serial\&.println(F("actor ON "));
-1431 
-1432         #endif  
-1433         }
-1434     }
-1435     else if(hour > this->actors[actorNumber]\&.hourHigh)
-1436     {
-1437 
-1438         bitWrite( this->action , actorNumber , 1) ;
-1439 
-1440     #if DEBUG == 1 
-1441 
-1442         Serial\&.println(F("actor ON "));
-1443 
-1444     #endif      
-1445 
-1446     }
-1447 
-1448     
-1449 }
-.fi
-.SS "void Jetpack::invertedAction (int actorNumber, float measurment)"
-Jetpack::invertedAction(actorNumber , measured value): This method is provided to handle inverted actors\&. it changes the action according to wether the measured value is: 
+References action, and actors\&.
 .PP
-.RS 4
-rangeHigh (activate actor) 
-.RE
-.PP
-< rangeLow ( deactivate actor ) 
-.PP
-Definition at line 694 of file Jetpack\&.cpp\&.
-.PP
-.nf
-695 {
-696 #if DEBUG == 1
-697     
-698     Serial\&.print("inverted Actor N° : ");
-699     Serial\&.println(actorNumber);
-700 
-701     Serial\&.print("measured value : ");
-702     Serial\&.println(measurment);
-703 
-704     Serial\&.print("high range : ");
-705     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-706 
-707     Serial\&.print("low range : ");
-708     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-709 
-710 #endif
-711 
-712     //measured value lower than minimum range : deactivate actor
-713     if(measurment < this->actors[actorNumber]\&.rangeLow)
-714     {
-715         bitWrite( this->action , actorNumber , 0) ;
-716 
-717     #if DEBUG == 1 
-718 
-719         Serial\&.println(F("actor OFF "));
-720     
-721     #endif
-722 
-723     }
-724     //measured value higher than maximum range : activate actor
-725     else if(measurment > this->actors[actorNumber]\&.rangeHigh)
-726     {
-727         bitWrite( this->action , actorNumber , 1) ;
-728 
-729     #if DEBUG == 1 
-730 
-731         Serial\&.println(F("actor ON "));
-732     
-733     #endif
-734 
-735     }
-736 
-737 
-738 }
-.fi
-.SS "void Jetpack::minuteAction (int actorNumber, int minute)"
-Jetpack::minteAction(actorNumber, current minute ): This method is provided to handle minute actors\&. it changes the action according to:
-.PP
-minute >= minuteLow : deactivate the actor minute >= minuteHigh : activate the actor 
-.PP
-Definition at line 1195 of file Jetpack\&.cpp\&.
-.PP
-.nf
-1196 {
-1197 
-1198 #if DEBUG == 1
-1199     
-1200     Serial\&.print(F("minute Actor N° : "));
-1201     Serial\&.println(actorNumber);
-1202 
-1203     Serial\&.print(F(" minute : "));
-1204     Serial\&.println(minute);
-1205 
-1206     Serial\&.print(F("high minute : "));
-1207     Serial\&.println(this->actors[actorNumber]\&.minuteHigh);
-1208 
-1209     Serial\&.print(F("low minute : "));
-1210     Serial\&.println(this->actors[actorNumber]\&.minuteLow);
-1211 
-1212 #endif
-1213 
-1214     //stop the actor    
-1215     if(minute >= this->actors[actorNumber]\&.minuteLow)
-1216     {
-1217         bitWrite( this->action , actorNumber , 0) ;
-1218 
-1219     #if DEBUG == 1 
-1220 
-1221         Serial\&.println(F("actor OFF "));
-1222 
-1223     #endif  
-1224 
-1225     }   
-1226     //starting the actor
-1227     else if(minute >= this->actors[actorNumber]\&.minuteHigh)
-1228     {
-1229         bitWrite( this->action , actorNumber , 1) ;
-1230 
-1231     #if DEBUG == 1 
-1232 
-1233         Serial\&.println(F("actor ON "));
-1234 
-1235     #endif  
-1236 
-1237     }
-1238 
-1239 } 
-.fi
-.SS "void Jetpack::mixedHourAction (int actorNumber, int hour, float measurment)"
-Jetpack::mixedHourAction(actorNumber, current hour, measured value ): This method is provided to handle mixed hour actors\&. it changes the action according to :
-.PP
-hour >= hourLow : -measuredValue >= rangeHigh : deactivate actor -measured < rangeHigh : activate actor
-.PP
-hour >= hourHigh : -measuredValue < rangeLow : activate actor -measuredValue >=rangeLow : activate actor 
-.PP
-Definition at line 1088 of file Jetpack\&.cpp\&.
-.PP
-.nf
-1089 {
-1090 
-1091 #if DEBUG == 1
-1092     
-1093     Serial\&.print("mixed hour Actor N° : ");
-1094     Serial\&.println(actorNumber);
-1095 
-1096     Serial\&.print(" hour : ");
-1097     Serial\&.println(hour);
-1098 
-1099     Serial\&.print("high hour : ");
-1100     Serial\&.println(this->actors[actorNumber]\&.hourHigh);
-1101 
-1102     Serial\&.print("low hour : ");
-1103     Serial\&.println(this->actors[actorNumber]\&.hourLow);
-1104 
-1105     Serial\&.print("measured value : ");
-1106     Serial\&.println(measurment);
-1107 
-1108     Serial\&.print("high range : ");
-1109     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1110 
-1111     Serial\&.print("low range : ");
-1112     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1113 
-1114 #endif
-1115     //stop the actor    
-1116     if(hour >= this->actors[actorNumber]\&.hourLow)
-1117     {
-1118             if( measurment >= this->actors[actorNumber]\&.rangeHigh )
-1119             {
-1120                 bitWrite( this->action , actorNumber , 0) ;
-1121 
-1122             #if DEBUG == 1 
-1123 
-1124                 Serial\&.print(measurment);
-1125                 Serial\&.print(F(" > " ));
-1126                 Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1127 
-1128                 Serial\&.println(F("actor OFF "));
-1129 
-1130             #endif  
-1131 
-1132             }
-1133             else 
-1134             {
-1135                 bitWrite( this->action , actorNumber , 1) ;
-1136 
-1137             #if DEBUG == 1 
-1138 
-1139                 Serial\&.print(measurment);
-1140                 Serial\&.print(F(" < " ));
-1141                 Serial\&.print(this->actors[actorNumber]\&.rangeHigh);
-1142 
-1143                 Serial\&.println(F("actor ON "));
-1144 
-1145             #endif  
-1146                 
-1147             }
-1148     }
-1149     //starting the actor
-1150     else if(hour >= this->actors[actorNumber]\&.hourHigh)
-1151     {
-1152             if( measurment < this->actors[actorNumber]\&.rangeLow )
-1153             {
-1154                 bitWrite( this->action , actorNumber , 1) ;
-1155 
-1156             #if DEBUG == 1 
-1157 
-1158                 Serial\&.print(measurment);
-1159                 Serial\&.print(F(" < " ));
-1160                 Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1161 
-1162                 Serial\&.println(F("actor ON "));
-1163 
-1164             #endif  
-1165             }
-1166             else 
-1167             {
-1168                 bitWrite( this->action , actorNumber , 0) ;
-1169 
-1170             #if DEBUG == 1 
-1171 
-1172                 Serial\&.print(measurment);
-1173                 Serial\&.print(F(" > " ));
-1174                 Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1175 
-1176                 Serial\&.println(F("actor OFF "));
-1177 
-1178             #endif                  
-1179             }
-1180 
-1181     }
-1182 
-1183 }
-.fi
+Referenced by doAction()\&.
 .SS "void Jetpack::mixedHourMinuteAction (int actorNumber, int hour, int minute, float measurment)"
 Jetpack::minteAction(actorNumber, current hour,current minute , measured Value ): This method is provided to handle hour minute actors\&. it changes the action according to:
 .PP
@@ -903,786 +350,63 @@ hour > hourHigh : measuredValue >= rangeLow : deactivate actor measuredValue < r
 .PP
 Definition at line 1476 of file Jetpack\&.cpp\&.
 .PP
-.nf
-1477 {
-1478 
-1479 #if DEBUG == 1
-1480     
-1481     Serial\&.print("hourMinute Actor N° : ");
-1482     Serial\&.println(actorNumber);
-1483 
-1484     Serial\&.print(" hour : ");
-1485     Serial\&.println(hour);
-1486     Serial\&.print(" minute : ");
-1487     Serial\&.println(minute);
-1488 
-1489     Serial\&.print("high hour : ");
-1490     Serial\&.println(this->actors[actorNumber]\&.hourHigh);
-1491 
-1492     Serial\&.print("high minute : ");
-1493     Serial\&.println(this->actors[actorNumber]\&.minuteHigh);
-1494 
-1495     Serial\&.print("low hour : ");
-1496     Serial\&.println(this->actors[actorNumber]\&.hourLow);
-1497 
-1498     Serial\&.print("low minute : ");
-1499     Serial\&.println(this->actors[actorNumber]\&.minuteLow);
-1500 
-1501     Serial\&.print("measured value : ");
-1502     Serial\&.println(measurment);
-1503 
-1504     Serial\&.print("high range : ");
-1505     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1506 
-1507     Serial\&.print("low range : ");
-1508     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1509 
-1510 #endif
-1511     //stop the actor
-1512     if(hour==this->actors[actorNumber]\&.hourLow)
-1513     {
-1514         if(minute>= this->actors[actorNumber]\&.minuteLow)
-1515         {
-1516             if( measurment >= this->actors[actorNumber]\&.rangeHigh )
-1517             {
-1518                 bitWrite( this->action , actorNumber , 0) ;
-1519 
-1520             #if DEBUG == 1 
-1521 
-1522                 Serial\&.print(measurment);
-1523                 Serial\&.print(F(" >= " ));
-1524                 Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1525 
-1526                 Serial\&.println(F("actor OFF "));
-1527 
-1528             #endif  
-1529 
-1530             }
-1531             else 
-1532             {
-1533                 bitWrite( this->action , actorNumber , 1) ;
-1534 
-1535             #if DEBUG == 1 
-1536 
-1537                 Serial\&.print(measurment);
-1538                 Serial\&.print(F(" < " ));
-1539                 Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1540 
-1541                 Serial\&.println(F("actor ON "));
-1542 
-1543             #endif  
-1544                 
-1545             }
-1546         }
-1547     }
-1548     else if(hour > this->actors[actorNumber]\&.hourLow)
-1549     {
-1550 
-1551         if( measurment >= this->actors[actorNumber]\&.rangeHigh )
-1552         {
-1553             bitWrite( this->action , actorNumber , 0) ;
-1554 
-1555         #if DEBUG == 1 
-1556 
-1557             Serial\&.print(measurment);
-1558             Serial\&.print(F(" >= " ));
-1559             Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1560 
-1561             Serial\&.println(F("actor OFF "));
-1562 
-1563         #endif  
-1564 
-1565         }
-1566         else 
-1567         {
-1568             bitWrite( this->action , actorNumber , 1) ;
-1569 
-1570         #if DEBUG == 1 
-1571 
-1572             Serial\&.print(measurment);
-1573             Serial\&.print(F(" < " ));
-1574             Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1575 
-1576             Serial\&.println(F("actor ON "));
-1577 
-1578         #endif  
-1579             
-1580         }
-1581 
-1582 
-1583     }
-1584     //start the actor
-1585     else if(hour==this->actors[actorNumber]\&.hourHigh)
-1586     {
-1587         if(minute>= this->actors[actorNumber]\&.minuteHigh)
-1588         {
-1589             if( measurment < this->actors[actorNumber]\&.rangeLow )
-1590             {
-1591                 bitWrite( this->action , actorNumber , 1) ;
-1592 
-1593             #if DEBUG == 1 
-1594 
-1595                 Serial\&.print(measurment);
-1596                 Serial\&.print(F(" < " ));
-1597                 Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1598 
-1599                 Serial\&.println(F("actor ON "));
-1600 
-1601             #endif  
-1602 
-1603             }
-1604             else 
-1605             {
-1606                 bitWrite( this->action , actorNumber , 0) ;
-1607 
-1608             #if DEBUG == 1 
-1609 
-1610                 Serial\&.print(measurment);
-1611                 Serial\&.println(F(" > " ));
-1612                 Serial\&.print(this->actors[actorNumber]\&.rangeLow);
-1613 
-1614                 Serial\&.println(F("actor OFF "));
-1615 
-1616             #endif  
-1617                 
-1618             }
-1619         }
-1620     }
-1621     else if(hour > this->actors[actorNumber]\&.hourHigh)
-1622     {
-1623 
-1624         if( measurment < this->actors[actorNumber]\&.rangeLow )
-1625         {
-1626             bitWrite( this->action , actorNumber , 1) ;
-1627 
-1628         #if DEBUG == 1 
-1629 
-1630             Serial\&.print(measurment);
-1631             Serial\&.print(F(" < " ));
-1632             Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1633 
-1634             Serial\&.println(F("actor ON "));
-1635 
-1636         #endif  
-1637 
-1638         }
-1639         else 
-1640         {
-1641             bitWrite( this->action , actorNumber , 0) ;
-1642 
-1643         #if DEBUG == 1 
-1644 
-1645             Serial\&.print(measurment);
-1646             Serial\&.println(F(" > " ));
-1647             Serial\&.print(this->actors[actorNumber]\&.rangeLow);
-1648 
-1649             Serial\&.println(F("actor OFF "));
-1650 
-1651         #endif  
-1652             
-1653         }
-1654     
-1655     }
-1656 
-1657 }
-.fi
-.SS "void Jetpack::mixedMinuteAction (int actorNumber, int minute, float measurment)"
-Jetpack::mixedMinuteAction(actorNumber, current minute, measured value ): This method is provided to handle mixed minute actors\&. it changes the action according to :
+References action, and actors\&.
 .PP
-minute >= minuteLow : -measuredValue >= rangeHigh : deactivate actor -measured < rangeHigh : activate actor
+Referenced by doAction()\&.
+.SS "bool Jetpack::config ()"
+\fBJetpack::config()\fP: This method is provided to configure the \fBJetpack\fP with a configuration file
 .PP
-minute >= minuteHigh : -measuredValue < rangeLow : activate actor -measuredValue >=rangeLow : activate actor 
+\fBReturns:\fP
+.RS 4
+true if successful,false otherwise 
+.RE
 .PP
-Definition at line 1255 of file Jetpack\&.cpp\&.
+
 .PP
-.nf
-1256 {
-1257 
-1258 #if DEBUG == 1
-1259     
-1260     Serial\&.print("mixed minute Actor N° : ");
-1261     Serial\&.println(actorNumber);
-1262 
-1263     Serial\&.print(" minute : ");
-1264     Serial\&.println(minute);
-1265 
-1266     Serial\&.print("high minute : ");
-1267     Serial\&.println(this->actors[actorNumber]\&.minuteHigh);
-1268 
-1269     Serial\&.print("low minute : ");
-1270     Serial\&.println(this->actors[actorNumber]\&.minuteLow);
-1271 
-1272     Serial\&.print("measured value : ");
-1273     Serial\&.println(measurment);
-1274 
-1275     Serial\&.print("high range : ");
-1276     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1277 
-1278     Serial\&.print("low range : ");
-1279     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1280 
-1281 #endif
-1282     //stop the actor    
-1283     if(minute >= this->actors[actorNumber]\&.minuteLow)
-1284     {
-1285             if( measurment > this->actors[actorNumber]\&.rangeHigh )
-1286             {
-1287                 bitWrite( this->action , actorNumber , 0) ;
-1288 
-1289             #if DEBUG == 1 
-1290 
-1291                 Serial\&.print(measurment);
-1292                 Serial\&.print(F(" > " ));
-1293                 Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1294 
-1295                 Serial\&.println(F("actor OFF "));
-1296 
-1297             #endif
-1298     
-1299             }
-1300             else 
-1301             {
-1302                 bitWrite( this->action , actorNumber , 1) ;
-1303 
-1304             #if DEBUG == 1 
-1305 
-1306                 Serial\&.print(measurment);
-1307                 Serial\&.print(F(" < " ));
-1308                 Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-1309 
-1310                 Serial\&.println(F("actor ON "));
-1311 
-1312             #endif  
-1313                 
-1314             }
-1315     }   
-1316     //starting the actor
-1317     else if(minute >= this->actors[actorNumber]\&.minuteHigh)
-1318     {
-1319             if( measurment < this->actors[actorNumber]\&.rangeLow )
-1320             {
-1321                 bitWrite( this->action , actorNumber , 1) ;
-1322 
-1323             #if DEBUG == 1 
-1324 
-1325                 Serial\&.print(measurment);
-1326                 Serial\&.print(F(" < " ));
-1327                 Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1328 
-1329                 Serial\&.println(F("actor ON "));
-1330 
-1331             #endif  
-1332 
-1333             }
-1334             else 
-1335             {
-1336                 bitWrite( this->action , actorNumber , 0) ;
-1337             
-1338             #if DEBUG == 1 
-1339 
-1340                 Serial\&.print(measurment);
-1341                 Serial\&.print(F(" > " ));
-1342                 Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1343 
-1344                 Serial\&.println(F("actor OFF "));
-1345 
-1346             #endif  
-1347                 
-1348             }
-1349 
-1350     }
-1351 
-1352 }
-.fi
-.SS "void Jetpack::mixedTemporalActionOff (int actorNumber, float measurment)"
-Jetpack::mixedTemporalActionOff(actorNumber, measured value ): This method is provided to handle mixed temporal actors\&. it changes the action according to:
+Definition at line 307 of file Jetpack\&.cpp\&.
 .PP
-currentTime - startTime >= timeHigh : measured value >= rangeHigh : deactivate actor measured value < rangeHigh : activate actor 
+References Jetpack::state::actif, actors, Jetpack::state::hourHigh, Jetpack::state::hourLow, Jetpack::state::inverted, Jetpack::state::minuteHigh, Jetpack::state::minuteLow, Jetpack::state::primaryType, Jetpack::state::rangeHigh, Jetpack::state::rangeLow, Jetpack::state::secondaryType, Jetpack::state::temporal, Jetpack::state::timeHigh, and Jetpack::state::timeLow\&.
 .PP
-Definition at line 800 of file Jetpack\&.cpp\&.
-.PP
-.nf
-801 {
-802 
-803 #if DEBUG == 1
-804     
-805     Serial\&.print("mixed Temporal Actor N° : ");
-806     Serial\&.println(actorNumber);
-807 
-808     Serial\&.print("measured value : ");
-809     Serial\&.println(measurment);
-810 
-811     Serial\&.print("high range : ");
-812     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-813 
-814     Serial\&.print("time high : ");
-815     Serial\&.println(this->actors[actorNumber]\&.timeHigh);
-816 
-817     Serial\&.print("actif Time : ");
-818     Serial\&.println(this->actors[actorNumber]\&.actifTime);
-819 
-820     Serial\&.print(F("millis : "));
-821     Serial\&.println(millis());
-822 
-823 #endif
-824     if( ( millis()- this->actors[actorNumber]\&.actifTime  ) >= (  this->actors[actorNumber]\&.timeHigh  ) )
-825     {   
-826         if( measurment >= this->actors[actorNumber]\&.rangeHigh )
-827         {
-828             //stop the actor
-829             bitWrite( this->action , actorNumber , 0) ;
-830 
-831             //make the actor inactif:
-832             this->actors[actorNumber]\&.actif=0;
-833 
-834             //start the low timer
-835             this->actors[actorNumber]\&.inactifTime=millis();
-836 
-837         #if DEBUG == 1 
-838 
-839             Serial\&.print(F("actor was on for at least "));
-840             Serial\&.print(this->actors[actorNumber]\&.timeHigh);
-841             Serial\&.println(F(" ms "));
-842 
-843             Serial\&.print(measurment);
-844             Serial\&.print(F(" > " ));
-845             Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-846 
-847             
-848             Serial\&.println(F("actor OFF "));
-849 
-850         #endif
-851 
-852         }
-853         else 
-854         {
-855             bitWrite( this->action , actorNumber , 1) ;
-856 
-857         #if DEBUG == 1 
-858             
-859             Serial\&.print(F("actor was on for at least "));
-860             Serial\&.print(this->actors[actorNumber]\&.timeHigh);
-861             Serial\&.println(F(" ms "));
-862 
-863             Serial\&.print(measurment);
-864             Serial\&.print(F(" < " ));
-865             Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-866 
-867             Serial\&.println(F("actor ON "));
-868 
-869         #endif              
-870 
-871         }           
-872     }
-873 
-874 }
-.fi
-.SS "void Jetpack::mixedTemporalActionOn (int actorNumber, float measurment)"
-Jetpack::mixedTemporalActionOn(actorNumber, measured value ): This method is provided to handle mixed temporal actors\&. it changes the action according to :
-.PP
-currentTime - stopTime > timeLow : measured value >= rangeLow : deactivate actor measured value < rangeLow : activate actor 
-.PP
-Definition at line 938 of file Jetpack\&.cpp\&.
-.PP
-.nf
-939 {
-940 
-941 #if DEBUG == 1
-942     
-943     Serial\&.print("mixed Temporal Actor N° : ");
-944     Serial\&.println(actorNumber);
-945 
-946     Serial\&.print("measured value : ");
-947     Serial\&.println(measurment);
-948 
-949     Serial\&.print("low range : ");
-950     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-951 
-952     Serial\&.print("time low : ");
-953     Serial\&.println(this->actors[actorNumber]\&.timeLow);
-954 
-955     Serial\&.print("inactif Time : ");
-956     Serial\&.println(this->actors[actorNumber]\&.inactifTime);
-957 
-958     Serial\&.print(F("millis : "));
-959     Serial\&.println(millis());
-960 
-961 #endif
-962 
-963     if( ( millis() - this->actors[actorNumber]\&.inactifTime ) >= (  this->actors[actorNumber]\&.timeLow  ) )
-964     {
-965         if( measurment < this->actors[actorNumber]\&.rangeLow )
-966         {
-967             //start the actor
-968             bitWrite( this->action , actorNumber , 1) ;
-969 
-970             //make the actor actif:
-971             this->actors[actorNumber]\&.actif=1;
-972 
-973             //start the low timer
-974             this->actors[actorNumber]\&.actifTime=millis();
-975 
-976         #if DEBUG == 1 
-977 
-978             Serial\&.print(F("actor was off for at least "));
-979             Serial\&.print(this->actors[actorNumber]\&.timeLow);
-980             Serial\&.println(F(" ms "));
-981 
-982             Serial\&.print(measurment);
-983             Serial\&.print(F(" < " ));
-984             Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-985     
-986             Serial\&.println(F("actor ON "));
-987     
-988         #endif  
-989 
-990         }
-991         else 
-992         {
-993             bitWrite( this->action , actorNumber , 0) ; 
-994 
-995         #if DEBUG == 1 
-996 
-997             Serial\&.print(F("actor was off for at least "));
-998             Serial\&.print(this->actors[actorNumber]\&.timeLow);
-999             Serial\&.println(F(" ms "));
-1000 
-1001             Serial\&.print(measurment);
-1002             Serial\&.print(F(" > " ));
-1003             Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-1004 
-1005             Serial\&.println(F("actor OFF "));
-1006     
-1007         #endif              
-1008 
-1009         }
-1010 
-1011     }
-1012 
-1013     
-1014 }
-.fi
-.SS "void Jetpack::normalAction (int actorNumber, float measurment)"
-Jetpack::normalAction(actorNumber , measured value): This method is provided to handle normal actors\&. it changes the action according to wether the measured value is: > rangeHigh ( deactivate actor) or < rangeLow (activate actor ) 
-.PP
-Definition at line 637 of file Jetpack\&.cpp\&.
-.PP
-.nf
-638 {
-639 
-640 #if DEBUG == 1
-641     
-642     Serial\&.print(F("none inverted Actor N° : "));
-643     Serial\&.println(actorNumber);
-644 
-645     Serial\&.print(F("measured value : "));
-646     Serial\&.println(measurment);
-647 
-648     Serial\&.print(F("high range : "));
-649     Serial\&.println(this->actors[actorNumber]\&.rangeHigh);
-650 
-651     Serial\&.print(F("low range : "));
-652     Serial\&.println(this->actors[actorNumber]\&.rangeLow);
-653 
-654 #endif
-655 
-656     //measured value lower than minimum range : activate actor
-657     if(measurment < this->actors[actorNumber]\&.rangeLow)
-658     {
-659         bitWrite( this->action , actorNumber , 1) ;
-660 
-661     #if DEBUG == 1 
-662 
-663         Serial\&.println(F("actor ON "));
-664     
-665     #endif
-666                 
-667     }
-668     //measured value higher than maximum range : deactivate actor
-669     else if(measurment > this->actors[actorNumber]\&.rangeHigh)
-670     {
-671         bitWrite( this->action , actorNumber , 0) ;
-672 
-673     #if DEBUG == 1 
-674 
-675         Serial\&.println(F("actor OFF "));
-676     
-677     #endif
-678     
-679     }
-680 
-681 
-682 }
-.fi
+Referenced by CoolBoard::begin()\&.
 .SS "void Jetpack::printConf ()"
 \fBJetpack::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
 .PP
 Definition at line 543 of file Jetpack\&.cpp\&.
 .PP
-.nf
-544 {
-545 
-546 #if DEBUG == 1 
-547 
-548     Serial\&.println( F("Enter Jetpack\&.printConf() ") );
-549     Serial\&.println();
-550 
-551 #endif 
-552     Serial\&.println(F( "Jetpack configuration " ) ) ;
-553  
-554         for(int i=0;i<8;i++)
-555     {   
-556         Serial\&.print(F("actor N°"));
-557         Serial\&.print(i);
-558         Serial\&.print(F(" actif :"));
-559         Serial\&.println(this->actors[i]\&.actif);
-560         
-561         Serial\&.print(F("actor N°"));
-562         Serial\&.print(i);
-563         Serial\&.print(F(" temporal :"));
-564         Serial\&.println(this->actors[i]\&.temporal);
-565 
-566         Serial\&.print(F("actor N°"));
-567         Serial\&.print(i);
-568         Serial\&.print(F(" inverted :"));
-569         Serial\&.println(this->actors[i]\&.inverted);
-570 
-571 
-572         Serial\&.print(F("actor N°"));
-573         Serial\&.print(i);
-574         Serial\&.print(F(" primary Type :"));
-575         Serial\&.println(this->actors[i]\&.primaryType);
-576 
-577         Serial\&.print(F("actor N°"));
-578         Serial\&.print(i);
-579         Serial\&.print(F(" secondary Type :"));        
-580         Serial\&.println(this->actors[i]\&.secondaryType);
-581 
-582         Serial\&.print(F("actor N°"));
-583         Serial\&.print(i);
-584         Serial\&.print(F(" range Low :"));
-585         Serial\&.println(this->actors[i]\&.rangeLow);
-586 
-587         Serial\&.print(F("actor N°"));
-588         Serial\&.print(i);
-589         Serial\&.print(F(" time Low :"));
-590         Serial\&.println(this->actors[i]\&.timeLow);
-591 
-592         Serial\&.print(F("actor N°"));
-593         Serial\&.print(i);
-594         Serial\&.print(F(" hour low:"));
-595         Serial\&.println(this->actors[i]\&.hourLow);
-596 
-597         Serial\&.print(F("actor N°"));
-598         Serial\&.print(i);
-599         Serial\&.print(F(" minute low:"));
-600         Serial\&.println(this->actors[i]\&.minuteLow);
-601 
-602         Serial\&.print(F("actor N°"));
-603         Serial\&.print(i);
-604         Serial\&.print(F(" range High:"));
-605         Serial\&.println(this->actors[i]\&.rangeHigh);
-606 
-607         Serial\&.print(F("actor N°"));
-608         Serial\&.print(i);
-609         Serial\&.print(F(" time High:"));
-610         Serial\&.println(this->actors[i]\&.timeHigh);
-611 
-612         Serial\&.print(F("actor N°"));
-613         Serial\&.print(i);
-614         Serial\&.print(F(" hour high:"));
-615         Serial\&.println(this->actors[i]\&.hourHigh);
-616 
-617         Serial\&.print(F("actor N°"));
-618         Serial\&.print(i);
-619         Serial\&.print(F(" minute high:"));
-620         Serial\&.println(this->actors[i]\&.minuteHigh);
-621 
-622         Serial\&.println(); 
-623 
-624     }
-625 
-626     Serial\&.println();
-627 }
-.fi
-.SS "void Jetpack::temporalActionOff (int actorNumber)"
-Jetpack::temporalActionOff(actorNumber ): This method is provided to handle temporal actors\&. it changes the action according to:
+References actors\&.
 .PP
-currentTime - startTime > timeHigh : deactivate actor 
-.PP
-Definition at line 749 of file Jetpack\&.cpp\&.
-.PP
-.nf
-750 {
-751 
-752 #if DEBUG == 1
-753     
-754     Serial\&.print(F("temporal Actor N° : "));
-755     Serial\&.println(actorNumber);
-756 
-757     Serial\&.print(F("millis : "));
-758     Serial\&.println(millis());
-759 
-760     Serial\&.print(F("actif Time : "));
-761     Serial\&.println(this->actors[actorNumber]\&.actifTime);
-762 
-763     Serial\&.print(F("high time : "));
-764     Serial\&.println(this->actors[actorNumber]\&.timeHigh);
-765 
-766 
-767 #endif
-768     
-769     if( ( millis()- this->actors[actorNumber]\&.actifTime  ) >= (  this->actors[actorNumber]\&.timeHigh  ) )
-770     {
-771         //stop the actor
-772         bitWrite( this->action , actorNumber , 0) ;
-773 
-774         //make the actor inactif:
-775         this->actors[actorNumber]\&.actif=0;
-776 
-777         //start the low timer
-778         this->actors[actorNumber]\&.inactifTime=millis();
-779 
-780     #if DEBUG == 1 
-781 
-782         Serial\&.println(F("actor OFF "));
-783     
-784     #endif
-785                 
-786     }   
-787 }
-.fi
-.SS "void Jetpack::temporalActionOn (int actorNumber)"
-Jetpack::temporalActionOn(actorNumber ): This method is provided to handle temporal actors\&. it changes the action according to :
-.PP
-currentTime - stopTime > timeLow : activate actor 
-.PP
-Definition at line 886 of file Jetpack\&.cpp\&.
-.PP
-.nf
-887 {
-888 
-889 #if DEBUG == 1
-890     
-891     Serial\&.print(F("temporal Actor N° : "));
-892     Serial\&.println(actorNumber);
-893 
-894     Serial\&.print(F("millis : "));
-895     Serial\&.println(millis());
-896 
-897     Serial\&.print(F("inactif Time : "));
-898     Serial\&.println(this->actors[actorNumber]\&.inactifTime);
-899 
-900     Serial\&.print(F("low time : "));
-901     Serial\&.println(this->actors[actorNumber]\&.timeLow);
-902 
-903 
-904 #endif
-905     
-906      if( ( millis() - this->actors[actorNumber]\&.inactifTime ) >= (  this->actors[actorNumber]\&.timeLow  ) )
-907     {
-908         //start the actor
-909         bitWrite( this->action , actorNumber , 1) ;
-910 
-911         //make the actor actif:
-912         this->actors[actorNumber]\&.actif=1;
-913 
-914         //start the low timer
-915         this->actors[actorNumber]\&.actifTime=millis();
-916 
-917     #if DEBUG == 1 
-918 
-919         Serial\&.println(F("actor ON "));
-920 
-921     #endif              
-922 
-923     }
-924 
-925 }
-.fi
-.SS "void Jetpack::write (byte action)"
-Jetpack::write(action): This method is provided to write the given action to the entire \fBJetpack\fP action is a Byte (8 bits ), each bit goes to an output\&. MSBFirst 
-.PP
-Definition at line 77 of file Jetpack\&.cpp\&.
-.PP
-.nf
-78 {
-79 
-80 #if DEBUG == 1
-81 
-82     Serial\&.println( F("Entering Jetpack\&.write()") );
-83     Serial\&.println();
-84 
-85     Serial\&.println( F("writing this action : ") );
-86     Serial\&.println(action,BIN);
-87     Serial\&.println();
-88 
-89 #endif 
-90 
-91     this->action=action;
-92 
-93     
-94     digitalWrite(EnI2C, LOW);
-95     
-96     shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-97 
-98     digitalWrite(EnI2C, HIGH);
-99 
-100 
-101 }
-.fi
-.SS "void Jetpack::writeBit (byte pin, bool state)"
-Jetpack::writeBit(pin,state): This method is provided to write the given state to the given pin 
-.PP
-Definition at line 108 of file Jetpack\&.cpp\&.
-.PP
-.nf
-109 {
-110 
-111 #if DEBUG == 1 
-112 
-113     Serial\&.println( F("Entering Jetpack\&.writeBit() ") );
-114 
-115     Serial\&.print( F("Writing ") );
-116     Serial\&.print(state);
-117 
-118     Serial\&.print( F("to pin N°") );
-119     Serial\&.print(pin);
-120 
-121     Serial\&.println();
-122 
-123 #endif
-124 
-125     bitWrite(this->action, pin, state);
-126     digitalWrite(EnI2C, LOW);
-127     
-128     shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-129 
-130     digitalWrite(EnI2C, HIGH);
-131 
-132 }
-.fi
+Referenced by CoolBoard::begin()\&.
 .SH "Member Data Documentation"
 .PP 
 .SS "byte Jetpack::action = B00000000\fC [private]\fP"
 the \fBJetpack\fP's Action 
 .PP
 Definition at line 90 of file Jetpack\&.h\&.
+.PP
+Referenced by doAction(), hourAction(), hourMinuteAction(), invertedAction(), minuteAction(), mixedHourAction(), mixedHourMinuteAction(), mixedMinuteAction(), mixedTemporalActionOff(), mixedTemporalActionOn(), normalAction(), temporalActionOff(), temporalActionOn(), write(), and writeBit()\&.
 .SS "struct \fBJetpack::state\fP Jetpack::actors[8]\fC [private]\fP"
 
+.PP
+Referenced by config(), doAction(), hourAction(), hourMinuteAction(), invertedAction(), minuteAction(), mixedHourAction(), mixedHourMinuteAction(), mixedMinuteAction(), mixedTemporalActionOff(), mixedTemporalActionOn(), normalAction(), printConf(), temporalActionOff(), and temporalActionOn()\&.
 .SS "const int Jetpack::clockPin = 4\fC [private]\fP"
 clock pin for the shift register 
 .PP
-Definition at line 184 of file Jetpack\&.h\&.
+Definition at line 211 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
 .SS "const int Jetpack::dataPin = 15\fC [private]\fP"
 data pin for the shift register 
 .PP
-Definition at line 189 of file Jetpack\&.h\&.
+Definition at line 216 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
 .SS "const int Jetpack::EnI2C =5\fC [private]\fP"
 I2C Enable pin 
 .PP
-Definition at line 194 of file Jetpack\&.h\&.
+Definition at line 221 of file Jetpack\&.h\&.
+.PP
+Referenced by begin(), write(), and writeBit()\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

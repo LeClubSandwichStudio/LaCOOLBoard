@@ -1,4 +1,4 @@
-.TH "NDIR_I2C" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "NDIR_I2C" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -70,15 +70,7 @@ Definition at line 27 of file CoolNDIR_I2C\&.h\&.
 .PP
 Definition at line 77 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-78 {
-79     if (i2c_addr >= 8 && i2c_addr < 120) {
-80         NDIR_I2C::i2c_addr = i2c_addr;
-81     } else {
-82         NDIR_I2C::i2c_addr = 0;
-83     }
-84 }
-.fi
+References i2c_addr\&.
 .SH "Member Function Documentation"
 .PP 
 .SS "uint8_t NDIR_I2C::begin (void)"
@@ -86,218 +78,82 @@ Definition at line 77 of file CoolNDIR_I2C\&.cpp\&.
 .PP
 Definition at line 87 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-88 {
-89     if (i2c_addr) {
-90         WIRE\&.begin(2,14);
-91         write_register(IOCONTROL, 0x08);
-92 
-93         if (write_register(FCR, 0x07)) {
-94             if (write_register(LCR, 0x83)) {
-95                 if (write_register(DLL, 0x60)) {
-96                     if (write_register(DLH, 0x00)) {
-97                         if (write_register(LCR, 0x03)) {
-98                             if (measure()) {
-99                                 return true;
-100                             }
-101                         }
-102                     }
-103                 }
-104             }
-105         }
-106     }
-107 
-108     return false;
-109 }
-.fi
+References DLH, DLL, FCR, i2c_addr, IOCONTROL, LCR, measure(), WIRE, and write_register()\&.
 .SS "uint8_t NDIR_I2C::measure ()"
 
 .PP
 Definition at line 111 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-112 {
-113     uint8_t buf[9];
-114 
-115     if (i2c_addr) {
-116         if (write_register(FCR, 0x07)) {
-117             delayMicroseconds(1);
-118 
-119             if (send(cmd_measure, 9)) {
-120                 if (receive(buf, 9)) {
-121                     if (parse(buf)) {
-122                         return true;
-123                     }
-124                 }
-125             }
-126         }
-127     }
-128 
-129     return false;
-130 }
-.fi
-.SS "uint8_t NDIR_I2C::parse (uint8_t * pbuf)\fC [private]\fP"
-
+References cmd_measure, FCR, i2c_addr, parse(), receive(), send(), and write_register()\&.
 .PP
-Definition at line 133 of file CoolNDIR_I2C\&.cpp\&.
-.PP
-.nf
-134 {
-135     uint8_t i;
-136     uint8_t checksum = 0;
-137 
-138     for (i=0; i<9; i++) {
-139         checksum += pbuf[i];
-140     }
-141 
-142     if (pbuf[0] == 0xFF && pbuf[1] == 0x9C && checksum == 0xFF) {
-143         ppm = (uint32_t)pbuf[2] << 24 | (uint32_t)pbuf[3] << 16 | (uint32_t)pbuf[4] << 8 | pbuf[5];
-144         return true;
-145     } else {
-146         return false;
-147     }
-148 }
-.fi
-.SS "uint8_t NDIR_I2C::read_register (uint8_t reg_addr, uint8_t * pval)\fC [private]\fP"
-
-.PP
-Definition at line 208 of file CoolNDIR_I2C\&.cpp\&.
-.PP
-.nf
-209 {
-210     uint8_t result;
-211 
-212     WIRE\&.beginTransmission(i2c_addr);
-213     WIRE\&.write(reg_addr << 3);
-214 
-215     if (WIRE\&.endTransmission() != 0) {
-216         return false;
-217     }
-218 
-219     if (WIRE\&.requestFrom(i2c_addr, (uint8_t)1) != 1) {
-220         return false;
-221     }
-222 
-223    *pval = WIRE\&.read();
-224     return true;
-225 }
-.fi
-.SS "uint8_t NDIR_I2C::receive (uint8_t * pbuf, uint8_t n)\fC [private]\fP"
-
-.PP
-Definition at line 166 of file CoolNDIR_I2C\&.cpp\&.
-.PP
-.nf
-166                                                   {
-167     uint8_t  i;
-168     uint8_t  rx_level;
-169     uint32_t start = millis();
-170 
-171     while (n) {
-172         if (read_register(RXLVL, &rx_level)) {
-173             if (rx_level > n) {
-174                 rx_level = n;
-175             }
-176 
-177             if (rx_level) {
-178                 WIRE\&.beginTransmission(i2c_addr);
-179                 WIRE\&.write(RHR << 3);
-180 
-181                 if (WIRE\&.endTransmission() != 0) {
-182                     return false;
-183                 }//delay(10);
-184 
-185                 if (rx_level == WIRE\&.requestFrom(i2c_addr, rx_level)) {
-186                     for (i=0; i<rx_level; i++) {
-187                        *pbuf = WIRE\&.read();
-188                         pbuf++;
-189                         n--;
-190                     }
-191                 } else {
-192                     return false;
-193                 }
-194             }
-195         } else {
-196             return false;
-197         }
-198 
-199         if (millis() - start > RECEIVE_TIMEOUT) {
-200             return false;
-201         }
-202     }
-203 
-204     return true;
-205 }
-.fi
+Referenced by begin()\&.
 .SS "uint8_t NDIR_I2C::send (uint8_t * pdata, uint8_t n)\fC [private]\fP"
 
 .PP
 Definition at line 151 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-151                                                 {
-152     uint8_t result;
-153 
-154     if (read_register(TXLVL, &result)) {
-155         if (result >= n) {
-156             if (write_register(THR, pdata, n)) {
-157                 return true;
-158             }
-159         }
-160     }
-161 
-162     return false;
-163 }
-.fi
+References read_register(), THR, TXLVL, and write_register()\&.
+.PP
+Referenced by measure()\&.
+.SS "uint8_t NDIR_I2C::receive (uint8_t * pbuf, uint8_t n)\fC [private]\fP"
+
+.PP
+Definition at line 166 of file CoolNDIR_I2C\&.cpp\&.
+.PP
+References i2c_addr, read_register(), RECEIVE_TIMEOUT, RHR, RXLVL, and WIRE\&.
+.PP
+Referenced by measure()\&.
+.SS "uint8_t NDIR_I2C::read_register (uint8_t reg_addr, uint8_t * pval)\fC [private]\fP"
+
+.PP
+Definition at line 208 of file CoolNDIR_I2C\&.cpp\&.
+.PP
+References i2c_addr, and WIRE\&.
+.PP
+Referenced by receive(), and send()\&.
 .SS "uint8_t NDIR_I2C::write_register (uint8_t reg_addr, uint8_t * pdata, uint8_t n)\fC [private]\fP"
 
 .PP
 Definition at line 228 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-229 {
-230     uint8_t result;
-231 
-232     WIRE\&.beginTransmission(i2c_addr);
-233     WIRE\&.write(reg_addr << 3);
-234 
-235     while (n--) {
-236         WIRE\&.write(*pdata);
-237         pdata++;
-238     }
-239 
-240     if (WIRE\&.endTransmission() != 0) {
-241         return false;
-242     } else {
-243         return true;
-244     }
-245 }
-.fi
+References i2c_addr, and WIRE\&.
+.PP
+Referenced by begin(), measure(), send(), and write_register()\&.
 .SS "uint8_t NDIR_I2C::write_register (uint8_t reg_addr, uint8_t val)\fC [private]\fP"
 
 .PP
 Definition at line 248 of file CoolNDIR_I2C\&.cpp\&.
 .PP
-.nf
-249 {
-250     return write_register(reg_addr, &val, 1);
-251 }
-.fi
-.SH "Member Data Documentation"
-.PP 
-.SS "uint8_t NDIR_I2C::cmd_measure = {0xFF,0x01,0x9C,0x00,0x00,0x00,0x00,0x00,0x63}\fC [static]\fP, \fC [private]\fP"
+References write_register()\&.
+.SS "uint8_t NDIR_I2C::parse (uint8_t * pbuf)\fC [private]\fP"
 
 .PP
-Definition at line 38 of file CoolNDIR_I2C\&.h\&.
+Definition at line 133 of file CoolNDIR_I2C\&.cpp\&.
+.PP
+References ppm\&.
+.PP
+Referenced by measure()\&.
+.SH "Member Data Documentation"
+.PP 
 .SS "uint8_t NDIR_I2C::i2c_addr"
 
 .PP
 Definition at line 31 of file CoolNDIR_I2C\&.h\&.
+.PP
+Referenced by begin(), measure(), NDIR_I2C(), read_register(), receive(), and write_register()\&.
 .SS "uint32_t NDIR_I2C::ppm"
 
 .PP
 Definition at line 32 of file CoolNDIR_I2C\&.h\&.
+.PP
+Referenced by parse()\&.
+.SS "uint8_t NDIR_I2C::cmd_measure = {0xFF,0x01,0x9C,0x00,0x00,0x00,0x00,0x00,0x63}\fC [static]\fP, \fC [private]\fP"
+
+.PP
+Definition at line 38 of file CoolNDIR_I2C\&.h\&.
+.PP
+Referenced by measure()\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

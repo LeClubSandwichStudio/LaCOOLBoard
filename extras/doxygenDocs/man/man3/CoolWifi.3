@@ -1,4 +1,4 @@
-.TH "CoolWifi" 3 "Wed Aug 30 2017" "CoolBoardAPI" \" -*- nroff -*-
+.TH "CoolWifi" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -69,177 +69,14 @@ This class manages the WiFi connection \&.
 Definition at line 52 of file CoolWifi\&.h\&.
 .SH "Member Function Documentation"
 .PP 
-.SS "bool CoolWifi::addWifi (String ssid, String pass = \fC''\fP)"
-CoolWifi::addWifi(ssid,pass) This method is provided to add new WiFi detected by the \fBWiFiManager\fP to the jsonConfig(if used )
-.PP
-\fBReturns:\fP
-.RS 4
-true if successfull , false otherwise 
-.RE
-.PP
-
-.PP
-Definition at line 570 of file CoolWifi\&.cpp\&.
-.PP
-.nf
-571 {
-572 
-573 #if DEBUG == 1
-574     
-575     Serial\&.println("Entering CoolWifi\&.addWifi() ") ;
-576 
-577 #endif  
-578     
-579     this->wifiCount++;
-580     if( this->wifiCount >=50)
-581     {
-582     
-583     #if DEBUG == 1
-584 
-585         Serial\&.println("You have reached the limit of 50");
-586         return(false);  
-587     
-588     #endif
-589 
-590     }
-591 
-592     this->ssid[this->wifiCount-1]=ssid;
-593     this->pass[this->wifiCount-1]=pass;
-594     
-595     //read config file
-596     //update data
-597     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
-598 
-599     if (!configFile) 
-600     {
-601     
-602     #if DEBUG == 1 
-603 
-604         Serial\&.println( F("failed to read /wifiConfig\&.json") );
-605         Serial\&.println();
-606 
-607     #endif
-608     }
-609     else
-610     {
-611         size_t size = configFile\&.size();
-612         // Allocate a buffer to store contents of the file\&.
-613         std::unique_ptr<char[]> buf(new char[size]);
-614 
-615         configFile\&.readBytes(buf\&.get(), size);
-616         DynamicJsonBuffer jsonBuffer;
-617         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-618         if (!json\&.success()) 
-619         {
-620         
-621         #if DEBUG == 1 
-622 
-623             Serial\&.println( F("failed to parse json ") );
-624             Serial\&.println();
-625         
-626         #endif
-627         } 
-628         else
-629         {
-630         
-631         #if DEBUG == 1 
-632         
-633             Serial\&.println( F("configuration json is ") );
-634             json\&.printTo(Serial);
-635             Serial\&.println();
-636 
-637             Serial\&.print(F("jsonBuffer size: "));
-638             Serial\&.println(jsonBuffer\&.size());
-639             Serial\&.println();
-640 
-641 
-642         #endif
-643             //wifiCount
-644             if(json["wifiCount"]\&.success() )
-645             {           
-646                 json["wifiCount"]=this->wifiCount;
-647             }
-648             else
-649             {
-650                 this->wifiCount=this->wifiCount;
-651             }
-652             json["wifiCount"]=this->wifiCount;
-653 
-654             
-655             //AP timeOut
-656             if(json["timeOut"]\&.success() )
-657             {
-658                 this->timeOut=json["timeOut"];
-659             }
-660             else
-661             {
-662                 this->timeOut=this->timeOut;
-663 
-664             }
-665             json["timeOut"]=this->timeOut;
-666             
-667             
-668             //new Wifi SSID and PASS
-669             JsonObject& newWifi = json\&.createNestedObject( "Wifi"+String( this->wifiCount-1 ) );
-670             
-671             newWifi["ssid"] =this->ssid[this->wifiCount-1];
-672             newWifi["pass"] = this->pass[this->wifiCount-1];
-673             
-674 
-675             configFile\&.close();
-676             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
-677             if(!configFile)
-678             {
-679             
-680             #if DEBUG == 1 
-681 
-682                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
-683             
-684             #endif
-685 
-686             }
-687             
-688             json\&.printTo(configFile);
-689             configFile\&.close();
-690 
-691         #if DEBUG == 1 
-692 
-693             Serial\&.println( F("saved configuration is :") );
-694             json\&.printTo(Serial);
-695             Serial\&.println();
-696         
-697         #endif
-698 
-699             return(true); 
-700         }
-701     }   
-702 
-703     
-704     return(true);
-705     
-706 }
-.fi
 .SS "void CoolWifi::begin ()"
 \fBCoolWifi::begin()\fP: This method is provided to set the wifiMulti Access points and the wifiManager time out 
 .PP
 Definition at line 51 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-52 { 
-53 
-54 #if DEBUG == 1 
-55 
-56     Serial\&.println( F("Entering CoolWifi\&.begin()") );
-57     Serial\&.println();
-58 
-59 #endif
-60     for(int i =0;i<this->wifiCount;i++)
-61     {
-62          this->wifiMulti\&.addAP(this->ssid[i]\&.c_str() , this->pass[i]\&.c_str() );    
-63     }
-64     
-65 }
-.fi
+References pass, ssid, wifiCount, and wifiMulti\&.
+.PP
+Referenced by CoolBoard::begin()\&.
 .SS "bool CoolWifi::config ()"
 \fBCoolWifi::config()\fP: This method is provided to set the wifi parameters : -ssid -pass -AP timeOut -wifiCount
 .PP
@@ -252,175 +89,9 @@ true if successful,false otherwise
 .PP
 Definition at line 297 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-298 {
-299 
-300 #if DEBUG == 1 
-301 
-302     Serial\&.println( F("Entering CoolWifi\&.config()") );
-303     Serial\&.println();
-304 
-305 #endif
-306 #if DEBUG == 0
-307 
-308     Serial\&.println( "Reading Wifi Configuration\&.\&.");
-309     delay(100);
-310 #endif 
-311 
-312     //read config file
-313     //update data
-314     File configFile = SPIFFS\&.open("/wifiConfig\&.json", "r");
-315 
-316     if (!configFile) 
-317     {
-318     
-319         Serial\&.println( F("failed to read /wifiConfig\&.json") );
-320         Serial\&.println();
-321 
-322         return(false);
-323     }
-324     else
-325     {
-326         size_t size = configFile\&.size();
-327         // Allocate a buffer to store contents of the file\&.
-328         std::unique_ptr<char[]> buf(new char[size]);
-329 
-330         configFile\&.readBytes(buf\&.get(), size);
-331         DynamicJsonBuffer jsonBuffer;
-332         JsonObject& json = jsonBuffer\&.parseObject(buf\&.get());
-333         if (!json\&.success()) 
-334         {
-335 
-336             Serial\&.println( F("failed to parse json ") );
-337             Serial\&.println();
-338 
-339             return(false);
-340         } 
-341         else
-342         {
-343         
-344         #if DEBUG == 1 
-345         
-346             Serial\&.println( F("configuration json is ") );
-347             json\&.printTo(Serial);
-348             Serial\&.println();
-349 
-350             Serial\&.print(F("jsonBuffer size: "));
-351             Serial\&.println(jsonBuffer\&.size());
-352             Serial\&.println();
-353 
-354 
-355         #endif
-356             //wifiCount
-357             if(json["wifiCount"]\&.success() )
-358             {           
-359                 this->wifiCount=json["wifiCount"];
-360             }
-361             else
-362             {
-363                 this->wifiCount=this->wifiCount;
-364             }
-365             json["wifiCount"]=this->wifiCount;
-366 
-367             
-368             //AP timeOut
-369             if(json["timeOut"]\&.success() )
-370             {
-371                 this->timeOut=json["timeOut"];
-372             }
-373             else
-374             {
-375                 this->timeOut=this->timeOut;
-376 
-377             }
-378             json["timeOut"]=this->timeOut;
-379 
-380             //nomad
-381             if(json["nomad"]\&.success() )
-382             {
-383                 this->nomad=json["nomad"];
-384             }
-385             else
-386             {
-387                 this->nomad=this->nomad;
-388 
-389             }
-390             json["nomad"]=this->nomad;
-391 
-392             
-393             
-394             //Wifis SSID and PASS
-395             for(int i =0; i<this->wifiCount ;i++)
-396             {
-397                 if ( json["Wifi"+String(i)]\&.success() )
-398                 {
-399                     
-400                     if( json["Wifi"+String(i)]["ssid"]\&.success() )
-401                     {
-402                         const char* tempSsid=json["Wifi"+String(i)]["ssid"]; 
-403                         this->ssid[i]=tempSsid;                 
-404                     }
-405                     else
-406                     {
-407                         this->ssid[i]=this->ssid[i];                    
-408                     }
-409                     json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
-410                     
-411                     
-412                     if( json["Wifi"+String(i)]["pass"]\&.success() )
-413                     {
-414                         const char* tempPass =json["Wifi"+String(i)]["pass"];
-415                         this->pass[i]=tempPass ;                    
-416                     }
-417                     else
-418                     {
-419                         this->pass[i]=this->pass[i];                    
-420                     }
-421                     json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
-422                 
-423                 }
-424                 else
-425                 {
-426                     
-427                     this->ssid[i]=this->ssid[i];
-428                     this->pass[i]=this->pass[i];                    
-429                     
-430                 }
-431                 json["Wifi"+String(i)]["ssid"]=this->ssid[i]\&.c_str();
-432                 json["Wifi"+String(i)]["pass"]=this->pass[i]\&.c_str();            
-433                         
-434             }
-435 
-436             configFile\&.close();
-437             configFile = SPIFFS\&.open("/wifiConfig\&.json", "w");
-438             if(!configFile)
-439             {
-440             
-441                 Serial\&.println( F("failed to write to /wifiConfig\&.json") );
-442             
-443                 return(false);              
-444             }
-445             
-446             json\&.printTo(configFile);
-447             configFile\&.close();
-448 
-449         #if DEBUG == 1 
-450 
-451             Serial\&.println( F("saved configuration is :") );
-452             json\&.printTo(Serial);
-453             Serial\&.println();
-454         
-455         #endif
-456         #if DEBUG == 0
-457             Serial\&.println( F("Configuration loaded : OK"));
-458         #endif
-459             return(true); 
-460         }
-461     }   
-462     
-463 
-464 }
-.fi
+References nomad, pass, ssid, timeOut, and wifiCount\&.
+.PP
+Referenced by CoolBoard::begin()\&.
 .SS "bool CoolWifi::config (String ssid[], String pass[], int wifiNumber, int APTimeOut, bool nomad)"
 CoolWifi::config(ssid array, pass array, number of wifis, AP timeout,nomad flag ); This method is provided to configure the Wifi without SPIFFS
 .PP
@@ -433,43 +104,7 @@ true if successfull, false otherwise
 .PP
 Definition at line 472 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-473 {
-474 
-475 #if DEBUG == 1 
-476     
-477     Serial\&.println("Entering CoolWifi\&.config(), no SPIFFS variant ") ;
-478     
-479 #endif
-480     
-481     if(wifiNumber>50)
-482     {
-483     
-484     #if DEBUG == 1 
-485         
-486         Serial\&.println("the limit of WiFis is 50 " );
-487         
-488     #endif
-489         return(false);  
-490     }
-491 
-492     this->wifiCount=wifiNumber;
-493 
-494     this->timeOut=APTimeOut;
-495 
-496     this->nomad=nomad;
-497     
-498     for(int i=0;i<wifiNumber;i++)
-499     {
-500         this->ssid[i]=ssid[i];
-501         
-502         this->pass[i]=pass[i];
-503     }
-504         
-505     return(true);
-506 
-507 }
-.fi
+References nomad, timeOut, and wifiCount\&.
 .SS "wl_status_t CoolWifi::connect ()"
 \fBCoolWifi::connect( )\fP: This method is provided to connect to the strongest WiFi in the provided list of wiFis\&. If none are found , it starts the AP mode\&.
 .PP
@@ -482,142 +117,9 @@ wifi state
 .PP
 Definition at line 104 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-105 {       
-106 
-107 
-108 
-109 #if DEBUG == 1 
-110 
-111     Serial\&.println( F("Entering CoolWifi\&.connect()") );
-112 
-113 #endif
-114 
-115     Serial\&.println( F("Wifi connecting\&.\&.\&.") );
-116 
-117 
-118     //if WifiCount > 0 , lunch wifiMulti
-119     //else no need to , skip this part
-120     // to wifiManager  
-121     if(this->wifiCount !=0)
-122     {
-123     
-124         this->connectWifiMulti();
-125         
-126         //if nomad is true, only check wifi list
-127         if(this->nomad == true)
-128         {
-129     
-130         #if DEBUG == 1
-131     
-132             Serial\&.print(F("nomad mode :"));
-133             Serial\&.println(this->nomad);
-134         
-135             Serial\&.print(F("Wifi status: "));
-136             Serial\&.println(WiFi\&.status());
-137         
-138         #endif  
-139             return(WiFi\&.status());   
-140         }
-141 
-142     }
-143 
-144 
-145     //Wifi Manager
-146     if( WiFi\&.status() != WL_CONNECTED ) 
-147     {
-148 
-149     #if DEBUG == 1 
-150     
-151         Serial\&.println(F("No matching wifi Found ") );
-152         Serial\&.println( F("Starting Access Point ") );   
-153         Serial\&.println();
-154 
-155     #endif
-156         
-157         this->connectAP();      
-158         
-159     }
-160     else
-161     {
-162 
-163         Serial\&.println(F("connected to "));
-164         Serial\&.println( WiFi\&.SSID() );
-165         Serial\&.println();
-166     
-167     }
-168     
-169     return( WiFi\&.status() ) ;
-170 
-171 }
-.fi
-.SS "wl_status_t CoolWifi::connectAP ()"
-\fBCoolWifi::connectAP()\fP This function is provided to run the WifiManager part of the Wifi connection process
+References connectAP(), connectWifiMulti(), nomad, and wifiCount\&.
 .PP
-\fBReturns:\fP
-.RS 4
-wifi state 
-.RE
-.PP
-
-.PP
-Definition at line 231 of file CoolWifi\&.cpp\&.
-.PP
-.nf
-232 {
-233 
-234 #if DEBUG == 1 
-235     
-236     Serial\&.println( F("Entering CoolWifi\&.connectAP()") ); 
-237     Serial\&.println();
-238 
-239 #endif
-240     WiFiManager wifiManager;
-241     
-242     wifiManager\&.setRemoveDuplicateAPs(true);
-243 
-244     wifiManager\&.setTimeout(this->timeOut);
-245     
-246     String tempMAC = WiFi\&.macAddress();
-247     tempMAC\&.replace(":","");
-248 
-249     String name="CoolBoard-"+tempMAC;   
-250 
-251     if(!wifiManager\&.autoConnect(name\&.c_str())) 
-252     {
-253 
-254         Serial\&.println( F("failed to connect and hit timeout") );
-255 
-256         delay(30);
-257 
-258     } 
-259 
-260     //if you get here you have connected to the WiFi
-261 
-262     if(WiFi\&.status()==WL_CONNECTED)
-263     {
-264 
-265     #if DEBUG == 1
-266 
-267         Serial\&.println( F("connected\&.\&.\&.yeey :)" ));
-268         Serial\&.println("connected to ");
-269         Serial\&.println( WiFi\&.SSID() );
-270         //Serial\&.println( WiFi\&.psk() ) ;
-271         
-272     #endif
-273 
-274         this->addWifi( WiFi\&.SSID() , WiFi\&.psk() );
-275         
-276     }
-277     else
-278     {
-279         Serial\&.println( F("Not connected\&.\&.\&.:(" ));
-280     }
-281     
-282     return(WiFi\&.status());
-283 
-284 }
-.fi
+Referenced by CoolBoard::connect()\&.
 .SS "wl_status_t CoolWifi::connectWifiMulti ()"
 \fBCoolWifi::connectWifiMulti()\fP This function is provided to run the WifiMulti part of the Wifi connection process
 .PP
@@ -630,99 +132,24 @@ wifi state
 .PP
 Definition at line 181 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-182 {
-183     int i=0;
-184 
-185 #if DEBUG == 1 
-186 
-187     Serial\&.println(F("Entering CoolWifi\&.connectWifiMulti()"));
-188     Serial\&.println();
-189     
-190     Serial\&.println( F("entry time to multi : ") );
-191     Serial\&.println(millis() ) ;
-192 
-193 #endif
-194     
-195     //Wifi MULTI
-196     while( (this->wifiMulti\&.run() != WL_CONNECTED) && (i<500)  ) 
-197     {
-198 
-199     #if DEBUG == 1
-200 
-201         Serial\&.print(F("\&."));
-202         
-203     #endif
-204         i++;
-205         delay(5);
-206         }   
-207 
-208 #if DEBUG == 1 
-209 
-210     Serial\&.println();    
-211     Serial\&.println(F("exit point from multi : "));
-212     Serial\&.println(millis() );
-213     
-214     Serial\&.print(F("Wifi Status :"));
-215     Serial\&.println(WiFi\&.status());
-216 #endif
-217 
-218     return(WiFi\&.status());
-219 
-220 }
-.fi
-.SS "void CoolWifi::printConf ()"
-\fBCoolWifi::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
+References wifiMulti\&.
 .PP
-Definition at line 515 of file CoolWifi\&.cpp\&.
+Referenced by connect()\&.
+.SS "wl_status_t CoolWifi::connectAP ()"
+\fBCoolWifi::connectAP()\fP This function is provided to run the WifiManager part of the Wifi connection process
 .PP
-.nf
-516 {
-517 
-518 #if DEBUG == 1 
-519 
-520     Serial\&.println( F("Entering CoolWifi\&.printConf()") );
-521     Serial\&.println();    
-522 
-523 #endif
-524     
-525     Serial\&.println(F("Wifi configuration "));
-526 
-527     
-528     Serial\&.println(F("wifiCount : "));
-529     Serial\&.println(this->wifiCount);
-530     
-531     for(int i=0;i<this->wifiCount;i++)
-532     {   
-533         Serial\&.print(F("SSID"));
-534         Serial\&.print(i);
-535         Serial\&.println(F(" : "));
-536         Serial\&.println(this->ssid[i]);
-537                 
-538 
-539         //Serial\&.print("PASS");
-540         //Serial\&.print(i);
-541         //Serial\&.println(" : ");
-542 
-543         //Serial\&.print(F("PASS"));
-544         //Serial\&.print(i);
-545         //Serial\&.println(F(" : "));
-546 
-547         //Serial\&.println(this->pass[i]);
-548         
-549     }
-550     
-551     Serial\&.println(F("timeOut : "));
-552     Serial\&.println(this->timeOut);
-553 
-554     Serial\&.println(F("nomad : "));
-555     Serial\&.println(this->nomad);
-556 
-557     Serial\&.println();
-558 
-559 
-560 }
-.fi
+\fBReturns:\fP
+.RS 4
+wifi state 
+.RE
+.PP
+
+.PP
+Definition at line 231 of file CoolWifi\&.cpp\&.
+.PP
+References addWifi(), WiFiManager::autoConnect(), WiFiManager::setRemoveDuplicateAPs(), WiFiManager::setTimeout(), and timeOut\&.
+.PP
+Referenced by connect(), and CoolBoard::offLineMode()\&.
 .SS "wl_status_t CoolWifi::state ()"
 \fBCoolWifi::state()\fP: This method is provided to return the Wifi client's state\&. 
 .PP
@@ -735,48 +162,69 @@ wifi client state: WL_NO_SHIELD = 255, WL_IDLE_STATUS = 0, WL_NO_SSID_AVAIL = 1,
 .PP
 Definition at line 81 of file CoolWifi\&.cpp\&.
 .PP
-.nf
-82 {
-83 
-84 #if DEBUG == 1 
-85 
-86     Serial\&.println( F("Entering CoolWifi\&.state()") );
-87     Serial\&.println();    
-88     Serial\&.print( F("state : ") );
-89     Serial\&.println( WiFi\&.status() );
-90 
-91 #endif
-92     
-93     return( WiFi\&.status() ) ;
-94 }
-.fi
+Referenced by CoolBoard::connect(), CoolBoard::isConnected(), and CoolBoard::offLineMode()\&.
+.SS "void CoolWifi::printConf ()"
+\fBCoolWifi::printConf()\fP: This method is provided to print the configuration to the Serial Monitor 
+.PP
+Definition at line 515 of file CoolWifi\&.cpp\&.
+.PP
+References nomad, ssid, timeOut, and wifiCount\&.
+.PP
+Referenced by CoolBoard::begin()\&.
+.SS "bool CoolWifi::addWifi (String ssid, String pass = \fC''\fP)"
+CoolWifi::addWifi(ssid,pass) This method is provided to add new WiFi detected by the \fBWiFiManager\fP to the jsonConfig(if used )
+.PP
+\fBReturns:\fP
+.RS 4
+true if successfull , false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 570 of file CoolWifi\&.cpp\&.
+.PP
+References pass, ssid, timeOut, and wifiCount\&.
+.PP
+Referenced by connectAP()\&.
 .SH "Member Data Documentation"
 .PP 
-.SS "bool CoolWifi::nomad =0\fC [private]\fP"
-nomad Mode Flag in Nomad Mode , the Wifi Access Point will Only Lunch on Start when there's NO saved wifis ( wifiCount = 0) After that, the Wifi will ONLY try to connect to known Wifis via WifiMulti 
-.PP
-Definition at line 108 of file CoolWifi\&.h\&.
-.SS "String CoolWifi::pass[50] ={'0'}\fC [private]\fP"
-WiFi PASS Array 
-.PP
-Definition at line 94 of file CoolWifi\&.h\&.
-.SS "String CoolWifi::ssid[50] ={'0'}\fC [private]\fP"
-WiFi SSID Array 
-.PP
-Definition at line 89 of file CoolWifi\&.h\&.
-.SS "int CoolWifi::timeOut =0\fC [private]\fP"
-WiFi Access Point TimeOut Value in Seconds 
-.PP
-Definition at line 99 of file CoolWifi\&.h\&.
-.SS "int CoolWifi::wifiCount =0\fC [private]\fP"
-number of saved WiFi's 
-.PP
-Definition at line 84 of file CoolWifi\&.h\&.
 .SS "ESP8266WiFiMulti CoolWifi::wifiMulti\fC [private]\fP"
 ESP8266WiFiMulti instance 
 .PP
 Definition at line 79 of file CoolWifi\&.h\&.
+.PP
+Referenced by begin(), and connectWifiMulti()\&.
+.SS "int CoolWifi::wifiCount =0\fC [private]\fP"
+number of saved WiFi's 
+.PP
+Definition at line 84 of file CoolWifi\&.h\&.
+.PP
+Referenced by addWifi(), begin(), config(), connect(), and printConf()\&.
+.SS "String CoolWifi::ssid[50] ={'0'}\fC [private]\fP"
+WiFi SSID Array 
+.PP
+Definition at line 89 of file CoolWifi\&.h\&.
+.PP
+Referenced by addWifi(), begin(), config(), and printConf()\&.
+.SS "String CoolWifi::pass[50] ={'0'}\fC [private]\fP"
+WiFi PASS Array 
+.PP
+Definition at line 94 of file CoolWifi\&.h\&.
+.PP
+Referenced by addWifi(), begin(), and config()\&.
+.SS "int CoolWifi::timeOut =0\fC [private]\fP"
+WiFi Access Point TimeOut Value in Seconds 
+.PP
+Definition at line 99 of file CoolWifi\&.h\&.
+.PP
+Referenced by addWifi(), config(), connectAP(), and printConf()\&.
+.SS "bool CoolWifi::nomad =0\fC [private]\fP"
+nomad Mode Flag in Nomad Mode , the Wifi Access Point will Only Lunch on Start when there's NO saved wifis ( wifiCount = 0) After that, the Wifi will ONLY try to connect to known Wifis via WifiMulti 
+.PP
+Definition at line 108 of file CoolWifi\&.h\&.
+.PP
+Referenced by config(), connect(), and printConf()\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
+Generated automatically by Doxygen for CoolBoard API from the source code\&.

@@ -72,27 +72,13 @@ true if S\+P\+I\+F\+FS was initialized correctly, false otherwise
 Definition at line 50 of file Cool\+File\+System.\+cpp.
 
 
-\begin{DoxyCode}
-51 \{
-52     \textcolor{keywordtype}{bool} sResult=SPIFFS.begin();
-53     
-54 
-55 \textcolor{preprocessor}{#if DEBUG == 1}
-56 
-57     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.begin()"}) );
-58     Serial.println();   
-59     Serial.print( F(\textcolor{stringliteral}{"SPIFFS success ? "}) );
-60     Serial.println(sResult);
-61     Serial.println(  );
-62 
-63 \textcolor{preprocessor}{#endif}
-64     \textcolor{comment}{//get the data from the files}
-65     this->\hyperlink{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}{getsavedData}();
-66 
-67     \textcolor{keywordflow}{return}( sResult  );                                   \textcolor{comment}{//Initialize Filesystem}
-68 
-69 \}
-\end{DoxyCode}
+
+References getsaved\+Data().
+
+
+
+Referenced by Cool\+Board\+::config().
+
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -105,6 +91,45 @@ Here is the caller graph for this function\+:\nopagebreak
 \begin{center}
 \leavevmode
 \includegraphics[width=327pt]{db/d0c/class_cool_file_system_a6ba6f666ed4c530174f8569d2c636748_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}\label{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!update\+Config\+Files@{update\+Config\+Files}}
+\index{update\+Config\+Files@{update\+Config\+Files}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{update\+Config\+Files()}{updateConfigFiles()}}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::update\+Config\+Files (\begin{DoxyParamCaption}\item[{String}]{answer }\end{DoxyParamCaption})}
+
+Cool\+File\+System\+::update\+Config\+Files( mqtt answer )\+: This method is provided to update the configuration files when the appropriate mqtt answer is received
+
+\begin{DoxyReturn}{Returns}
+true if the files are updated correctly, false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 390 of file Cool\+File\+System.\+cpp.
+
+
+
+References file\+Update(), and temp.
+
+
+
+Referenced by Cool\+Board\+::update().
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}\label{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}} 
@@ -123,531 +148,15 @@ true if successful , false otherwise
 Definition at line 1003 of file Cool\+File\+System.\+cpp.
 
 
-\begin{DoxyCode}
-1004 \{
-1005 
-1006 \textcolor{preprocessor}{#if DEBUG == 1}
-1007 
-1008     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.fileUpdate()"}) );
-1009     Serial.println();
-1010     
-1011     Serial.println(F(\textcolor{stringliteral}{"update msg is :"}));
-1012     Serial.println(update);
-1013     
-1014     Serial.println(F(\textcolor{stringliteral}{"file path is : "}));
-1015     Serial.println(path);   
-1016 
-1017 \textcolor{preprocessor}{#endif}
-1018     \textcolor{comment}{//transfer update String to json}
-1019     DynamicJsonBuffer updateBuffer;
-1020     JsonObject& updateJson = updateBuffer.parseObject(update.c\_str() );
-1021     
-1022     \textcolor{keywordflow}{if}(updateJson.success())
-1023     \{
-1024     
-1025 \textcolor{preprocessor}{    #if DEBUG ==1}
-1026         
-1027         Serial.println(F(\textcolor{stringliteral}{"root parsing success :"}));
-1028         updateJson.printTo(Serial);
-1029     
-1030 \textcolor{preprocessor}{    #endif}
-1031 
-1032     \}
-1033     \textcolor{keywordflow}{else}
-1034     \{
-1035     
-1036 \textcolor{preprocessor}{    #if DEBUG == 1 }
-1037     
-1038         Serial.println(F(\textcolor{stringliteral}{"root parsing failure "}));
-1039     
-1040 \textcolor{preprocessor}{    #endif}
-1041         
-1042         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
-1043 
-1044     \}
-1045     
-1046     \textcolor{comment}{//open file in read mode}
-1047     File configFile = SPIFFS.open( path , \textcolor{stringliteral}{"r"});
-1048     
-1049     \textcolor{keywordflow}{if}(!configFile)
-1050     \{   
-1051 \textcolor{preprocessor}{    #if DEBUG == 1}
-1052         
-1053         Serial.print( F(\textcolor{stringliteral}{"failed to read "}) );
-1054         Serial.println(path);
-1055 
-1056 \textcolor{preprocessor}{    #endif}
-1057         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-1058     \}
-1059 
-1060     \textcolor{comment}{//copy file to a json}
-1061     \textcolor{keywordtype}{size\_t} size = configFile.size();
-1062 
-1063     \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-1064     std::unique\_ptr < char[] > buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-1065 
-1066     configFile.readBytes(buf.get(), size);
-1067 
-1068     DynamicJsonBuffer fileBuffer;
-1069 
-1070     JsonObject & fileJson = fileBuffer.parseObject(buf.get());
-1071 
-1072     \textcolor{keywordflow}{if} (!fileJson.success())
-1073     \{
-1074 
-1075 \textcolor{preprocessor}{    #if DEBUG == 1}
-1076 
-1077         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-1078 
-1079 \textcolor{preprocessor}{    #endif}
-1080 
-1081         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-1082     \}
-1083     
-1084     \textcolor{comment}{//modify root to contain all the json keys: updated ones and non updated ones}
-1085     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} kv : fileJson) 
-1086     \{
-1087         \textcolor{keywordflow}{if}( updateJson[kv.key].success() )
-1088         \{
-1089             fileJson[kv.key]=updateJson[kv.key];            
-1090         \}
-1091         \textcolor{keywordflow}{else}
-1092         \{
-1093             fileJson[kv.key]=fileJson[kv.key];
-1094         \}
-1095 
-1096                 
-1097     \}
-1098 
-1099 \textcolor{preprocessor}{#if DEBUG == 1}
-1100 
-1101     Serial.println(F(\textcolor{stringliteral}{"fileJson is now : "}));
-1102     fileJson.printTo(Serial);
-1103 
-1104 \textcolor{preprocessor}{#endif}
-1105 
-1106     \textcolor{comment}{//close the file}
-1107     configFile.close();
-1108 
-1109     \textcolor{comment}{//open file in w mode}
-1110     configFile = SPIFFS.open( path , \textcolor{stringliteral}{"w"});
-1111     
-1112     \textcolor{keywordflow}{if}(!configFile)
-1113     \{   
-1114 \textcolor{preprocessor}{    #if DEBUG == 1}
-1115         
-1116         Serial.print( F(\textcolor{stringliteral}{"failed to open "}) );
-1117         Serial.println(path);
-1118 
-1119 \textcolor{preprocessor}{    #endif}
-1120         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-1121     \}
-1122     \textcolor{comment}{//print json to file    }
-1123     
-1124     fileJson.printTo(configFile);
-1125     
-1126     \textcolor{comment}{//close file}
-1127     configFile.close();
-1128 
-1129 
-1130 \textcolor{preprocessor}{#if DEBUG == 1}
-1131 
-1132     Serial.println( F(\textcolor{stringliteral}{"config is"}) );
-1133     fileJson.printTo(Serial);
-1134     Serial.println();
-1135 
-1136 \textcolor{preprocessor}{#endif}
-1137     
-1138     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-1139     
-1140 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+Referenced by update\+Config\+Files().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{db/d0c/class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}\label{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!getsaved\+Data@{getsaved\+Data}}
-\index{getsaved\+Data@{getsaved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{getsaved\+Data()}{getsavedData()}}
-{\footnotesize\ttfamily void Cool\+File\+System\+::getsaved\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-\hyperlink{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}{Cool\+File\+System\+::getsaved\+Data()}\+: This method is provided to get the saved\+Data flag from the file system 
-
-Definition at line 1202 of file Cool\+File\+System.\+cpp.
-
-
-\begin{DoxyCode}
-1203 \{
-1204 
-1205 
-1206 \textcolor{preprocessor}{#if DEBUG == 1}
-1207     
-1208     Serial.println(F(\textcolor{stringliteral}{"Entering CoolFileSystem.getsavedData()"}));    
-1209     
-1210 \textcolor{preprocessor}{#endif}
-1211     \textcolor{comment}{//open file}
-1212     File file=SPIFFS.open(\textcolor{stringliteral}{"/savedDataFlag.txt"},\textcolor{stringliteral}{"r"});    
-1213     \textcolor{comment}{//read file}
-1214     \textcolor{keywordflow}{if}( !file)  
-1215     \{
-1216         Serial.println( F(\textcolor{stringliteral}{"failed to read savedDataFlag.txt"}) );
-1217         
-1218     \}
-1219     \textcolor{keywordflow}{else}
-1220     \{       
-1221         \textcolor{comment}{//read from file    }
-1222         String \hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp}=file.readStringUntil(\textcolor{charliteral}{' '});
-1223         
-1224         this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}=temp.toInt();
-1225 
-1226         
-1227         temp=file.readStringUntil(\textcolor{charliteral}{'\(\backslash\)n'});
-1228         this-> \hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip}=temp.toInt();;    
-1229         
-1230         file.close();   
-1231     \}
-1232     
-1233 \textcolor{preprocessor}{#if DEBUG == 1}
-1234 
-1235     Serial.print(F(\textcolor{stringliteral}{"number of lines to read :"}));
-1236     Serial.println(this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData});
-1237     
-1238     Serial.print(F(\textcolor{stringliteral}{"number of lines to skip :"}));
-1239     Serial.println(this->\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip});
-1240 
-1241 \textcolor{preprocessor}{#endif}
-1242     
-1243 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2}\label{class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!get\+Sensor\+Saved\+Data@{get\+Sensor\+Saved\+Data}}
-\index{get\+Sensor\+Saved\+Data@{get\+Sensor\+Saved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{get\+Sensor\+Saved\+Data()}{getSensorSavedData()}}
-{\footnotesize\ttfamily String $\ast$ Cool\+File\+System\+::get\+Sensor\+Saved\+Data (\begin{DoxyParamCaption}\item[{int \&}]{lines }\end{DoxyParamCaption})}
-
-Cool\+File\+System\+::get\+Sensor\+Data(int \&lines)\+: This method is provided to return the sensor data saved in the File System 10 lines at a time
-
-\begin{DoxyReturn}{Returns}
-String array containing 50 first lines from the file modifies tge lines argument to reflect the number of lines left 
-\end{DoxyReturn}
-
-
-Definition at line 842 of file Cool\+File\+System.\+cpp.
-
-
-\begin{DoxyCode}
-843 \{
-844     \textcolor{keywordtype}{int} maxString=50;
-845     String *sensorsDataArray=\textcolor{keyword}{new} String[maxString];
-846     lines=0;
-847 
-848 \textcolor{preprocessor}{#if DEBUG == 1 }
-849 
-850     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.getSensorSavedData()"}) );
-851     Serial.println();
-852 
-853 \textcolor{preprocessor}{#endif}
-854 
-855     \textcolor{comment}{//open sensors data file}
-856     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-857     
-858     \textcolor{keywordflow}{if} (!sensorsData)
-859     \{
-860 
-861 \textcolor{preprocessor}{    #if DEBUG == 1 }
-862 
-863         Serial.println( F(\textcolor{stringliteral}{"Failed to read /sensorsData.json"}) );
-864 
-865 \textcolor{preprocessor}{    #endif}
-866          
-867         sensorsDataArray[0]=\textcolor{stringliteral}{"Failed to read /sensorsData.json"};
-868         lines++;
-869 
-870         \textcolor{comment}{//result=sensorsDataArray;}
-871         \textcolor{keywordflow}{return}(sensorsDataArray);
-872 
-873     \}
-874 
-875     \textcolor{keywordflow}{else}
-876     \{
-877         \textcolor{comment}{//read the file line by line and put it in the String array(aka String*)        }
-878 
-879         \textcolor{comment}{//while loop until EOF is reached}
-880         String \hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
-881         \textcolor{keywordflow}{while}(sensorsData.available())
-882         \{
-883             yield();
-884             
-885             temp=sensorsData.readStringUntil(\textcolor{charliteral}{'\(\backslash\)r'});
-886 
-887             \textcolor{keywordflow}{if}(\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip}>0)
-888             \{
-889 
-890                 \hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip}--;
-891         
-892             \}
-893             \textcolor{keywordflow}{else}
-894             \{
-895 
-896 \textcolor{preprocessor}{            #if DEBUG == 1}
-897 
-898                 Serial.println(F(\textcolor{stringliteral}{"temp String : "}));
-899                 Serial.println(temp);
-900                 Serial.println();
-901             
-902 \textcolor{preprocessor}{            #endif}
-903             
-904                 sensorsDataArray[lines]=\hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
-905                 sensorsData.read();
-906             
-907             
-908         
-909 \textcolor{preprocessor}{            #if DEBUG== 1}
-910      
-911                 Serial.print(F(\textcolor{stringliteral}{"read String N°"}));
-912                 Serial.print(lines);
-913                 Serial.println(F(\textcolor{stringliteral}{" is : "}));
-914                 Serial.println( sensorsDataArray[lines] );
-915                 Serial.println();
-916                 Serial.println(F(\textcolor{stringliteral}{"next char is : "}));
-917                 Serial.println((\textcolor{keywordtype}{char})sensorsData.peek());
-918                 Serial.println();           
-919             
-920 \textcolor{preprocessor}{            #endif}
-921                 lines++;
-922             
-923                 \textcolor{comment}{//maximum size is maxString(index : 0..maxString-1)}
-924                 \textcolor{keywordflow}{if}(lines>=maxString)
-925                 \{
-926                     \textcolor{keywordflow}{break};
-927                 \}
-928             
-929                 yield();
-930             
-931             \}
-932 
-933         \}
-934         
-935                     
-936         \textcolor{comment}{//close the file}
-937         sensorsData.close();
-938 
-939         \textcolor{comment}{//position the saved data flag to the number of unread lines}
-940         this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}=\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}-lines;
-941         
-942         \textcolor{comment}{//position the number of lines to skip to the number of read lines  }
-943         this->\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip}=lines;
-944 
-945         \textcolor{comment}{//delete data in the file only if savedData<=0}
-946         \textcolor{keywordflow}{if}(this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}<=0)
-947         \{
-948             File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"w"});
-949             File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"w"});
-950             \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
-951             \{
-952 \textcolor{preprocessor}{            #if DEBUG == 1}
-953     
-954                 Serial.println( F(\textcolor{stringliteral}{"failed to delete data in the file"}) );
-955     
-956 \textcolor{preprocessor}{            #endif}
-957                 lines++;
-958                 sensorsDataArray[lines]=\textcolor{stringliteral}{"failed to delete data in the file"};
-959 
-960                 \textcolor{keywordflow}{return}(sensorsDataArray);
-961 
-962             \}
-963 
-964             sensorsData.close();
-965             sensorsDataCSV.close();
-966             
-967             this->\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip}=0;
-968         
-969         \}
-970 
-971         \textcolor{comment}{//save the changes to linesToSkip and savedData in the file system}
-972         this->\hyperlink{class_cool_file_system_aae045125288f255f3e258073dcada2a6}{incrementsavedData}();
-973 
-974         \textcolor{comment}{//return the string}
-975 \textcolor{preprocessor}{        #if DEBUG == 1}
-976         
-977             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i=0;i<lines;i++)
-978             \{
-979                 Serial.print(F(\textcolor{stringliteral}{"String N°"}));
-980                 Serial.println(i);
-981                 Serial.println(sensorsDataArray[i]);
-982                 Serial.println();           
-983             \}
-984     
-985 \textcolor{preprocessor}{        #endif}
-986         \textcolor{keywordflow}{return}(sensorsDataArray);
-987         
-988         
-989         
-990     \}
-991 
-992 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2_cgraph}
-\end{center}
-\end{figure}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_file_system_aae045125288f255f3e258073dcada2a6}\label{class_cool_file_system_aae045125288f255f3e258073dcada2a6}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!incrementsaved\+Data@{incrementsaved\+Data}}
-\index{incrementsaved\+Data@{incrementsaved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{incrementsaved\+Data()}{incrementsavedData()}}
-{\footnotesize\ttfamily bool Cool\+File\+System\+::incrementsaved\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-\hyperlink{class_cool_file_system_aae045125288f255f3e258073dcada2a6}{Cool\+File\+System\+::incrementsaved\+Data()}\+: This method is provided to increment the saved\+Data flag
-
-\begin{DoxyReturn}{Returns}
-true if successful , false otherwise 
-\end{DoxyReturn}
-
-
-Definition at line 1152 of file Cool\+File\+System.\+cpp.
-
-
-\begin{DoxyCode}
-1153 \{
-1154 
-1155 
-1156 \textcolor{preprocessor}{#if DEBUG == 1}
-1157     
-1158     Serial.println(F(\textcolor{stringliteral}{"Entering CoolFileSystem.incrementsavedData()"}));  
-1159     
-1160 \textcolor{preprocessor}{#endif}
-1161     \textcolor{comment}{//open file}
-1162     File file=SPIFFS.open(\textcolor{stringliteral}{"/savedDataFlag.txt"},\textcolor{stringliteral}{"w"});    
-1163     \textcolor{comment}{//read file}
-1164     \textcolor{keywordflow}{if}( !file)  
-1165     \{
-1166         Serial.println( F(\textcolor{stringliteral}{"failed to open savedDataFlag.txt"}) );
-1167         
-1168         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
-1169     \}
-1170     \textcolor{keywordflow}{else}
-1171     \{       
-1172         \textcolor{comment}{//write to file }
-1173         file.print(this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData});
-1174         
-1175         file.print(\textcolor{stringliteral}{" "});
-1176         
-1177         file.println(this->\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip});
-1178     
-1179         file.close();
-1180 
-1181 \textcolor{preprocessor}{    #if DEBUG == 1}
-1182 
-1183         Serial.print(F(\textcolor{stringliteral}{"number of lines to read :"}));
-1184         Serial.println(this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData});
-1185     
-1186         Serial.print(F(\textcolor{stringliteral}{"number of lines to skip :"}));
-1187         Serial.println(this->\hyperlink{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}{linesToSkip});
-1188 
-1189 \textcolor{preprocessor}{    #endif}
-1190         
-1191         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-1192     \}
-1193     
-1194 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_aae045125288f255f3e258073dcada2a6_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}\label{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!is\+Data\+Saved@{is\+Data\+Saved}}
-\index{is\+Data\+Saved@{is\+Data\+Saved}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{is\+Data\+Saved()}{isDataSaved()}}
-{\footnotesize\ttfamily int Cool\+File\+System\+::is\+Data\+Saved (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-\hyperlink{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}{Cool\+File\+System\+::is\+Data\+Saved()}\+: This method is provided to report wether there is sensor data saved in the File System.
-
-\begin{DoxyReturn}{Returns}
-true if there is data saved, false otherwise 
-\end{DoxyReturn}
-
-
-Definition at line 782 of file Cool\+File\+System.\+cpp.
-
-
-\begin{DoxyCode}
-783 \{
-784 
-785 \textcolor{preprocessor}{#if DEBUG == 1 }
-786 
-787     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.isDataSaved()"}) );
-788     Serial.println();
-789 
-790     FSInfo fs\_info;
-791 
-792     \textcolor{keywordflow}{if}(SPIFFS.info(fs\_info)==\textcolor{keyword}{true})
-793     \{
-794         Serial.print(F(\textcolor{stringliteral}{"used bytes/total bytes : "}));   
-795         Serial.print(fs\_info.usedBytes);
-796         Serial.print(F(\textcolor{stringliteral}{"/"}));
-797         Serial.print(fs\_info.totalBytes);
-798         Serial.println();
-799 
-800     \}
-801 
-802     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-803     File sensorsDataCSV=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-804     
-805     \textcolor{keywordflow}{if}( (!sensorsData)||(!sensorsDataCSV) ) 
-806     \{
-807         Serial.println( F(\textcolor{stringliteral}{"failed to open files"}) );        
-808     \}
-809     \textcolor{keywordflow}{else}
-810     \{       
-811             Serial.print(F(\textcolor{stringliteral}{"sensors Data file size in bytes : "}));
-812             Serial.println(sensorsData.size());
-813             Serial.println();
-814             
-815             Serial.print(F(\textcolor{stringliteral}{"sensors Data CSV file size in bytes : "}));              
-816             Serial.println(sensorsDataCSV.size());
-817             Serial.println();
-818     \}
-819 
-820 
-821 
-822     Serial.print( F(\textcolor{stringliteral}{"savedData : "}) );
-823     Serial.println(this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData});
-824 
-825 \textcolor{preprocessor}{#endif}
-826 
-827     \textcolor{keywordflow}{return}( this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData} );
-828 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_file_system_afa3a4feae94871d4d3b6bebb701c2e67}\label{class_cool_file_system_afa3a4feae94871d4d3b6bebb701c2e67}} 
@@ -668,109 +177,23 @@ true if the data was saved, false otherwise
 Definition at line 81 of file Cool\+File\+System.\+cpp.
 
 
-\begin{DoxyCode}
-82 \{
-83 
-84 \textcolor{preprocessor}{#if DEBUG == 1}
-85 
-86     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.saveSensorData()"}) );
-87     Serial.println();
-88 
-89 \textcolor{preprocessor}{#endif}
-90     
-91     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"a"});
-92 
-93     \textcolor{keywordflow}{if}(!sensorsData)
-94     \{
-95     
-96 \textcolor{preprocessor}{    #if DEBUG == 1}
-97     
-98         Serial.println( F(\textcolor{stringliteral}{"failed to append to /sensorsData.json"}) );
-99         Serial.println();
-100     
-101 \textcolor{preprocessor}{    #endif}
-102         \textcolor{comment}{//keep the old data}
-103         this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}=\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData};
-104 
-105         \textcolor{keywordflow}{return} (\textcolor{keyword}{false}); 
-106     \}   
-107 
-108     DynamicJsonBuffer jsonBuffer;
-109     JsonObject& root = jsonBuffer.parseObject(data);
-110 
-111     \textcolor{keywordflow}{if}( root.success() )
-112     \{
-113         root.printTo(sensorsData);
-114         sensorsData.println();
-115         sensorsData.close();
-116 
-117 
-118 \textcolor{preprocessor}{    #if DEBUG == 1}
-119         
-120         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-121         Serial.println(jsonBuffer.size());
-122         Serial.println();
-123 
-124         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.json"},\textcolor{stringliteral}{"r"});
-125         
-126         \textcolor{keywordflow}{if}(!sensorsData)
-127         \{
-128             
-129             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.json"}));
-130             \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-131                         
-132         \}
-133     
-134         Serial.println( F(\textcolor{stringliteral}{"saved data is : "}) );
-135         root.printTo(Serial);
-136         Serial.println();
-137 
-138         Serial.println(F(\textcolor{stringliteral}{"/sensorsData.json"}) );
-139         \textcolor{keywordflow}{while} (sensorsData.available()) 
-140         \{
-141             Serial.println(sensorsData.readString()) ;
-142         \}
-143         
-144         Serial.println();
-145         
-146         sensorsData.close();
-147     
-148 \textcolor{preprocessor}{    #endif}
-149 
-150         this->\hyperlink{class_cool_file_system_ab78704d5d21ce10fc6f1138ab5ab46c8}{saveSensorDataCSV}(data);     
-151 
-152         \textcolor{comment}{//new data}
-153         this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}++;
-154 
-155         this->\hyperlink{class_cool_file_system_aae045125288f255f3e258073dcada2a6}{incrementsavedData}();
-156         
-157         \textcolor{keywordflow}{return} (\textcolor{keyword}{true});      
-158     \}
-159     \textcolor{keywordflow}{else}
-160     \{
-161     
-162 \textcolor{preprocessor}{    #if DEBUG == 1}
-163 
-164         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-165     
-166 \textcolor{preprocessor}{    #endif}
-167         \textcolor{comment}{//old data}
-168         this->\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData}=\hyperlink{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}{savedData};
-169 
-170         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-171     \}
-172     
-173 
-174 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+
+References incrementsaved\+Data(), saved\+Data, and save\+Sensor\+Data\+C\+S\+V().
+
+
+
+Referenced by Cool\+Board\+::off\+Line\+Mode().
+
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{db/d0c/class_cool_file_system_afa3a4feae94871d4d3b6bebb701c2e67_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -793,635 +216,146 @@ true if the data was saved, false otherwise
 Definition at line 185 of file Cool\+File\+System.\+cpp.
 
 
-\begin{DoxyCode}
-186 \{
-187 \textcolor{preprocessor}{#if DEBUG == 1}
-188 
-189     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.saveSensorDataCSV()"}) );
-190     Serial.println();
-191 
-192 \textcolor{preprocessor}{#endif}
-193     \textcolor{comment}{//parsing json}
-194     DynamicJsonBuffer jsonBuffer;
-195     JsonObject& root = jsonBuffer.parseObject(data);
-196     String header=\textcolor{stringliteral}{""},values=\textcolor{stringliteral}{""};
-197     
-198     \textcolor{comment}{//if json parse success}
-199     \textcolor{keywordflow}{if}( root.success() )
-200     \{       
-201         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} kv : root) 
-202         \{
-203             \textcolor{comment}{//print the header(json keys ) to header string}
-204             header+=kv.key;
-205             header+=\textcolor{charliteral}{','};
-206             
-207             \textcolor{comment}{//print the values to header string}
-208             values+=( kv.value.as<\textcolor{keywordtype}{char}*>() );
-209             values+=\textcolor{charliteral}{','};
-210         \}
-211 
-212         header.remove(header.lastIndexOf(\textcolor{charliteral}{','}), 1);
-213         values.remove(values.lastIndexOf(\textcolor{charliteral}{','}), 1);      
-214     
-215 \textcolor{preprocessor}{    #if DEBUG == 1}
-216     
-217         Serial.println( F(\textcolor{stringliteral}{" data is : "}) );
-218         root.printTo(Serial);
-219         Serial.println();
-220         
-221         Serial.println(F(\textcolor{stringliteral}{" header is :"} ) ) ;
-222         Serial.println(header);
-223         Serial.println(F(\textcolor{stringliteral}{" values are : "}));
-224         Serial.println(values);
-225         
-226         Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-227         Serial.println(jsonBuffer.size());
-228         Serial.println();
-229 
-230     
-231 \textcolor{preprocessor}{    #endif}
-232     
-233     \}
-234     \textcolor{comment}{//failed to parse json}
-235     \textcolor{keywordflow}{else}
-236     \{
-237     
-238 \textcolor{preprocessor}{    #if DEBUG == 1}
-239 
-240         Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-241     
-242 \textcolor{preprocessor}{    #endif}
-243 
-244         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-245     \}
-246 
-247     \textcolor{comment}{//check if file exists}
-248     File sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-249     
-250     \textcolor{comment}{//file doesn't exist}
-251     \textcolor{keywordflow}{if}( (!sensorsData) || (sensorsData.size()==0 ) )
-252     \{
-253     
-254 \textcolor{preprocessor}{    #if DEBUG == 1}
-255     
-256         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv not found"}) );
-257         Serial.println( F(\textcolor{stringliteral}{"creating /sensorsData.csv"}) );
-258         Serial.println();
-259     
-260 \textcolor{preprocessor}{    #endif}
-261         \textcolor{comment}{//create file}
-262         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"w"});
-263         
-264         \textcolor{keywordflow}{if}(!sensorsData)
-265         \{
-266 
-267 \textcolor{preprocessor}{        #if DEBUG == 1}
-268         
-269             Serial.println( F(\textcolor{stringliteral}{"failed to create /sensorsData.csv"}) );
-270             Serial.println();
-271         
-272 \textcolor{preprocessor}{        #endif}
-273         
-274             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-275 
-276         \}
-277         
-278         \textcolor{comment}{//print the header(json keys ) to the CSV file}
-279         sensorsData.println(header);
-280 
-281         \textcolor{comment}{//print the values to the CSV file}
-282         sensorsData.println(values);
-283         
-284         sensorsData.close();
-285     
-286 \textcolor{preprocessor}{    #if DEBUG == 1}
-287 
-288         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-289         
-290         \textcolor{keywordflow}{if}(!sensorsData)
-291         \{
-292             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
-293             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
-294         \}
-295 
-296         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
-297 
-298         \textcolor{keywordflow}{while} (sensorsData.available()) 
-299         \{
-300             Serial.print(sensorsData.readString()) ;
-301         \}
-302         Serial.println();
-303 
-304         \textcolor{comment}{//close the file}
-305         sensorsData.close();
-306 
-307 \textcolor{preprocessor}{    #endif}
-308         
-309 
-310         
-311         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-312         
-313     \}
-314 
-315     \textcolor{comment}{//file exist}
-316     \textcolor{keywordflow}{else}
-317     \{
-318 
-319 \textcolor{preprocessor}{    #if DEBUG == 1}
-320     
-321         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv  found"}) );
-322         Serial.println( F(\textcolor{stringliteral}{"appending to /sensorsData.csv"}) );
-323         Serial.println();
-324     
-325 \textcolor{preprocessor}{    #endif}
-326 
-327         \textcolor{comment}{//append to file}
-328         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"a"});
-329         
-330         \textcolor{keywordflow}{if}(!sensorsData)
-331         \{
-332         
-333 \textcolor{preprocessor}{        #if DEBUG == 1}
-334             
-335             Serial.println( F(\textcolor{stringliteral}{"failed to open /sensorsData.csv"}) );
-336             Serial.println();
-337 
-338 \textcolor{preprocessor}{        #endif}
-339             
-340             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-341         
-342         \}
-343 
-344         \textcolor{comment}{//print the values to the CSV file}
-345         sensorsData.println(values);
-346         
-347         sensorsData.close();
-348 
-349 \textcolor{preprocessor}{    #if DEBUG == 1}
-350 
-351         sensorsData=SPIFFS.open(\textcolor{stringliteral}{"/sensorsData.csv"},\textcolor{stringliteral}{"r"});
-352         
-353         \textcolor{keywordflow}{if}(!sensorsData)
-354         \{
-355             Serial.println(F(\textcolor{stringliteral}{"failed to reopen /sensorsData.csv "}));
-356             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});      
-357         \}
-358 
-359         
-360         Serial.println( F(\textcolor{stringliteral}{"/sensorsData.csv : "}) );
-361 
-362         \textcolor{keywordflow}{while} (sensorsData.available()) 
-363         \{
-364             Serial.println(sensorsData.readString()) ;
-365         \}
-366         
-367         Serial.println();
-368         
-369         sensorsData.close();
-370         
-371 \textcolor{preprocessor}{    #endif      }
-372         
-373         \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-374     
-375     \}   
-376 
-377 
-378 
-379 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+Referenced by save\+Sensor\+Data().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{db/d0c/class_cool_file_system_ab78704d5d21ce10fc6f1138ab5ab46c8_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}\label{class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!update\+Config\+Files@{update\+Config\+Files}}
-\index{update\+Config\+Files@{update\+Config\+Files}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{update\+Config\+Files()}{updateConfigFiles()}}
-{\footnotesize\ttfamily bool Cool\+File\+System\+::update\+Config\+Files (\begin{DoxyParamCaption}\item[{String}]{answer }\end{DoxyParamCaption})}
+\mbox{\Hypertarget{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}\label{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!is\+Data\+Saved@{is\+Data\+Saved}}
+\index{is\+Data\+Saved@{is\+Data\+Saved}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{is\+Data\+Saved()}{isDataSaved()}}
+{\footnotesize\ttfamily int Cool\+File\+System\+::is\+Data\+Saved (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
-Cool\+File\+System\+::update\+Config\+Files( mqtt answer )\+: This method is provided to update the configuration files when the appropriate mqtt answer is received
+\hyperlink{class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9}{Cool\+File\+System\+::is\+Data\+Saved()}\+: This method is provided to report wether there is sensor data saved in the File System.
 
 \begin{DoxyReturn}{Returns}
-true if the files are updated correctly, false otherwise 
+true if there is data saved, false otherwise 
 \end{DoxyReturn}
 
 
-Definition at line 390 of file Cool\+File\+System.\+cpp.
+Definition at line 782 of file Cool\+File\+System.\+cpp.
 
 
-\begin{DoxyCode}
-391 \{
-392 
-393 \textcolor{preprocessor}{#if DEBUG == 1}
-394 
-395     Serial.println( F(\textcolor{stringliteral}{"Entering CoolFileSystem.updateConfigFiles"}) );
-396     Serial.println();
-397     
-398     Serial.println( F(\textcolor{stringliteral}{"input answer : "}) );
-399     Serial.println(answer);
-400 \textcolor{preprocessor}{#endif}
-401 
-402     \textcolor{comment}{//total json object }
-403     DynamicJsonBuffer jsonBuffer;
-404     JsonObject& root = jsonBuffer.parseObject( answer.c\_str() );
-405 
-406 \textcolor{preprocessor}{#if DEBUG == 1}
-407     
-408     Serial.println( F(\textcolor{stringliteral}{"json object : "}) );  
-409     root.printTo(Serial);
-410     Serial.println();
-411     
-412     Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-413     Serial.println(jsonBuffer.size());
-414     Serial.println();
-415 
-416 
-417 \textcolor{preprocessor}{#endif}
-418 
-419     \textcolor{keywordflow}{if}(! ( root.success() ))
-420     \{
-421     
-422 \textcolor{preprocessor}{    #if DEBUG == 1}
-423 
-424         Serial.println( F(\textcolor{stringliteral}{"failed to parse root "}) );
-425         Serial.println();
-426     
-427 \textcolor{preprocessor}{    #endif}
-428 
-429         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-430     \}
-431     \textcolor{keywordflow}{else}
-432     \{
-433 \textcolor{preprocessor}{    #if DEBUG == 1}
-434         
-435         Serial.println( F(\textcolor{stringliteral}{"success to parse root "}) );
-436         Serial.println();
-437         
-438 \textcolor{preprocessor}{    #endif  }
-439     \}
-440     
-441 \textcolor{preprocessor}{#if DEBUG == 1}
-442 
-443     Serial.println( F(\textcolor{stringliteral}{"input message is : "}) );
-444     root.printTo(Serial);
-445     Serial.println();
-446 
-447 \textcolor{preprocessor}{#endif}
-448     \textcolor{comment}{//temp string}
-449     String \hyperlink{_irene3000_8h_a5905d48604152cf57aa6bfa087b49173}{temp};
-450 
-451     \textcolor{comment}{//CoolBoard Configuration File}
-452 
-453         JsonObject& jsonCoolBoard=root[\textcolor{stringliteral}{"CoolBoard"}];
-454 
-455 \textcolor{preprocessor}{#if DEBUG == 1}
-456 
-457     Serial.println( F(\textcolor{stringliteral}{"before config CoolBoard json"}) );
-458     jsonCoolBoard.printTo(Serial);
-459 
-460 \textcolor{preprocessor}{#endif}
-461 
-462     \textcolor{keywordflow}{if}(jsonCoolBoard.success())
-463     \{
-464         String update;
-465     
-466         jsonCoolBoard.printTo(update);
-467 
-468         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/coolBoardConfig.json"});     
-469         
-470     \}
-471     \textcolor{keywordflow}{else}
-472     \{
-473     
-474 \textcolor{preprocessor}{    #if DEBUG == 1 }
-475 
-476         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoard "}) );
-477     
-478 \textcolor{preprocessor}{    #endif}
-479 
-480     \}       
-481 
-482     
-483     \textcolor{comment}{//Cool Board Sensors Configuration File}
-484         JsonObject& jsonSensorsBoard=root[\textcolor{stringliteral}{"CoolSensorsBoard"}];
-485 
-486 \textcolor{preprocessor}{#if DEBUG == 1 }
-487 
-488     Serial.println( F(\textcolor{stringliteral}{"before config CoolSensorsBoard json"}) );
-489     jsonSensorsBoard.printTo(Serial);
-490 
-491 \textcolor{preprocessor}{#endif }
-492     
-493     \textcolor{keywordflow}{if}(jsonSensorsBoard.success())
-494     \{   
-495         String update;
-496     
-497         jsonSensorsBoard.printTo(update);
-498 
-499         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/coolBoardSensorsConfig.json"});      
-500 
-501     \}
-502     \textcolor{keywordflow}{else}
-503     \{
-504 
-505 \textcolor{preprocessor}{    #if DEBUG == 1}
-506 
-507         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolSensorsBoard sensors "}) );   
-508     
-509 \textcolor{preprocessor}{    #endif}
-510 
-511     \}
-512 
-513     \textcolor{comment}{//Cool Board Actor Configuration File}
-514         JsonObject& jsonCoolBoardActor=root[\textcolor{stringliteral}{"CoolBoardActor"}];
-515 
-516 \textcolor{preprocessor}{#if DEBUG == 1 }
-517 
-518     Serial.println( F(\textcolor{stringliteral}{"before config CoolBoardActor json"}) );
-519     jsonCoolBoardActor.printTo(Serial);
-520 
-521 \textcolor{preprocessor}{#endif }
-522     
-523     \textcolor{keywordflow}{if}(jsonCoolBoardActor.success())
-524     \{   
-525         String update;
-526     
-527         jsonCoolBoardActor.printTo(update);
-528 
-529         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/coolBoardActorConfig.json"});        
-530 
-531     \}
-532     \textcolor{keywordflow}{else}
-533     \{
-534 
-535 \textcolor{preprocessor}{    #if DEBUG == 1}
-536 
-537         Serial.println( F(\textcolor{stringliteral}{"failed to parse CoolBoardActor json "}) );    
-538     
-539 \textcolor{preprocessor}{    #endif}
-540 
-541     \}
-542 
-543     
-544     \textcolor{comment}{//rtc configuration file}
-545         JsonObject& jsonRTC=root[\textcolor{stringliteral}{"rtc"}];
-546 
-547 \textcolor{preprocessor}{#if DEBUG == 1 }
-548     
-549     Serial.println( F(\textcolor{stringliteral}{"before config rtc json"}) );
-550     jsonRTC.printTo(Serial);
-551 
-552 \textcolor{preprocessor}{#endif}
-553     \textcolor{keywordflow}{if}(jsonRTC.success() )
-554     \{
-555         String update;
-556 
-557         jsonRTC.printTo(update);
-558 
-559         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/rtcConfig.json"});           
-560     \}
-561     \textcolor{keywordflow}{else}
-562     \{
-563     
-564 \textcolor{preprocessor}{    #if DEBUG == 1 }
-565 
-566         Serial.println( F(\textcolor{stringliteral}{"failed to parse rtc "}) );
-567     
-568 \textcolor{preprocessor}{    #endif}
-569 
-570     \}
-571     
-572     
-573         \textcolor{comment}{//cool board led configuration}
-574         JsonObject& jsonLedBoard=root[\textcolor{stringliteral}{"led"}];
-575     
-576 \textcolor{preprocessor}{#if DEBUG == 1 }
-577 
-578     Serial.println( F(\textcolor{stringliteral}{"before config Led json"}) );
-579     jsonLedBoard.printTo(Serial);
-580 
-581 \textcolor{preprocessor}{#endif}
-582 
-583     \textcolor{keywordflow}{if}(jsonLedBoard.success())
-584     \{   
-585         String update;
-586     
-587         jsonLedBoard.printTo(update);
-588 
-589         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/coolBoardLedConfig.json"});      
-590 
-591     
-592     \}
-593     \textcolor{keywordflow}{else}
-594     \{
-595     
-596 \textcolor{preprocessor}{    #if DEBUG == 1 }
-597 
-598         Serial.println( F(\textcolor{stringliteral}{"failed to parse led"}) );
-599     
-600 \textcolor{preprocessor}{    #endif }
-601 
-602     \}
-603         
-604 
-605     
-606 
-607     \textcolor{comment}{//jetpack configuration}
-608         JsonObject& jsonJetpack=root[\textcolor{stringliteral}{"jetPack"}];
-609 
-610 \textcolor{preprocessor}{#if DEBUG == 1 }
-611 
-612     Serial.println( F(\textcolor{stringliteral}{"before config jetpack json"}) );
-613     jsonJetpack.printTo(Serial);
-614 
-615 \textcolor{preprocessor}{#endif}
-616 
-617     \textcolor{keywordflow}{if}(jsonJetpack.success())
-618     \{
-619     
-620         String update;
-621     
-622         jsonJetpack.printTo(update);
-623 
-624         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/jetPackConfig.json"});       
-625 
-626     \}
-627 
-628     \textcolor{keywordflow}{else}
-629     \{
-630     
-631 \textcolor{preprocessor}{    #if DEBUG == 1 }
-632 
-633         Serial.println( F(\textcolor{stringliteral}{"failed to parse jetpack"}) ); 
-634     
-635 \textcolor{preprocessor}{    #endif}
-636 
-637     \}
-638     
-639     \textcolor{comment}{//irene configuration   }
-640         JsonObject& jsonIrene=root[\textcolor{stringliteral}{"irene3000"}];
-641     
-642 \textcolor{preprocessor}{#if DEBUG == 1 }
-643 
-644     Serial.println( F(\textcolor{stringliteral}{"before config irene json"}) );    
-645     jsonIrene.printTo(Serial);
-646 
-647 \textcolor{preprocessor}{#endif }
-648 
-649     \textcolor{keywordflow}{if}(jsonIrene.success())
-650     \{
-651 
-652         String update;
-653     
-654         jsonIrene.printTo(update);
-655 
-656         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/irene3000Config.json"});     
-657     
-658     \}
-659     \textcolor{keywordflow}{else}
-660     \{
-661     
-662 \textcolor{preprocessor}{    #if DEBUG == 1 }
-663 
-664         Serial.println( F(\textcolor{stringliteral}{"failed to parse irene"}) );   
-665     
-666 \textcolor{preprocessor}{    #endif }
-667 
-668 
-669     \}
-670     
-671     \textcolor{comment}{//external sensors}
-672         JsonObject& jsonExternalSensors=root[\textcolor{stringliteral}{"externalSensors"}];
-673 
-674 \textcolor{preprocessor}{#if DEBUG == 1 }
-675 
-676     Serial.println( F(\textcolor{stringliteral}{"before config external Sensors json"}) );
-677     jsonExternalSensors.printTo(Serial);
-678 
-679 \textcolor{preprocessor}{#endif}
-680 
-681     \textcolor{keywordflow}{if}(jsonExternalSensors.success())
-682     \{
-683 
-684         String update;
-685     
-686         jsonExternalSensors.printTo(update);
-687 
-688         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/externalSensorsConfig.json"});       
-689 
-690     \}
-691 
-692     \textcolor{keywordflow}{else}
-693     \{   
-694 
-695 \textcolor{preprocessor}{    #if DEBUG == 1}
-696         
-697         Serial.println( F(\textcolor{stringliteral}{"failed to parse external sensors"}) );
-698 
-699 \textcolor{preprocessor}{    #endif}
-700 
-701 
-702     \}
-703 
-704     
-705     \textcolor{comment}{//mqtt config}
-706         JsonObject& jsonMQTT=root[\textcolor{stringliteral}{"mqtt"}];
-707     
-708 \textcolor{preprocessor}{#if DEBUG == 1 }
-709 
-710     Serial.println( F(\textcolor{stringliteral}{"before config mqtt json"}) );
-711     jsonMQTT.printTo(Serial);
-712 
-713 \textcolor{preprocessor}{#endif}
-714 
-715     \textcolor{keywordflow}{if}(jsonMQTT.success())
-716     \{
-717 
-718         String update;
-719     
-720         jsonMQTT.printTo(update);
-721 
-722         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/mqttConfig.json"});      
-723 
-724     \}
-725     \textcolor{keywordflow}{else}
-726     \{
-727 
-728 \textcolor{preprocessor}{    #if DEBUG == 1 }
-729 
-730         Serial.println( F(\textcolor{stringliteral}{"failed to parse mqtt"}) );
-731     
-732 \textcolor{preprocessor}{    #endif}
-733 
-734     
-735     \}   
-736 
-737     \textcolor{comment}{//wifi config}
-738         JsonObject& jsonWifi=root[\textcolor{stringliteral}{"wifi"}];
-739     
-740 \textcolor{preprocessor}{#if DEBUG == 1 }
-741 
-742     Serial.println( F(\textcolor{stringliteral}{"before config wifi json"}) );
-743     jsonWifi.printTo(Serial);
-744 
-745 \textcolor{preprocessor}{#endif}
-746 
-747     \textcolor{keywordflow}{if}(jsonWifi.success())
-748     \{
-749 
-750         String update;
-751     
-752         jsonWifi.printTo(update);
-753 
-754         this->\hyperlink{class_cool_file_system_a13f2958f5b87757c31fc53797a30d23a}{fileUpdate}(update,\textcolor{stringliteral}{"/wifiConfig.json"});      
-755 
-756     \}
-757     \textcolor{keywordflow}{else}
-758     \{
-759 
-760 \textcolor{preprocessor}{    #if DEBUG == 1 }
-761 
-762         Serial.println( F(\textcolor{stringliteral}{"failed to parse wifi"}) );
-763     
-764 \textcolor{preprocessor}{    #endif}
-765 
-766     
-767     \}   
-768         
-769     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
-770 
-771 \}   
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841_cgraph}
-\end{center}
-\end{figure}
+
+References saved\+Data.
+
+
+
+Referenced by Cool\+Board\+::on\+Line\+Mode().
+
 Here is the caller graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{db/d0c/class_cool_file_system_adfa8e2e80641ae6f0cceabd348a9b841_icgraph}
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_ac86a40e7c3a1842f7342f698d34324f9_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2}\label{class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!get\+Sensor\+Saved\+Data@{get\+Sensor\+Saved\+Data}}
+\index{get\+Sensor\+Saved\+Data@{get\+Sensor\+Saved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{get\+Sensor\+Saved\+Data()}{getSensorSavedData()}}
+{\footnotesize\ttfamily String $\ast$ Cool\+File\+System\+::get\+Sensor\+Saved\+Data (\begin{DoxyParamCaption}\item[{int \&}]{lines }\end{DoxyParamCaption})}
+
+Cool\+File\+System\+::get\+Sensor\+Data(int \&lines)\+: This method is provided to return the sensor data saved in the File System 10 lines at a time
+
+\begin{DoxyReturn}{Returns}
+String array containing 50 first lines from the file modifies tge lines argument to reflect the number of lines left 
+\end{DoxyReturn}
+
+
+Definition at line 842 of file Cool\+File\+System.\+cpp.
+
+
+
+References incrementsaved\+Data(), lines\+To\+Skip, saved\+Data, and temp.
+
+
+
+Referenced by Cool\+Board\+::on\+Line\+Mode().
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a3223ffff4266a6300988fab956d6b4b2_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_file_system_aae045125288f255f3e258073dcada2a6}\label{class_cool_file_system_aae045125288f255f3e258073dcada2a6}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!incrementsaved\+Data@{incrementsaved\+Data}}
+\index{incrementsaved\+Data@{incrementsaved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{incrementsaved\+Data()}{incrementsavedData()}}
+{\footnotesize\ttfamily bool Cool\+File\+System\+::incrementsaved\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_file_system_aae045125288f255f3e258073dcada2a6}{Cool\+File\+System\+::incrementsaved\+Data()}\+: This method is provided to increment the saved\+Data flag
+
+\begin{DoxyReturn}{Returns}
+true if successful , false otherwise 
+\end{DoxyReturn}
+
+
+Definition at line 1152 of file Cool\+File\+System.\+cpp.
+
+
+
+References lines\+To\+Skip, and saved\+Data.
+
+
+
+Referenced by get\+Sensor\+Saved\+Data(), and save\+Sensor\+Data().
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_aae045125288f255f3e258073dcada2a6_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}\label{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!getsaved\+Data@{getsaved\+Data}}
+\index{getsaved\+Data@{getsaved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{getsaved\+Data()}{getsavedData()}}
+{\footnotesize\ttfamily void Cool\+File\+System\+::getsaved\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed}{Cool\+File\+System\+::getsaved\+Data()}\+: This method is provided to get the saved\+Data flag from the file system 
+
+Definition at line 1202 of file Cool\+File\+System.\+cpp.
+
+
+
+References lines\+To\+Skip, saved\+Data, and temp.
+
+
+
+Referenced by begin().
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{db/d0c/class_cool_file_system_a70701d05e811604af1b531f4f6dc69ed_icgraph}
 \end{center}
 \end{figure}
 
 
 \subsection{Member Data Documentation}
-\mbox{\Hypertarget{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}\label{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}} 
-\index{Cool\+File\+System@{Cool\+File\+System}!lines\+To\+Skip@{lines\+To\+Skip}}
-\index{lines\+To\+Skip@{lines\+To\+Skip}!Cool\+File\+System@{Cool\+File\+System}}
-\subsubsection{\texorpdfstring{lines\+To\+Skip}{linesToSkip}}
-{\footnotesize\ttfamily int Cool\+File\+System\+::lines\+To\+Skip =0\hspace{0.3cm}{\ttfamily [private]}}
-
-Number of lines to Skip when retrieving saved Data 
-
-Definition at line 80 of file Cool\+File\+System.\+h.
-
 \mbox{\Hypertarget{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}\label{class_cool_file_system_ad9f5b739a32100f5f21270c3d9ee2b1d}} 
 \index{Cool\+File\+System@{Cool\+File\+System}!saved\+Data@{saved\+Data}}
 \index{saved\+Data@{saved\+Data}!Cool\+File\+System@{Cool\+File\+System}}
@@ -1434,7 +368,25 @@ Definition at line 74 of file Cool\+File\+System.\+h.
 
 
 
+Referenced by getsaved\+Data(), get\+Sensor\+Saved\+Data(), incrementsaved\+Data(), is\+Data\+Saved(), and save\+Sensor\+Data().
+
+\mbox{\Hypertarget{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}\label{class_cool_file_system_a84fdb6057e534b395512463daa28ea3c}} 
+\index{Cool\+File\+System@{Cool\+File\+System}!lines\+To\+Skip@{lines\+To\+Skip}}
+\index{lines\+To\+Skip@{lines\+To\+Skip}!Cool\+File\+System@{Cool\+File\+System}}
+\subsubsection{\texorpdfstring{lines\+To\+Skip}{linesToSkip}}
+{\footnotesize\ttfamily int Cool\+File\+System\+::lines\+To\+Skip =0\hspace{0.3cm}{\ttfamily [private]}}
+
+Number of lines to Skip when retrieving saved Data 
+
+Definition at line 80 of file Cool\+File\+System.\+h.
+
+
+
+Referenced by getsaved\+Data(), get\+Sensor\+Saved\+Data(), and incrementsaved\+Data().
+
+
+
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_file_system_8h}{Cool\+File\+System.\+h}\item 
-/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_file_system_8cpp}{Cool\+File\+System.\+cpp}\end{DoxyCompactItemize}
+\hyperlink{_cool_file_system_8h}{Cool\+File\+System.\+h}\item 
+\hyperlink{_cool_file_system_8cpp}{Cool\+File\+System.\+cpp}\end{DoxyCompactItemize}

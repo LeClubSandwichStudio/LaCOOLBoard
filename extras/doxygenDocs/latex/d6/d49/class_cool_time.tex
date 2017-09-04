@@ -87,23 +87,13 @@ Definition at line 54 of file Cool\+Time.\+h.
 Definition at line 54 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-55 \{
-56 
-57 \textcolor{preprocessor}{#if DEBUG == 1 }
-58 
-59     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.begin()"}) );
-60     Serial.println();
-61 
-62 \textcolor{preprocessor}{#endif }
-63 
-64 
-65     \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.begin(\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort});
-66     
-67     this->\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{update}();
-68     
-69 \}
-\end{DoxyCode}
+
+References local\+Port, Udp, and update().
+
+
+
+Referenced by Cool\+Board\+::begin().
+
 Here is the call graph for this function\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -116,6 +106,40 @@ Here is the caller graph for this function\+:\nopagebreak
 \begin{center}
 \leavevmode
 \includegraphics[width=296pt]{d6/d49/class_cool_time_ab1976cf718b950bc31e003c3323b8adb_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_time_aae601f795452cfa48d9fb337aed483a8}\label{class_cool_time_aae601f795452cfa48d9fb337aed483a8}} 
+\index{Cool\+Time@{Cool\+Time}!update@{update}}
+\index{update@{update}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void Cool\+Time\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{Cool\+Time\+::update()}\+: This method is provided to correct the rtc Time when it drifts,once every week. 
+
+Definition at line 76 of file Cool\+Time.\+cpp.
+
+
+
+References get\+Ntp\+Time(), is\+Time\+Sync(), rtc, save\+Time\+Sync(), time\+Sync, and tm\+Set.
+
+
+
+Referenced by begin(), and Cool\+Board\+::on\+Line\+Mode().
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_aae601f795452cfa48d9fb337aed483a8_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_aae601f795452cfa48d9fb337aed483a8_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}\label{class_cool_time_a87c28260c1bc77091162cbcf1ee2e129}} 
@@ -134,131 +158,15 @@ true if successful,false otherwise
 Definition at line 427 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-428 \{
-429 
-430 \textcolor{preprocessor}{#if DEBUG == 1 }
-431 
-432     Serial.println( F(\textcolor{stringliteral}{"Enter CoolTime.config()"}) );
-433     Serial.println();
-434 
-435 \textcolor{preprocessor}{#endif }
-436 
-437     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
-438 
-439     \textcolor{keywordflow}{if} (!rtcConfig) 
-440     \{
-441     
-442         Serial.println( F(\textcolor{stringliteral}{"failed to read /rtcConfig.json"}) );
-443         Serial.println();
-444 
-445         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-446     \}
-447     \textcolor{keywordflow}{else}
-448     \{
-449         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
-450         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-451         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-452 
-453         rtcConfig.readBytes(buf.get(), size);
-454         DynamicJsonBuffer jsonBuffer;
-455         JsonObject& json = jsonBuffer.parseObject(buf.get());
-456         \textcolor{keywordflow}{if} (!json.success()) 
-457         \{
-458 
-459             Serial.println( F(\textcolor{stringliteral}{"failed to parse rtcConfig json"}) );
-460             Serial.println();
-461 
-462             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-463         \} 
-464         \textcolor{keywordflow}{else}
-465         \{  
-466         
-467 \textcolor{preprocessor}{        #if DEBUG == 1 }
-468 
-469             Serial.println( F(\textcolor{stringliteral}{"configuration json is :"}) );
-470             json.printTo(Serial);
-471             Serial.println();
-472 
-473             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-474             Serial.println(jsonBuffer.size());
-475             Serial.println();
-476 
-477 
-478 \textcolor{preprocessor}{        #endif}
-479 
-480             String ip;
-481             
-482             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
-483             \{           
-484                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
-485                 this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
-486                 
-487             \}
-488             \textcolor{keywordflow}{else}
-489             \{
-490                 this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer};
-491             \}
-492             json[\textcolor{stringliteral}{"timeServer"}]=ip;
-493             
-494             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
-495             \{                       
-496                 this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
-497             \}
-498             \textcolor{keywordflow}{else}
-499             \{
-500                 this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-501             \}
-502             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-503 
-504 
-505             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
-506             \{
-507 
-508                 this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=json[\textcolor{stringliteral}{"timeSync"}];
-509             \}
-510             \textcolor{keywordflow}{else}
-511             \{
-512                 this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-513             \}
-514             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-515 
-516             rtcConfig.close();
-517             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
-518             
-519             \textcolor{keywordflow}{if}(!rtcConfig)
-520             \{
-521             
-522 \textcolor{preprocessor}{            #if DEBUG == 1}
-523 
-524                 Serial.println( F(\textcolor{stringliteral}{"failed to write to /rtcConfig.json"}) );
-525                 Serial.println();
-526             
-527 \textcolor{preprocessor}{            #endif}
-528 
-529                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-530             \}
-531             
-532             json.printTo(rtcConfig);
-533             rtcConfig.close();
-534 
-535 \textcolor{preprocessor}{        #if DEBUG == 1 }
-536 
-537             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
-538             json.printTo(Serial);
-539             Serial.println();
-540         
-541 \textcolor{preprocessor}{        #endif}
-542         
-543             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-544         \}
-545     \}   
-546 
-547 
-548 
-549 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+References local\+Port, time\+Server, and time\+Sync.
+
+
+
+Referenced by Cool\+Board\+::begin().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -276,77 +184,94 @@ Cool\+Time\+::config(\+Time server I\+P , udp Port)\+: This method is provided t
 Definition at line 404 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-405 \{
-406 
-407 \textcolor{preprocessor}{#if DEBUG == 1 }
-408 
-409     Serial.println( F(\textcolor{stringliteral}{"Enter CoomTime.config() , no SPIFFS variant "}) );
-410     Serial.println();
-411 
-412 \textcolor{preprocessor}{#endif }
-413 
-414     this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer}=\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer};
-415     this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort}=\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-416     
-417 \} 
-\end{DoxyCode}
-\mbox{\Hypertarget{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}\label{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}} 
-\index{Cool\+Time@{Cool\+Time}!format\+Digits@{format\+Digits}}
-\index{format\+Digits@{format\+Digits}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{format\+Digits()}{formatDigits()}}
-{\footnotesize\ttfamily String Cool\+Time\+::format\+Digits (\begin{DoxyParamCaption}\item[{int}]{digits }\end{DoxyParamCaption})}
 
-Cool\+Time\+::print\+Digits(digit)
+References local\+Port, and time\+Server.
 
-utility method for digital clock display adds leading 0
+\mbox{\Hypertarget{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}\label{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}} 
+\index{Cool\+Time@{Cool\+Time}!print\+Conf@{print\+Conf}}
+\index{print\+Conf@{print\+Conf}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{print\+Conf()}{printConf()}}
+{\footnotesize\ttfamily void Cool\+Time\+::print\+Conf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
-\begin{DoxyReturn}{Returns}
-formatted string of the input digit 
-\end{DoxyReturn}
+\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{Cool\+Time\+::print\+Conf()}\+: This method is provided to print the \hyperlink{class_cool_time}{Cool\+Time} configuration to the Serial Monitor 
+
+Definition at line 681 of file Cool\+Time.\+cpp.
 
 
-Definition at line 708 of file Cool\+Time.\+cpp.
+
+References local\+Port, and time\+Server.
 
 
-\begin{DoxyCode}
-709 \{
-710 
-711 \textcolor{preprocessor}{#if DEBUG == 1 }
-712 
-713     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.formatDigits()"}) );
-714     Serial.println();
-715 
-716 \textcolor{preprocessor}{#endif }
-717 
-718     \textcolor{keywordflow}{if}(digits < 10)
-719     \{
-720     
-721 \textcolor{preprocessor}{    #if DEBUG == 1}
-722 
-723         Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
-724         Serial.println( String(\textcolor{stringliteral}{"0"}) + String(digits) );
-725 
-726 \textcolor{preprocessor}{    #endif}
-727 
-728         \textcolor{keywordflow}{return}( String(\textcolor{stringliteral}{"0"}) + String(digits) );
-729     \}
-730     
-731 \textcolor{preprocessor}{#if DEBUG == 1 }
-732 
-733     Serial.println( F(\textcolor{stringliteral}{"output digit : "}) );
-734     Serial.println(digits);
-735 
-736 \textcolor{preprocessor}{#endif}
-737 
-738     \textcolor{keywordflow}{return}( String(digits) );
-739 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+Referenced by Cool\+Board\+::begin().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456_icgraph}
+\includegraphics[width=312pt]{d6/d49/class_cool_time_af355e7f9b3898211cd2ff25eab5933b1_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}\label{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}} 
+\index{Cool\+Time@{Cool\+Time}!set\+Date\+Time@{set\+Date\+Time}}
+\index{set\+Date\+Time@{set\+Date\+Time}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{set\+Date\+Time()}{setDateTime()}}
+{\footnotesize\ttfamily void Cool\+Time\+::set\+Date\+Time (\begin{DoxyParamCaption}\item[{int}]{year,  }\item[{int}]{month,  }\item[{int}]{day,  }\item[{int}]{hour,  }\item[{int}]{minutes,  }\item[{int}]{seconds }\end{DoxyParamCaption})}
+
+Cool\+Time\+::set\+Date\+Time(year,month,dat,hour,minutes,seconds)\+: This method is provided to manually set the R\+Tc Time 
+
+Definition at line 109 of file Cool\+Time.\+cpp.
+
+
+
+References format\+Digits(), get\+E\+S\+Date(), and rtc.
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297_cgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}\label{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}} 
+\index{Cool\+Time@{Cool\+Time}!get\+Time\+Date@{get\+Time\+Date}}
+\index{get\+Time\+Date@{get\+Time\+Date}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{get\+Time\+Date()}{getTimeDate()}}
+{\footnotesize\ttfamily tm\+Elements\+\_\+t Cool\+Time\+::get\+Time\+Date (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{Cool\+Time\+::get\+Time\+Date()}\+: This method is provided to get the R\+TC Time
+
+\begin{DoxyReturn}{Returns}
+a tm\+Elements\+\_\+t structre that has the time in it 
+\end{DoxyReturn}
+
+
+Definition at line 163 of file Cool\+Time.\+cpp.
+
+
+
+References format\+Digits(), and rtc.
+
+
+
+Referenced by get\+E\+S\+Date(), and Cool\+Board\+::read\+Sensors().
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_a7a7501c5ca77dd1248bea704c44f986c_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_a7a7501c5ca77dd1248bea704c44f986c_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_time_ac4f32ee513c1328d984306645e8785a4}\label{class_cool_time_ac4f32ee513c1328d984306645e8785a4}} 
@@ -365,46 +290,23 @@ date String in Elastic Search format
 Definition at line 206 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-207 \{
-208 
-209 \textcolor{preprocessor}{#if DEBUG == 1 }
-210 
-211     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.getESDate()"}) );
-212     Serial.println();
-213 
-214 \textcolor{preprocessor}{#endif }
-215 
-216     tmElements\_t tm=this->\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{getTimeDate}();
-217 
-218     \textcolor{comment}{//"20yy-mm-ddT00:00:00Z"}
-219     String elasticSearchString =String(tm.Year+1970)+\textcolor{stringliteral}{"-"}+this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}(tm.Month)+\textcolor{stringliteral}{"-"};
-220 
-221     elasticSearchString +=this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}(tm.Day)+\textcolor{stringliteral}{"T"}+this->
-      \hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}(tm.Hour)+\textcolor{stringliteral}{":"};
-222     
-223     elasticSearchString +=this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}(tm.Minute)+\textcolor{stringliteral}{":"}+this->
-      \hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}(tm.Second)+\textcolor{stringliteral}{"Z"};
-224 
-225 \textcolor{preprocessor}{#if DEBUG == 1 }
-226 
-227     Serial.print( F(\textcolor{stringliteral}{"elastic Search date : "}) );
-228     Serial.println(elasticSearchString);
-229     Serial.println();
-230 
-231 \textcolor{preprocessor}{#endif}
-232 
-233     \textcolor{keywordflow}{return} (elasticSearchString);
-234 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+
+References format\+Digits(), and get\+Time\+Date().
+
+
+
+Referenced by set\+Date\+Time(), and Cool\+Board\+::user\+Data().
+
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d6/d49/class_cool_time_ac4f32ee513c1328d984306645e8785a4_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -427,178 +329,19 @@ unsigned long representation of last syncronisation time in seconds
 Definition at line 244 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-245 \{
-246 
-247 \textcolor{preprocessor}{#if DEBUG == 1 }
-248 
-249     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.getLastSyncTime()"}) );
-250     Serial.println();
-251     
-252     Serial.print( F(\textcolor{stringliteral}{"last sync time : "}) );
-253     Serial.println(this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync});
-254 
-255 \textcolor{preprocessor}{#endif }
-256 
-257     \textcolor{keywordflow}{return}(this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync});
-258 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+References time\+Sync.
+
+
+
+Referenced by is\+Time\+Sync().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d6/d49/class_cool_time_a5d17f707a9d337720493b2bce9d41c21_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}\label{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}} 
-\index{Cool\+Time@{Cool\+Time}!get\+Ntp\+Time@{get\+Ntp\+Time}}
-\index{get\+Ntp\+Time@{get\+Ntp\+Time}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{get\+Ntp\+Time()}{getNtpTime()}}
-{\footnotesize\ttfamily time\+\_\+t Cool\+Time\+::get\+Ntp\+Time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-Cool\+Time\+::get\+Ntop\+Time()\+: This method is provided to get the Time through an N\+TP request to a Time Server
-
-\begin{DoxyReturn}{Returns}
-a time\+\_\+t (unsigned long ) timestamp in seconds 
-\end{DoxyReturn}
-
-
-Definition at line 310 of file Cool\+Time.\+cpp.
-
-
-\begin{DoxyCode}
-311 \{
-312 
-313 \textcolor{preprocessor}{#if DEBUG == 1 }
-314 
-315     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.getNtpTime()"}) );
-316     Serial.println();
-317 
-318 \textcolor{preprocessor}{#endif }
-319 
-320     \textcolor{keywordflow}{while} (\hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.parsePacket() > 0) ; \textcolor{comment}{// discard any previously received packets}
-321 
-322     Serial.println( F(\textcolor{stringliteral}{"Transmit NTP Request"}) );
-323 
-324     \hyperlink{class_cool_time_a236a38d120dc53bc67456d763838c5a1}{sendNTPpacket}(\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer});
-325 
-326     uint32\_t beginWait = millis();
-327 
-328     \textcolor{keywordflow}{while} (millis() - beginWait < 1500) 
-329     \{
-330         \textcolor{keywordtype}{int} size = \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.parsePacket();
-331         \textcolor{keywordflow}{if} (size >= \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE}) 
-332         \{
-333         
-334 \textcolor{preprocessor}{        #if DEBUG == 1}
-335 
-336             Serial.println( F(\textcolor{stringliteral}{"Receive NTP Response"}) );
-337         
-338 \textcolor{preprocessor}{        #endif}
-339 
-340             \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.read(\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});  \textcolor{comment}{// read packet into the
-       buffer}
-341             \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} secsSince1900;
-342             \textcolor{comment}{// convert four bytes starting at location 40 to a long integer}
-343             secsSince1900 =  (\textcolor{keywordtype}{unsigned} long)\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[40] << 24;
-344             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[41] << 16;
-345             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[42] << 8;
-346             secsSince1900 |= (\textcolor{keywordtype}{unsigned} long)\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[43];
-347         
-348 \textcolor{preprocessor}{        #if DEBUG == 1 }
-349     
-350             Serial.print( F(\textcolor{stringliteral}{"received unix time : "}) );
-351             Serial.println(secsSince1900 - 2208988800UL);
-352             Serial.println();
-353 
-354 \textcolor{preprocessor}{        #endif }
-355 
-356             \textcolor{keywordflow}{return} secsSince1900 - 2208988800UL ;
-357         \}
-358     \}
-359     
-360     Serial.println( F(\textcolor{stringliteral}{"No NTP Response :-("}) );
-361 
-362     \textcolor{keywordflow}{return} 0; \textcolor{comment}{// return 0 if unable to get the time}
-363 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_cgraph}
-\end{center}
-\end{figure}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}\label{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}} 
-\index{Cool\+Time@{Cool\+Time}!get\+Time\+Date@{get\+Time\+Date}}
-\index{get\+Time\+Date@{get\+Time\+Date}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{get\+Time\+Date()}{getTimeDate()}}
-{\footnotesize\ttfamily tm\+Elements\+\_\+t Cool\+Time\+::get\+Time\+Date (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-\hyperlink{class_cool_time_a7a7501c5ca77dd1248bea704c44f986c}{Cool\+Time\+::get\+Time\+Date()}\+: This method is provided to get the R\+TC Time
-
-\begin{DoxyReturn}{Returns}
-a tm\+Elements\+\_\+t structre that has the time in it 
-\end{DoxyReturn}
-
-
-Definition at line 163 of file Cool\+Time.\+cpp.
-
-
-\begin{DoxyCode}
-164 \{
-165 
-166 \textcolor{preprocessor}{#if DEBUG == 1 }
-167     
-168     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.getTimeDate()"}) );
-169     Serial.println();
-170 
-171 \textcolor{preprocessor}{#endif}
-172 
-173     tmElements\_t tm;
-174     time\_t timeDate = this->\hyperlink{class_cool_time_abd38f2384ff90692b1568d9db869412e}{rtc}.get(CLOCK\_ADDRESS);
-175     breakTime(timeDate,tm);
-176 
-177 \textcolor{preprocessor}{#if DEBUG == 1}
-178     
-179     Serial.print( F(\textcolor{stringliteral}{"time is : "}) );
-180     Serial.print(tm.Year+ 1970 );
-181     Serial.print( F(\textcolor{stringliteral}{"-"}) );
-182     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Month ) );
-183     Serial.print( F(\textcolor{stringliteral}{"-"}) );
-184     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Day ) );
-185     Serial.print( F(\textcolor{stringliteral}{"T"}) );
-186     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Hour ) );
-187     Serial.print( F(\textcolor{stringliteral}{":"}) );
-188     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Minute ) );
-189     Serial.print( F(\textcolor{stringliteral}{":"}) );
-190     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Second ) );
-191     Serial.print( F(\textcolor{stringliteral}{"Z"}) );
-192 
-193 \textcolor{preprocessor}{#endif}
-194     
-195     \textcolor{keywordflow}{return}(tm);
-196 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_a7a7501c5ca77dd1248bea704c44f986c_cgraph}
-\end{center}
-\end{figure}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_a7a7501c5ca77dd1248bea704c44f986c_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}\label{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}} 
@@ -617,86 +360,121 @@ true if time is syncronised,false otherwise
 Definition at line 270 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-271 \{
-272 
-273 \textcolor{preprocessor}{#if DEBUG == 1}
-274 
-275     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.isTimeSync() "}) );
-276     Serial.println();
-277 
-278 \textcolor{preprocessor}{#endif }
-279 
-280 \textcolor{preprocessor}{#if DEBUG == 0}
-281 
-282     Serial.println( F(\textcolor{stringliteral}{"Check if Clock is ok and in sync..."}));
-283 
-284 \textcolor{preprocessor}{#endif}
-285 
-286     \textcolor{comment}{//default is once per week we try to get a time update}
-287     \textcolor{keywordflow}{if}( ( RTC.get(CLOCK\_ADDRESS) - this->\hyperlink{class_cool_time_a5d17f707a9d337720493b2bce9d41c21}{getLastSyncTime}() ) > ( seconds ) ) 
-288     \{
-289 
-290         Serial.println( F(\textcolor{stringliteral}{"time is not syncronised "}) );
-291     
-292         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});  
-293     \}
-294     
-295     Serial.println( F(\textcolor{stringliteral}{"time is syncronised : OK"}) );
-296     Serial.println();
-297 
-298     \textcolor{keywordflow}{return}(\textcolor{keyword}{true});
-299 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
+
+References get\+Last\+Sync\+Time().
+
+
+
+Referenced by update().
+
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d6/d49/class_cool_time_a5ae038a4498602b189f76a10bf02adf8_cgraph}
 \end{center}
 \end{figure}
-Here is the caller graph for this function\+:\nopagebreak
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d6/d49/class_cool_time_a5ae038a4498602b189f76a10bf02adf8_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}\label{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}} 
-\index{Cool\+Time@{Cool\+Time}!print\+Conf@{print\+Conf}}
-\index{print\+Conf@{print\+Conf}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{print\+Conf()}{printConf()}}
-{\footnotesize\ttfamily void Cool\+Time\+::print\+Conf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+\mbox{\Hypertarget{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}\label{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}} 
+\index{Cool\+Time@{Cool\+Time}!get\+Ntp\+Time@{get\+Ntp\+Time}}
+\index{get\+Ntp\+Time@{get\+Ntp\+Time}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{get\+Ntp\+Time()}{getNtpTime()}}
+{\footnotesize\ttfamily time\+\_\+t Cool\+Time\+::get\+Ntp\+Time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
-\hyperlink{class_cool_time_af355e7f9b3898211cd2ff25eab5933b1}{Cool\+Time\+::print\+Conf()}\+: This method is provided to print the \hyperlink{class_cool_time}{Cool\+Time} configuration to the Serial Monitor 
+Cool\+Time\+::get\+Ntop\+Time()\+: This method is provided to get the Time through an N\+TP request to a Time Server
 
-Definition at line 681 of file Cool\+Time.\+cpp.
+\begin{DoxyReturn}{Returns}
+a time\+\_\+t (unsigned long ) timestamp in seconds 
+\end{DoxyReturn}
 
 
-\begin{DoxyCode}
-682 \{
-683 
-684 \textcolor{preprocessor}{#if DEBUG == 1}
-685 
-686     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.printConf()"}) );
-687     Serial.println();
-688 
-689 \textcolor{preprocessor}{#endif }
-690 
-691     Serial.println(\textcolor{stringliteral}{"RTC Configuration"}) ;
-692 
-693     Serial.print(\textcolor{stringliteral}{"timeServer : "});
-694     Serial.println(\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer});
-695     
-696     Serial.print(\textcolor{stringliteral}{"localPort : :"});
-697     Serial.println(\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort});
-698 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+Definition at line 310 of file Cool\+Time.\+cpp.
+
+
+
+References N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE, packet\+Buffer, send\+N\+T\+Ppacket(), time\+Server, and Udp.
+
+
+
+Referenced by update().
+
+Here is the call graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=312pt]{d6/d49/class_cool_time_af355e7f9b3898211cd2ff25eab5933b1_icgraph}
+\includegraphics[width=350pt]{d6/d49/class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_time_a236a38d120dc53bc67456d763838c5a1}\label{class_cool_time_a236a38d120dc53bc67456d763838c5a1}} 
+\index{Cool\+Time@{Cool\+Time}!send\+N\+T\+Ppacket@{send\+N\+T\+Ppacket}}
+\index{send\+N\+T\+Ppacket@{send\+N\+T\+Ppacket}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{send\+N\+T\+Ppacket()}{sendNTPpacket()}}
+{\footnotesize\ttfamily void Cool\+Time\+::send\+N\+T\+Ppacket (\begin{DoxyParamCaption}\item[{I\+P\+Address \&}]{address }\end{DoxyParamCaption})}
+
+Cool\+Time\+::send\+N\+T\+Ppacket( Time Server I\+P address)\+: This method is provided to send an N\+TP request to the time server at the given address 
+
+Definition at line 370 of file Cool\+Time.\+cpp.
+
+
+
+References N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE, packet\+Buffer, and Udp.
+
+
+
+Referenced by get\+Ntp\+Time().
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_a236a38d120dc53bc67456d763838c5a1_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}\label{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}} 
+\index{Cool\+Time@{Cool\+Time}!format\+Digits@{format\+Digits}}
+\index{format\+Digits@{format\+Digits}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{format\+Digits()}{formatDigits()}}
+{\footnotesize\ttfamily String Cool\+Time\+::format\+Digits (\begin{DoxyParamCaption}\item[{int}]{digits }\end{DoxyParamCaption})}
+
+Cool\+Time\+::print\+Digits(digit)
+
+utility method for digital clock display adds leading 0
+
+\begin{DoxyReturn}{Returns}
+formatted string of the input digit 
+\end{DoxyReturn}
+
+
+Definition at line 708 of file Cool\+Time.\+cpp.
+
+
+
+Referenced by get\+E\+S\+Date(), get\+Time\+Date(), and set\+Date\+Time().
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d49/class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456_icgraph}
 \end{center}
 \end{figure}
 \mbox{\Hypertarget{class_cool_time_ae9658c9b377510d469e3b88edf33ee85}\label{class_cool_time_ae9658c9b377510d469e3b88edf33ee85}} 
@@ -715,325 +493,37 @@ true if successful,false otherwise
 Definition at line 560 of file Cool\+Time.\+cpp.
 
 
-\begin{DoxyCode}
-561 \{
-562     Serial.println( F(\textcolor{stringliteral}{"Enter CoolTime.saveTimeSync()"}) );
-563     Serial.println();
-564 
-565     File rtcConfig = SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"r"});
-566 
-567     \textcolor{keywordflow}{if} (!rtcConfig) 
-568     \{
-569         Serial.println( F(\textcolor{stringliteral}{"failed to read /rtcConfig.json"}) );
-570         Serial.println();
-571 
-572         \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-573     \}
-574     \textcolor{keywordflow}{else}
-575     \{
-576         \textcolor{keywordtype}{size\_t} size = rtcConfig.size();
-577         \textcolor{comment}{// Allocate a buffer to store contents of the file.}
-578         std::unique\_ptr<char[]> buf(\textcolor{keyword}{new} \textcolor{keywordtype}{char}[size]);
-579 
-580         rtcConfig.readBytes(buf.get(), size);
-581         DynamicJsonBuffer jsonBuffer;
-582         JsonObject& json = jsonBuffer.parseObject(buf.get());
-583         \textcolor{keywordflow}{if} (!json.success()) 
-584         \{
-585 
-586             Serial.println( F(\textcolor{stringliteral}{"failed to parse json"}) );
-587             Serial.println();
-588 
-589             \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-590         \} 
-591         \textcolor{keywordflow}{else}
-592         \{
-593 
-594 \textcolor{preprocessor}{        #if DEBUG == 1}
-595     
-596             Serial.println( F(\textcolor{stringliteral}{"configuration json is :"}) );
-597             json.printTo(Serial);
-598             Serial.println();
-599 
-600             Serial.print(F(\textcolor{stringliteral}{"jsonBuffer size: "}));
-601             Serial.println(jsonBuffer.size());
-602             Serial.println();
-603 
-604 \textcolor{preprocessor}{        #endif}
-605 
-606             String ip;
-607                     
-608             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"timeServer"}].success() )
-609             \{           
-610                  ip=json[\textcolor{stringliteral}{"timeServer"}].as<String>();
-611                 this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer}.fromString(ip);
-612                 
-613             \}
-614             \textcolor{keywordflow}{else}
-615             \{
-616                 this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer}=this->\hyperlink{class_cool_time_ad2b9858f399108cb440dd1e908916f04}{timeServer};
-617             \}
-618             json[\textcolor{stringliteral}{"timeServer"}]=ip;
-619             
-620             \textcolor{keywordflow}{if}(json[\textcolor{stringliteral}{"localPort"}].success() )
-621             \{                       
-622                 this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort}=json[\textcolor{stringliteral}{"localPort"}];
-623             \}
-624             \textcolor{keywordflow}{else}
-625             \{
-626                 this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort}=this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-627             \}
-628             json[\textcolor{stringliteral}{"localPort"}]=this->\hyperlink{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}{localPort};
-629 
-630 
-631             \textcolor{keywordflow}{if}( json[\textcolor{stringliteral}{"timeSync"}].success() )
-632             \{
-633                 json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-634             \}
-635             \textcolor{keywordflow}{else}
-636             \{
-637                 this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-638             \}
-639             json[\textcolor{stringliteral}{"timeSync"}]=this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync};
-640 
-641 
-642             rtcConfig.close();
-643             rtcConfig= SPIFFS.open(\textcolor{stringliteral}{"/rtcConfig.json"}, \textcolor{stringliteral}{"w"});
-644             
-645             \textcolor{keywordflow}{if}(!rtcConfig)
-646             \{
-647 \textcolor{preprocessor}{            #if DEBUG == 1}
-648 
-649                 Serial.println( F(\textcolor{stringliteral}{"failed to write timeSync to /rtcConfig.json"}) );
-650                 Serial.println();
-651             
-652 \textcolor{preprocessor}{            #endif}
-653 
-654                 \textcolor{keywordflow}{return}(\textcolor{keyword}{false});
-655             \}
-656             
-657             json.printTo(rtcConfig);
-658             rtcConfig.close();
-659     
-660 \textcolor{preprocessor}{        #if DEBUG == 1}
-661 
-662             Serial.println( F(\textcolor{stringliteral}{"configuration is :"}) );
-663             json.printTo(Serial);
-664             Serial.println();
-665         
-666 \textcolor{preprocessor}{        #endif}
-667             \textcolor{keywordflow}{return}(\textcolor{keyword}{true}); 
-668         \}
-669     \}   
-670 
-671 
-672 
-673 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
+
+References local\+Port, time\+Server, and time\+Sync.
+
+
+
+Referenced by update().
+
+Here is the caller graph for this function\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{d6/d49/class_cool_time_ae9658c9b377510d469e3b88edf33ee85_icgraph}
 \end{center}
 \end{figure}
-\mbox{\Hypertarget{class_cool_time_a236a38d120dc53bc67456d763838c5a1}\label{class_cool_time_a236a38d120dc53bc67456d763838c5a1}} 
-\index{Cool\+Time@{Cool\+Time}!send\+N\+T\+Ppacket@{send\+N\+T\+Ppacket}}
-\index{send\+N\+T\+Ppacket@{send\+N\+T\+Ppacket}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{send\+N\+T\+Ppacket()}{sendNTPpacket()}}
-{\footnotesize\ttfamily void Cool\+Time\+::send\+N\+T\+Ppacket (\begin{DoxyParamCaption}\item[{I\+P\+Address \&}]{address }\end{DoxyParamCaption})}
-
-Cool\+Time\+::send\+N\+T\+Ppacket( Time Server I\+P address)\+: This method is provided to send an N\+TP request to the time server at the given address 
-
-Definition at line 370 of file Cool\+Time.\+cpp.
-
-
-\begin{DoxyCode}
-371 \{
-372 
-373 \textcolor{preprocessor}{#if DEBUG == 1 }
-374 
-375     Serial.println( F(\textcolor{stringliteral}{"Enter CoolTime.sendNTPpacket()"}) );
-376     Serial.println();
-377 
-378 \textcolor{preprocessor}{#endif}
-379 
-380     memset(\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}, 0, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
-381     \textcolor{comment}{// Initialize values needed to form NTP request}
-382     \textcolor{comment}{// (see URL above for details on the packets)}
-383     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[0] = 0b11100011;   \textcolor{comment}{// LI, Version, Mode}
-384     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[1] = 0;     \textcolor{comment}{// Stratum, or type of clock}
-385     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[2] = 6;     \textcolor{comment}{// Polling Interval}
-386     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[3] = 0xEC;  \textcolor{comment}{// Peer Clock Precision}
-387     \textcolor{comment}{// 8 bytes of zero for Root Delay & Root Dispersion}
-388     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[12]  = 49;
-389     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[13]  = 0x4E;
-390     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[14]  = 49;
-391     \hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}[15]  = 52;
-392     \textcolor{comment}{// all NTP fields have been given values, now}
-393     \textcolor{comment}{// you can send a packet requesting a timestamp:                 }
-394     \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.beginPacket(address, 123); \textcolor{comment}{//NTP requests are to port 123}
-395     \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.write(\hyperlink{class_cool_time_a27e6abc82a5c2f72161956967005bec7}{packetBuffer}, \hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{NTP\_PACKET\_SIZE});
-396     \hyperlink{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}{Udp}.endPacket(); 
-397 \}
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_a236a38d120dc53bc67456d763838c5a1_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}\label{class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297}} 
-\index{Cool\+Time@{Cool\+Time}!set\+Date\+Time@{set\+Date\+Time}}
-\index{set\+Date\+Time@{set\+Date\+Time}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{set\+Date\+Time()}{setDateTime()}}
-{\footnotesize\ttfamily void Cool\+Time\+::set\+Date\+Time (\begin{DoxyParamCaption}\item[{int}]{year,  }\item[{int}]{month,  }\item[{int}]{day,  }\item[{int}]{hour,  }\item[{int}]{minutes,  }\item[{int}]{seconds }\end{DoxyParamCaption})}
-
-Cool\+Time\+::set\+Date\+Time(year,month,dat,hour,minutes,seconds)\+: This method is provided to manually set the R\+Tc Time 
-
-Definition at line 109 of file Cool\+Time.\+cpp.
-
-
-\begin{DoxyCode}
-110 \{ 
-111 
-112 \textcolor{preprocessor}{#if DEBUG == 1}
-113 
-114     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.setDateTime"}) );
-115     Serial.println();
-116 
-117 \textcolor{preprocessor}{#endif}
-118 
-119     tmElements\_t tm;
-120     tm.Second=seconds; 
-121     tm.Minute=minutes; 
-122     tm.Hour=hour; 
-123     tm.Day=day;
-124     tm.Month=month; 
-125     tm.Year=year;
-126     
-127     this->\hyperlink{class_cool_time_abd38f2384ff90692b1568d9db869412e}{rtc}.set(makeTime(tm),CLOCK\_ADDRESS);   
-128 
-129 \textcolor{preprocessor}{#if DEBUG == 1}
-130 
-131     Serial.print( F(\textcolor{stringliteral}{"setting time to : "}) );\textcolor{comment}{//"20yy-mm-ddT00:00:00Z}
-132 
-133     Serial.print(tm.Year);
-134     Serial.print( F(\textcolor{stringliteral}{"-"}) );
-135     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Month ) );
-136     Serial.print( F(\textcolor{stringliteral}{"-"}) );
-137     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Day ) );
-138     Serial.print( F(\textcolor{stringliteral}{"T"}) );
-139     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Hour ) );
-140     Serial.print( F(\textcolor{stringliteral}{":"}) );
-141     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Minute ) );
-142     Serial.print( F(\textcolor{stringliteral}{":"}) );
-143     Serial.print( this->\hyperlink{class_cool_time_acd537cd4210d7bde4e1f5c47d2ac0456}{formatDigits}( tm.Second ) );
-144     Serial.print( F(\textcolor{stringliteral}{"Z"}) );
-145 
-146     Serial.println();
-147     
-148     Serial.print( F(\textcolor{stringliteral}{"time set to : "}) );
-149     Serial.println(this->\hyperlink{class_cool_time_ac4f32ee513c1328d984306645e8785a4}{getESDate}());
-150     Serial.println();
-151 
-152 \textcolor{preprocessor}{#endif}
-153 
-154 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_ab81ea7fdaace111aa01cc1ec84c6d297_cgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{class_cool_time_aae601f795452cfa48d9fb337aed483a8}\label{class_cool_time_aae601f795452cfa48d9fb337aed483a8}} 
-\index{Cool\+Time@{Cool\+Time}!update@{update}}
-\index{update@{update}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{update()}{update()}}
-{\footnotesize\ttfamily void Cool\+Time\+::update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
-
-\hyperlink{class_cool_time_aae601f795452cfa48d9fb337aed483a8}{Cool\+Time\+::update()}\+: This method is provided to correct the rtc Time when it drifts,once every week. 
-
-Definition at line 76 of file Cool\+Time.\+cpp.
-
-
-\begin{DoxyCode}
-77 \{
-78 
-79 \textcolor{preprocessor}{#if DEBUG == 1}
-80 
-81     Serial.println( F(\textcolor{stringliteral}{"Entering CoolTime.update()"}) );
-82     Serial.println();
-83 
-84 \textcolor{preprocessor}{#endif }
-85 
-86     \textcolor{keywordflow}{if}( !( this->\hyperlink{class_cool_time_a5ae038a4498602b189f76a10bf02adf8}{isTimeSync}() ) )
-87     \{
-88     
-89 \textcolor{preprocessor}{    #if DEBUG == 1}
-90 
-91         Serial.println( F(\textcolor{stringliteral}{"waiting for sync"}) );
-92         Serial.println();
-93 
-94 \textcolor{preprocessor}{    #endif }
-95 
-96         this->\hyperlink{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}{timeSync}=this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}();
-97         breakTime(this->\hyperlink{class_cool_time_a41fbbbfd651c2079f54d4b2911e4c705}{getNtpTime}(), this->\hyperlink{class_cool_time_ad33c2713c903ff064ad09c46406ae088}{tmSet});
-98         this->\hyperlink{class_cool_time_abd38f2384ff90692b1568d9db869412e}{rtc}.set(makeTime(this->\hyperlink{class_cool_time_ad33c2713c903ff064ad09c46406ae088}{tmSet}), CLOCK\_ADDRESS); \textcolor{comment}{// set the clock}
-99         this->\hyperlink{class_cool_time_ae9658c9b377510d469e3b88edf33ee85}{saveTimeSync}();
-100     \}
-101     
-102 \}
-\end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_aae601f795452cfa48d9fb337aed483a8_cgraph}
-\end{center}
-\end{figure}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{d6/d49/class_cool_time_aae601f795452cfa48d9fb337aed483a8_icgraph}
-\end{center}
-\end{figure}
 
 
 \subsection{Member Data Documentation}
-\mbox{\Hypertarget{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}\label{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}} 
-\index{Cool\+Time@{Cool\+Time}!local\+Port@{local\+Port}}
-\index{local\+Port@{local\+Port}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{local\+Port}{localPort}}
-{\footnotesize\ttfamily unsigned int Cool\+Time\+::local\+Port =0\hspace{0.3cm}{\ttfamily [private]}}
+\mbox{\Hypertarget{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}\label{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}} 
+\index{Cool\+Time@{Cool\+Time}!time\+Sync@{time\+Sync}}
+\index{time\+Sync@{time\+Sync}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{time\+Sync}{timeSync}}
+{\footnotesize\ttfamily unsigned long Cool\+Time\+::time\+Sync =0\hspace{0.3cm}{\ttfamily [private]}}
 
-port number for U\+DP packets 
+last Time the R\+TC syncronised with the N\+TP server unix Time 
 
-Definition at line 107 of file Cool\+Time.\+h.
+Definition at line 92 of file Cool\+Time.\+h.
 
-\mbox{\Hypertarget{class_cool_time_a27e6abc82a5c2f72161956967005bec7}\label{class_cool_time_a27e6abc82a5c2f72161956967005bec7}} 
-\index{Cool\+Time@{Cool\+Time}!packet\+Buffer@{packet\+Buffer}}
-\index{packet\+Buffer@{packet\+Buffer}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{packet\+Buffer}{packetBuffer}}
-{\footnotesize\ttfamily byte Cool\+Time\+::packet\+Buffer\mbox{[}\hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE}\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
 
-U\+DP buffer to hold incoming \& outgoing packets 
 
-Definition at line 113 of file Cool\+Time.\+h.
-
-\mbox{\Hypertarget{class_cool_time_abd38f2384ff90692b1568d9db869412e}\label{class_cool_time_abd38f2384ff90692b1568d9db869412e}} 
-\index{Cool\+Time@{Cool\+Time}!rtc@{rtc}}
-\index{rtc@{rtc}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{rtc}{rtc}}
-{\footnotesize\ttfamily D\+S1337\+R\+TC Cool\+Time\+::rtc\hspace{0.3cm}{\ttfamily [private]}}
-
-R\+TC instance 
-
-Definition at line 123 of file Cool\+Time.\+h.
+Referenced by config(), get\+Last\+Sync\+Time(), save\+Time\+Sync(), and update().
 
 \mbox{\Hypertarget{class_cool_time_ad2b9858f399108cb440dd1e908916f04}\label{class_cool_time_ad2b9858f399108cb440dd1e908916f04}} 
 \index{Cool\+Time@{Cool\+Time}!time\+Server@{time\+Server}}
@@ -1045,25 +535,9 @@ N\+TP Server IP Address
 
 Definition at line 97 of file Cool\+Time.\+h.
 
-\mbox{\Hypertarget{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}\label{class_cool_time_a9d032e76c3470a15b3bbbc52af6463f7}} 
-\index{Cool\+Time@{Cool\+Time}!time\+Sync@{time\+Sync}}
-\index{time\+Sync@{time\+Sync}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{time\+Sync}{timeSync}}
-{\footnotesize\ttfamily unsigned long Cool\+Time\+::time\+Sync =0\hspace{0.3cm}{\ttfamily [private]}}
 
-last Time the R\+TC syncronised with the N\+TP server unix Time 
 
-Definition at line 92 of file Cool\+Time.\+h.
-
-\mbox{\Hypertarget{class_cool_time_ad33c2713c903ff064ad09c46406ae088}\label{class_cool_time_ad33c2713c903ff064ad09c46406ae088}} 
-\index{Cool\+Time@{Cool\+Time}!tm\+Set@{tm\+Set}}
-\index{tm\+Set@{tm\+Set}!Cool\+Time@{Cool\+Time}}
-\subsubsection{\texorpdfstring{tm\+Set}{tmSet}}
-{\footnotesize\ttfamily tm\+Elements\+\_\+t Cool\+Time\+::tm\+Set\hspace{0.3cm}{\ttfamily [private]}}
-
-Time Elements Instance to hold various Time Values 
-
-Definition at line 118 of file Cool\+Time.\+h.
+Referenced by config(), get\+Ntp\+Time(), print\+Conf(), and save\+Time\+Sync().
 
 \mbox{\Hypertarget{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}\label{class_cool_time_a4e23216a8121ca79d0fb019f30884b92}} 
 \index{Cool\+Time@{Cool\+Time}!Udp@{Udp}}
@@ -1077,7 +551,67 @@ Definition at line 102 of file Cool\+Time.\+h.
 
 
 
+Referenced by begin(), get\+Ntp\+Time(), and send\+N\+T\+Ppacket().
+
+\mbox{\Hypertarget{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}\label{class_cool_time_a2f777da44d7ba678be8185299e9b49d1}} 
+\index{Cool\+Time@{Cool\+Time}!local\+Port@{local\+Port}}
+\index{local\+Port@{local\+Port}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{local\+Port}{localPort}}
+{\footnotesize\ttfamily unsigned int Cool\+Time\+::local\+Port =0\hspace{0.3cm}{\ttfamily [private]}}
+
+port number for U\+DP packets 
+
+Definition at line 107 of file Cool\+Time.\+h.
+
+
+
+Referenced by begin(), config(), print\+Conf(), and save\+Time\+Sync().
+
+\mbox{\Hypertarget{class_cool_time_a27e6abc82a5c2f72161956967005bec7}\label{class_cool_time_a27e6abc82a5c2f72161956967005bec7}} 
+\index{Cool\+Time@{Cool\+Time}!packet\+Buffer@{packet\+Buffer}}
+\index{packet\+Buffer@{packet\+Buffer}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{packet\+Buffer}{packetBuffer}}
+{\footnotesize\ttfamily byte Cool\+Time\+::packet\+Buffer\mbox{[}\hyperlink{_cool_time_8h_a56a6ea64006651b4f42adf713e244f06}{N\+T\+P\+\_\+\+P\+A\+C\+K\+E\+T\+\_\+\+S\+I\+ZE}\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+U\+DP buffer to hold incoming \& outgoing packets 
+
+Definition at line 113 of file Cool\+Time.\+h.
+
+
+
+Referenced by get\+Ntp\+Time(), and send\+N\+T\+Ppacket().
+
+\mbox{\Hypertarget{class_cool_time_ad33c2713c903ff064ad09c46406ae088}\label{class_cool_time_ad33c2713c903ff064ad09c46406ae088}} 
+\index{Cool\+Time@{Cool\+Time}!tm\+Set@{tm\+Set}}
+\index{tm\+Set@{tm\+Set}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{tm\+Set}{tmSet}}
+{\footnotesize\ttfamily tm\+Elements\+\_\+t Cool\+Time\+::tm\+Set\hspace{0.3cm}{\ttfamily [private]}}
+
+Time Elements Instance to hold various Time Values 
+
+Definition at line 118 of file Cool\+Time.\+h.
+
+
+
+Referenced by update().
+
+\mbox{\Hypertarget{class_cool_time_abd38f2384ff90692b1568d9db869412e}\label{class_cool_time_abd38f2384ff90692b1568d9db869412e}} 
+\index{Cool\+Time@{Cool\+Time}!rtc@{rtc}}
+\index{rtc@{rtc}!Cool\+Time@{Cool\+Time}}
+\subsubsection{\texorpdfstring{rtc}{rtc}}
+{\footnotesize\ttfamily D\+S1337\+R\+TC Cool\+Time\+::rtc\hspace{0.3cm}{\ttfamily [private]}}
+
+R\+TC instance 
+
+Definition at line 123 of file Cool\+Time.\+h.
+
+
+
+Referenced by get\+Time\+Date(), set\+Date\+Time(), and update().
+
+
+
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_time_8h}{Cool\+Time.\+h}\item 
-/home/ashiroji/\+Arduino/libraries/\+Cool\+Board/src/\hyperlink{_cool_time_8cpp}{Cool\+Time.\+cpp}\end{DoxyCompactItemize}
+\hyperlink{_cool_time_8h}{Cool\+Time.\+h}\item 
+\hyperlink{_cool_time_8cpp}{Cool\+Time.\+cpp}\end{DoxyCompactItemize}
