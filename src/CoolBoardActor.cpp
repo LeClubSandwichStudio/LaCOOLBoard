@@ -37,7 +37,7 @@
 #include "CoolBoardActor.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -97,8 +97,10 @@ void CoolBoardActor::write(bool action)
 *	and secondaryType ) and the corresponding
 *	call to the appropriate helping method
 *
+*	\return a string of the actor's state
+*
 */
-void CoolBoardActor::doAction( const char* data )
+String CoolBoardActor::doAction( const char* data )
 {
 
 #if DEBUG == 1 
@@ -114,6 +116,10 @@ void CoolBoardActor::doAction( const char* data )
 
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
+
+	String output;
+	DynamicJsonBuffer jsonBufferOutput;
+	JsonObject& rootOutput = jsonBuffer.createObject();
 	
 	if (!root.success()) 
 	{
@@ -125,6 +131,17 @@ void CoolBoardActor::doAction( const char* data )
 	
 	#endif 
 
+	}
+	else if(!rootOutput.success())
+	{
+	
+	#if DEBUG == 1
+	
+		Serial.println(F("failed to create output json"));
+		Serial.println();
+
+	#endif	
+	
 	}
 	else
 	{
@@ -245,7 +262,13 @@ void CoolBoardActor::doAction( const char* data )
 			}			
 		}
 
-	} 
+	}
+	
+	rootOutput["ActB"]=digitalRead(this->pin);
+
+	rootOutput.printTo(output);
+	
+	return(output);	 
 }
 
 /**
@@ -555,7 +578,7 @@ void CoolBoardActor::normalAction(float measurment)
 
 	#if DEBUG == 1 
 
-		Serial.println(F("actor ON "));s
+		Serial.println(F("actor ON "));
 	
 	#endif
 				

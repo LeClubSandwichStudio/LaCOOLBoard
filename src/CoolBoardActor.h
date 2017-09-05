@@ -49,7 +49,7 @@ public:
 
  	void write(bool action);			//CoolBoardActor
  
-	void doAction(const char* data );
+	String doAction(const char* data );
 
 	void normalAction(float measurment);
 

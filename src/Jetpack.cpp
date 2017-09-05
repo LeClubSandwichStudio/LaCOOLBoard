@@ -38,7 +38,7 @@
 #include "Jetpack.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -140,8 +140,11 @@ void Jetpack::writeBit(byte pin,bool state)
 *	(actif , temporal ,inverted, primaryType
 *	and secondaryType ) and the corresponding
 *	call to the appropriate helping method
+*
+*	\return a string of the current Jetpack state
+*	
 */
-void Jetpack::doAction( const char* data )
+String Jetpack::doAction( const char* data )
 {
 
 #if DEBUG == 1 
@@ -155,8 +158,14 @@ void Jetpack::doAction( const char* data )
 
 #endif 
 
+	//input json buffer and object
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
+	
+	//output json buffer and object
+	String jetpackState;
+	DynamicJsonBuffer  jsonBufferOutput ;
+	JsonObject& rootOutput = jsonBufferOutput.createObject();
 	
 	if (!root.success()) 
 	{
@@ -168,6 +177,16 @@ void Jetpack::doAction( const char* data )
 	
 	#endif 
 
+	}
+	else if(!rootOutput.success())
+	{
+	
+	#if DEBUG == 1 
+		
+		Serial.println(F("failed to create output json object"));	
+		Serial.println();
+	#endif	
+	
 	}
 	else
 	{
@@ -289,12 +308,17 @@ void Jetpack::doAction( const char* data )
 					}
 				}			
 			}
-
+			
+			rootOutput[String("Act")+String(i)]=bitRead(this->action,i);
 		}
 
 		this->write(this->action);
 
-	} 
+	}
+	
+	rootOutput.printTo(jetpackState);
+
+	return(jetpackState); 
 }
 
 /**

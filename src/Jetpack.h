@@ -52,7 +52,7 @@ public:
  
 	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
  
-	void doAction(const char* data );
+	String doAction(const char* data );
 
 	void normalAction(int actorNumber,float measurment);
 

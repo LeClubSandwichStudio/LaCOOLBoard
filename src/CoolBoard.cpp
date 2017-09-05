@@ -37,7 +37,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 
@@ -469,8 +469,17 @@ void CoolBoard::onLineMode()
 
 			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
 
-			jetPack.doAction(data.c_str());
+			data+=jetPack.doAction(data.c_str());//{..,..,..}{..,..,..}
 			
+			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+			
+			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+
+			data+=onBoardActor.doAction( data.c_str() );//{..,..,..}{..,..,..}
+
+			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+			
+			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}				
 
 		
 		}
@@ -485,13 +494,9 @@ void CoolBoard::onLineMode()
 		}
 	}
 
-	delay(100);
-
-	onBoardActor.doAction( data.c_str() );	
+	delay(50);
 
 
-
-	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green
 
 	//formatting data:
@@ -656,12 +661,22 @@ void CoolBoard::offLineMode()
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue	
 	
-		jetPack.doAction( data.c_str() );
+		data+=jetPack.doAction(data.c_str());//{..,..,..}{..,..,..}
+			
+		data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+			
+		data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+
+
 	}
 	
-	delay(100);
+	delay(50);
 
-	onBoardActor.doAction( data.c_str() );	
+	data+=onBoardActor.doAction( data.c_str() );//{..,..,..}{..,..,..}
+
+	data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+		
+	data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
 
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
