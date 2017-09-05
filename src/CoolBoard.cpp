@@ -1105,6 +1105,53 @@ void CoolBoard::update(const char * answer)
 				
 			}
 
+			//Irene calibration through update message
+			if(stateDesired["calibration"].success())
+			{
+
+				Serial.println(F("Starting Irene Calibration From MQTT Update"));
+				Serial.println();
+								
+				delay(2000);
+
+				Serial.println(F("ph7 calibration for 25 seconds"));
+		
+				delay(10000);
+		
+				irene3000.calibratepH7();
+
+				delay(15000);		
+	
+				irene3000.calibratepH7();
+
+				delay(1000);
+
+				Serial.println(F("ph 7 calibration ok"));
+
+				Serial.println();
+	
+
+				Serial.println(F("ph 4 calibration for 25 seconds"));
+	
+				delay(10000);		
+
+				irene3000.calibratepH4();
+
+				delay(15000);
+		
+				irene3000.calibratepH4();
+	
+				delay(1000);		
+
+				Serial.println(F("ph 4 calibration ok"));
+
+				Serial.println();
+	
+				irene3000.saveParams();
+			
+
+			}
+
 			//saving the new configuration
 			fileSystem.updateConfigFiles(answerDesired);
 
