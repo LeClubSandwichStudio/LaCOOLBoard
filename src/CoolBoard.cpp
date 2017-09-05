@@ -450,20 +450,18 @@ void CoolBoard::onLineMode()
 
 
 	//do action
-
-	if (jetpackActive)
+	if(this->manual == 0 )
 	{
-
-
-	#if DEBUG ==1
-
-		Serial.println( F("jetpack is Active ") );
-		Serial.println();
-
-	#endif
 	
-		if(this->manual == 0 )
+		if (jetpackActive)
 		{
+
+		#if DEBUG ==1
+
+			Serial.println( F("jetpack is Active ") );
+			Serial.println();
+
+		#endif
 
 			Serial.println( F("jetpack doing action ") );
 
@@ -474,24 +472,27 @@ void CoolBoard::onLineMode()
 			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
 			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+				
+
+		
+		}
 
 			data+=onBoardActor.doAction( data.c_str() );//{..,..,..}{..,..,..}
 
 			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
-			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}				
+			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+		
+		
+	}
+	else if(this->manual == 1 )
+	{
+		
+		Serial.println(F("we are in manual mode"));
+		mqtt.mqttLoop();
+		answer = mqtt.read();
+		this -> update(answer.c_str());
 
-		
-		}
-		
-		else if(this->manual == 1 )
-		{
-		
-			Serial.println(F("we are in manual mode"));
-			mqtt.mqttLoop();
-			answer = mqtt.read();
-			this -> update(answer.c_str());
-		}
 	}
 
 	delay(50);
