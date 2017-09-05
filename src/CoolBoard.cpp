@@ -92,11 +92,11 @@ void CoolBoard::begin()
 	coolBoardLed.write(255,128,0);//orange
 
 	this->initReadI2C();
-	delay(50);
+	delay(100);
 
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
-	delay(100);
+	delay(200);
 	
 	onBoardActor.config();
 	onBoardActor.begin();
@@ -168,9 +168,11 @@ void CoolBoard::begin()
 	coolBoardLed.fadeOut(255,128,0,0.5);//orange
 
 	this->connect();
+
 	delay(100);
 
 	rtc.config();
+
 	rtc.begin();
 
 #if DEBUG == 1
@@ -179,6 +181,29 @@ void CoolBoard::begin()
 
 #endif
 	delay(100);
+
+	//send all config over mqtt
+
+	this->sendConfig("CoolBoard","/coolBoardConfig.json");
+	
+	this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
+
+	this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
+	
+	this->sendConfig("rtc","/rtcConfig.json");
+
+	this->sendConfig("led","/coolBoardLedConfig.json");
+
+	this->sendConfig("jetPack","/jetPackConfig.json");
+
+	this->sendConfig("irene3000","/irene3000Config.json");
+
+	this->sendConfig("externalSensors","/externalSensorsConfig.json");
+
+	this->sendConfig("mqtt","/mqttConfig.json");
+
+	this->sendConfig("wifi","/wifiConfig.json");
+
 	
 	coolBoardLed.blink(0,255,0,0.5);//green
 
@@ -1389,5 +1414,99 @@ void CoolBoard::sleep(unsigned long interval)
 
 }
 
+
+/**
+*	CoolBoard::sendConfig( module Name,file path ):
+*	This method is provided to send	
+*	all the configuration files
+*	over MQTT
+*
+*	\return true if successful, false if not
+*/
+bool CoolBoard::sendConfig(const char* moduleName, const char* filePath)
+{
+
+#if DEBUG == 1 
+
+	Serial.println(F("Entering CoolBoard.sendConfig()"));
+
+#endif
+
+	String result;
+
+	//open file
+	File configFile = SPIFFS.open(filePath, "r");
+	
+	if (!configFile)
+
+	{
+	
+		Serial.print( F("failed to read ") );
+
+		Serial.println(filePath);
+
+		return(false);
+	}
+	else
+	{
+
+		//file to json
+		size_t size = configFile.size();
+
+		// Allocate a buffer to store contents of the file.
+		std::unique_ptr < char[] > buf(new char[size]);
+
+		configFile.readBytes(buf.get(), size);
+
+		DynamicJsonBuffer jsonBuffer;
+
+		JsonObject & json = jsonBuffer.parseObject(buf.get());
+
+		if (!json.success())
+		{
+		
+			Serial.println( F("failed to parse json object ") );
+
+			return(false);
+		}
+
+		else
+		{	
+		
+		#if DEBUG == 1
+			
+			Serial.println( F("configuration json : ") );
+			json.printTo(Serial);
+			Serial.println();
+			
+			Serial.print(F("jsonBuffer size : "));
+			Serial.print(jsonBuffer.size());
+			Serial.println();
+
+		#endif
+
+			//json to string
+			String temporary;
+
+			json.printTo(temporary);
+			
+			//format string
+			result = "{\"state\":{\"reported\":{\"";
+			result += moduleName; //{"state":{"reported":{"moduleName
+			result += "\":";//{"state":{"reported":{"moduleName":
+			result += temporary;//{"state":{"reported":{"moduleName":{..,..,..,..,..,..,..,..}
+			result += "} } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } } }
+			
+			//string over mqtt
+			mqtt.publish(result.c_str());
+			
+			mqtt.mqttLoop();
+			
+			return(true);
+			
+		}
+	
+	}	
+}
 
 

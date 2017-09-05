@@ -86,6 +86,8 @@ public:
 	
 	String userData();
 
+	bool sendConfig(const char* moduleName, const char* filePath);
+
 
 private:
 
