@@ -37,7 +37,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 
