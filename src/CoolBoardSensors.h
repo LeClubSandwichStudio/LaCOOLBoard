@@ -72,7 +72,7 @@ public:
 	//set the enviornment sensor settings , if argument is ommitted , default value will be assigned
 	void setEnvSensorSettings( uint8_t commInterface=I2C_MODE, uint8_t I2CAddress=0x76,    uint8_t runMode = 3,
 					   
-				   uint8_t tStandby=0	, uint8_t filter=0,    uint8_t tempOverSample=1,                          					   
+				   uint8_t tStandby=0	, uint8_t filter=1,    uint8_t tempOverSample=1,                          					   
 				   uint8_t pressOverSample= 1,    uint8_t humidOverSample= 1);
 
 	//VBat
