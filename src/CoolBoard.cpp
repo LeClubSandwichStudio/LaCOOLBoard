@@ -182,29 +182,6 @@ void CoolBoard::begin()
 #endif
 	delay(100);
 
-	//send all config over mqtt
-
-	this->sendConfig("CoolBoard","/coolBoardConfig.json");
-	
-	this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
-
-	this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
-	
-	this->sendConfig("rtc","/rtcConfig.json");
-
-	this->sendConfig("led","/coolBoardLedConfig.json");
-
-	this->sendConfig("jetPack","/jetPackConfig.json");
-
-	this->sendConfig("irene3000","/irene3000Config.json");
-
-	this->sendConfig("externalSensors","/externalSensorsConfig.json");
-
-	this->sendConfig("mqtt","/mqttConfig.json");
-
-	this->sendConfig("wifi","/wifiConfig.json");
-
-	
 	coolBoardLed.blink(0,255,0,0.5);//green
 
 }
@@ -491,22 +468,41 @@ void CoolBoard::onLineMode()
 			Serial.println( F("jetpack doing action ") );
 
 			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
-
-			data+=jetPack.doAction(data.c_str());//{..,..,..}{..,..,..}
+			
+			String jetpackStatus= jetPack.doAction(data.c_str());//{....}
+			
+			data+=jetpackStatus;//{..,..,..}{..,..,..}
 			
 			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
 			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
-				
+
+			//sending jetpackStatus over MQTT
+			String jsonJetpackStatus="{\"state\":{\"reported\":";
+
+			jsonJetpackStatus+=jetpackStatus;
+
+			jsonJetpackStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+	
+			mqtt.publish( jsonJetpackStatus.c_str() );			
 
 		
 		}
-
-			data+=onBoardActor.doAction( data.c_str() );//{..,..,..}{..,..,..}
+			String onBoardActorStatus=onBoardActor.doAction( data.c_str() );
+			data+=onBoardActorStatus;//{..,..,..}{..,..,..}
 
 			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
 			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+
+			//sending onBoardActorStatus over MQTT
+			String jsonOnBoardActorStatus="{\"state\":{\"reported\":";
+
+			jsonOnBoardActorStatus+=onBoardActorStatus;
+
+			jsonOnBoardActorStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+	
+			mqtt.publish( jsonOnBoardActorStatus.c_str() );
 		
 		
 	}
@@ -562,6 +558,29 @@ void CoolBoard::onLineMode()
 		
 		//logInterval in seconds
 		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
+
+		//send all config over mqtt
+
+		this->sendConfig("CoolBoard","/coolBoardConfig.json");
+	
+		this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
+
+		this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
+	
+		this->sendConfig("rtc","/rtcConfig.json");
+
+		this->sendConfig("led","/coolBoardLedConfig.json");
+
+		this->sendConfig("jetPack","/jetPackConfig.json");
+
+		this->sendConfig("irene3000","/irene3000Config.json");
+
+		this->sendConfig("externalSensors","/externalSensorsConfig.json");
+
+		this->sendConfig("mqtt","/mqttConfig.json");
+
+		this->sendConfig("wifi","/wifiConfig.json");
+
 		mqtt.mqttLoop();
 	
 	}
@@ -569,9 +588,34 @@ void CoolBoard::onLineMode()
 	{
 		coolBoardLed.strobe(230,255,0,0.5);//shade of yellow	
 
-		mqtt.publish(jsonData.c_str());		
+		mqtt.publish(jsonData.c_str());	
+	
 		mqtt.mqttLoop();
+
+		//send all config over mqtt
+
+		this->sendConfig("CoolBoard","/coolBoardConfig.json");
+	
+		this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
+
+		this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
+	
+		this->sendConfig("rtc","/rtcConfig.json");
+
+		this->sendConfig("led","/coolBoardLedConfig.json");
+
+		this->sendConfig("jetPack","/jetPackConfig.json");
+
+		this->sendConfig("irene3000","/irene3000Config.json");
+
+		this->sendConfig("externalSensors","/externalSensorsConfig.json");
+
+		this->sendConfig("mqtt","/mqttConfig.json");
+
+		this->sendConfig("wifi","/wifiConfig.json");
+
 		answer = mqtt.read();
+
 		this ->update(answer.c_str());
 
 		//logInterval in seconds
