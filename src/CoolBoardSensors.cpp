@@ -127,9 +127,12 @@ void CoolBoardSensors::begin()
   	}
 	 
 	this->setEnvSensorSettings();
-	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
+
+	delay(100);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
+
 	this->envSensor.begin();
-	delay(10);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
+
+	delay(1000);  //Make sure sensor had enough time to turn on. BME280 requires 2ms to start up.
 
 #if DEBUG == 1 
 	
@@ -197,37 +200,91 @@ String CoolBoardSensors::read()
 	delay(100);
 	//light data
 	if(lightDataActive.visible)
-	{
-		root["visibleLight"] =lightSensor.ReadVisible() ;
+	{	
+		//SI1145 Response Reg Value when VIS Overflow
+		if(lightSensor.ReadResponseReg()== CoolSI114X_VIS_OVERFLOW )
+		{
+			root["visibleLight"] ="overflow";
+
+			//send NoP Command to SI1145 to clear overflow value
+			lightSensor.WriteParamData(CoolSI114X_COMMAND,CoolSI114X_NOP);
+		}
+		else
+		{
+
+			root["visibleLight"] =lightSensor.ReadVisible() ;
+
+		}
 	}
 	
 	if(lightDataActive.ir)
 	{
-		root["infraRed"] = lightSensor.ReadIR();
+		//SI1145 Response Reg Value when IR Overflow
+		if(lightSensor.ReadResponseReg()==CoolSI114X_IR_OVERFLOW )
+		{
+			root["infraRed"] ="overflow";
+
+			//send NoP Command to SI1145 to clear overflow value
+			lightSensor.WriteParamData(CoolSI114X_COMMAND,CoolSI114X_NOP);
+		}
+		else
+		{
+			root["infraRed"] = lightSensor.ReadIR();
+		}
 	}
 
 	if(lightDataActive.uv)
 	{
-		float tempUV = (float)lightSensor.ReadUV()/100 ;
-		root["ultraViolet"] = tempUV;
+		//SI1145 Response Reg Value when UV Overflow
+		if(lightSensor.ReadResponseReg()==CoolSI114X_UV_OVERFLOW)
+		{
+			root["ultraViolet"] ="overflow";
+
+			//send NoP Command to SI1145 to clear overflow value
+			lightSensor.WriteParamData(CoolSI114X_COMMAND,CoolSI114X_NOP);
+		}
+		else
+		{
+			float tempUV = (float)lightSensor.ReadUV()/100 ;
+			root["ultraViolet"] = tempUV;
+		}
 	}
 	
 	//BME280 data
+	if(airDataActive.temperature)
+	{
+
+		//wait for BME280 to finish data conversion( status reg bit3 ==0)
+		while((envSensor.readRegister(BME280_STAT_REG) & 0x10 ) != 0 )
+		{
+			yield();
+		}
+		root["Temperature"]=envSensor.readTempC();
+	}
 	if(airDataActive.pressure)	
 	{
+
+		//wait for BME280 to finish data conversion( status reg bit3 ==0)
+		while((envSensor.readRegister(BME280_STAT_REG) & 0x10 ) != 0 )
+		{
+			yield();
+		}
 		root["Pressure"] =envSensor.readFloatPressure();
 	}
 	
 		
 	if(airDataActive.humidity)	
-	{	
+	{
+		
+		//wait for BME280 to finish data conversion( status reg bit3 ==0)
+		while((envSensor.readRegister(BME280_STAT_REG) & 0x10 ) != 0 )
+		{
+			yield();
+		}
 		root["Humidity"] =envSensor.readFloatHumidity() ;
 	}	
 	
-	if(airDataActive.temperature)
-	{
-		root["Temperature"]=envSensor.readTempC();
-	}
+
 	
 	//Vbat
 	if(vbatActive)	

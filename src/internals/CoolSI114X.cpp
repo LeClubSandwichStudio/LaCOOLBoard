@@ -218,6 +218,15 @@ uint16_t CoolSI114X::ReadUV(void)
 {
   return (ReadHalfWord(CoolSI114X_AUX_DATA0_UVINDEX0)); 	
 }
+/*--------------------------------------------------------//
+Read Response Register Value
+
+
+ */
+uint8_t  CoolSI114X::ReadResponseReg(void)
+{
+  return (ReadByte(CoolSI114X_RESPONSE)); 	
+}
  
  
  

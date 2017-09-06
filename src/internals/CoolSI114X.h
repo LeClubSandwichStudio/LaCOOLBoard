@@ -161,6 +161,11 @@ Registers,Parameters and commands
 
 #define CoolSI114X_ADDR 0x60
 
+//OVERFLOW VALUES
+#define CoolSI114X_VIS_OVERFLOW 0x8C
+#define CoolSI114X_IR_OVERFLOW 0x8D
+#define CoolSI114X_UV_OVERFLOW 0x8E
+
 
 class CoolSI114X {
  public:
@@ -173,6 +178,8 @@ class CoolSI114X {
   uint16_t ReadIR(void);
   uint16_t ReadProximity(uint8_t PSn);
   uint16_t ReadUV(void);
+  uint8_t  ReadResponseReg(void);
+
  private:
   void  WriteByte(uint8_t Reg, uint8_t Value);
   uint8_t  ReadByte(uint8_t Reg);
