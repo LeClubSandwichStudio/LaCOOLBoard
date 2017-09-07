@@ -35,10 +35,11 @@
 
 #include "internals/CoolNDIR_I2C.h"
 #include <DallasTemperature.h>
+#include "internals/CoolAdafruit_TCS34725.h"
 #include "Arduino.h" 
 
  
-#define DEBUGExternal 0
+#define DEBUGExternal 1
 
 
 /**
@@ -108,6 +109,19 @@ public:
 	#endif		
 		
 		return(-2);
+	}
+	/**
+	*	read():
+	*	Base class virtual
+	*	generic read method
+	*
+	*	\return generic value
+	*	as it is not supposed 
+	*	to be used	
+	*/
+	virtual float read(uint16_t *r,uint16_t *g,uint16_t *b,uint16_t *c,uint16_t *colorTemp,uint16_t *lux)
+	{
+		return(-42.42);	
 	}
 	
 };
@@ -401,6 +415,117 @@ private:
 	DallasTemperature sensor;
 	DeviceAddress dallasAddress;
 };
+
+
+/**
+*	\class ExternalSensor<Adafruit_TCS34725>	
+*	\brief Adafruit_TCS34725 Specialization Class
+*	This is the template specialization
+*	for the Adafruit RGB Sensor
+*/
+
+template<>
+class ExternalSensor<Adafruit_TCS34725> :public BaseExternalSensor
+{
+public:
+	/**
+	*	ExternalSensor():
+	*	Adafruit_TCS34725 specific constructor
+	*/
+	ExternalSensor()
+	{
+		
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_TCS34725> constructor" );
+		Serial.println();
+	
+	#endif
+		/* Initialise with default values (int time = 2.4ms, gain = 1x) */
+		sensor=Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS,TCS34725_GAIN_1X);
+
+	}
+	
+	/**
+	*	begin():
+	*	Adafruit_TCS34725 specific begin method
+	*
+	*	\return true if successful
+	*/
+	virtual uint8_t begin()
+	{
+	
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_TCS34725> begin()" );
+		Serial.println();
+	
+	#endif
+
+		if (sensor.begin()) 
+		{
+
+			Serial.println("Found sensor");
+
+			return(true);
+		} 
+		else 
+		{
+			Serial.println("No TCS34725 found ... check your connections");
+
+			return(false);
+		}	
+
+	}
+
+	/**
+	*	read(uint16_t *r,uint16_t *g,uint16_t *b,uint16_t *c,uint16_t *colorTemp,uint16_t *lux):
+	*	Adafruit_TCS34725 specific read method
+	*
+	*	modifies the R,G,B,C,lux,ColorTemp input variables
+	*/
+	virtual float read(uint16_t *r,uint16_t *g,uint16_t *b,uint16_t *c,uint16_t *colorTemp,uint16_t *lux)
+	{
+		uint16_t internR,internG,internB,internC,internColorTemp,internLux;
+
+		sensor.getRawData(&internR, &internG, &internB, &internC);
+		
+		internColorTemp=sensor.calculateColorTemperature(internR,internG,internB);
+	
+		internLux =sensor.calculateLux(internR,internG,internB);
+
+
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_TCS34725> read()" );
+		Serial.println();
+
+		Serial.print("Color Temp: "); Serial.print(internColorTemp, DEC); Serial.print(" K - ");
+		Serial.print("Lux: "); Serial.print(internLux, DEC); Serial.print(" - ");
+		Serial.print("R: "); Serial.print(internR, DEC); Serial.print(" ");
+		Serial.print("G: "); Serial.print(internG, DEC); Serial.print(" ");
+		Serial.print("B: "); Serial.print(internB, DEC); Serial.print(" ");
+		Serial.print("C: "); Serial.print(internC, DEC); Serial.print(" ");
+		Serial.println(" ");
+	
+	#endif
+		*r=internR;
+		*g=internG;
+		*b=internB;
+		*c=internC;
+		*colorTemp=internColorTemp;
+		*lux=internLux;
+
+		return( 0.0 );
+	}
+
+private:
+
+
+	Adafruit_TCS34725 sensor;
+
+};
+
 
 
 #endif

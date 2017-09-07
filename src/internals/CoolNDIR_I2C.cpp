@@ -87,7 +87,7 @@ NDIR_I2C::NDIR_I2C(uint8_t i2c_addr)
 uint8_t NDIR_I2C::begin()
 {
     if (i2c_addr) {
-        WIRE.begin(2,14);
+	WIRE.begin(2,14);
         write_register(IOCONTROL, 0x08);
 
         if (write_register(FCR, 0x07)) {

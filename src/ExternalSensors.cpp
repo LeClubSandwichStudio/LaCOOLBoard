@@ -35,8 +35,6 @@
 
 #include"Arduino.h"  
 
-#include"Wire.h"
-
 #include"OneWire.h"
 
 #include"ExternalSensors.h"
@@ -45,7 +43,7 @@
 
 #include"ExternalSensor.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 OneWire oneWire(0);
 
@@ -85,6 +83,16 @@ void ExternalSensors::begin()
 			sensors[i].exSensor=dallasTemp.release();
 			sensors[i].exSensor->begin();
 			sensors[i].exSensor->read();
+		}
+		if( (sensors[i].reference) == "Adafruit_TCS34725")
+		{
+			uint16_t r, g, b, c, colorTemp, lux;
+
+			std::unique_ptr< ExternalSensor<Adafruit_TCS34725> > rgbSensor(new ExternalSensor<Adafruit_TCS34725> ());
+			 
+			sensors[i].exSensor=rgbSensor.release();
+			sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
 		}
 		
 		
@@ -132,7 +140,35 @@ String ExternalSensors::read()
 			{
 				if(sensors[i].exSensor != NULL )
 				{
-					root[sensors[i].type]=sensors[i].exSensor->read();	 	
+					if(sensors[i].reference=="Adafruit_TCS34725")
+					{
+						uint16_t r, g, b, c, colorTemp, lux;
+
+			  			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
+
+					#if DEBUG == 1
+
+						Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
+						Serial.print("Lux: "); Serial.print(lux, DEC); Serial.print(" - ");
+						Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
+						Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
+						Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
+						Serial.print("C: "); Serial.print(c, DEC); Serial.print(" ");
+						Serial.println(" ");
+
+					#endif
+						JsonArray& RGBCLK = root.createNestedArray(sensors[i].type);
+						RGBCLK.add(r);
+						RGBCLK.add(g);
+						RGBCLK.add(b);
+						RGBCLK.add(c);
+						RGBCLK.add(colorTemp);
+						RGBCLK.add(lux);
+					}
+					else
+					{
+						root[sensors[i].type]=sensors[i].exSensor->read();
+					}	 	
 				}
 			
 			#if DEBUG == 1
