@@ -17,6 +17,8 @@ Configuration :
  
  2/Download and Add the ESP8266 Hardware extension to Arduino (https://github.com/esp8266/Arduino )
  
+ /!\ If you already have Arduino IDE and the ESP8266 Hardware extension , make sure you upgrade them to the latest version.
+ 
  3/Download and Add the CoolBoard Library set to the Arduino IDE :
 
    a)First Method :
@@ -81,6 +83,7 @@ You need the following libraries to be able to use the CoolBoard API:
 -TimeLib(https://github.com/PaulStoffregen/Time)
 
 -DS1337RTC(https://github.com/etrombly/DS1337RTC)
+  
 
 -DallasTemperature(https://github.com/milesburton/Arduino-Temperature-Control-Library)
 
