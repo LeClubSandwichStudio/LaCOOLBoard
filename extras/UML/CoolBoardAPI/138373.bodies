@@ -28,7 +28,7 @@ class CoolBoardActor
 	digitalWrite(this->pin,action);
 	
 
-!!!183173.cpp!!!	doAction(in data : char) : void
+!!!183173.cpp!!!	doAction(in data : char) : String
 
 #if DEBUG == 1 
 
@@ -43,6 +43,10 @@ class CoolBoardActor
 
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
+
+	String output;
+	DynamicJsonBuffer jsonBufferOutput;
+	JsonObject& rootOutput = jsonBuffer.createObject();
 	
 	if (!root.success()) 
 	{
@@ -54,6 +58,17 @@ class CoolBoardActor
 	
 	#endif 
 
+	}
+	else if(!rootOutput.success())
+	{
+	
+	#if DEBUG == 1
+	
+		Serial.println(F("failed to create output json"));
+		Serial.println();
+
+	#endif	
+	
 	}
 	else
 	{
@@ -174,7 +189,13 @@ class CoolBoardActor
 			}			
 		}
 
-	} 
+	}
+	
+	rootOutput["ActB"]=digitalRead(this->pin);
+
+	rootOutput.printTo(output);
+	
+	return(output);	 
 !!!189957.cpp!!!	normalAction(in measurment : float) : void
 
 #if DEBUG == 1
@@ -200,7 +221,7 @@ class CoolBoardActor
 
 	#if DEBUG == 1 
 
-		Serial.println(F("actor ON "));s
+		Serial.println(F("actor ON "));
 	
 	#endif
 				

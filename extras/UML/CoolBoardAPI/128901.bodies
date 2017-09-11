@@ -59,7 +59,7 @@ class Jetpack
 
 	digitalWrite(EnI2C, HIGH);
 
-!!!142341.cpp!!!	doAction(in data : char) : void
+!!!142341.cpp!!!	doAction(in data : char) : String
 
 #if DEBUG == 1 
 
@@ -72,8 +72,14 @@ class Jetpack
 
 #endif 
 
+	//input json buffer and object
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(data);
+	
+	//output json buffer and object
+	String jetpackState;
+	DynamicJsonBuffer  jsonBufferOutput ;
+	JsonObject& rootOutput = jsonBufferOutput.createObject();
 	
 	if (!root.success()) 
 	{
@@ -85,6 +91,16 @@ class Jetpack
 	
 	#endif 
 
+	}
+	else if(!rootOutput.success())
+	{
+	
+	#if DEBUG == 1 
+		
+		Serial.println(F("failed to create output json object"));	
+		Serial.println();
+	#endif	
+	
 	}
 	else
 	{
@@ -206,12 +222,17 @@ class Jetpack
 					}
 				}			
 			}
-
+			
+			rootOutput[String("Act")+String(i)]=bitRead(this->action,i);
 		}
 
 		this->write(this->action);
 
-	} 
+	}
+	
+	rootOutput.printTo(jetpackState);
+
+	return(jetpackState); 
 !!!191493.cpp!!!	normalAction(in actorNumber : int, in measurment : float) : void
 
 #if DEBUG == 1

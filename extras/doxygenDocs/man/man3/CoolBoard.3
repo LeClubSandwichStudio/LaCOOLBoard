@@ -1,4 +1,4 @@
-.TH "CoolBoard" 3 "Mon Sep 4 2017" "CoolBoard API" \" -*- nroff -*-
+.TH "CoolBoard" 3 "Mon Sep 11 2017" "CoolBoard API" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -53,6 +53,9 @@ CoolBoard \- This class manages the \fBCoolBoard\fP and all of Its functions\&.
 .br
 .ti -1c
 .RI "String \fBuserData\fP ()"
+.br
+.ti -1c
+.RI "bool \fBsendConfig\fP (const char *moduleName, const char *filePath)"
 .br
 .in -1c
 .SS "Private Attributes"
@@ -150,29 +153,29 @@ true if configuration is done, false otherwise
 .PP
 
 .PP
-Definition at line 727 of file CoolBoard\&.cpp\&.
+Definition at line 812 of file CoolBoard\&.cpp\&.
 .PP
 References CoolFileSystem::begin(), CoolBoardLed::begin(), CoolBoardLed::blink(), CoolBoardLed::config(), coolBoardLed, externalSensorsActive, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, ireneActive, jetpackActive, logInterval, manual, sleepActive, CoolBoardLed::strobe(), and userActive\&.
 .SS "void CoolBoard::update (const char * answer)"
 CoolBoard::update(mqtt answer): This method is provided to handle the configuration update of the different parts 
 .PP
-Definition at line 965 of file CoolBoard\&.cpp\&.
+Definition at line 1050 of file CoolBoard\&.cpp\&.
 .PP
-References coolBoardLed, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, jetPack, manual, mqtt, CoolMQTT::mqttLoop(), onBoardActor, CoolMQTT::publish(), CoolBoardLed::strobe(), CoolFileSystem::updateConfigFiles(), CoolBoardActor::write(), and Jetpack::writeBit()\&.
+References Irene3000::calibratepH4(), Irene3000::calibratepH7(), coolBoardLed, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, irene3000, jetPack, manual, mqtt, CoolMQTT::mqttLoop(), onBoardActor, CoolMQTT::publish(), Irene3000::saveParams(), CoolBoardLed::strobe(), CoolFileSystem::updateConfigFiles(), CoolBoardActor::write(), and Jetpack::writeBit()\&.
 .PP
 Referenced by onLineMode()\&.
 .SS "void CoolBoard::offLineMode ()"
 CoolBoard::offlineMode(): This method is provided to manage the offLine mode: -read sensors -do actions -save data in the file system -if there is WiFi but no Internet : make data available over AP -if there is no connection : retry to connect 
 .PP
-Definition at line 573 of file CoolBoard\&.cpp\&.
+Definition at line 648 of file CoolBoard\&.cpp\&.
 .PP
 References CoolBoardLed::blink(), connect(), CoolWifi::connectAP(), coolBoardLed, data, CoolBoardActor::doAction(), Jetpack::doAction(), CoolBoardLed::fade(), CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, jetPack, jetpackActive, mqtt, onBoardActor, readSensors(), CoolFileSystem::saveSensorData(), CoolMQTT::state(), CoolWifi::state(), userActive, userData(), and wifiManager\&.
 .SS "void CoolBoard::onLineMode ()"
 \fBCoolBoard::onLineMode()\fP: This method is provided to manage the online mode: -update clock -read sensor -do actions -publish data -read answer -update config 
 .PP
-Definition at line 314 of file CoolBoard\&.cpp\&.
+Definition at line 316 of file CoolBoard\&.cpp\&.
 .PP
-References answer, CoolBoardLed::blink(), coolBoardLed, data, CoolBoardActor::doAction(), Jetpack::doAction(), CoolBoardLed::fade(), CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, getLogInterval(), CoolFileSystem::getSensorSavedData(), CoolFileSystem::isDataSaved(), jetPack, jetpackActive, manual, mqtt, CoolMQTT::mqttLoop(), onBoardActor, CoolMQTT::publish(), CoolMQTT::read(), readSensors(), rtc, sleep(), sleepActive, CoolBoardLed::strobe(), CoolTime::update(), update(), userActive, and userData()\&.
+References answer, CoolBoardLed::blink(), coolBoardLed, data, CoolBoardActor::doAction(), Jetpack::doAction(), CoolBoardLed::fade(), CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), fileSystem, getLogInterval(), CoolFileSystem::getSensorSavedData(), CoolFileSystem::isDataSaved(), jetPack, jetpackActive, manual, mqtt, CoolMQTT::mqttLoop(), onBoardActor, CoolMQTT::publish(), CoolMQTT::read(), readSensors(), rtc, sendConfig(), sleep(), sleepActive, CoolBoardLed::strobe(), CoolTime::update(), update(), userActive, and userData()\&.
 .SS "int CoolBoard::connect ()"
 \fBCoolBoard::connect()\fP: This method is provided to manage the network connection and the mqtt connection\&.
 .PP
@@ -183,7 +186,7 @@ mqtt client state
 .PP
 
 .PP
-Definition at line 246 of file CoolBoard\&.cpp\&.
+Definition at line 248 of file CoolBoard\&.cpp\&.
 .PP
 References CoolBoardLed::blink(), CoolMQTT::connect(), CoolWifi::connect(), coolBoardLed, getLogInterval(), mqtt, CoolWifi::state(), CoolMQTT::state(), wifiManager, and CoolBoardLed::write()\&.
 .PP
@@ -200,7 +203,7 @@ This method is provided to check if the card is connected to Wifi and MQTT
 .PP
 
 .PP
-Definition at line 198 of file CoolBoard\&.cpp\&.
+Definition at line 200 of file CoolBoard\&.cpp\&.
 .PP
 References mqtt, CoolMQTT::state(), CoolWifi::state(), and wifiManager\&.
 .SS "unsigned long CoolBoard::getLogInterval ()"
@@ -213,7 +216,7 @@ interval value in s
 .PP
 
 .PP
-Definition at line 1151 of file CoolBoard\&.cpp\&.
+Definition at line 1283 of file CoolBoard\&.cpp\&.
 .PP
 References logInterval\&.
 .PP
@@ -221,13 +224,13 @@ Referenced by connect(), and onLineMode()\&.
 .SS "void CoolBoard::printConf ()"
 \fBCoolBoard::printConf()\fP: This method is provided to print the configuration to the Serial Monitor\&. 
 .PP
-Definition at line 921 of file CoolBoard\&.cpp\&.
+Definition at line 1006 of file CoolBoard\&.cpp\&.
 .PP
 References externalSensorsActive, ireneActive, jetpackActive, logInterval, manual, sleepActive, and userActive\&.
 .SS "void CoolBoard::sleep (unsigned long interval)"
 CoolBoard::sleep(int interval): This method is provided to allow the board to enter deepSleep mode for a period of time equal to interval in s 
 .PP
-Definition at line 1315 of file CoolBoard\&.cpp\&.
+Definition at line 1447 of file CoolBoard\&.cpp\&.
 .PP
 Referenced by onLineMode()\&.
 .SS "String CoolBoard::readSensors ()"
@@ -240,7 +243,7 @@ json string of all the sensors read\&.
 .PP
 
 .PP
-Definition at line 1175 of file CoolBoard\&.cpp\&.
+Definition at line 1307 of file CoolBoard\&.cpp\&.
 .PP
 References coolBoardLed, coolBoardSensors, externalSensors, externalSensorsActive, CoolBoardLed::fadeIn(), CoolBoardLed::fadeOut(), CoolTime::getTimeDate(), initReadI2C(), irene3000, ireneActive, ExternalSensors::read(), CoolBoardSensors::read(), Irene3000::read(), rtc, and CoolBoardLed::strobe()\&.
 .PP
@@ -248,7 +251,7 @@ Referenced by offLineMode(), and onLineMode()\&.
 .SS "void CoolBoard::initReadI2C ()"
 \fBCoolBoard::initReadI2C()\fP: This method is provided to enable the I2C Interface\&. 
 .PP
-Definition at line 1246 of file CoolBoard\&.cpp\&.
+Definition at line 1378 of file CoolBoard\&.cpp\&.
 .PP
 References EnI2C\&.
 .PP
@@ -263,101 +266,116 @@ json string of the user's data
 .PP
 
 .PP
-Definition at line 1268 of file CoolBoard\&.cpp\&.
+Definition at line 1400 of file CoolBoard\&.cpp\&.
 .PP
 References CoolTime::getESDate(), CoolMQTT::getUser(), mqtt, and rtc\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
+.SS "bool CoolBoard::sendConfig (const char * moduleName, const char * filePath)"
+CoolBoard::sendConfig( module Name,file path ): This method is provided to send all the configuration files over MQTT
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful, false if not 
+.RE
+.PP
+
+.PP
+Definition at line 1470 of file CoolBoard\&.cpp\&.
+.PP
+References mqtt, CoolMQTT::mqttLoop(), and CoolMQTT::publish()\&.
+.PP
+Referenced by onLineMode()\&.
 .SH "Member Data Documentation"
 .PP 
 .SS "\fBCoolFileSystem\fP CoolBoard::fileSystem\fC [private]\fP"
 fileSystem handler instance 
 .PP
-Definition at line 95 of file CoolBoard\&.h\&.
+Definition at line 97 of file CoolBoard\&.h\&.
 .PP
 Referenced by config(), offLineMode(), onLineMode(), and update()\&.
 .SS "\fBCoolBoardSensors\fP CoolBoard::coolBoardSensors\fC [private]\fP"
 Sensor Board handler instance 
 .PP
-Definition at line 100 of file CoolBoard\&.h\&.
+Definition at line 102 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), and readSensors()\&.
 .SS "\fBCoolBoardLed\fP CoolBoard::coolBoardLed\fC [private]\fP"
 Led handler instance 
 .PP
-Definition at line 105 of file CoolBoard\&.h\&.
+Definition at line 107 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), config(), connect(), offLineMode(), onLineMode(), readSensors(), and update()\&.
 .SS "\fBCoolTime\fP CoolBoard::rtc\fC [private]\fP"
 RTC handler instance 
 .PP
-Definition at line 110 of file CoolBoard\&.h\&.
+Definition at line 112 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), onLineMode(), readSensors(), and userData()\&.
 .SS "\fBCoolWifi\fP CoolBoard::wifiManager\fC [private]\fP"
 Wifi handler instance 
 .PP
-Definition at line 115 of file CoolBoard\&.h\&.
+Definition at line 117 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), connect(), isConnected(), and offLineMode()\&.
 .SS "\fBCoolMQTT\fP CoolBoard::mqtt\fC [private]\fP"
 MQTT handler instance 
 .PP
-Definition at line 120 of file CoolBoard\&.h\&.
+Definition at line 122 of file CoolBoard\&.h\&.
 .PP
-Referenced by begin(), connect(), isConnected(), offLineMode(), onLineMode(), update(), and userData()\&.
+Referenced by begin(), connect(), isConnected(), offLineMode(), onLineMode(), sendConfig(), update(), and userData()\&.
 .SS "\fBJetpack\fP CoolBoard::jetPack\fC [private]\fP"
 \fBJetpack\fP handler instance 
 .PP
-Definition at line 125 of file CoolBoard\&.h\&.
+Definition at line 127 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
 .SS "\fBIrene3000\fP CoolBoard::irene3000\fC [private]\fP"
 \fBIrene3000\fP handler instance 
 .PP
-Definition at line 130 of file CoolBoard\&.h\&.
+Definition at line 132 of file CoolBoard\&.h\&.
 .PP
-Referenced by begin(), and readSensors()\&.
+Referenced by begin(), readSensors(), and update()\&.
 .SS "\fBExternalSensors\fP CoolBoard::externalSensors\fC [private]\fP"
 External Sensors handler instance 
 .PP
-Definition at line 135 of file CoolBoard\&.h\&.
+Definition at line 137 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), and readSensors()\&.
 .SS "\fBCoolBoardActor\fP CoolBoard::onBoardActor\fC [private]\fP"
 On Board Actor handler instance 
 .PP
-Definition at line 140 of file CoolBoard\&.h\&.
+Definition at line 142 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), offLineMode(), onLineMode(), and update()\&.
 .SS "bool CoolBoard::userActive =0\fC [private]\fP"
 userActive flag, set to 1 to collect userData(MAC,userName,TimeStamp) 
 .PP
-Definition at line 146 of file CoolBoard\&.h\&.
+Definition at line 148 of file CoolBoard\&.h\&.
 .PP
 Referenced by config(), offLineMode(), onLineMode(), and printConf()\&.
 .SS "bool CoolBoard::ireneActive =0\fC [private]\fP"
 ireneActive flag, set to 1 when using an Irene module 
 .PP
-Definition at line 152 of file CoolBoard\&.h\&.
+Definition at line 154 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), config(), printConf(), and readSensors()\&.
 .SS "bool CoolBoard::jetpackActive =0\fC [private]\fP"
 jetpackActive flag, set to 1 when using a \fBJetpack\fP module 
 .PP
-Definition at line 158 of file CoolBoard\&.h\&.
+Definition at line 160 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), config(), offLineMode(), onLineMode(), and printConf()\&.
 .SS "bool CoolBoard::externalSensorsActive =0\fC [private]\fP"
 externalSensors flag, set to 1 when using 1/many external Sensor(s) 
 .PP
-Definition at line 164 of file CoolBoard\&.h\&.
+Definition at line 166 of file CoolBoard\&.h\&.
 .PP
 Referenced by begin(), config(), printConf(), and readSensors()\&.
 .SS "bool CoolBoard::sleepActive =0\fC [private]\fP"
 sleepActive flag, set to 1 when using sleep Mode in Sleep mode : the \fBCoolBoard\fP will do a cycle (init, read sensors, do action,log) and go to sleep for a LogInterval period of time 
 .PP
-Definition at line 173 of file CoolBoard\&.h\&.
+Definition at line 175 of file CoolBoard\&.h\&.
 .PP
 Referenced by config(), onLineMode(), and printConf()\&.
 .SS "bool CoolBoard::manual =0\fC [private]\fP"
@@ -365,7 +383,7 @@ manual flag, set to 1 when using manual mode in manual Mode , user can activate/
 .PP
 /!\\ in manual Mode, receving an update will not reset the \fBCoolBoard\fP /!\\ resetting the \fBCoolBoard\fP in manual mode will deactivate all actors 
 .PP
-Definition at line 184 of file CoolBoard\&.h\&.
+Definition at line 186 of file CoolBoard\&.h\&.
 .PP
 Referenced by config(), onLineMode(), printConf(), and update()\&.
 .SS "unsigned long CoolBoard::logInterval =1\fC [private]\fP"
@@ -375,25 +393,25 @@ in Seconds
 .PP
 
 .PP
-Definition at line 191 of file CoolBoard\&.h\&.
+Definition at line 193 of file CoolBoard\&.h\&.
 .PP
 Referenced by config(), getLogInterval(), and printConf()\&.
 .SS "String CoolBoard::data =''\fC [private]\fP"
 data string, string that contains sensors data 
 .PP
-Definition at line 197 of file CoolBoard\&.h\&.
+Definition at line 199 of file CoolBoard\&.h\&.
 .PP
 Referenced by offLineMode(), and onLineMode()\&.
 .SS "String CoolBoard::answer =''\fC [private]\fP"
 answer string, string that contains received MQTT messages 
 .PP
-Definition at line 203 of file CoolBoard\&.h\&.
+Definition at line 205 of file CoolBoard\&.h\&.
 .PP
 Referenced by onLineMode()\&.
 .SS "const int CoolBoard::EnI2C = 5\fC [private]\fP"
 Enable I2C pin, double usage for I2C and shift register latch , HIGH=I2C , LOW=shift register latch All I2C is over pins (2,14) 
 .PP
-Definition at line 210 of file CoolBoard\&.h\&.
+Definition at line 212 of file CoolBoard\&.h\&.
 .PP
 Referenced by CoolBoard(), and initReadI2C()\&.
 

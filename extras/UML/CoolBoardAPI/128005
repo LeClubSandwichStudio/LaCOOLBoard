@@ -1,6 +1,6 @@
 format 214
 "src" // src
-  revision 9
+  revision 10
   modified_by 5 "ashiroji"
   // class settings
   
@@ -361,6 +361,30 @@ ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}
 //
 
 ${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 216837 "sendConfig"
+	preserve_cpp_body_indent public explicit_return_type "bool"
+	nparams 2
+	  param in name "moduleName" explicit_type "char"
+	  param in name "filePath" explicit_type "char"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} * ${p0}${v0}, const ${t1} * ${p1}${v1}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "//	CoolBoard::sendConfig( module Name,file path ):
+//	This method is provided to send	
+//	all the configuration files
+//	over MQTT
+//
+//	\\return true if successful, false if not
+//
+
+${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}, const ${t1} * ${p1}${)}${const}${volatile}${throw}${staticnl}{
   ${body}}
 "
 	
@@ -2956,7 +2980,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${vola
       end
 
       operation 142341 "doAction"
-	preserve_cpp_body_indent public explicit_return_type "void"
+	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 1
 	  param in name "data" explicit_type "char"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} * ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
@@ -2969,6 +2993,9 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}, ${t1} ${p1}${)}${const}${vola
 //	(actif , temporal ,inverted, primaryType
 //	and secondaryType ) and the corresponding
 //	call to the appropriate helping method
+//
+//	\\return a string of the current Jetpack state
+//	
 //
 
 ${inline}${type} ${class}::${name}${(}const ${t0} * ${p0}${)}${const}${volatile}${throw}${staticnl}{
@@ -3457,8 +3484,9 @@ ${inlines}
 	  mysql_decl ""
 	  MysqlColumn
 	  comment "	\"type\":[\"temperature\",\"hour\"]
+
 	the primary type is related to the sensor's type (type[0])
-	the secondary type if present is hour or minute or hourMinute (type[1])
+
 	if both types are present and valid, the actor is a mixedActor
 
 "
@@ -3475,6 +3503,13 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"type\":[\"temperature\",\"hour\"]
+
+	the secondary type if present is hour or minute or hourMinute (type[1])
+
+	if both types are present and valid, the actor is a mixedActor
+
+"
 	end
 
 	attribute 161285 "rangeLow"
@@ -3492,11 +3527,6 @@ ${inlines}
 
 	rangeLow : this is the minimum at which the actor becomes actif (low[0])
 
-	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
-
-	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )
-
-	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
 
 "
 	end
@@ -3512,6 +3542,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
+
+"
 	end
 
 	attribute 161541 "hourLow"
@@ -3525,6 +3560,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )		
+
+"
 	end
 
 	attribute 161669 "minuteLow"
@@ -3538,6 +3578,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
+
+"
 	end
 
 	attribute 161797 "rangeHigh"
@@ -3554,12 +3599,6 @@ ${inlines}
 	  comment "	\"high\":[30,2000,17,1]
 	
 	rangeHigh : this is the maximum at which the actor becomes inactif(high[0])
-	
-	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
-	
-	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
-
-	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
 
 "
 	end
@@ -3575,6 +3614,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+
+	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
+
+"
 	end
 
 	attribute 162053 "hourHigh"
@@ -3588,6 +3632,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+
+	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
+
+"
 	end
 
 	attribute 162181 "minuteHigh"
@@ -3601,6 +3650,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+		
+	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
+
+"
 	end
 
 	attribute 136325 "actifTime"
@@ -4462,6 +4516,33 @@ ${inlines}
 	to be used	
 "
       end
+
+      operation 216965 "read"
+	cpp_virtual cpp_inline public explicit_return_type "float"
+	nparams 6
+	  param inout name "r" explicit_type "uint16_t"
+	  param inout name "g" explicit_type "uint16_t"
+	  param inout name "b" explicit_type "uint16_t"
+	  param inout name "c" explicit_type "uint16_t"
+	  param inout name "colorTemp" explicit_type "uint16_t"
+	  param inout name "lux" explicit_type "uint16_t"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} * ${p0}${v0}, ${t1} * ${p1}${v1}, ${t2} * ${p2}${v2}, ${t3} * ${p3}${v3}, ${t4} * ${p4}${v4}, ${t5} * ${p5}${v5}${)}${const}${volatile}${throw}${abstract} {
+		return(-42.42);	
+	};
+"
+	
+	
+	
+	
+	comment "	read():
+	Base class virtual
+	generic read method
+
+	\\return generic value
+	as it is not supposed 
+	to be used	
+"
+      end
     end
 
     class 130053 "ExternalSensor"
@@ -4961,7 +5042,7 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}
       end
 
       operation 183173 "doAction"
-	preserve_cpp_body_indent public explicit_return_type "void"
+	preserve_cpp_body_indent public explicit_return_type "String"
 	nparams 1
 	  param in name "data" explicit_type "char"
 	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} * ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
@@ -4974,6 +5055,8 @@ ${inline}${type} ${class}::${name}${(}${t0} ${p0}${)}${const}${volatile}${throw}
 //	(actif , temporal ,inverted, primaryType
 //	and secondaryType ) and the corresponding
 //	call to the appropriate helping method
+//
+//	\\return a string of the actor's state
 //
 //
 
@@ -5435,8 +5518,9 @@ ${inlines}
 	  mysql_decl ""
 	  MysqlColumn
 	  comment "	\"type\":[\"temperature\",\"hour\"]
+
 	the primary type is related to the sensor's type (type[0])
-	the secondary type if present is hour or minute or hourMinute (type[1])
+
 	if both types are present and valid, the actor is a mixedActor
 
 "
@@ -5453,6 +5537,13 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"type\":[\"temperature\",\"hour\"]
+
+	the secondary type if present is hour or minute or hourMinute (type[1])
+
+	if both types are present and valid, the actor is a mixedActor
+
+"
 	end
 
 	attribute 169477 "rangeLow"
@@ -5470,11 +5561,6 @@ ${inlines}
 
 	rangeLow : this is the minimum at which the actor becomes actif (low[0])
 
-	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
-
-	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )
-
-	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
 
 "
 	end
@@ -5490,6 +5576,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	timeLow : this is the time the actor is off in temporal mode (low[1]) (ms)
+
+"
 	end
 
 	attribute 169733 "hourLow"
@@ -5503,6 +5594,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	hour low :this is the hour when to turn off the actor in temporal/hour(hourMinute) mode (low[2] )		
+
+"
 	end
 
 	attribute 169861 "minuteLow"
@@ -5516,6 +5612,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"low\":[20,5000,18,10]
+
+	minute low :this is the minute when to turn off the actor in temporal/minute(hourMinute) mode (low[3])
+
+"
 	end
 
 	attribute 169989 "rangeHigh"
@@ -5532,12 +5633,6 @@ ${inlines}
 	  comment "	\"high\":[30,2000,17,1]
 	
 	rangeHigh : this is the maximum at which the actor becomes inactif(high[0])
-	
-	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
-	
-	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
-
-	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
 
 "
 	end
@@ -5553,6 +5648,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+
+	timeHigh : this is the time the actor is on in temporal mode(high[1]) (ms)
+
+"
 	end
 
 	attribute 170245 "hourHigh"
@@ -5566,6 +5666,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+
+	hourHigh : this is the hour when to turn on the actor in temporal/hour(hourMinute) mode(high[2])
+
+"
 	end
 
 	attribute 170373 "minuteHigh"
@@ -5579,6 +5684,11 @@ ${inlines}
 	  idl_decl ""
 	  mysql_decl ""
 	  MysqlColumn
+	  comment "	\"high\":[30,2000,17,1]
+		
+	minuteHigh : this is the minute when to turn on the actor in temporal/minute(hourMinute) mode (high[3]) 
+
+"
 	end
 
 	attribute 170501 "actifTime"
@@ -5632,6 +5742,160 @@ ${inlines}
 	to run a small actor is pin 15
 
 pin for the actor"
+      end
+    end
+
+    class 145157 "ExternalSensor<Adafruit_TCS34725>"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      mysql_decl ""
+      
+      comment "	\\class ExternalSensor<Adafruit_TCS34725>	
+	\\brief Adafruit_TCS34725 Specialization Class
+	This is the template specialization
+	for the Adafruit RGB Sensor
+"
+      classrelation 144133 // <generalisation>
+	relation 144133 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 144133 // <generalisation>
+	  b parent class_ref 129925 // BaseExternalSensor
+      end
+
+      operation 217093 "ExternalSensor"
+	cpp_inline public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${inline}${name}${(}${)}${volatile}${throw}${abstract} {
+		
+	#if DEBUGExternal == 1 
+
+		Serial.println( \"ExternalSensor <Adafruit_TCS34725> constructor\" );
+		Serial.println();
+	
+	#endif
+		/* Initialise with default values (int time = 2.4ms, gain = 1x) */
+		sensor=Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS,TCS34725_GAIN_1X);
+
+	};
+"
+	
+	
+	
+	
+	comment "	ExternalSensor():
+	Adafruit_TCS34725 specific constructor
+"
+      end
+
+      operation 217221 "begin"
+	cpp_virtual cpp_inline public explicit_return_type "uint8_t"
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract} {
+	
+	#if DEBUGExternal == 1 
+
+		Serial.println( \"ExternalSensor <Adafruit_TCS34725> begin()\" );
+		Serial.println();
+	
+	#endif
+
+		if (sensor.begin()) 
+		{
+
+			Serial.println(\"Found sensor\");
+
+			return(true);
+		} 
+		else 
+		{
+			Serial.println(\"No TCS34725 found ... check your connections\");
+
+			return(false);
+		}	
+
+	};
+"
+	
+	
+	
+	
+	comment "	begin():
+	Adafruit_TCS34725 specific begin method
+
+	\\return true if successful
+"
+      end
+
+      operation 217349 "read"
+	cpp_virtual cpp_inline public explicit_return_type "float"
+	nparams 6
+	  param inout name "r" explicit_type "uint16_t"
+	  param inout name "g" explicit_type "uint16_t"
+	  param inout name "b" explicit_type "uint16_t"
+	  param inout name "c" explicit_type "uint16_t"
+	  param inout name "colorTemp" explicit_type "uint16_t"
+	  param inout name "lux" explicit_type "uint16_t"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} * ${p0}${v0}, ${t1} * ${p1}${v1}, ${t2} * ${p2}${v2}, ${t3} * ${p3}${v3}, ${t4} * ${p4}${v4}, ${t5} * ${p5}${v5}${)}${const}${volatile}${throw}${abstract} {
+		uint16_t internR,internG,internB,internC,internColorTemp,internLux;
+
+		sensor.getRawData(&internR, &internG, &internB, &internC);
+		
+		internColorTemp=sensor.calculateColorTemperature(internR,internG,internB);
+	
+		internLux =sensor.calculateLux(internR,internG,internB);
+
+
+	#if DEBUGExternal == 1 
+
+		Serial.println( \"ExternalSensor <Adafruit_TCS34725> read()\" );
+		Serial.println();
+
+		Serial.print(\"Color Temp: \"); Serial.print(internColorTemp, DEC); Serial.print(\" K - \");
+		Serial.print(\"Lux: \"); Serial.print(internLux, DEC); Serial.print(\" - \");
+		Serial.print(\"R: \"); Serial.print(internR, DEC); Serial.print(\" \");
+		Serial.print(\"G: \"); Serial.print(internG, DEC); Serial.print(\" \");
+		Serial.print(\"B: \"); Serial.print(internB, DEC); Serial.print(\" \");
+		Serial.print(\"C: \"); Serial.print(internC, DEC); Serial.print(\" \");
+		Serial.println(\" \");
+	
+	#endif
+		*r=internR;
+		*g=internG;
+		*b=internB;
+		*c=internC;
+		*colorTemp=internColorTemp;
+		*lux=internLux;
+
+		return( 0.0 );
+	};
+"
+	
+	
+	
+	
+	comment "	read(uint16_t *r,uint16_t *g,uint16_t *b,uint16_t *c,uint16_t *colorTemp,uint16_t *lux):
+	Adafruit_TCS34725 specific read method
+
+	modifies the R,G,B,C,lux,ColorTemp input variables
+"
+      end
+
+      classrelation 144261 // sensor (<directional composition>)
+	relation 144261 *-->
+	  a role_name "sensor" private
+	    cpp default "    ${comment}${static}${thread_local}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	    classrelation_ref 144261 // sensor (<directional composition>)
+	  b parent class_ref 145285 // Adafruit_TCS34725
       end
     end
   end
@@ -5824,6 +6088,7 @@ ${namespace_end}"
 	class_ref 130053 // ExternalSensor
 	class_ref 130181 // ExternalSensor<NDIR_I2C>
 	class_ref 130437 // ExternalSensor<DallasTemperature>
+	class_ref 145157 // ExternalSensor<Adafruit_TCS34725>
       end
     end
 
