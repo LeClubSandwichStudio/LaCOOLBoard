@@ -1,3 +1,10 @@
+/**
+*	ExternalSensorsExample
+*	
+*	This example shows basic usage
+*	of the ExternalSensors class
+*	
+*/
 #include"ExternalSensors.h"
 
 ExternalSensors externalSensors;

@@ -1,3 +1,10 @@
+/**
+*	CoolBoardExample	
+*
+*	This example shows basic use
+*	of the Jetpack module.
+*
+*/
 #include<Jetpack.h>
 
 Jetpack jetpack;

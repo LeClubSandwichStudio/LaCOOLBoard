@@ -1,3 +1,10 @@
+/**
+*	CoolBoardSensorsExample	
+*
+*	This example shows basic use
+*	of the SensorsBoard.
+*
+*/
 #include<CoolBoardSensors.h>
 
 CoolBoardSensors sensors;

@@ -1,3 +1,10 @@
+/**
+*	CoolTimeExample	
+*
+*	This example shows typical use
+*	of the onBoard RTC.
+*
+*/
 #include<CoolTime.h>
 #include<CoolWifi.h>
 #include<Wire.h>

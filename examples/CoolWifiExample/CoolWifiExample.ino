@@ -1,3 +1,10 @@
+/**
+*	CoolWifiExample	
+*
+*	This example shows typical use
+*	of the CoolWifi class.
+*		
+*/
 #include<CoolWifi.h>
 
 CoolWifi wifiManager;

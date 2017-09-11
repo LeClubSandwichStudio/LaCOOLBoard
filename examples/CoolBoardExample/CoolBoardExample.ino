@@ -1,3 +1,14 @@
+/**
+*	CoolBoardExample	
+*
+*	This example shows typical use
+*	of the CoolBoard.
+*		
+*	Save this example in another location
+*	in order to safely modify the configuration files
+*	in the data folder.
+*
+*/
 
 #include <CoolBoard.h>
 

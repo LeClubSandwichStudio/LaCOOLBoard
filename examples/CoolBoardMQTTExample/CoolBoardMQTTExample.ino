@@ -1,11 +1,18 @@
+/**
+*	CoolBOardMQTTExample
+*
+*	This example shows basic usage of
+*	the MQTT protocol
+*
+*/
 #include<CoolMQTT.h>
 #include<CoolWifi.h>
 
 CoolWifi wifiManager;
 CoolMQTT mqtt;
 
-String ssid[] = {"ssid1","ssid2"};//put up to 50 ssids
-String pass[]={"pass1","pass2"};//put up to 50 passwords
+String ssid[] = {"ssid1","ssid2"};//put up to 50 WiFi ssids
+String pass[]={"pass1","pass2"};//put up to 50 WiFi passwords
 
 
 const char mqttServer[]="----------";//the mqtt server you're going to use

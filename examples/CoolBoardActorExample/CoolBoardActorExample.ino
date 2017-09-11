@@ -1,3 +1,10 @@
+/**
+*	CoolBoardActorExample 
+*	
+*	This example shows basic use of the
+*	pin labeled PUMP on the CoolBoard
+*
+*/
 #include"CoolBoardActor.h"
 
 CoolBoardActor actor;

@@ -1,3 +1,10 @@
+/**
+*	CoolIrene3000Example	
+*
+*	This example shows typical use
+*	of the Irene3000 module.
+*		
+*/
 #include<Irene3000.h>
 
 
