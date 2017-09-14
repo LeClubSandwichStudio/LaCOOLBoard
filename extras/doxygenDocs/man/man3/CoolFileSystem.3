@@ -1,4 +1,4 @@
-.TH "CoolFileSystem" 3 "Mon Sep 11 2017" "CoolBoard API" \" -*- nroff -*-
+.TH "CoolFileSystem" 3 "Thu Sep 14 2017" "CoolBoardAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -68,25 +68,6 @@ true if SPIFFS was initialized correctly, false otherwise
 
 .PP
 Definition at line 50 of file CoolFileSystem\&.cpp\&.
-.PP
-References getsavedData()\&.
-.PP
-Referenced by CoolBoard::config()\&.
-.SS "bool CoolFileSystem::updateConfigFiles (String answer)"
-CoolFileSystem::updateConfigFiles( mqtt answer ): This method is provided to update the configuration files when the appropriate mqtt answer is received
-.PP
-\fBReturns:\fP
-.RS 4
-true if the files are updated correctly, false otherwise 
-.RE
-.PP
-
-.PP
-Definition at line 390 of file CoolFileSystem\&.cpp\&.
-.PP
-References fileUpdate(), and temp\&.
-.PP
-Referenced by CoolBoard::update()\&.
 .SS "bool CoolFileSystem::fileUpdate (String update, const char * path)"
 CoolFileSystem::fileUpdate( update msg, file path): This method is provided to ensure the correct update for each configuration file in the File system
 .PP
@@ -98,8 +79,43 @@ true if successful , false otherwise
 
 .PP
 Definition at line 1003 of file CoolFileSystem\&.cpp\&.
+.SS "void CoolFileSystem::getsavedData ()"
+\fBCoolFileSystem::getsavedData()\fP: This method is provided to get the savedData flag from the file system 
 .PP
-Referenced by updateConfigFiles()\&.
+Definition at line 1202 of file CoolFileSystem\&.cpp\&.
+.SS "String * CoolFileSystem::getSensorSavedData (int & lines)"
+CoolFileSystem::getSensorData(int &lines): This method is provided to return the sensor data saved in the File System 10 lines at a time
+.PP
+\fBReturns:\fP
+.RS 4
+String array containing 50 first lines from the file modifies tge lines argument to reflect the number of lines left 
+.RE
+.PP
+
+.PP
+Definition at line 842 of file CoolFileSystem\&.cpp\&.
+.SS "bool CoolFileSystem::incrementsavedData ()"
+\fBCoolFileSystem::incrementsavedData()\fP: This method is provided to increment the savedData flag
+.PP
+\fBReturns:\fP
+.RS 4
+true if successful , false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 1152 of file CoolFileSystem\&.cpp\&.
+.SS "int CoolFileSystem::isDataSaved ()"
+\fBCoolFileSystem::isDataSaved()\fP: This method is provided to report wether there is sensor data saved in the File System\&.
+.PP
+\fBReturns:\fP
+.RS 4
+true if there is data saved, false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 782 of file CoolFileSystem\&.cpp\&.
 .SS "bool CoolFileSystem::saveSensorData (const char * data)"
 CoolFileSystem::saveSensorData( data ): This method is provided to save the data on the local memory when there is no internet available
 .PP
@@ -113,10 +129,6 @@ true if the data was saved, false otherwise
 
 .PP
 Definition at line 81 of file CoolFileSystem\&.cpp\&.
-.PP
-References incrementsavedData(), savedData, and saveSensorDataCSV()\&.
-.PP
-Referenced by CoolBoard::offLineMode()\&.
 .SS "bool CoolFileSystem::saveSensorDataCSV (const char * data)"
 CoolFileSystem::saveSensorDataCSV( data ): This method is provided to save the data on the local memory in CSV format\&.
 .PP
@@ -128,76 +140,28 @@ true if the data was saved, false otherwise
 
 .PP
 Definition at line 185 of file CoolFileSystem\&.cpp\&.
-.PP
-Referenced by saveSensorData()\&.
-.SS "int CoolFileSystem::isDataSaved ()"
-\fBCoolFileSystem::isDataSaved()\fP: This method is provided to report wether there is sensor data saved in the File System\&.
+.SS "bool CoolFileSystem::updateConfigFiles (String answer)"
+CoolFileSystem::updateConfigFiles( mqtt answer ): This method is provided to update the configuration files when the appropriate mqtt answer is received
 .PP
 \fBReturns:\fP
 .RS 4
-true if there is data saved, false otherwise 
+true if the files are updated correctly, false otherwise 
 .RE
 .PP
 
 .PP
-Definition at line 782 of file CoolFileSystem\&.cpp\&.
-.PP
-References savedData\&.
-.PP
-Referenced by CoolBoard::onLineMode()\&.
-.SS "String * CoolFileSystem::getSensorSavedData (int & lines)"
-CoolFileSystem::getSensorData(int &lines): This method is provided to return the sensor data saved in the File System 10 lines at a time
-.PP
-\fBReturns:\fP
-.RS 4
-String array containing 50 first lines from the file modifies tge lines argument to reflect the number of lines left 
-.RE
-.PP
-
-.PP
-Definition at line 842 of file CoolFileSystem\&.cpp\&.
-.PP
-References incrementsavedData(), linesToSkip, savedData, and temp\&.
-.PP
-Referenced by CoolBoard::onLineMode()\&.
-.SS "bool CoolFileSystem::incrementsavedData ()"
-\fBCoolFileSystem::incrementsavedData()\fP: This method is provided to increment the savedData flag
-.PP
-\fBReturns:\fP
-.RS 4
-true if successful , false otherwise 
-.RE
-.PP
-
-.PP
-Definition at line 1152 of file CoolFileSystem\&.cpp\&.
-.PP
-References linesToSkip, and savedData\&.
-.PP
-Referenced by getSensorSavedData(), and saveSensorData()\&.
-.SS "void CoolFileSystem::getsavedData ()"
-\fBCoolFileSystem::getsavedData()\fP: This method is provided to get the savedData flag from the file system 
-.PP
-Definition at line 1202 of file CoolFileSystem\&.cpp\&.
-.PP
-References linesToSkip, savedData, and temp\&.
-.PP
-Referenced by begin()\&.
+Definition at line 390 of file CoolFileSystem\&.cpp\&.
 .SH "Member Data Documentation"
 .PP 
-.SS "int CoolFileSystem::savedData =0\fC [private]\fP"
-Number of lines to read when retrieving saved Data 
-.PP
-Definition at line 74 of file CoolFileSystem\&.h\&.
-.PP
-Referenced by getsavedData(), getSensorSavedData(), incrementsavedData(), isDataSaved(), and saveSensorData()\&.
 .SS "int CoolFileSystem::linesToSkip =0\fC [private]\fP"
 Number of lines to Skip when retrieving saved Data 
 .PP
 Definition at line 80 of file CoolFileSystem\&.h\&.
+.SS "int CoolFileSystem::savedData =0\fC [private]\fP"
+Number of lines to read when retrieving saved Data 
 .PP
-Referenced by getsavedData(), getSensorSavedData(), and incrementsavedData()\&.
+Definition at line 74 of file CoolFileSystem\&.h\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoard API from the source code\&.
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.

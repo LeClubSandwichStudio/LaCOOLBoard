@@ -1,4 +1,4 @@
-.TH "CoolTime" 3 "Mon Sep 11 2017" "CoolBoard API" \" -*- nroff -*-
+.TH "CoolTime" 3 "Thu Sep 14 2017" "CoolBoardAPI" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -91,18 +91,6 @@ Definition at line 54 of file CoolTime\&.h\&.
 \fBCoolTime::begin()\fP: This method is provided to init the udp connection 
 .PP
 Definition at line 54 of file CoolTime\&.cpp\&.
-.PP
-References localPort, Udp, and update()\&.
-.PP
-Referenced by CoolBoard::begin()\&.
-.SS "void CoolTime::update ()"
-\fBCoolTime::update()\fP: This method is provided to correct the rtc Time when it drifts,once every week\&. 
-.PP
-Definition at line 76 of file CoolTime\&.cpp\&.
-.PP
-References getNtpTime(), isTimeSync(), rtc, saveTimeSync(), timeSync, and tmSet\&.
-.PP
-Referenced by begin(), and CoolBoard::onLineMode()\&.
 .SS "bool CoolTime::config ()"
 \fBCoolTime::config()\fP: This method is provided to configure the \fBCoolTime\fP object through a configuration file\&.
 .PP
@@ -114,113 +102,10 @@ true if successful,false otherwise
 
 .PP
 Definition at line 427 of file CoolTime\&.cpp\&.
-.PP
-References localPort, timeServer, and timeSync\&.
-.PP
-Referenced by CoolBoard::begin()\&.
 .SS "void CoolTime::config (IPAddress timeServer, unsigned int localPort)"
 CoolTime::config(Time server IP , udp Port): This method is provided to do manual configuration\&. 
 .PP
 Definition at line 404 of file CoolTime\&.cpp\&.
-.PP
-References localPort, and timeServer\&.
-.SS "void CoolTime::printConf ()"
-\fBCoolTime::printConf()\fP: This method is provided to print the \fBCoolTime\fP configuration to the Serial Monitor 
-.PP
-Definition at line 681 of file CoolTime\&.cpp\&.
-.PP
-References localPort, and timeServer\&.
-.PP
-Referenced by CoolBoard::begin()\&.
-.SS "void CoolTime::setDateTime (int year, int month, int day, int hour, int minutes, int seconds)"
-CoolTime::setDateTime(year,month,dat,hour,minutes,seconds): This method is provided to manually set the RTc Time 
-.PP
-Definition at line 109 of file CoolTime\&.cpp\&.
-.PP
-References formatDigits(), getESDate(), and rtc\&.
-.SS "tmElements_t CoolTime::getTimeDate ()"
-\fBCoolTime::getTimeDate()\fP: This method is provided to get the RTC Time
-.PP
-\fBReturns:\fP
-.RS 4
-a tmElements_t structre that has the time in it 
-.RE
-.PP
-
-.PP
-Definition at line 163 of file CoolTime\&.cpp\&.
-.PP
-References formatDigits(), and rtc\&.
-.PP
-Referenced by getESDate(), and CoolBoard::readSensors()\&.
-.SS "String CoolTime::getESDate ()"
-CoolTime::getESD(): This method is provided to return an Elastic Search compatible date Format
-.PP
-\fBReturns:\fP
-.RS 4
-date String in Elastic Search format 
-.RE
-.PP
-
-.PP
-Definition at line 206 of file CoolTime\&.cpp\&.
-.PP
-References formatDigits(), and getTimeDate()\&.
-.PP
-Referenced by setDateTime(), and CoolBoard::userData()\&.
-.SS "unsigned long CoolTime::getLastSyncTime ()"
-\fBCoolTime::getLastSyncTime()\fP: This method is provided to get the last time we syncronised the time
-.PP
-\fBReturns:\fP
-.RS 4
-unsigned long representation of last syncronisation time in seconds 
-.RE
-.PP
-
-.PP
-Definition at line 244 of file CoolTime\&.cpp\&.
-.PP
-References timeSync\&.
-.PP
-Referenced by isTimeSync()\&.
-.SS "bool CoolTime::isTimeSync (unsigned long seconds = \fC604800\fP)"
-CoolTime::isTimeSync( time in seconds): This method is provided to test if the time is syncronised or not\&. By default we test once per week\&.
-.PP
-\fBReturns:\fP
-.RS 4
-true if time is syncronised,false otherwise 
-.RE
-.PP
-
-.PP
-Definition at line 270 of file CoolTime\&.cpp\&.
-.PP
-References getLastSyncTime()\&.
-.PP
-Referenced by update()\&.
-.SS "time_t CoolTime::getNtpTime ()"
-CoolTime::getNtopTime(): This method is provided to get the Time through an NTP request to a Time Server
-.PP
-\fBReturns:\fP
-.RS 4
-a time_t (unsigned long ) timestamp in seconds 
-.RE
-.PP
-
-.PP
-Definition at line 310 of file CoolTime\&.cpp\&.
-.PP
-References NTP_PACKET_SIZE, packetBuffer, sendNTPpacket(), timeServer, and Udp\&.
-.PP
-Referenced by update()\&.
-.SS "void CoolTime::sendNTPpacket (IPAddress & address)"
-CoolTime::sendNTPpacket( Time Server IP address): This method is provided to send an NTP request to the time server at the given address 
-.PP
-Definition at line 370 of file CoolTime\&.cpp\&.
-.PP
-References NTP_PACKET_SIZE, packetBuffer, and Udp\&.
-.PP
-Referenced by getNtpTime()\&.
 .SS "String CoolTime::formatDigits (int digits)"
 CoolTime::printDigits(digit)
 .PP
@@ -234,8 +119,65 @@ formatted string of the input digit
 
 .PP
 Definition at line 708 of file CoolTime\&.cpp\&.
+.SS "String CoolTime::getESDate ()"
+CoolTime::getESD(): This method is provided to return an Elastic Search compatible date Format
 .PP
-Referenced by getESDate(), getTimeDate(), and setDateTime()\&.
+\fBReturns:\fP
+.RS 4
+date String in Elastic Search format 
+.RE
+.PP
+
+.PP
+Definition at line 206 of file CoolTime\&.cpp\&.
+.SS "unsigned long CoolTime::getLastSyncTime ()"
+\fBCoolTime::getLastSyncTime()\fP: This method is provided to get the last time we syncronised the time
+.PP
+\fBReturns:\fP
+.RS 4
+unsigned long representation of last syncronisation time in seconds 
+.RE
+.PP
+
+.PP
+Definition at line 244 of file CoolTime\&.cpp\&.
+.SS "time_t CoolTime::getNtpTime ()"
+CoolTime::getNtopTime(): This method is provided to get the Time through an NTP request to a Time Server
+.PP
+\fBReturns:\fP
+.RS 4
+a time_t (unsigned long ) timestamp in seconds 
+.RE
+.PP
+
+.PP
+Definition at line 310 of file CoolTime\&.cpp\&.
+.SS "tmElements_t CoolTime::getTimeDate ()"
+\fBCoolTime::getTimeDate()\fP: This method is provided to get the RTC Time
+.PP
+\fBReturns:\fP
+.RS 4
+a tmElements_t structre that has the time in it 
+.RE
+.PP
+
+.PP
+Definition at line 163 of file CoolTime\&.cpp\&.
+.SS "bool CoolTime::isTimeSync (unsigned long seconds = \fC604800\fP)"
+CoolTime::isTimeSync( time in seconds): This method is provided to test if the time is syncronised or not\&. By default we test once per week\&.
+.PP
+\fBReturns:\fP
+.RS 4
+true if time is syncronised,false otherwise 
+.RE
+.PP
+
+.PP
+Definition at line 270 of file CoolTime\&.cpp\&.
+.SS "void CoolTime::printConf ()"
+\fBCoolTime::printConf()\fP: This method is provided to print the \fBCoolTime\fP configuration to the Serial Monitor 
+.PP
+Definition at line 681 of file CoolTime\&.cpp\&.
 .SS "bool CoolTime::saveTimeSync ()"
 \fBCoolTime::saveTimeSync()\fP This method is provided to save the last sync time in the SPIFFS\&.
 .PP
@@ -247,55 +189,49 @@ true if successful,false otherwise
 
 .PP
 Definition at line 560 of file CoolTime\&.cpp\&.
+.SS "void CoolTime::sendNTPpacket (IPAddress & address)"
+CoolTime::sendNTPpacket( Time Server IP address): This method is provided to send an NTP request to the time server at the given address 
 .PP
-References localPort, timeServer, and timeSync\&.
+Definition at line 370 of file CoolTime\&.cpp\&.
+.SS "void CoolTime::setDateTime (int year, int month, int day, int hour, int minutes, int seconds)"
+CoolTime::setDateTime(year,month,dat,hour,minutes,seconds): This method is provided to manually set the RTc Time 
 .PP
-Referenced by update()\&.
+Definition at line 109 of file CoolTime\&.cpp\&.
+.SS "void CoolTime::update ()"
+\fBCoolTime::update()\fP: This method is provided to correct the rtc Time when it drifts,once every week\&. 
+.PP
+Definition at line 76 of file CoolTime\&.cpp\&.
 .SH "Member Data Documentation"
 .PP 
-.SS "unsigned long CoolTime::timeSync =0\fC [private]\fP"
-last Time the RTC syncronised with the NTP server unix Time 
-.PP
-Definition at line 92 of file CoolTime\&.h\&.
-.PP
-Referenced by config(), getLastSyncTime(), saveTimeSync(), and update()\&.
-.SS "IPAddress CoolTime::timeServer\fC [private]\fP"
-NTP Server IP Address 
-.PP
-Definition at line 97 of file CoolTime\&.h\&.
-.PP
-Referenced by config(), getNtpTime(), printConf(), and saveTimeSync()\&.
-.SS "WiFiUDP CoolTime::Udp\fC [private]\fP"
-UDP Client instance 
-.PP
-Definition at line 102 of file CoolTime\&.h\&.
-.PP
-Referenced by begin(), getNtpTime(), and sendNTPpacket()\&.
 .SS "unsigned int CoolTime::localPort =0\fC [private]\fP"
 port number for UDP packets 
 .PP
 Definition at line 107 of file CoolTime\&.h\&.
-.PP
-Referenced by begin(), config(), printConf(), and saveTimeSync()\&.
 .SS "byte CoolTime::packetBuffer[\fBNTP_PACKET_SIZE\fP]\fC [private]\fP"
 UDP buffer to hold incoming & outgoing packets 
 .PP
 Definition at line 113 of file CoolTime\&.h\&.
-.PP
-Referenced by getNtpTime(), and sendNTPpacket()\&.
-.SS "tmElements_t CoolTime::tmSet\fC [private]\fP"
-Time Elements Instance to hold various Time Values 
-.PP
-Definition at line 118 of file CoolTime\&.h\&.
-.PP
-Referenced by update()\&.
 .SS "DS1337RTC CoolTime::rtc\fC [private]\fP"
 RTC instance 
 .PP
 Definition at line 123 of file CoolTime\&.h\&.
+.SS "IPAddress CoolTime::timeServer\fC [private]\fP"
+NTP Server IP Address 
 .PP
-Referenced by getTimeDate(), setDateTime(), and update()\&.
+Definition at line 97 of file CoolTime\&.h\&.
+.SS "unsigned long CoolTime::timeSync =0\fC [private]\fP"
+last Time the RTC syncronised with the NTP server unix Time 
+.PP
+Definition at line 92 of file CoolTime\&.h\&.
+.SS "tmElements_t CoolTime::tmSet\fC [private]\fP"
+Time Elements Instance to hold various Time Values 
+.PP
+Definition at line 118 of file CoolTime\&.h\&.
+.SS "WiFiUDP CoolTime::Udp\fC [private]\fP"
+UDP Client instance 
+.PP
+Definition at line 102 of file CoolTime\&.h\&.
 
 .SH "Author"
 .PP 
-Generated automatically by Doxygen for CoolBoard API from the source code\&.
+Generated automatically by Doxygen for CoolBoardAPI from the source code\&.
