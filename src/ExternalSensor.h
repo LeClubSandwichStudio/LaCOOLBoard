@@ -635,5 +635,113 @@ private:
 
 };
 
+/**
+*	\class ExternalSensor<Adafruit_ADS1115>	
+*	\brief Adafruit_ADS1115 Specialization Class
+*	This is the template specialization
+*	for the Adafruit Analog I2C Interface
+*/
+
+template<>
+class ExternalSensor<Adafruit_ADS1115> :public BaseExternalSensor
+{
+public:
+	/**
+	*	ExternalSensor():
+	*	Adafruit_ADS1115 specific constructor
+	*/
+	ExternalSensor(uint8_t i2c_addr)
+	{
+		
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_ADS1115> constructor" );
+		Serial.println();
+	
+	#endif
+		
+		sensor=Adafruit_ADS1115(i2c_addr);
+
+	}
+	
+	/**
+	*	begin():
+	*	Adafruit_ADS1115 specific begin method
+	*
+	*	\return true if successful
+	*/
+	virtual uint8_t begin()
+	{
+	
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_ADS1115> begin()" );
+		Serial.println();
+	
+	#endif
+
+		sensor.begin();
+		return(true); 
+	
+
+	}
+
+	/**
+	*	read(uint16_t *a,uint16_t *b,uint16_t *c,uint16_t *d,uint16_t *e,uint16_t *f):
+	*	Adafruit_ADS1115 specific read method
+	*
+	*	modifies the input variables to channel0..3 and differential01 ,23 values
+	*/
+	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f)
+	{
+		uint16_t channel0,channel1,channel2,channel3;
+		
+		int16_t diff01,diff23;
+
+		channel0=sensor.readADC_SingleEnded(0);
+		
+		channel1=sensor.readADC_SingleEnded(1);
+
+		channel2=sensor.readADC_SingleEnded(2);		
+
+		channel3=sensor.readADC_SingleEnded(3);
+		
+		diff01=sensor.readADC_Differential_0_1();
+		
+		diff23=sensor.readADC_Differential_2_3();
+
+
+
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_ADS1015> read()" );
+		Serial.println();
+
+		Serial.print("Channel 0 : "); Serial.print(channel0, DEC); 
+		Serial.print("Channel 1 : "); Serial.print(channel1, DEC); 
+		Serial.print("Channel 2 : "); Serial.print(channel2, DEC); 
+		Serial.print("Channel 3 :  "); Serial.print(channel3, DEC); 
+		Serial.print("diff 0 1: "); Serial.print(diff01, DEC); 
+		Serial.print("diff 2 3 "); Serial.print(diff23, DEC); 
+		Serial.println(" ");
+	
+	#endif
+		*a=(int16_t)channel0;
+		*b=(int16_t)channel1;
+		*c=(int16_t)channel2;
+		*d=(int16_t)channel3;
+		*e=diff01;
+		*f=diff23;
+
+		return( 0.0 );
+	}
+
+private:
+
+
+	Adafruit_ADS1115 sensor;
+
+};
+
 
 #endif

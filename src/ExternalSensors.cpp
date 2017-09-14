@@ -75,7 +75,7 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->read();
 
 		}
-		if( (sensors[i].reference) == "DallasTemperature")
+		else if( (sensors[i].reference) == "DallasTemperature")
 		{
 
 			std::unique_ptr< ExternalSensor<DallasTemperature> > dallasTemp(new ExternalSensor<DallasTemperature> (&oneWire));
@@ -84,7 +84,7 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->begin();
 			sensors[i].exSensor->read();
 		}
-		if( (sensors[i].reference) == "Adafruit_TCS34725")
+		else if( (sensors[i].reference) == "Adafruit_TCS34725")
 		{
 			int16_t r, g, b, c, colorTemp, lux;
 
@@ -95,7 +95,7 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
 		}
 
-		if( (sensors[i].reference) == "Adafruit_ADS1015")
+		else if( (sensors[i].reference) == "Adafruit_ADS1015")
 		{
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
 
@@ -105,6 +105,18 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->begin();
 			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
 		}
+
+		else if( (sensors[i].reference) == "Adafruit_ADS1115")
+		{
+			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+
+			std::unique_ptr< ExternalSensor<Adafruit_ADS1115> > analogI2C(new ExternalSensor<Adafruit_ADS1115> (this->sensors[i].address));
+			 
+			sensors[i].exSensor=analogI2C.release();
+			sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
+		}
+
 		
 		
 	}
@@ -165,7 +177,7 @@ String ExternalSensors::read()
 						RGBCLK.add(colorTemp);
 						RGBCLK.add(lux);
 					}
-					else if(sensors[i].reference=="Adafruit_ADS1015")
+					else if((sensors[i].reference=="Adafruit_ADS1015" ) || (sensors[i].reference=="Adafruit_ADS1115" ) )
 					{
 						int16_t channel0, channel1, channel2, channel3, diff01, diff23;
 
