@@ -86,13 +86,24 @@ void ExternalSensors::begin()
 		}
 		if( (sensors[i].reference) == "Adafruit_TCS34725")
 		{
-			uint16_t r, g, b, c, colorTemp, lux;
+			int16_t r, g, b, c, colorTemp, lux;
 
 			std::unique_ptr< ExternalSensor<Adafruit_TCS34725> > rgbSensor(new ExternalSensor<Adafruit_TCS34725> ());
 			 
 			sensors[i].exSensor=rgbSensor.release();
 			sensors[i].exSensor->begin();
 			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
+		}
+
+		if( (sensors[i].reference) == "Adafruit_ADS1015")
+		{
+			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+
+			std::unique_ptr< ExternalSensor<Adafruit_ADS1015> > analogI2C(new ExternalSensor<Adafruit_ADS1015> (this->sensors[i].address));
+			 
+			sensors[i].exSensor=analogI2C.release();
+			sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
 		}
 		
 		
@@ -142,21 +153,10 @@ String ExternalSensors::read()
 				{
 					if(sensors[i].reference=="Adafruit_TCS34725")
 					{
-						uint16_t r, g, b, c, colorTemp, lux;
+						int16_t r, g, b, c, colorTemp, lux;
 
 			  			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
 
-					#if DEBUG == 1
-
-						Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
-						Serial.print("Lux: "); Serial.print(lux, DEC); Serial.print(" - ");
-						Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
-						Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
-						Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
-						Serial.print("C: "); Serial.print(c, DEC); Serial.print(" ");
-						Serial.println(" ");
-
-					#endif
 						JsonArray& RGBCLK = root.createNestedArray(sensors[i].type);
 						RGBCLK.add(r);
 						RGBCLK.add(g);
@@ -164,6 +164,20 @@ String ExternalSensors::read()
 						RGBCLK.add(c);
 						RGBCLK.add(colorTemp);
 						RGBCLK.add(lux);
+					}
+					else if(sensors[i].reference=="Adafruit_ADS1015")
+					{
+						int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+
+						sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
+
+						JsonArray& analogI2C = root.createNestedArray(sensors[i].type);
+						analogI2C.add(channel0);
+						analogI2C.add(channel1);
+						analogI2C.add(channel2);
+						analogI2C.add(channel3);
+						analogI2C.add(diff01);
+						analogI2C.add(diff23);
 					}
 					else
 					{
