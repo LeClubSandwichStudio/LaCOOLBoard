@@ -683,30 +683,54 @@ bool WiFiManager::handleFileRead(String path)
 	if(path.endsWith("/"))
 	{
 		path += "index.htm";
+		DEBUG_WM(F("path modified : "));
+		DEBUG_WM(path);
 	}
 
-	DEBUG_WM(F("path modified : "));
-	DEBUG_WM(path);
-	
-	
+
+		
 	String contentType = getContentType(path);
+	DEBUG_WM(F("content Type : "));
+	DEBUG_WM(contentType);
+
 	String pathWithGz = path + ".gz";
 	if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
 	{
-
+		DEBUG_WM(F("file found "));
+		
 		if(SPIFFS.exists(pathWithGz))
 		{
 			path += ".gz";
 		}
 
 		File file = SPIFFS.open(path, "r");
-		size_t sent = server->streamFile(file, contentType);
+		//size_t sent = server->streamFile(file, contentType);
+		char buf[1024];
+		int siz = file.size();
+		while(siz > 0) 
+		{
+			size_t len = min((int)(sizeof(buf) - 1), siz);
+			file.read((uint8_t *)buf, len);
+			server->client().write((const char*)buf, len);
+			siz -= len;
+		}
+  		/*if (sent != file.size()) 
+		{
+    			DEBUG_WM(F("Sent less data than expected!"));
+		}*/
+
 		file.close();
+
 		return true;
 
 	}
+	else
+	{
+		DEBUG_WM(F("File not found "));
+		return false;
+	}
 
-	return false;
+
 }
 
 
