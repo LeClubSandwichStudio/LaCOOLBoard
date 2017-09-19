@@ -83,10 +83,10 @@ You need the following libraries to be able to use the CoolBoard API:
 -TimeLib(https://github.com/PaulStoffregen/Time)
 
 -DS1337RTC(https://github.com/etrombly/DS1337RTC)
-  
 
 -DallasTemperature(https://github.com/milesburton/Arduino-Temperature-Control-Library)
 
+-OneWire(https://github.com/PaulStoffregen/OneWire)
 
 
 Configuration Files :
