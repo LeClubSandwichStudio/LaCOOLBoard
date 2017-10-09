@@ -195,7 +195,7 @@ void CoolBoard::begin()
 		{
 			this->sendConfig("jetPack","/jetPackConfig.json");
 		}
-		
+
 		if(ireneActive)
 		{
 			this->sendConfig("irene3000","/irene3000Config.json");
@@ -502,42 +502,48 @@ void CoolBoard::onLineMode()
 			Serial.println( F("jetpack doing action ") );
 
 			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
-			
+			byte lastAction = jetPack.action;//keeps last value to see if state changes
+
 			String jetpackStatus= jetPack.doAction(data.c_str());//{....}
 			
-			data+=jetpackStatus;//{..,..,..}{..,..,..}
+			if(lastAction != jetPack.action)//send a message if a actor has changed 
+			{
+				data+=jetpackStatus;//{..,..,..}{..,..,..}
 			
-			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+				data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
-			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+				data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
 
-			//sending jetpackStatus over MQTT
-			String jsonJetpackStatus="{\"state\":{\"reported\":";
+				//sending jetpackStatus over MQTT
+				String jsonJetpackStatus="{\"state\":{\"reported\":";
 
-			jsonJetpackStatus+=jetpackStatus;
+				jsonJetpackStatus+=jetpackStatus;
 
-			jsonJetpackStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+				jsonJetpackStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
 	
-			mqtt.publish( jsonJetpackStatus.c_str() );			
-
+				mqtt.publish( jsonJetpackStatus.c_str() );			
+			}
 		
 		}
+			bool lastActionB = digitalRead(onBoardActor.pin);
 			String onBoardActorStatus=onBoardActor.doAction( data.c_str() );
-			data+=onBoardActorStatus;//{..,..,..}{..,..,..}
+			if(lastActionB != digitalRead(onBoardActor.pin))//send a message if actor has changed
+			{
+				data+=onBoardActorStatus;//{..,..,..}{..,..,..}
 
-			data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+				data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
-			data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+				data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
 
-			//sending onBoardActorStatus over MQTT
-			String jsonOnBoardActorStatus="{\"state\":{\"reported\":";
+				//sending onBoardActorStatus over MQTT
+				String jsonOnBoardActorStatus="{\"state\":{\"reported\":";
 
-			jsonOnBoardActorStatus+=onBoardActorStatus;
+				jsonOnBoardActorStatus+=onBoardActorStatus;
 
-			jsonOnBoardActorStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
+				jsonOnBoardActorStatus += " } }"; // {"state":{"reported":{..,..,..,..,..,..,..,..}  } }
 	
-			mqtt.publish( jsonOnBoardActorStatus.c_str() );
-		
+				mqtt.publish( jsonOnBoardActorStatus.c_str() );
+			}
 		
 	}
 	else if(this->manual == 1 )

@@ -79,6 +79,13 @@ public:
 
 	void printConf();
 
+	/**
+	*	pin Number value
+	*	the only available pin that can be used
+	*	to run a small actor is pin 15
+	*/
+	const int pin = 15; //pin for the actor
+
 private:
 	
 	/**
@@ -196,13 +203,6 @@ private:
 		unsigned long inactifTime=0;
 	
 	}actor;
-	
-	/**
-	*	pin Number value
-	*	the only available pin that can be used
-	*	to run a small actor is pin 15
-	*/
-	const int pin = 15; //pin for the actor
 	
 };
 

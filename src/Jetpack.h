@@ -82,12 +82,12 @@ public:
 
 	void printConf();
 
-private:
-
 	/**
 	*	the Jetpack's Action	
 	*/
 	byte action= B00000000; 
+
+private:
 
 	/**
 	*	the Actor's state
