@@ -66,6 +66,8 @@ public:
 	wl_status_t connectAP();
 
 	wl_status_t state();
+
+	wl_status_t disconnect();
 	
 	void printConf();
 	

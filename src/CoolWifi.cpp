@@ -94,6 +94,38 @@ wl_status_t CoolWifi::state()
 }
 
 /**
+*	CoolWifi::disconnect():
+*	This method is provided to disconnect 
+*   from current WiFi network and returns
+*	the Wifi client's state.
+*	\return wifi client state:	
+*		WL_NO_SHIELD        = 255, 
+*    		WL_IDLE_STATUS      = 0,
+*    		WL_NO_SSID_AVAIL    = 1,
+*    		WL_SCAN_COMPLETED   = 2,
+*    		WL_CONNECTED        = 3,
+*    		WL_CONNECT_FAILED   = 4,
+*    		WL_CONNECTION_LOST  = 5,
+*		WL_DISCONNECTED = 6
+*/
+wl_status_t CoolWifi::disconnect()
+{
+
+	WiFi.disconnect();
+
+#if DEBUG == 1 
+
+	Serial.println( F("Entering CoolWifi.disconnect()") );
+	Serial.println();	
+	Serial.print( F("state : ") );
+	Serial.println( WiFi.status() );
+
+#endif
+	
+	return( WiFi.status() ) ;
+}
+
+/**
 *	CoolWifi::connect( ):
 *	This method is provided to connect to the strongest WiFi
 *	in the provided list of wiFis.
