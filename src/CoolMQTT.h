@@ -37,6 +37,7 @@
 #include"Arduino.h"  
 #include <ESP8266WiFi.h>
 #include "internals/CoolPubSubClient.h"
+#include "CoolWifi.h"
 
 /**
 *	\class CoolMQTT
@@ -112,6 +113,11 @@ private:
 	*	MQTT Client instance
 	*/
 	CoolPubSubClient client;
+
+	/**
+	*	WiFi Client instance
+	*/
+	CoolWifi wifiManager;
 
 	/**
 	*	new message flag

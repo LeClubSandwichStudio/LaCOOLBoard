@@ -37,6 +37,7 @@
 #include <ESP8266WiFi.h>
 #include "CoolMQTT.h"
 #include "ArduinoJson.h"
+#include "CoolWifi.h"
 
 
 #define DEBUG 0
@@ -199,14 +200,25 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println(pub);	
 
 #endif
-#if DEBUG == 0
 	if (pub == 1)
 	{
 		Serial.println( F("Publish : OK"));
 	}
-	else Serial.println( F("Publish : FAIL!!!"));
-#endif
-
+	else 
+	{
+		Serial.println( F("Publish : FAIL!!!"));
+		Serial.print( F("Wifi State is : "));
+		Serial.println(wifiManager.state());
+		Serial.println( F("Deconnecting WiFi!"));
+		wifiManager.disconnect();
+		Serial.println( F("Wifi State after deconnecting is : "));
+		Serial.print(wifiManager.state());
+		Serial.println( F("Re-connecting WiFi!"));
+		wifiManager.begin();
+		Serial.println( F("Wifi State after re-connecting is : "));
+		Serial.print(wifiManager.state());
+		begin();
+	}
 	return(pub);
 
 }
