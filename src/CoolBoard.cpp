@@ -175,6 +175,31 @@ void CoolBoard::begin()
 
 	rtc.begin();
 
+	if( this->sleepActive==0 )	
+	{	
+		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
+		
+		//send all config over mqtt
+
+		this->sendConfig("CoolBoard","/coolBoardConfig.json");
+	
+		this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
+
+		this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
+	
+		this->sendConfig("rtc","/rtcConfig.json");
+
+		this->sendConfig("led","/coolBoardLedConfig.json");
+
+		this->sendConfig("jetPack","/jetPackConfig.json");
+
+		this->sendConfig("irene3000","/irene3000Config.json");
+
+		this->sendConfig("externalSensors","/externalSensorsConfig.json");
+
+		this->sendConfig("mqtt","/mqttConfig.json");
+	}
+
 #if DEBUG == 1
 
 	rtc.printConf();
@@ -559,28 +584,6 @@ void CoolBoard::onLineMode()
 		//logInterval in seconds
 		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 
-		//send all config over mqtt
-
-		this->sendConfig("CoolBoard","/coolBoardConfig.json");
-	
-		this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
-
-		this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
-	
-		this->sendConfig("rtc","/rtcConfig.json");
-
-		this->sendConfig("led","/coolBoardLedConfig.json");
-
-		this->sendConfig("jetPack","/jetPackConfig.json");
-
-		this->sendConfig("irene3000","/irene3000Config.json");
-
-		this->sendConfig("externalSensors","/externalSensorsConfig.json");
-
-		this->sendConfig("mqtt","/mqttConfig.json");
-
-		this->sendConfig("wifi","/wifiConfig.json");
-
 		mqtt.mqttLoop();
 	
 	}
@@ -591,28 +594,6 @@ void CoolBoard::onLineMode()
 		mqtt.publish(jsonData.c_str());	
 	
 		mqtt.mqttLoop();
-
-		//send all config over mqtt
-
-		this->sendConfig("CoolBoard","/coolBoardConfig.json");
-	
-		this->sendConfig("CoolSensorsBoard","/coolBoardSensorsConfig.json");
-
-		this->sendConfig("CoolBoardActor","/coolBoardActorConfig.json");
-	
-		this->sendConfig("rtc","/rtcConfig.json");
-
-		this->sendConfig("led","/coolBoardLedConfig.json");
-
-		this->sendConfig("jetPack","/jetPackConfig.json");
-
-		this->sendConfig("irene3000","/irene3000Config.json");
-
-		this->sendConfig("externalSensors","/externalSensorsConfig.json");
-
-		this->sendConfig("mqtt","/mqttConfig.json");
-
-		this->sendConfig("wifi","/wifiConfig.json");
 
 		answer = mqtt.read();
 
