@@ -191,11 +191,20 @@ void CoolBoard::begin()
 
 		this->sendConfig("led","/coolBoardLedConfig.json");
 
-		this->sendConfig("jetPack","/jetPackConfig.json");
+		if(jetpackActive)
+		{
+			this->sendConfig("jetPack","/jetPackConfig.json");
+		}
+		
+		if(ireneActive)
+		{
+			this->sendConfig("irene3000","/irene3000Config.json");
+		}
 
-		this->sendConfig("irene3000","/irene3000Config.json");
-
-		this->sendConfig("externalSensors","/externalSensorsConfig.json");
+		if(externalSensorsActive)
+		{
+			this->sendConfig("externalSensors","/externalSensorsConfig.json");
+		}
 
 		this->sendConfig("mqtt","/mqttConfig.json");
 	}
