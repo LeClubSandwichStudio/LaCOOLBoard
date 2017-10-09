@@ -164,7 +164,10 @@ int CoolMQTT::connect(unsigned long keepAlive)
 /**
 *	CoolMQTT::publish(data):
 *	This method is provided to publish data
-*	to the out topic
+*	to the out topic. If the publish fails 
+*   it deconnects and reconnects the Wifi 
+*   and MQTT. This prevents lost MQTT syndrome
+*   on cheaper Wifi hotspots
 *
 *	\return true if publish successful,
 *	false otherwise
