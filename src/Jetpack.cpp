@@ -283,7 +283,7 @@ String Jetpack::doAction( const char* data )
 						//normal temporal actor
 						else
 						{
-							this->temporalActionOn(i);
+							this->temporalActionOff(i);
 						}
 											
 					}
@@ -304,7 +304,7 @@ String Jetpack::doAction( const char* data )
 					//normal temporal actor
 					else
 					{
-						this->temporalActionOff(i);
+						this->temporalActionOn(i);
 					}
 				}			
 			}
@@ -926,7 +926,7 @@ void Jetpack::temporalActionOn(int actorNumber)
 
 
 #endif
-	
+
 	 if( ( millis() - this->actors[actorNumber].inactifTime ) >= (  this->actors[actorNumber].timeLow  ) )
 	{
 		//start the actor
@@ -1068,7 +1068,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 #endif
 
 	//stop the actor	
-	if(hour >= this->actors[actorNumber].hourLow)
+	if(hour <= this->actors[actorNumber].hourLow)
 	{
 		bitWrite( this->action , actorNumber , 0) ;
 
@@ -1137,7 +1137,7 @@ void Jetpack::mixedHourAction(int actorNumber,int hour, float measurment)
 
 #endif
 	//stop the actor	
-	if(hour >= this->actors[actorNumber].hourLow)
+	if(hour <= this->actors[actorNumber].hourLow)
 	{
 			if( measurment >= this->actors[actorNumber].rangeHigh )
 			{
@@ -1236,7 +1236,7 @@ void Jetpack::minuteAction(int actorNumber,int minute)
 #endif
 
 	//stop the actor	
-	if(minute >= this->actors[actorNumber].minuteLow)
+	if(minute <= this->actors[actorNumber].minuteLow)
 	{
 		bitWrite( this->action , actorNumber , 0) ;
 
@@ -1304,7 +1304,7 @@ void Jetpack::mixedMinuteAction(int actorNumber,int minute,float measurment)
 
 #endif
 	//stop the actor	
-	if(minute >= this->actors[actorNumber].minuteLow)
+	if(minute <= this->actors[actorNumber].minuteLow)
 	{
 			if( measurment > this->actors[actorNumber].rangeHigh )
 			{

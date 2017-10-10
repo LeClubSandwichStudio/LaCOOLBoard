@@ -284,7 +284,7 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 #endif
 
 	//default is once per week we try to get a time update
-	if( ( RTC.get(CLOCK_ADDRESS) - this->getLastSyncTime() ) > ( seconds ) ) 
+	if( RTC.get(CLOCK_ADDRESS) - this->getLastSyncTime() > ( seconds ) ) 
 	{
 
 		Serial.println( F("time is not syncronised ") );
@@ -710,8 +710,8 @@ String CoolTime::formatDigits(int digits)
 
 #if DEBUG == 1 
 
-	Serial.println( F("Entering CoolTime.formatDigits()") );
- 	Serial.println();
+	//Serial.println( F("Entering CoolTime.formatDigits()") );
+ 	//Serial.println();
 
 #endif 
 
@@ -720,8 +720,8 @@ String CoolTime::formatDigits(int digits)
 	
 	#if DEBUG == 1
 
-		Serial.println( F("output digit : ") );
-		Serial.println( String("0") + String(digits) );
+		//Serial.println( F("output digit : ") );
+		//Serial.println( String("0") + String(digits) );
 
 	#endif
 
@@ -730,8 +730,8 @@ String CoolTime::formatDigits(int digits)
 	
 #if DEBUG == 1 
 
-	Serial.println( F("output digit : ") );
-	Serial.println(digits);
+	//Serial.println( F("output digit : ") );
+	//Serial.println(digits);
 
 #endif
 
