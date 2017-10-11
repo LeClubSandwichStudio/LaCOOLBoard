@@ -175,7 +175,7 @@ wl_status_t CoolWifi::connect()
 
 
 	//Wifi Manager
-	if( WiFi.status() != WL_CONNECTED ) 
+	if( WiFi.status() != WL_CONNECTED && !(this->nomad) ) 
 	{
 
 	#if DEBUG == 1 

@@ -758,38 +758,45 @@ void CoolBoard::offLineMode()
 	#endif
 
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green
-
-	//case we have wifi but no internet
-	if( (wifiManager.state() == WL_CONNECTED) && ( mqtt.state()!=0 ) )
+	if (wifiManager.nomad == 0)
 	{
-		
-		Serial.println(F("there is Wifi but no Internet"));
-		Serial.println(F("lunching AP to check saved files"));
-		Serial.println(F("and Add new WiFi if needed"));
-		
-		wifiManager.connectAP();
-		
+		//case we have wifi but no internet
+		if( (wifiManager.state() == WL_CONNECTED) && ( mqtt.state()!=0 ) )
+		{
+			
+			Serial.println(F("there is Wifi but no Internet"));
+			Serial.println(F("lunching AP to check saved files"));
+			Serial.println(F("and Add new WiFi if needed"));
+			
+			wifiManager.connectAP();
+			
+		}
+
+		//case we have no connection at all
+		if( wifiManager.state() != WL_CONNECTED )
+		{
+
+		#if DEBUG == 1
+			
+			Serial.println(F("there is No Wifi 1"));
+			Serial.println(F("retrying to connect"));
+
+		#endif
+
+		#if DEBUG == 0
+			Serial.println( F("there is no WiFi..."));
+		#endif
+			
+			this->connect();//nomad case : just run wifiMulti
+					//normal case : run wifiMulti+AP
+			
+		}	
 	}
-	
-	//case we have no connection at all
-	if( wifiManager.state() != WL_CONNECTED )
-	{
-	
-	#if DEBUG == 1
-		
-		Serial.println(F("there is No Wifi "));
-		Serial.println(F("retrying to connect"));
-	
-	#endif
 
-	#if DEBUG == 0
-		Serial.println( F("there is no WiFi..."));
-	#endif
-		
-		this->connect();//nomad case : just run wifiMulti
-				//normal case : run wifiMulti+AP
-		
-	}	
+	if( this->sleepActive==1 )	
+	{
+		this->sleep( this->getLogInterval() ) ;
+	}
 
 }
 
