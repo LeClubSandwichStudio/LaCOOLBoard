@@ -758,7 +758,7 @@ void CoolBoard::offLineMode()
 	#endif
 
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green
-	if (wifiManager.nomad == 0)
+	if (wifiManager.nomad == 0 || this->sleepActive == 0)
 	{
 		//case we have wifi but no internet
 		if( (wifiManager.state() == WL_CONNECTED) && ( mqtt.state()!=0 ) )
