@@ -325,7 +325,7 @@ time_t CoolTime::getNtpTime()
 
 	uint32_t beginWait = millis();
 
-	while (millis() - beginWait < 1500) 
+	while (millis() - beginWait < 2000) 
 	{
 		int size = Udp.parsePacket();
 		if (size >= NTP_PACKET_SIZE) 

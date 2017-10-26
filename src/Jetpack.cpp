@@ -1064,11 +1064,11 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 	Serial.print(F("low hour : "));
 	Serial.println(this->actors[actorNumber].hourLow);
-
+	Serial.println();
 #endif
 
 	//stop the actor	
-	if(hour <= this->actors[actorNumber].hourLow)
+	if(hour > this->actors[actorNumber].hourLow)
 	{
 		bitWrite( this->action , actorNumber , 0) ;
 
