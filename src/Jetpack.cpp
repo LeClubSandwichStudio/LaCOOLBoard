@@ -964,19 +964,19 @@ void Jetpack::mixedTemporalActionOn(int actorNumber,float measurment)
 
 #if DEBUG == 1
 	
-	Serial.print("mixed Temporal Actor N° : ");
+	Serial.print(F("mixed Temporal Actor N° : "));
 	Serial.println(actorNumber);
 
-	Serial.print("measured value : ");
+	Serial.print(F("measured value : "));
 	Serial.println(measurment);
 
-	Serial.print("low range : ");
+	Serial.print(F("low range : "));
 	Serial.println(this->actors[actorNumber].rangeLow);
 
-	Serial.print("time low : ");
+	Serial.print(F("time low : "));
 	Serial.println(this->actors[actorNumber].timeLow);
 
-	Serial.print("inactif Time : ");
+	Serial.print(F("inactif Time : "));
 	Serial.println(this->actors[actorNumber].inactifTime);
 
 	Serial.print(F("millis : "));
@@ -1065,12 +1065,23 @@ void Jetpack::hourAction(int actorNumber, int hour)
 	Serial.print(F("low hour : "));
 	Serial.println(this->actors[actorNumber].hourLow);
 	Serial.println();
-#endif
 
+	Serial.print(F("inverted Flag : "));
+	Serial.println(this->actors[actorNumber].inverted);
+	Serial.println();
+#endif
+	
 	//stop the actor	
-	if(hour > this->actors[actorNumber].hourLow)
+	if(hour >= this->actors[actorNumber].hourLow || hour < this->actors[actorNumber].hourHigh)
 	{
-		bitWrite( this->action , actorNumber , 0) ;
+		if (this->actors[actorNumber].inverted)
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+		}
 
 	#if DEBUG == 1 
 
@@ -1080,9 +1091,16 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 	}
 	//starting the actor
-	else if(hour >= this->actors[actorNumber].hourHigh)
+	else if(hour >= this->actors[actorNumber].hourHigh || hour > this->actors[actorNumber].hourLow)
 	{
-		bitWrite( this->action , actorNumber , 1) ;
+		if (this->actors[actorNumber].inverted)
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 1) ;
+		}
 
 	#if DEBUG == 1 
 
@@ -1091,7 +1109,6 @@ void Jetpack::hourAction(int actorNumber, int hour)
 	#endif	
 	
 	}
-
 }
 
 

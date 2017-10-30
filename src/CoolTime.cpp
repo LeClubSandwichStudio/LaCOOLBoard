@@ -283,8 +283,10 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 
 #endif
 
+	unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
+	delay(50);
 	//default is once per week we try to get a time update
-	if( RTC.get(CLOCK_ADDRESS) - this->getLastSyncTime() > ( seconds ) ) 
+	if( instantTime - this->getLastSyncTime() > ( seconds ) ) 
 	{
 
 		Serial.println( F("time is not syncronised ") );
