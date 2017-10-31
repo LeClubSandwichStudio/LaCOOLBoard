@@ -719,16 +719,16 @@ void Jetpack::invertedAction(int actorNumber,float measurment)
 {
 #if DEBUG == 1
 	
-	Serial.print("inverted Actor N° : ");
+	Serial.print(F("inverted Actor N° : "));
 	Serial.println(actorNumber);
 
-	Serial.print("measured value : ");
+	Serial.print(F("measured value : "));
 	Serial.println(measurment);
 
-	Serial.print("high range : ");
+	Serial.print(F("high range : "));
 	Serial.println(this->actors[actorNumber].rangeHigh);
 
-	Serial.print("low range : ");
+	Serial.print(F("low range : "));
 	Serial.println(this->actors[actorNumber].rangeLow);
 
 #endif
@@ -1298,25 +1298,25 @@ void Jetpack::mixedMinuteAction(int actorNumber,int minute,float measurment)
 
 #if DEBUG == 1
 	
-	Serial.print("mixed minute Actor N° : ");
+	Serial.print(F("mixed minute Actor N° : "));
 	Serial.println(actorNumber);
 
-	Serial.print(" minute : ");
+	Serial.print(F(" minute : "));
 	Serial.println(minute);
 
-	Serial.print("high minute : ");
+	Serial.print(F("high minute : "));
 	Serial.println(this->actors[actorNumber].minuteHigh);
 
-	Serial.print("low minute : ");
+	Serial.print(F("low minute : "));
 	Serial.println(this->actors[actorNumber].minuteLow);
 
-	Serial.print("measured value : ");
+	Serial.print(F("measured value : "));
 	Serial.println(measurment);
 
-	Serial.print("high range : ");
+	Serial.print(F("high range : "));
 	Serial.println(this->actors[actorNumber].rangeHigh);
 
-	Serial.print("low range : ");
+	Serial.print(F("low range : "));
 	Serial.println(this->actors[actorNumber].rangeLow);
 
 #endif
@@ -1519,33 +1519,33 @@ void Jetpack::mixedHourMinuteAction(int actorNumber,int hour,int minute ,float m
 
 #if DEBUG == 1
 	
-	Serial.print("hourMinute Actor N° : ");
+	Serial.print(F("hourMinute Actor N° : "));
 	Serial.println(actorNumber);
 
-	Serial.print(" hour : ");
+	Serial.print(F(" hour : "));
 	Serial.println(hour);
-	Serial.print(" minute : ");
+	Serial.print(F(" minute : "));
 	Serial.println(minute);
 
-	Serial.print("high hour : ");
+	Serial.print(F("high hour : "));
 	Serial.println(this->actors[actorNumber].hourHigh);
 
-	Serial.print("high minute : ");
+	Serial.print(F("high minute : "));
 	Serial.println(this->actors[actorNumber].minuteHigh);
 
-	Serial.print("low hour : ");
+	Serial.print(F("low hour : "));
 	Serial.println(this->actors[actorNumber].hourLow);
 
-	Serial.print("low minute : ");
+	Serial.print(F("low minute : "));
 	Serial.println(this->actors[actorNumber].minuteLow);
 
-	Serial.print("measured value : ");
+	Serial.print(F("measured value : "));
 	Serial.println(measurment);
 
-	Serial.print("high range : ");
+	Serial.print(F("high range : "));
 	Serial.println(this->actors[actorNumber].rangeHigh);
 
-	Serial.print("low range : ");
+	Serial.print(F("low range : "));
 	Serial.println(this->actors[actorNumber].rangeLow);
 
 #endif

@@ -171,6 +171,7 @@ tmElements_t CoolTime::getTimeDate()
 #endif
 
 	tmElements_t tm;
+	rtc.get(CLOCK_ADDRESS);		//experimental to prevent slow rtc data
 	time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
 	breakTime(timeDate,tm);
 
@@ -282,11 +283,23 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 	Serial.println( F("Check if Clock is ok and in sync..."));
 
 #endif
-
+	// expermental to prevent slow rtc data
+	RTC.get(CLOCK_ADDRESS);
 	unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
-	delay(50);
+	
+#if DEBUG == 1
+	Serial.print(F("Instant Time : "));
+	Serial.println(instantTime);
+	Serial.print(F("Last Sync    : "));
+	Serial.println(this->getLastSyncTime());
+	unsigned long testSync = instantTime - this->timeSync;
+	Serial.print(F("Time since sy : "));
+	Serial.println(testSync);
+#endif
+
 	//default is once per week we try to get a time update
-	if( instantTime - this->getLastSyncTime() > ( seconds ) ) 
+
+	if(( instantTime - this->timeSync) > ( seconds ) ) 
 	{
 
 		Serial.println( F("time is not syncronised ") );
@@ -685,17 +698,17 @@ void CoolTime::printConf()
 
 #if DEBUG == 1
 
-	Serial.println( F("Entering CoolTime.printConf()") );
+	Serial.println(F("Entering CoolTime.printConf()"));
 	Serial.println();
 
 #endif 
 
-	Serial.println("RTC Configuration") ;
+	Serial.println(F("RTC Configuration"));
 
-	Serial.print("timeServer : ");
+	Serial.print(F("timeServer : "));
 	Serial.println(timeServer);
 	
-	Serial.print("localPort : :");
+	Serial.print(F("localPort : :"));
 	Serial.println(localPort);
 }
 
