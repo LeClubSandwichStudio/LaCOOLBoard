@@ -774,7 +774,7 @@ void Jetpack::temporalActionOff(int actorNumber)
 {
 
 #if DEBUG == 1
-	
+	Serial.println(F("temporalActionOff"));
 	Serial.print(F("temporal Actor N° : "));
 	Serial.println(actorNumber);
 
@@ -790,7 +790,7 @@ void Jetpack::temporalActionOff(int actorNumber)
 
 #endif
 	
-	if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) )
+	if( ( millis()- this->actors[actorNumber].actifTime  ) >= (  this->actors[actorNumber].timeHigh  ) || this->actors[actorNumber].actifTime == 0)
 	{
 		//stop the actor
 		bitWrite( this->action , actorNumber , 0) ;
@@ -911,7 +911,7 @@ void Jetpack::temporalActionOn(int actorNumber)
 {
 
 #if DEBUG == 1
-	
+	Serial.println(F("temporalActionOn"));
 	Serial.print(F("temporal Actor N° : "));
 	Serial.println(actorNumber);
 
@@ -1064,7 +1064,6 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 	Serial.print(F("low hour : "));
 	Serial.println(this->actors[actorNumber].hourLow);
-	Serial.println();
 
 	Serial.print(F("inverted Flag : "));
 	Serial.println(this->actors[actorNumber].inverted);
@@ -1086,7 +1085,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 		#if DEBUG == 1 
 
-			Serial.println(F("Daymode"))
+			Serial.println(F("Daymode"));
 			Serial.println(F("actor OFF "));
 
 		#endif	
@@ -1106,7 +1105,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 		#if DEBUG == 1 
 
-			Serial.println(F("DayMode"))
+			Serial.println(F("DayMode"));
 			Serial.println(F("actor ON "));
 
 		#endif	
@@ -1129,7 +1128,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 		#if DEBUG == 1 
 
-			Serial.println(F("Nightmode"))
+			Serial.println(F("Nightmode"));
 			Serial.println(F("actor OFF "));
 
 		#endif	
@@ -1149,7 +1148,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 
 		#if DEBUG == 1 
 
-			Serial.println(F("Hightmode"))
+			Serial.println(F("Hightmode"));
 			Serial.println(F("actor ON "));
 
 		#endif	
