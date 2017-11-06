@@ -33,6 +33,7 @@
 #ifndef CoolTime_H
 #define CoolTime_H
 
+#include <ESP8266WiFi.h>
 
 #include "Arduino.h"
 
@@ -94,7 +95,12 @@ private:
 	/**
 	*	NTP Server IP Address
 	*/
-	IPAddress timeServer; 
+	IPAddress timeServerIP; 
+
+	/**
+	*	NTP Server DNS Address
+	*/
+	char timeServerName[50]={'0'};
 	
 	/**
 	*	UDP Client instance
