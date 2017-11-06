@@ -171,6 +171,10 @@ wl_status_t CoolWifi::connect()
 			return(WiFi.status());	
 		}
 
+	} 
+	else {
+		WiFiManager wifiManager;
+		wifiManager.resetSettings();
 	}
 
 
