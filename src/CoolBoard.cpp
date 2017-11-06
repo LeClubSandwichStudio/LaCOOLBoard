@@ -901,7 +901,7 @@ bool CoolBoard::config()
 			//parsing logInterval key
 			if (json["logInterval"].success())
 			{
-				this -> logInterval = json["logInterval"];
+				this -> logInterval = json["logInterval"].as<unsigned long>();
 			}
 			else
 			{
@@ -958,7 +958,7 @@ bool CoolBoard::config()
 			//parsing manual key
 			if (json["manual"].success())
 			{
-				this -> manual = json["manual"];
+				this -> manual = json["manual"].as<bool>();
 			}
 			else
 			{
@@ -1082,10 +1082,23 @@ void CoolBoard::update(const char * answer)
 	Serial.println(jsonBuffer.size());
 
 #endif
+	
+	if (stateDesired["CoolBoard"]["manual"].success())
+	{
+		this -> manual = stateDesired["CoolBoard"]["manual"].as<bool>();
+
+	#if DEBUG == 1
+
+		Serial.println("Manual Flag received");
+		Serial.println(this -> manual);
+
+	#endif
+		
+	}
 
 	if (stateDesired.success())
 	{
-	
+
 	#if DEBUG == 1
 
 		Serial.println( F("update message parsing : success") );
@@ -1105,12 +1118,15 @@ void CoolBoard::update(const char * answer)
 			Serial.println("json size is : ");
 			Serial.println(jsonBuffer.size() ) ;				
 			Serial.println();
+			Serial.print("ManualFlag : ");
+			Serial.println(this->manual);
 
-		
 		#endif
 			//manual mode check
 			if(this->manual == 1 )
 			{ 
+				Serial.println();
+				Serial.print("Enter Manual Actors...");
 				JsonObject & manualMode=stateDesired["manual"];
 				//json parse
 				for(auto kv : manualMode)
