@@ -334,11 +334,11 @@ time_t CoolTime::getNtpTime()
 
 	while (Udp.parsePacket() > 0) ; // discard any previously received packets
 
-	WiFi.hostByName(timeServerName, timeServerIP); 
+	WiFi.hostByName(timeServer, timeServerIP); 
 
 #if DEBUG == 1
 
-	Serial.println(timeServerName);
+	Serial.println(timeServer);
 	Serial.println(timeServerIP);
 
 #endif
@@ -501,36 +501,22 @@ bool CoolTime::config()
 
 		#endif
 
-			String ip;
-			
-			if(json["timeServerIP"].success() )
-			{			
-				 ip=json["timeServerIP"].as<String>();
-				this->timeServerIP.fromString(ip);
- 				
-			}
-			else
-			{
-				this->timeServerIP=this->timeServerIP;
-			}
-			json["timeServerIP"]=ip;
-
-			if(json["timeServerName"].success() )
+			if(json["timeServer"].success() )
 			{				
-				const char* tempServerName = json["timeServerName"]; 
+				const char* tempServer = json["timeServer"]; 
 				for(int i =0;i<50;i++)
 				{
-					timeServerName[i]=tempServerName[i];
+					timeServer[i]=tempServer[i];
 				}
 			}
 			else
 			{
 				for(int i=0;i<50;i++)
 				{
-					this->timeServerName[i]=this->timeServerName[i];
+					this->timeServer[i]=this->timeServer[i];
 				}				
 			}
-			json["timeServerName"]=this->timeServerName;
+			json["timeServer"]=this->timeServer;
 			
 			if(json["localPort"].success() )
 			{						
@@ -644,19 +630,24 @@ bool CoolTime::saveTimeSync()
 
 		#endif
 
-			String ip;
+			//String server;
 					
-			if(json["timeServerIP"].success() )
-			{			
-				 ip=json["timeServerIP"].as<String>();
-				this->timeServerIP.fromString(ip);
- 				
+			if(json["timeServer"].success() )
+			{				
+				const char* tempServer = json["timeServer"]; 
+				for(int i =0;i<50;i++)
+				{
+					timeServer[i]=tempServer[i];
+				}
 			}
 			else
 			{
-				this->timeServerIP=this->timeServerIP;
+				for(int i=0;i<50;i++)
+				{
+					this->timeServer[i]=this->timeServer[i];
+				}				
 			}
-			json["timeServerIP"]=ip;
+			json["timeServer"]=this->timeServer;
 			
 			if(json["localPort"].success() )
 			{						
@@ -731,11 +722,8 @@ void CoolTime::printConf()
 
 	Serial.println(F("RTC Configuration"));
 
-	Serial.print(F("timeServerName : "));
-	Serial.println(timeServerName);
-
-	Serial.print(F("timeServerIP : "));
-	Serial.println(timeServerIP);
+	Serial.print(F("timeServer : "));
+	Serial.println(timeServer);
 	
 	Serial.print(F("localPort : :"));
 	Serial.println(localPort);

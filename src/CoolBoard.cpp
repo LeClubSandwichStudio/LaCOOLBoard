@@ -481,8 +481,6 @@ void CoolBoard::onLineMode()
 		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
 		data=this->readSensors();//{..,..,..}
 	}
-	
-
 
 
 	//do action
@@ -625,7 +623,6 @@ void CoolBoard::onLineMode()
 	//read mqtt answer
 	answer = mqtt.read();
 	this -> update(answer.c_str());	
-
 	coolBoardLed.blink(128,255,50,0.5);//shade of green	
 
 
@@ -1093,7 +1090,7 @@ void CoolBoard::update(const char * answer)
 		Serial.println(this -> manual);
 
 	#endif
-		
+
 	}
 
 	if (stateDesired.success())

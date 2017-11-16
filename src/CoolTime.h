@@ -100,7 +100,7 @@ private:
 	/**
 	*	NTP Server DNS Address
 	*/
-	char timeServerName[50]={'0'};
+	char timeServer[50]={'0'};
 	
 	/**
 	*	UDP Client instance
