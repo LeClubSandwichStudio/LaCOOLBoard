@@ -120,7 +120,7 @@ int CoolMQTT::connect(unsigned long keepAlive)
 #endif
 	Serial.println( F("MQTT connecting...") );
 	
-	while( ( !this->client.connected() ) && ( i<100 ) ) 
+	while( ( !this->client.connected() ) && ( i<5 ) ) 
 	{
 		// Attempt to connect
 		if( this->client.connect( this-> user,keepAlive*10  ) )

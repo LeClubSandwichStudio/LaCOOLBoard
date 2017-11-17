@@ -318,9 +318,17 @@ int CoolBoard::connect()
 		//logInterval in seconds
 		mqtt.connect(this -> getLogInterval()*2);
 		delay(100);
+		if (mqtt.state() <0 && wifiManager.nomad == 1)
+		{
+			Serial.println( F("Known WIFI in the area but no internet connection"));
+			Serial.println( F("  --->   Launching Configuration Portal   <---"));
+			wifiManager.disconnect();
+			delay(200);
+			wifiManager.connectAP();
+		}	
 	}
 	
-		
+	
 	
 	
 #if DEBUG == 1
