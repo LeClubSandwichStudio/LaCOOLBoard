@@ -61,11 +61,148 @@ void CoolTime::begin()
 
 #endif 
 
-
 	Udp.begin(localPort);
 	
 	this->update();
 	
+}
+
+/**
+*	CoolTime::offGrid:
+*	This method is provided to init
+*	the udp connection 
+*	
+*/
+void CoolTime::offGrid()
+{
+
+#if DEBUG == 1 
+
+	Serial.println( F("Entering CoolTime.offGrid()") );
+	Serial.println();
+
+#endif 
+	if (compileTime == 1 && NTP == 0)
+	{
+		char posMarker = 0;
+		for (int i = 0; i <= sizeof(__TIMESTAMP__); i++)
+		{
+			if (__TIMESTAMP__[i] == ':')
+			{
+#if DEBUG == 1
+				Serial.print("position of ':' : ");
+				Serial.println(i);
+#endif
+				posMarker = i;
+				break; 
+			}
+		}
+		char monthAbbr[4] = {__TIMESTAMP__[4],__TIMESTAMP__[5],__TIMESTAMP__[6], 0};
+
+		char tempDay[3] = {__TIMESTAMP__[8], __TIMESTAMP__[9], 0};
+		int Day = atoi(&tempDay[0]);
+
+		char tempHour[3] = {__TIMESTAMP__[posMarker - 2], __TIMESTAMP__[posMarker - 1], '\0'};
+		int Hour = atoi(&tempHour[0]);
+
+		char tempMinute[3] = {__TIMESTAMP__[posMarker + 1], __TIMESTAMP__[posMarker + 2], '\0'};
+		int Minute = atoi(&tempMinute[0]);
+
+		char tempSecond[3] = {__TIMESTAMP__[posMarker + 4], __TIMESTAMP__[posMarker + 5], '\0'};
+		int Second = atoi(&tempSecond[0]);
+
+		char tempYear[3] = { __TIMESTAMP__[posMarker + 9],__TIMESTAMP__[posMarker + 10], '\0'};		//__TIMESTAMP__[posMarker + 7],__TIMESTAMP__[posMarker + 8],
+		int Year = atoi(&tempYear[0]);
+		int Month;
+
+		if (strstr (monthAbbr, "Jan"))
+		{
+			//Serial.println(F("Month January"));
+			Month=1;
+		}
+		if (strstr(monthAbbr, "Feb"))
+		{
+			//Serial.println(F("Month February"));
+			Month=2;
+		}
+		if (strstr(monthAbbr, "Mar"))
+		{
+			//Serial.println(F("Month March"));
+			Month=3;
+		}
+		if (strstr(monthAbbr, "Apr"))
+		{
+			//Serial.println(F("Month April"));
+			Month=4;
+		}
+		if (strstr(monthAbbr, "May"))
+		{
+			//Serial.println(F("Month May"));
+			Month=5;
+		}
+		if (strstr(monthAbbr, "Jun"))
+		{
+			//Serial.println(F("Month June"));
+			Month=6;
+		}
+		if (strstr(monthAbbr, "Jul"))
+		{
+			//Serial.println(F("Month July"));
+			Month=7;
+		}
+		if (strstr(monthAbbr, "Aug"))
+		{
+			//Serial.println(F("Month August"));
+			Month=8;
+		}
+		if (strstr(monthAbbr, "Sep"))
+		{
+			//Serial.println(F("Month September"));
+			Month=9;
+		}
+		if (strstr(monthAbbr, "Oct"))
+		{
+			//Serial.println(F("Month October"));
+			Month=10;
+		}
+		if (strstr(monthAbbr, "Nov"))
+		{
+			//Serial.println(F("Month november"));
+			Month=11;
+		}
+		if (strstr(monthAbbr, "Dec"))
+		{
+			//Serial.println(F("Month december"));
+			Month=12;
+		}
+		//tmElements_t tm;
+		setDateTime(y2kYearToTm(Year), Month, Day, Hour, Minute, Second);
+		unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
+		this->timeSync = instantTime;
+		this->compileTime = 0;
+		saveTimeSync();
+
+#if DEBUG == 1
+		Serial.print(F ("compileTime : "));
+		Serial.println(__TIMESTAMP__);
+		Serial.print(F ("Month Abbrevation : "));
+		Serial.println(monthAbbr);
+		Serial.print(F ("Day : "));
+		Serial.println(Day);
+		Serial.print(F ("Month : "));
+		Serial.println(Month);
+		Serial.print(F ("Year : "));
+		Serial.println(Year);
+		Serial.print(F ("Hour : "));
+		Serial.println(Hour);
+		Serial.print(F ("Minute : "));
+		Serial.println(Minute);
+		Serial.print(F ("Seconds : "));
+		Serial.println(Second);
+		Serial.print("Seconds since 1970 : ");
+		Serial.println(instantTime);
+#endif
+	}
 }
 
 /**
@@ -82,23 +219,24 @@ void CoolTime::update()
 	Serial.println();
 
 #endif 
-
-	if( !( this->isTimeSync() ) )
+	if (this->NTP == 1)		//ensure that NTP is accessible!!!
 	{
-	
-	#if DEBUG == 1
+		if( !( this->isTimeSync() ) )
+		{
+		
+		#if DEBUG == 1
 
-		Serial.println( F("waiting for sync") );
-		Serial.println();
+			Serial.println( F("waiting for sync") );
+			Serial.println();
 
-	#endif 
+		#endif 
 
-		this->timeSync=this->getNtpTime();
-		breakTime(this->getNtpTime(), this->tmSet);
-		this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
-		this->saveTimeSync();
+			this->timeSync=this->getNtpTime();
+			breakTime(this->getNtpTime(), this->tmSet);
+			this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
+			this->saveTimeSync();
+		}
 	}
-	
 }
 
 /**
@@ -123,7 +261,6 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes, 
 	tm.Day=day;
 	tm.Month=month; 
 	tm.Year=year;
-	
 	this->rtc.set(makeTime(tm),CLOCK_ADDRESS);   
 
 #if DEBUG == 1
@@ -540,6 +677,28 @@ bool CoolTime::config()
 			}
 			json["timeSync"]=this->timeSync;
 
+			if( json["NTP"].success() )
+			{
+
+				this->NTP=json["NTP"].as<bool>();
+			}
+			else
+			{
+				this->NTP=this->NTP;
+			}
+			json["NTP"]=this->NTP;
+
+			if( json["compileTime"].success() )								//Get the compile Flag and immediatly reset it to prevent re-reading on a later startup
+			{
+
+				this->compileTime=json["compileTime"].as<bool>();
+			}
+			else
+			{
+				this->compileTime=this->compileTime;
+			}
+			json["compileTime"]=this->compileTime;
+
 			rtcConfig.close();
 			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
 			
@@ -670,6 +829,27 @@ bool CoolTime::saveTimeSync()
 			}
 			json["timeSync"]=this->timeSync;
 
+			if( json["NTP"].success() )
+			{
+
+				json["NTP"]=this->NTP;
+			}
+			else
+			{
+				this->NTP=this->NTP;
+			}
+			json["NTP"]=this->NTP;
+
+			if( json["compileTime"].success() )
+			{
+
+				json["compileTime"]=this->compileTime;
+			}
+			else
+			{
+				this->compileTime=this->compileTime;
+			}
+			json["compileTime"]=this->compileTime;
 
 			rtcConfig.close();
 			rtcConfig= SPIFFS.open("/rtcConfig.json", "w");
@@ -727,6 +907,12 @@ void CoolTime::printConf()
 	
 	Serial.print(F("localPort : :"));
 	Serial.println(localPort);
+
+	Serial.print(F("NTP Flag :"));
+	Serial.println(NTP);
+
+	Serial.print(F("compileTime Flag :"));
+	Serial.println(compileTime);
 }
 
 /**

@@ -94,10 +94,15 @@ void CoolBoard::begin()
 	this->initReadI2C();
 	delay(100);
 
+	//read RTC config on startup and treat Off grid if the compile flag is set 
+	rtc.config();
+	rtc.offGrid();
+	delay(200);
+
 	coolBoardSensors.config();
 	coolBoardSensors.begin();
 	delay(200);
-	
+
 	onBoardActor.config();
 	onBoardActor.begin();
 	delay(100);
@@ -171,7 +176,7 @@ void CoolBoard::begin()
 
 	delay(100);
 
-	rtc.config();
+	//RTC must be configured at startup to ensure RTC in Off Grid configuration
 
 	rtc.begin();
 

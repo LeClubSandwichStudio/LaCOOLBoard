@@ -43,6 +43,8 @@
 
 #include <DS1337RTC.h>
 
+#include <time.h>
+
 #define NTP_PACKET_SIZE  48 // NTP time is in the first 48 bytes of message
 
 /**
@@ -57,6 +59,8 @@ class CoolTime
 
 public:
 	void begin();
+
+	void offGrid();
 	
 	void update();
 	
@@ -101,6 +105,22 @@ private:
 	*	NTP Server DNS Address
 	*/
 	char timeServer[50]={'0'};
+
+	/**
+	*	NTP flag,
+	*	only set to zero if your coolBoard is in a place 
+	*   where NTP synchronisation is impossible (Off Grid) 
+	*/
+	bool NTP=1;
+
+	/**
+	*	compileTime flag,
+	*	only set to One if your coolBoard is in a place 
+	*   where NTP synchronisation is impossible (Off Grid).
+	*   this flag set's the RTC and timeSync from __TIMESTAMP__
+	*   then reset's the flag
+	*/
+	bool compileTime=1;
 	
 	/**
 	*	UDP Client instance
