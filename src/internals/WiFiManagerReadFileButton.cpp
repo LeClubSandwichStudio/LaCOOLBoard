@@ -10,9 +10,12 @@
    Modified by MehdiZ 
    Licensed under MIT license
  **************************************************************/
+
 #include "FS.h"
 #include "WiFiManagerReadFileButton.h"
 #include "ArduinoJson.h"
+#include <ESP8266WebServer.h>
+
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -73,7 +76,6 @@ void WiFiManager::addParameter(WiFiManagerParameter *p) {
 }
 
 void WiFiManager::setupConfigPortal() {
-  dnsServer.reset(new DNSServer());
   server.reset(new ESP8266WebServer(80));
 
   DEBUG_WM(F(""));
@@ -105,10 +107,6 @@ void WiFiManager::setupConfigPortal() {
   delay(500); // Without delay I've seen the IP address blank
   DEBUG_WM(F("AP IP address: "));
   DEBUG_WM(WiFi.softAPIP());
-
-  /* Setup the DNS server redirecting all the domains to the apIP */
-  dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
-  dnsServer->start(DNS_PORT, "*", WiFi.softAPIP());
 
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
   server->on("/", std::bind(&WiFiManager::handleRoot, this));
@@ -159,8 +157,8 @@ boolean WiFiManager::startConfigPortal() {
 
 boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPassword) {
   //setup AP
-  WiFi.mode(WIFI_AP_STA);
-  DEBUG_WM("SET AP STA");
+  WiFi.mode(WIFI_AP);
+  DEBUG_WM("SET AP");
 
   _apName = apName;
   _apPassword = apPassword;
@@ -174,8 +172,6 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
   setupConfigPortal();
 
   while (_configPortalTimeout == 0 || millis() < _configPortalStart + _configPortalTimeout) {
-    //DNS
-    dnsServer->processNextRequest();
     //HTTP
     server->handleClient();
 
@@ -213,7 +209,6 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
   }
 
   server.reset();
-  dnsServer.reset();
 
   return  WiFi.status() == WL_CONNECTED;
 }
@@ -241,7 +236,7 @@ int WiFiManager::connectWifi(String ssid, String pass) {
       DEBUG_WM("Using last saved values, should be faster");
       //trying to fix connection in progress hanging
       ETS_UART_INTR_DISABLE();
-      wifi_station_disconnect();
+      //wifi_station_disconnect();
       ETS_UART_INTR_ENABLE();
 
       WiFi.begin();
@@ -673,75 +668,25 @@ void WiFiManager::handleReset() {
 }
 
 /**Handle the read file button */
-bool WiFiManager::handleFileRead(String path) 
-{
-
-	DEBUG_WM(F("handleFileRead" ));
-	DEBUG_WM(F("path : "));
-	DEBUG_WM(path);
-
-	if(path.endsWith("/"))
-	{
-		path += "index.htm";
-		DEBUG_WM(F("path modified : "));
-		DEBUG_WM(path);
-	}
 
 
-		
-	String contentType = getContentType(path);
-	DEBUG_WM(F("content Type : "));
-	DEBUG_WM(contentType);
-
-	String pathWithGz = path + ".gz";
-	if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path))
-	{
-		DEBUG_WM(F("file found "));
-		
-		if(SPIFFS.exists(pathWithGz))
-		{
-			path += ".gz";
-		}
-
-		File file = SPIFFS.open(path, "r");
-		//size_t sent = server->streamFile(file, contentType);
-		char buf[1024];
-		int siz = file.size();
-		while(siz > 0) 
-		{
-			size_t len = min((int)(sizeof(buf) - 1), siz);
-			file.read((uint8_t *)buf, len);
-			server->client().write((const char*)buf, len);
-			siz -= len;
-		}
-  		/*if (sent != file.size()) 
-		{
-    			DEBUG_WM(F("Sent less data than expected!"));
-		}*/
-
-		file.close();
-
-		return true;
-
-	}
-	else
-	{
-		DEBUG_WM(F("File not found "));
-		return false;
-	}
-
-
+bool WiFiManager::handleFileRead(String path){
+  //ESP8266WebServer server;
+  DEBUG_WM("handleFileRead: ");
+  if(path.endsWith("/")) path += "index.htm";
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    if(SPIFFS.exists(pathWithGz))
+      path += ".gz";
+    File file = SPIFFS.open(path, "r");
+     size_t sent = server->streamFile(file, contentType);
+    file.close();
+    return true;
+  }
+  return false;
 }
 
-
-//removed as mentioned here https://github.com/tzapu/WiFiManager/issues/114
-/*void WiFiManager::handle204() {
-  DEBUG_WM(F("204 No Response"));
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->send ( 204, "text/plain", "");
-}*/
 
 void WiFiManager::handleNotFound() {
   if (captivePortal()) {
