@@ -308,8 +308,13 @@ String Jetpack::doAction( const char* data )
 					}
 				}			
 			}
-			
-			rootOutput[String("Act")+String(i)]=bitRead(this->action,i);
+			/*if(this->action == 1)
+			{
+				rootOutput[String("Act")+String(i)]=true;
+			}
+			else rootOutput[String("Act")+String(i)]=false;*/
+
+			rootOutput[String("Act") + String(i)] = (bitRead(this->action, i) == 1);
 		}
 
 		this->write(this->action);

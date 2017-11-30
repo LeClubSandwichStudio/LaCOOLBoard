@@ -1137,9 +1137,8 @@ void CoolBoard::update(const char * answer)
 			{ 
 				Serial.println();
 				Serial.print("Enter Manual Actors...");
-				JsonObject & manualMode=stateDesired["manual"];
-				//json parse
-				for(auto kv : manualMode)
+				//json parse for actors
+				for(auto kv : stateDesired)
 				{
 				#if DEBUG == 1
 
