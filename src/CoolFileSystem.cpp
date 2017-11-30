@@ -36,7 +36,7 @@
 #include "Arduino.h"
 
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 /**
@@ -147,7 +147,7 @@ bool CoolFileSystem::saveSensorData(const char* data )
 	
 	#endif
 
-		this->saveSensorDataCSV(data);		
+		//this->saveSensorDataCSV(data);		
 
 		//new data
 		this->savedData++;
@@ -201,6 +201,8 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data )
 		for (auto kv : root) 
 		{
 			//print the header(json keys ) to header string
+			Serial.println(kv.key);
+			Serial.println(kv.value.as<char*>() );
 			header+=kv.key;
 			header+=',';
 			

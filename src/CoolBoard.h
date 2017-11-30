@@ -186,6 +186,21 @@ private:
 	bool manual=0;	
 
 	/**
+	*	saveAsJSON Flag,
+	*	save data as JSON String when in offLineMode
+	*	ATTENTION THIS CONSUMES MUCH MORE MEMORY 
+	*	THEN SAVING DATA AS CSV
+	*/
+	bool saveAsJSON=1;
+
+	/**
+	*	saveAsCSV Flag,
+	*	save data in a CSV file when in offLineMode
+	*	BEST FOR OFF GRID SOLUTIONS!!!
+	*/
+	bool saveAsCSV=1;
+
+	/**
 	*	log Interval value,
 	*	the period of time between logs
 	-	in Seconds

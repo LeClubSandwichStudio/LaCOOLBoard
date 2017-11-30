@@ -98,22 +98,27 @@ void ExternalSensors::begin()
 		else if( (sensors[i].reference) == "Adafruit_ADS1015")
 		{
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+			int16_t gain0, gain1, gain2, gain3;
 
 			std::unique_ptr< ExternalSensor<Adafruit_ADS1015> > analogI2C(new ExternalSensor<Adafruit_ADS1015> (this->sensors[i].address));
 			 
 			sensors[i].exSensor=analogI2C.release();
 			sensors[i].exSensor->begin();
 			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
+
 		}
 
 		else if( (sensors[i].reference) == "Adafruit_ADS1115")
 		{
+			//Serial.print("ADS1115 !!!  address: ");
+			//Serial.println(this->sensors[i].address);
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+			int16_t gain0, gain1, gain2, gain3;
 
 			std::unique_ptr< ExternalSensor<Adafruit_ADS1115> > analogI2C(new ExternalSensor<Adafruit_ADS1115> (this->sensors[i].address));
 			 
 			sensors[i].exSensor=analogI2C.release();
-			sensors[i].exSensor->begin();
+			//sensors[i].exSensor->begin();
 			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
 		}
 
@@ -180,16 +185,37 @@ String ExternalSensors::read()
 					else if((sensors[i].reference=="Adafruit_ADS1015" ) || (sensors[i].reference=="Adafruit_ADS1115" ) )
 					{
 						int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+						int16_t gain0, gain1, gain2, gain3;
 
-						sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
-
-						JsonArray& analogI2C = root.createNestedArray(sensors[i].type);
-						analogI2C.add(channel0);
+						sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2, &gain2, &channel3, &gain3);
+						gain0 = gain0/512;
+						gain1 = gain1/512;
+						gain2 = gain2/512;
+						gain3 = gain3/512;
+						//JsonArray& analogI2C = root.createNestedArray(sensors[i].type);
+						/*analogI2C.add(channel0);
+						analogI2C.add(gain0);
 						analogI2C.add(channel1);
+						analogI2C.add(gain1);
 						analogI2C.add(channel2);
+						analogI2C.add(gain2);
 						analogI2C.add(channel3);
-						analogI2C.add(diff01);
-						analogI2C.add(diff23);
+						analogI2C.add(gain3);*/
+
+						root["ADC1115ch0"] = channel0;
+						root["ADC1115ga0"] = gain0;
+						root["ADC1115ch1"] = channel1;
+						root["ADC1115ga1"] = gain1;
+						root["ADC1115ch2"] = channel2;
+						root["ADC1115ga2"] = gain2;
+						root["ADC1115ch3"] = channel3;
+						root["ADC1115ga3"] = gain3;
+						/*root.add(channel1);
+						root.add(gain1);
+						root.add(channel2);
+						root.add(gain2);
+						root.add(channel3);
+						root.add(gain3);*/
 					}
 					else
 					{
@@ -220,7 +246,6 @@ String ExternalSensors::read()
 
 	
 	#endif
-	
 		return(data);
 	}
 

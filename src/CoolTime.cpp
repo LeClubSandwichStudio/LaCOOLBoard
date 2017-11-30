@@ -199,9 +199,10 @@ void CoolTime::offGrid()
 		Serial.println(Minute);
 		Serial.print(F ("Seconds : "));
 		Serial.println(Second);
+#endif
+		Serial.println("RTC set from __TIMESTAMP__");
 		Serial.print("Seconds since 1970 : ");
 		Serial.println(instantTime);
-#endif
 	}
 }
 

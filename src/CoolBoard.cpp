@@ -37,7 +37,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 
@@ -757,9 +757,16 @@ void CoolBoard::offLineMode()
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 	
-	//saving data in the file system
-	
-	fileSystem.saveSensorData( data.c_str() );
+	//saving data in the file system as JSON
+	if (this->saveAsJSON == 1)
+	{
+		fileSystem.saveSensorData( data.c_str() );
+	}
+
+	if (this->saveAsCSV == 1)
+	{
+		fileSystem.saveSensorDataCSV( data.c_str() );
+	}
 
 	#if DEBUG == 0
 
@@ -976,7 +983,27 @@ bool CoolBoard::config()
 			}
 			json["manual"] = this -> manual;
 
+			//parsing saveAsJSON key
+			if (json["saveAsJSON"].success())
+			{
+				this -> saveAsJSON = json["saveAsJSON"].as<bool>();
+			}
+			else
+			{
+				this -> saveAsJSON = this -> saveAsJSON;
+			}
+			json["saveAsJSON"] = this -> saveAsJSON;
 
+			//parsing saveAsCSV key
+			if (json["saveAsCSV"].success())
+			{
+				this -> saveAsCSV = json["saveAsCSV"].as<bool>();
+			}
+			else
+			{
+				this -> saveAsCSV = this -> saveAsCSV;
+			}
+			json["saveAsCSV"] = this -> saveAsCSV;
 
 			//saving the current/correct configuration
 			configFile.close();
@@ -1047,6 +1074,12 @@ void CoolBoard::printConf()
 
 	Serial.print( F("manual active		: "));
 	Serial.println(this->manual);
+
+	Serial.print( F("saveAsJSON active		: "));
+	Serial.println(this->saveAsJSON);
+
+	Serial.print( F("saveAsCSV active		: "));
+	Serial.println(this->saveAsCSV);
 
 	Serial.println();
 
@@ -1355,7 +1388,10 @@ String CoolBoard::readSensors()
 	if (externalSensorsActive)
 	{
 		sensorsData += externalSensors.read(); // {..,..,..}{..,..}
-
+		Serial.print("from externalSensors.read() : ");
+		Serial.println(externalSensors.read());
+		Serial.print("Complete Sting : ");
+		Serial.println(sensorsData);
 		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..}{..,..,
 		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..},..,..,
 		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,
@@ -1375,7 +1411,7 @@ String CoolBoard::readSensors()
 	}
 
 	//getting Hour:
-	tmElements_t tm;
+	/*tmElements_t tm;
 	tm=rtc.getTimeDate();
 	
 	//adding Hour
@@ -1384,7 +1420,7 @@ String CoolBoard::readSensors()
 	sensorsData+=tm.Hour;
 	sensorsData+=",\"minute\":";
 	sensorsData+=tm.Minute;
-	sensorsData+="}";
+	sensorsData+="}";*/
 	
 #if DEBUG == 1
 	Serial.println();

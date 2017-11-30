@@ -672,15 +672,21 @@ void WiFiManager::handleReset() {
 
 bool WiFiManager::handleFileRead(String path){
   //ESP8266WebServer server;
+  String tempMAC = WiFi.macAddress();
+  tempMAC.replace(":", "");
+  Serial.print ("MAC address : ");
+  Serial.println (tempMAC);
   DEBUG_WM("handleFileRead: ");
   if(path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
+  Serial.println(getContentType(path));
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
     if(SPIFFS.exists(pathWithGz))
       path += ".gz";
     File file = SPIFFS.open(path, "r");
      size_t sent = server->streamFile(file, contentType);
+     Serial.println(server->streamFile(file, contentType));
     file.close();
     return true;
   }
