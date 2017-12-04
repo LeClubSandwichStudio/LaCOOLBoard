@@ -114,7 +114,9 @@ void WiFiManager::setupConfigPortal() {
   server->on("/0wifi", std::bind(&WiFiManager::handleWifi, this, false));
   server->on("/wifisave", std::bind(&WiFiManager::handleWifiSave, this));
   server->on("/i", std::bind(&WiFiManager::handleInfo, this));
-  server->on("/r", std::bind(&WiFiManager::handleReset, this));
+  server->on("/e", std::bind(&WiFiManager::handleEraseData, this));
+  server->on("/r", std::bind(&WiFiManager::handleEspReset, this));
+  server->on("/rW", std::bind(&WiFiManager::handleWifiReset, this));
   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check.
   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
   server->on("/sensorsData.csv", std::bind(&WiFiManager::handleFileRead, this,"/sensorsData.csv"));
@@ -629,8 +631,8 @@ void WiFiManager::handleInfo() {
   DEBUG_WM(F("Sent info page"));
 }
 
-/** Handle the reset page */
-void WiFiManager::handleReset() {
+/** Handle the Erase Data page */
+void WiFiManager::handleEraseData() {
   DEBUG_WM(F("Reset"));
 
   String page = FPSTR(HTTP_HEAD);
@@ -639,7 +641,71 @@ void WiFiManager::handleReset() {
   page += FPSTR(HTTP_STYLE);
   page += _customHeadElement;
   page += FPSTR(HTTP_HEAD_END);
-  page += F("Module will reset in a few seconds.");
+  page += F("Erase Data on Filesystem, please wait..\r\nModule will reset in a few seconds.");
+  //page += F("Module will reset in a few seconds.");
+  page += FPSTR(HTTP_END);
+  server->send(200, "text/html", page);
+
+  DEBUG_WM(F("Sent erase Data page"));
+  if(SPIFFS.exists("/sensorsData.csv"))
+  {
+    Serial.println("/sensorsData.csv EXISTS!");
+    while( SPIFFS.remove("/sensorsData.csv") == 0 )
+    {
+      delay(2);
+    }
+    Serial.println(F("File erased!"));
+  }
+  else Serial.println(F("sensorsData.csv does not exist!"));
+
+
+  if(SPIFFS.exists("/sensorsData.json"))
+  {
+    Serial.println("/sensorsData.json EXISTS!");
+    while( SPIFFS.remove("/sensorsData.json") == 0 )
+    {
+      delay(2);
+    }
+    Serial.println(F("File erased!"));
+  }
+  else Serial.println(F("sensorsData.json does not exist!"));
+  
+  delay(500);
+  ESP.reset();
+  delay(2000);
+}
+
+void WiFiManager::handleEspReset()  {
+  DEBUG_WM(F("Reset CoolBoard"));
+
+  String page = FPSTR(HTTP_HEAD);
+  page.replace("{v}", "Info");
+  page += FPSTR(HTTP_SCRIPT);
+  page += FPSTR(HTTP_STYLE);
+  page += _customHeadElement;
+  page += FPSTR(HTTP_HEAD_END);
+  page += F("CoolBoard will reset in a few seconds.");
+  page += FPSTR(HTTP_END);
+  server->send(200, "text/html", page);
+
+  DEBUG_WM(F("Sent reset page"));
+  delay(500);
+  ESP.reset();
+  delay(2000);
+}
+
+/** Handle the Wifi reset page */
+void WiFiManager::handleWifiReset() {
+  DEBUG_WM(F("Reset"));
+
+  String page = FPSTR(HTTP_HEAD);
+  page.replace("{v}", "Info");
+  page += FPSTR(HTTP_SCRIPT);
+  page += FPSTR(HTTP_STYLE);
+  page += _customHeadElement;
+  page += FPSTR(HTTP_HEAD_END);
+  page += F("Reset Wifi settings to : count = 0, timeout = 300, nomad = false\r\nModule will reset in a few seconds.");
+  //page += F("Module will reset in a few seconds.");
   page += FPSTR(HTTP_END);
   server->send(200, "text/html", page);
 
@@ -672,18 +738,25 @@ void WiFiManager::handleReset() {
 
 bool WiFiManager::handleFileRead(String path){
   //ESP8266WebServer server;
+  String tempMAC = WiFi.macAddress();
+  tempMAC.replace(":", "");
+  Serial.print ("MAC address : ");
+  Serial.println (tempMAC);
   DEBUG_WM("handleFileRead: ");
   if(path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
+  Serial.println(getContentType(path));
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
     if(SPIFFS.exists(pathWithGz))
       path += ".gz";
     File file = SPIFFS.open(path, "r");
      size_t sent = server->streamFile(file, contentType);
+     Serial.println(server->streamFile(file, contentType));
     file.close();
     return true;
   }
+  else handleNotFound();
   return false;
 }
 

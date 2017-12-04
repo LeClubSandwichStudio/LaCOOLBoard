@@ -98,23 +98,28 @@ void ExternalSensors::begin()
 		else if( (sensors[i].reference) == "Adafruit_ADS1015")
 		{
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+			int16_t gain0, gain1, gain2, gain3;
 
 			std::unique_ptr< ExternalSensor<Adafruit_ADS1015> > analogI2C(new ExternalSensor<Adafruit_ADS1015> (this->sensors[i].address));
 			 
 			sensors[i].exSensor=analogI2C.release();
 			sensors[i].exSensor->begin();
-			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
+			sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2, &gain2, &channel3, &gain3);
+
 		}
 
 		else if( (sensors[i].reference) == "Adafruit_ADS1115")
 		{
+			//Serial.print("ADS1115 !!!  address: ");
+			//Serial.println(this->sensors[i].address);
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+			int16_t gain0, gain1, gain2, gain3;
 
 			std::unique_ptr< ExternalSensor<Adafruit_ADS1115> > analogI2C(new ExternalSensor<Adafruit_ADS1115> (this->sensors[i].address));
 			 
 			sensors[i].exSensor=analogI2C.release();
-			sensors[i].exSensor->begin();
-			sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
+			//sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2, &gain2, &channel3, &gain3);
 		}
 
 		
@@ -180,16 +185,21 @@ String ExternalSensors::read()
 					else if((sensors[i].reference=="Adafruit_ADS1015" ) || (sensors[i].reference=="Adafruit_ADS1115" ) )
 					{
 						int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+						int16_t gain0, gain1, gain2, gain3;
 
-						sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3, &diff01, &diff23);
-
-						JsonArray& analogI2C = root.createNestedArray(sensors[i].type);
-						analogI2C.add(channel0);
-						analogI2C.add(channel1);
-						analogI2C.add(channel2);
-						analogI2C.add(channel3);
-						analogI2C.add(diff01);
-						analogI2C.add(diff23);
+						sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2, &gain2, &channel3, &gain3);
+						gain0 = gain0/512;
+						gain1 = gain1/512;
+						gain2 = gain2/512;
+						gain3 = gain3/512;
+						root["0_" + sensors[i].kind0] = channel0;
+						root["G0_" + sensors[i].kind0] = gain0;
+						root["1_" + sensors[i].kind1] = channel1;
+						root["G1_" + sensors[i].kind1] = gain1;
+						root["2_" + sensors[i].kind2] = channel2;
+						root["G2_" + sensors[i].kind2] = gain2;
+						root["3_" + sensors[i].kind3] = channel3;
+						root["G3_" + sensors[i].kind3] = gain3;
 					}
 					else
 					{
@@ -220,7 +230,6 @@ String ExternalSensors::read()
 
 	
 	#endif
-	
 		return(data);
 	}
 
@@ -335,7 +344,53 @@ bool ExternalSensors::config()
 
 						}
 						sensorJson["address"]=this->sensors[i].address;
-					
+						
+
+
+						if(sensorJson["kind0"].success() )
+						{					
+							this->sensors[i].kind0=sensorJson["kind0"].as<String>();
+						}
+						else
+						{	
+							this->sensors[i].kind0=this->sensors[i].kind0;
+
+						}
+						sensorJson["kind0"]=this->sensors[i].kind0;	
+
+
+						if(sensorJson["kind1"].success() )
+						{					
+							this->sensors[i].kind1=sensorJson["kind1"].as<String>();
+						}
+						else
+						{	
+							this->sensors[i].kind1=this->sensors[i].kind1;
+
+						}
+						sensorJson["kind1"]=this->sensors[i].kind1;	
+
+						if(sensorJson["kind2"].success() )
+						{					
+							this->sensors[i].kind2=sensorJson["kind2"].as<String>();
+						}
+						else
+						{	
+							this->sensors[i].kind2=this->sensors[i].kind2;
+
+						}
+						sensorJson["kind2"]=this->sensors[i].kind2;	
+
+						if(sensorJson["kind3"].success() )
+						{					
+							this->sensors[i].kind3=sensorJson["kind3"].as<String>();
+						}
+						else
+						{	
+							this->sensors[i].kind3=this->sensors[i].kind3;
+
+						}
+						sensorJson["sensor3"]=this->sensors[i].kind3;					
 	
 					}
 					else
@@ -346,6 +401,10 @@ bool ExternalSensors::config()
 					json[name]["reference"]=this->sensors[i].reference;
 					json[name]["type"]=this->sensors[i].type;
 					json[name]["address"]=this->sensors[i].address;
+					json[name]["kind0"]=this->sensors[i].kind0;
+					json[name]["kind1"]=this->sensors[i].kind1;
+					json[name]["kind2"]=this->sensors[i].kind2;
+					json[name]["kind3"]=this->sensors[i].kind3;
 				}
  
 			}

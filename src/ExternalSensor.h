@@ -111,16 +111,23 @@ public:
 		
 		return(-2);
 	}
-	/**
-	*	read():
-	*	Base class virtual
-	*	generic read method
-	*
-	*	\return generic value
-	*	as it is not supposed 
-	*	to be used	
-	*/
+
+	virtual float read(int16_t *a)
+	{
+		return(-42,42);
+	}
+
+	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d)
+	{
+		return(-42.42);	
+	}
+
 	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f)
+	{
+		return(-42.42);	
+	}
+
+	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f,int16_t *g,int16_t *h)
 	{
 		return(-42.42);	
 	}
@@ -584,46 +591,42 @@ public:
 	*
 	*	modifies the input variables to channel0..3 and differential01 ,23 values
 	*/
-	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f)
+	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f,int16_t *g,int16_t *h)
 	{
 		uint16_t channel0,channel1,channel2,channel3;
+		uint16_t gain0, gain1, gain2, gain3;
 		
-		int16_t diff01,diff23;
-
 		channel0=sensor.readADC_SingleEnded(0);
-		
+		gain0=sensor.getGain();
 		channel1=sensor.readADC_SingleEnded(1);
-
+		gain1=sensor.getGain();
 		channel2=sensor.readADC_SingleEnded(2);		
-
+		gain2=sensor.getGain();
 		channel3=sensor.readADC_SingleEnded(3);
-		
-		diff01=sensor.readADC_Differential_0_1();
-		
-		diff23=sensor.readADC_Differential_2_3();
+		gain3=sensor.getGain();
 
 
 
 	#if DEBUGExternal == 1 
 
-		Serial.println( "ExternalSensor <Adafruit_ADS1015> read()" );
+		Serial.println( "ExternalSensor <Adafruit_ADS1115> read()" );
 		Serial.println();
 
 		Serial.print("Channel 0 : "); Serial.print(channel0, DEC); 
 		Serial.print("Channel 1 : "); Serial.print(channel1, DEC); 
 		Serial.print("Channel 2 : "); Serial.print(channel2, DEC); 
 		Serial.print("Channel 3 :  "); Serial.print(channel3, DEC); 
-		Serial.print("diff 0 1: "); Serial.print(diff01, DEC); 
-		Serial.print("diff 2 3 "); Serial.print(diff23, DEC); 
 		Serial.println(" ");
 	
 	#endif
 		*a=(int16_t)channel0;
-		*b=(int16_t)channel1;
-		*c=(int16_t)channel2;
-		*d=(int16_t)channel3;
-		*e=diff01;
-		*f=diff23;
+		*b=(int16_t)gain0;
+		*c=(int16_t)channel1;
+		*d=(int16_t)gain1;
+		*e=(int16_t)channel2;
+		*f=(int16_t)gain2;
+		*g=(int16_t)channel3;
+		*h=(int16_t)gain3;
 
 		return( 0.0 );
 	}
@@ -692,46 +695,42 @@ public:
 	*
 	*	modifies the input variables to channel0..3 and differential01 ,23 values
 	*/
-	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f)
+	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d,int16_t *e,int16_t *f,int16_t *g,int16_t *h)
 	{
 		uint16_t channel0,channel1,channel2,channel3;
+		uint16_t gain0, gain1, gain2, gain3;
 		
-		int16_t diff01,diff23;
-
 		channel0=sensor.readADC_SingleEnded(0);
-		
+		gain0=sensor.getGain();
 		channel1=sensor.readADC_SingleEnded(1);
-
+		gain1=sensor.getGain();
 		channel2=sensor.readADC_SingleEnded(2);		
-
+		gain2=sensor.getGain();
 		channel3=sensor.readADC_SingleEnded(3);
-		
-		diff01=sensor.readADC_Differential_0_1();
-		
-		diff23=sensor.readADC_Differential_2_3();
+		gain3=sensor.getGain();
 
 
 
 	#if DEBUGExternal == 1 
 
-		Serial.println( "ExternalSensor <Adafruit_ADS1015> read()" );
+		Serial.println( "ExternalSensor <Adafruit_ADS1115> read()" );
 		Serial.println();
 
 		Serial.print("Channel 0 : "); Serial.print(channel0, DEC); 
 		Serial.print("Channel 1 : "); Serial.print(channel1, DEC); 
 		Serial.print("Channel 2 : "); Serial.print(channel2, DEC); 
 		Serial.print("Channel 3 :  "); Serial.print(channel3, DEC); 
-		Serial.print("diff 0 1: "); Serial.print(diff01, DEC); 
-		Serial.print("diff 2 3 "); Serial.print(diff23, DEC); 
 		Serial.println(" ");
 	
 	#endif
 		*a=(int16_t)channel0;
-		*b=(int16_t)channel1;
-		*c=(int16_t)channel2;
-		*d=(int16_t)channel3;
-		*e=diff01;
-		*f=diff23;
+		*b=(int16_t)gain0;
+		*c=(int16_t)channel1;
+		*d=(int16_t)gain1;
+		*e=(int16_t)channel2;
+		*f=(int16_t)gain2;
+		*g=(int16_t)channel3;
+		*h=(int16_t)gain3;
 
 		return( 0.0 );
 	}

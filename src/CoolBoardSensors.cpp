@@ -300,13 +300,10 @@ String CoolBoardSensors::read()
 	
 	
 	root.printTo(data);
-
+#if DEBUG == 1
 	Serial.println( F("CoolBoardSensors data is :") );
 	root.printTo(Serial);
 	Serial.println();
-	Serial.println();
-
-#if DEBUG == 1
 	Serial.print(F("jsonBuffer size: "));
 	Serial.println(jsonBuffer.size());
 	Serial.println();

@@ -79,6 +79,10 @@ private:
 		String type="";
 		uint8_t address=0;	
 		BaseExternalSensor *exSensor=NULL;
+		String kind0="";
+		String kind1="";
+		String kind2="";
+		String kind3="";
 	}sensors[50];
 
 /**
