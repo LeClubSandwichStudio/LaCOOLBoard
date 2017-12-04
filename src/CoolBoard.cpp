@@ -37,7 +37,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 
@@ -329,6 +329,7 @@ int CoolBoard::connect()
 			Serial.println( F("  --->   Launching Configuration Portal   <---"));
 			wifiManager.disconnect();
 			delay(200);
+			coolBoardLed.write(255,128,255);//whiteish violet..
 			wifiManager.connectAP();
 		}	
 	}
@@ -1388,10 +1389,6 @@ String CoolBoard::readSensors()
 	if (externalSensorsActive)
 	{
 		sensorsData += externalSensors.read(); // {..,..,..}{..,..}
-		Serial.print("from externalSensors.read() : ");
-		Serial.println(externalSensors.read());
-		Serial.print("Complete Sting : ");
-		Serial.println(sensorsData);
 		sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ','); // {..,..,..}{..,..,
 		sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ','); // {..,..,..},..,..,
 		sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,

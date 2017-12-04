@@ -36,7 +36,7 @@
 #include "Arduino.h"
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 /**
@@ -201,8 +201,13 @@ bool CoolFileSystem::saveSensorDataCSV(const char* data )
 		for (auto kv : root) 
 		{
 			//print the header(json keys ) to header string
-			Serial.println(kv.key);
-			Serial.println(kv.value.as<char*>() );
+			#if DEBUG ==1
+
+				Serial.println(kv.key);
+				Serial.println(kv.value.as<char*>() );
+
+			#endif
+			
 			header+=kv.key;
 			header+=',';
 			
