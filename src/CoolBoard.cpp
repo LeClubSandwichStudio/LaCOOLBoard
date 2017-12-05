@@ -538,7 +538,9 @@ void CoolBoard::onLineMode()
 		
 		}
 			bool lastActionB = digitalRead(onBoardActor.pin);
+
 			String onBoardActorStatus=onBoardActor.doAction( data.c_str() );
+			
 			if(lastActionB != digitalRead(onBoardActor.pin))//send a message if actor has changed
 			{
 				data+=onBoardActorStatus;//{..,..,..}{..,..,..}
@@ -1405,18 +1407,6 @@ String CoolBoard::readSensors()
 		
 		
 	}
-
-	//getting Hour:
-	/*tmElements_t tm;
-	tm=rtc.getTimeDate();
-	
-	//adding Hour
-	sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,	
-	sensorsData+=",\"hour\":";	
-	sensorsData+=tm.Hour;
-	sensorsData+=",\"minute\":";
-	sensorsData+=tm.Minute;
-	sensorsData+="}";*/
 	
 #if DEBUG == 1
 	Serial.println();
