@@ -144,7 +144,7 @@ void Jetpack::writeBit(byte pin,bool state)
 *	\return a string of the current Jetpack state
 *	
 */
-String Jetpack::doAction( const char* data )
+String Jetpack::doAction( const char* data, int hour, int minute )
 {
 
 #if DEBUG == 1 
@@ -155,6 +155,11 @@ String Jetpack::doAction( const char* data )
 	Serial.println( F("input data is :") );
 	Serial.println(data);
 	Serial.println();
+
+	Serial.print( F("Hour from Coolboard.cpp : "));
+	Serial.println(hour);
+	Serial.print( F("Minute from Coolboard.cpp : "));
+	Serial.println(minute);
 
 #endif 
 
@@ -235,12 +240,12 @@ String Jetpack::doAction( const char* data )
 						//mixed hour actor
 						if(root[this->actors[i].primaryType].success() )
 						{
-							this->mixedHourAction(i,root[this->actors[i].secondaryType].as<int>(),root[this->actors[i].primaryType].as<float>());
+							this->mixedHourAction(i, hour, root[this->actors[i].primaryType].as<float>());
 						}
 						//normal hour actor
 						else
 						{
-							this->hourAction(i,root[this->actors[i].secondaryType].as<int>());
+							this->hourAction(i, hour);
 						}
 					
 					}
@@ -264,12 +269,12 @@ String Jetpack::doAction( const char* data )
 						//mixed hourMinute actor
 						if(root[this->actors[i].primaryType].success() )
 						{
-							this->mixedHourMinuteAction(i,root["hour"].as<int>(),root["minute"].as<int>(),root[this->actors[i].primaryType].as<float>());
+							this->mixedHourMinuteAction(i, hour, minute,root[this->actors[i].primaryType].as<float>());
 						}
 						//normal hourMinute actor
 						else
 						{
-							this->hourMinuteAction(i,root["hour"].as<int>(),root["minute"].as<int>());
+							this->hourMinuteAction(i, hour, minute);
 						}
 					}
 					//normal temporal actor
@@ -1074,6 +1079,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 	Serial.println(this->actors[actorNumber].inverted);
 	Serial.println();
 #endif
+
 	if (this->actors[actorNumber].hourHigh < this->actors[actorNumber].hourLow)
 	{
 		//stop the actor	
@@ -1134,7 +1140,7 @@ void Jetpack::hourAction(int actorNumber, int hour)
 		#if DEBUG == 1 
 
 			Serial.println(F("Nightmode"));
-			Serial.println(F("actor OFF "));
+			Serial.println(F("Actor OFF "));
 
 		#endif	
 
@@ -1154,11 +1160,12 @@ void Jetpack::hourAction(int actorNumber, int hour)
 		#if DEBUG == 1 
 
 			Serial.println(F("Hightmode"));
-			Serial.println(F("actor ON "));
+			Serial.println(F("Actor ON "));
 
 		#endif	
 		
-		}}
+		}
+	}
 }
 
 
@@ -1204,144 +1211,105 @@ void Jetpack::mixedHourAction(int actorNumber,int hour, float measurment)
 
 #endif
 
+	if (measurment <= this->actors[actorNumber].rangeLow && this->actors[actorNumber].failsave == true)
+	{
+		this->actors[actorNumber].failsave = false;
+		Serial.println("!!! Reset Failsave !!!");
+	}
+
+	else if (measurment >= this->actors[actorNumber].rangeHigh && this->actors[actorNumber].failsave == false)
+	{
+		this->actors[actorNumber].failsave = true;
+		Serial.println("!!! Engage Failsave !!!");
+	}
+
+
 	if (this->actors[actorNumber].hourHigh < this->actors[actorNumber].hourLow)
 	{
 		//stop the actor	
-		if(hour >= this->actors[actorNumber].hourLow || hour < this->actors[actorNumber].hourHigh)
+		if((hour >= this->actors[actorNumber].hourLow || hour < this->actors[actorNumber].hourHigh) || this->actors[actorNumber].failsave == true)
 		{
-			if( measurment >= this->actors[actorNumber].rangeHigh )
+			if (this->actors[actorNumber].inverted)
 			{
-				bitWrite( this->action , actorNumber , 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actors[actorNumber].rangeHigh);
-				Serial.println(F("Daymode"));
-				Serial.println(F("actor OFF "));
-
-			#endif	
-
+				bitWrite( this->action , actorNumber , 1) ;
 			}
 			else 
 			{
-				bitWrite( this->action , actorNumber , 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.print(this->actors[actorNumber].rangeHigh);
-				Serial.println(F("Daymode"));
-				Serial.println(F("actor ON "));
-
-			#endif	
-				
+				bitWrite( this->action , actorNumber , 0) ;
 			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("Daymode"));
+			Serial.println(F("Onboard Actor OFF "));
+			Serial.print(F("failsave Flag : "));
+			Serial.println(this->actors[actorNumber].failsave);
+
+		#endif	
+
 		}
 		//starting the actor
-		else
+		else if (this->actors[actorNumber].failsave == false)
 		{
-			if( measurment < this->actors[actorNumber].rangeLow )
+			if (this->actors[actorNumber].inverted)
 			{
-				bitWrite( this->action , actorNumber , 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
-				Serial.println(F("Nightmode"));
-				Serial.println(F("actor ON "));
-
-			#endif	
+				bitWrite( this->action , actorNumber , 0) ;
 			}
 			else 
 			{
-				bitWrite( this->action , actorNumber , 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
-				Serial.println(F("Nightmode"));
-				Serial.println(F("actor OFF "));
-
-			#endif					
+				bitWrite( this->action , actorNumber , 1) ;
 			}
 
+		#if DEBUG == 1 
+
+			Serial.println(F("DayMode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
 		}
 	}
 	else
 	{
 		//stop the actor in Nght mode ie a light that is on over night
-		if(hour >= this->actors[actorNumber].hourLow && hour < this->actors[actorNumber].hourHigh)
+		if((hour >= this->actors[actorNumber].hourLow && hour < this->actors[actorNumber].hourHigh) || this->actors[actorNumber].failsave == true)
 		{
-			if( measurment >= this->actors[actorNumber].rangeHigh )
+			if (this->actors[actorNumber].inverted)
 			{
-				bitWrite( this->action , actorNumber , 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actors[actorNumber].rangeHigh);
-				Serial.println(F("Nightmode"));
-				Serial.println(F("actor OFF "));
-
-			#endif	
-
+				bitWrite( this->action , actorNumber , 1) ;
 			}
 			else 
 			{
-				bitWrite( this->action , actorNumber , 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.print(this->actors[actorNumber].rangeHigh);
-				Serial.println(F("Nightmode"));
-				Serial.println(F("actor ON "));
-
-			#endif	
-				
+				bitWrite( this->action , actorNumber , 0) ;
 			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor OFF "));
+
+		#endif	
+
 		}
 		//starting the actor
-		else
+		else if (this->actors[actorNumber].failsave == false)
 		{
-			if( measurment < this->actors[actorNumber].rangeLow )
+			if (this->actors[actorNumber].inverted)
 			{
-				bitWrite( this->action , actorNumber , 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
-
-				Serial.println(F("actor ON "));
-
-			#endif	
+				bitWrite( this->action , actorNumber , 0) ;
 			}
 			else 
 			{
-				bitWrite( this->action , actorNumber , 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
-
-				Serial.println(F("actor OFF "));
-
-			#endif					
+				bitWrite( this->action , actorNumber , 1) ;
 			}
 
+		#if DEBUG == 1 
+
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
 		}
 	}
 }
@@ -1480,36 +1448,36 @@ void Jetpack::mixedMinuteAction(int actorNumber,int minute,float measurment)
 	//starting the actor
 	else if(minute >= this->actors[actorNumber].minuteHigh)
 	{
-			if( measurment < this->actors[actorNumber].rangeLow )
-			{
-				bitWrite( this->action , actorNumber , 1) ;
+		if( measurment < this->actors[actorNumber].rangeLow )
+		{
+			bitWrite( this->action , actorNumber , 1) ;
 
-			#if DEBUG == 1 
+		#if DEBUG == 1 
 
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actors[actorNumber].rangeLow);
 
-				Serial.println(F("actor ON "));
+			Serial.println(F("actor ON "));
 
-			#endif	
+		#endif	
 
-			}
-			else 
-			{
-				bitWrite( this->action , actorNumber , 0) ;
+		}
+		else 
+		{
+			bitWrite( this->action , actorNumber , 0) ;
+		
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actors[actorNumber].rangeLow);
+
+			Serial.println(F("actor OFF "));
+
+		#endif	
 			
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actors[actorNumber].rangeLow);
-
-				Serial.println(F("actor OFF "));
-
-			#endif	
-				
-			}
+		}
 
 	}
 

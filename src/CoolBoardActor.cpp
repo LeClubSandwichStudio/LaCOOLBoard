@@ -100,7 +100,7 @@ void CoolBoardActor::write(bool action)
 *	\return a string of the actor's state
 *
 */
-String CoolBoardActor::doAction( const char* data )
+String CoolBoardActor::doAction( const char* data, int hour, int minute )
 {
 
 #if DEBUG == 1 
@@ -111,6 +111,11 @@ String CoolBoardActor::doAction( const char* data )
 	Serial.println( F("input data is :") );
 	Serial.println(data);
 	Serial.println();
+
+	Serial.print( F("Hour from Coolboard.cpp : "));
+	Serial.println(hour);
+	Serial.print( F("Minute from Coolboard.cpp : "));
+	Serial.println(minute);
 
 #endif 
 
@@ -188,12 +193,12 @@ String CoolBoardActor::doAction( const char* data )
 					//mixed hour actor
 					if(root[this->actor.primaryType].success() )
 					{
-						this->mixedHourAction(root[this->actor.secondaryType].as<int>(),root[this->actor.primaryType].as<float>());
+						this->mixedHourAction(hour,root[this->actor.primaryType].as<float>());
 					}
 					//normal hour actor
 					else
 					{
-						this->hourAction(root[this->actor.secondaryType].as<int>());
+						this->hourAction(hour);//root[this->actor.secondaryType].as<int>());
 					}
 				
 				}
@@ -203,12 +208,12 @@ String CoolBoardActor::doAction( const char* data )
 					//mixed minute actor
 					if(root[this->actor.primaryType].success() )
 					{
-						this->mixedMinuteAction(root[this->actor.secondaryType].as<int>(),root[this->actor.primaryType].as<float>());
+						this->mixedMinuteAction(minute,root[this->actor.primaryType].as<float>());
 					}
 					//normal minute actor
 					else
 					{
-						this->minuteAction(root[this->actor.secondaryType].as<int>());
+						this->minuteAction(minute);
 					}
 				}
 				//hourMinute actor
@@ -217,12 +222,12 @@ String CoolBoardActor::doAction( const char* data )
 					//mixed hourMinute actor
 					if(root[this->actor.primaryType].success() )
 					{
-						this->mixedHourMinuteAction(root["hour"].as<int>(),root["minute"].as<int>(),root[this->actor.primaryType].as<float>());
+						this->mixedHourMinuteAction(hour,minute,root[this->actor.primaryType].as<float>());
 					}
 					//normal hourMinute actor
 					else
 					{
-						this->hourMinuteAction(root["hour"].as<int>(),root["minute"].as<int>());
+						this->hourMinuteAction(hour, minute);
 					}
 				}
 				//normal temporal actor
@@ -959,33 +964,97 @@ void CoolBoardActor::hourAction( int hour)
 	Serial.print(F("low hour : "));
 	Serial.println(this->actor.hourLow);
 
+	Serial.print(F("inverted Flag : "));
+	Serial.println(this->actor.inverted);
+	Serial.println();
 #endif
 
-	//stop the actor	
-	if(hour >= this->actor.hourLow)
+	if (this->actor.hourHigh < this->actor.hourLow)
 	{
-		this->write( 0) ;
+		//stop the actor	
+		if(hour >= this->actor.hourLow || hour < this->actor.hourHigh)
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 1) ;
+			}
+			else 
+			{
+				this->write( 0) ;
+			}
 
-	#if DEBUG == 1 
+		#if DEBUG == 1 
 
-		Serial.println(F("actor OFF "));
+			Serial.println(F("Daymode"));
+			Serial.println(F("Onboard Actor OFF "));
 
-	#endif	
+		#endif	
 
+		}
+		//starting the actor
+		else
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 0) ;
+			}
+			else 
+			{
+				this->write( 1) ;
+			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("DayMode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
+		}
 	}
-	//starting the actor
-	else if(hour >= this->actor.hourHigh)
+	else
 	{
-		this->write( 1) ;
+		//stop the actor in Nght mode ie a light that is on over night
+		if(hour >= this->actor.hourLow && hour < this->actor.hourHigh)
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 1) ;
+			}
+			else 
+			{
+				this->write( 0) ;
+			}
 
-	#if DEBUG == 1 
+		#if DEBUG == 1 
 
-		Serial.println(F("actor ON "));
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor OFF "));
 
-	#endif	
-	
+		#endif	
+
+		}
+		//starting the actor
+		else
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 0) ;
+			}
+			else 
+			{
+				this->write( 1) ;
+			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
+		}
 	}
-
 }
 
 
@@ -1004,101 +1073,134 @@ void CoolBoardActor::hourAction( int hour)
 *		-measuredValue >=rangeLow : activate actor
 */
 void CoolBoardActor::mixedHourAction(int hour, float measurment)
+
 {
 
 #if DEBUG == 1
 	
-	Serial.print("mixed hour Actor N° : ");
+	Serial.print(F("hour Actor "));
 	Serial.println();
 
-	Serial.print(" hour : ");
+	Serial.print(F(" hour : "));
 	Serial.println(hour);
 
-	Serial.print("high hour : ");
+	Serial.print(F("high hour : "));
 	Serial.println(this->actor.hourHigh);
 
-	Serial.print("low hour : ");
+	Serial.print(F("low hour : "));
 	Serial.println(this->actor.hourLow);
 
-	Serial.print("measured value : ");
+	Serial.print(F("inverted Flag : "));
+	Serial.println(this->actor.inverted);
+
+	Serial.print(F("measurment : "));
 	Serial.println(measurment);
-
-	Serial.print("high range : ");
-	Serial.println(this->actor.rangeHigh);
-
-	Serial.print("low range : ");
-	Serial.println(this->actor.rangeLow);
-
+	Serial.println();
 #endif
-	//stop the actor	
-	if(hour >= this->actor.hourLow)
+
+	if (measurment <= this->actor.rangeLow && this->actor.failsave == true)
 	{
-			if( measurment >= this->actor.rangeHigh )
-			{
-				this->write( 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actor.rangeHigh);
-
-				Serial.println(F("actor OFF "));
-
-			#endif	
-
-			}
-			else 
-			{
-				this->write( 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.print(this->actor.rangeHigh);
-
-				Serial.println(F("actor ON "));
-
-			#endif	
-				
-			}
+		this->actor.failsave = false;
+		Serial.println("!!! Reset Failsave !!!");
 	}
-	//starting the actor
-	else if(hour >= this->actor.hourHigh)
+
+	else if (measurment >= this->actor.rangeHigh && this->actor.failsave == false)
 	{
-			if( measurment < this->actor.rangeLow )
+		this->actor.failsave = true;
+		Serial.println("!!! Engage Failsave !!!");
+	}
+
+	if (this->actor.hourHigh < this->actor.hourLow)
+	{
+		//stop the actor	
+		if((hour >= this->actor.hourLow || hour < this->actor.hourHigh) || this->actor.failsave == true)
+		{
+			if (this->actor.inverted)
 			{
 				this->write( 1) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.println(this->actor.rangeLow);
-
-				Serial.println(F("actor ON "));
-
-			#endif	
 			}
 			else 
 			{
 				this->write( 0) ;
-
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actor.rangeLow);
-
-				Serial.println(F("actor OFF "));
-
-			#endif					
 			}
 
+		#if DEBUG == 1 
+
+			Serial.println(F("Daymode"));
+			Serial.println(F("Onboard Actor OFF "));
+			Serial.print(F("failsave Flag : "));
+			Serial.println(this->actor.failsave);
+
+		#endif	
+
+		}
+		//starting the actor
+		else if (this->actor.failsave == false)
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 0) ;
+			}
+			else 
+			{
+				this->write( 1) ;
+			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("DayMode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
+		}
+	}
+	else
+	{
+		//stop the actor in Nght mode ie a light that is on over night
+		if((hour >= this->actor.hourLow && hour < this->actor.hourHigh) || this->actor.failsave == true)
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 1) ;
+			}
+			else 
+			{
+				this->write( 0) ;
+			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor OFF "));
+
+		#endif	
+
+		}
+		//starting the actor
+		else if (this->actor.failsave == false)
+		{
+			if (this->actor.inverted)
+			{
+				this->write( 0) ;
+			}
+			else 
+			{
+				this->write( 1) ;
+			}
+
+		#if DEBUG == 1 
+
+			Serial.println(F("Nightmode"));
+			Serial.println(F("Onboard Actor ON "));
+
+		#endif	
+		
+		}
 	}
 
 }
+
 
 /**
 *	CoolBoardActor::minteAction( current minute ):
@@ -1130,13 +1232,13 @@ void CoolBoardActor::minuteAction(int minute)
 #endif
 
 	//stop the actor	
-	if(minute >= this->actor.minuteLow)
+	if(minute <= this->actor.minuteLow)
 	{
 		this->write( 0) ;
 
 	#if DEBUG == 1 
 
-		Serial.println(F("actor OFF "));
+		Serial.println(F("Onboard Actor OFF "));
 
 	#endif	
 
@@ -1148,7 +1250,7 @@ void CoolBoardActor::minuteAction(int minute)
 
 	#if DEBUG == 1 
 
-		Serial.println(F("actor ON "));
+		Serial.println(F("Onboard Actor ON "));
 
 	#endif	
 
@@ -1198,7 +1300,7 @@ void CoolBoardActor::mixedMinuteAction(int minute,float measurment)
 
 #endif
 	//stop the actor	
-	if(minute >= this->actor.minuteLow)
+	if(minute <= this->actor.minuteLow)
 	{
 			if( measurment > this->actor.rangeHigh )
 			{
@@ -1210,7 +1312,7 @@ void CoolBoardActor::mixedMinuteAction(int minute,float measurment)
 				Serial.print(F(" > " ));
 				Serial.println(this->actor.rangeHigh);
 
-				Serial.println(F("actor OFF "));
+				Serial.println(F("Onboard Actor OFF "));
 
 			#endif
 	
@@ -1225,7 +1327,7 @@ void CoolBoardActor::mixedMinuteAction(int minute,float measurment)
 				Serial.print(F(" < " ));
 				Serial.println(this->actor.rangeHigh);
 
-				Serial.println(F("actor ON "));
+				Serial.println(F("Onboard Actor ON "));
 
 			#endif	
 				
@@ -1234,36 +1336,36 @@ void CoolBoardActor::mixedMinuteAction(int minute,float measurment)
 	//starting the actor
 	else if(minute >= this->actor.minuteHigh)
 	{
-			if( measurment < this->actor.rangeLow )
-			{
-				this->write( 1) ;
+		if( measurment < this->actor.rangeLow )
+		{
+			this->write( 1) ;
 
-			#if DEBUG == 1 
+		#if DEBUG == 1 
 
-				Serial.print(measurment);
-				Serial.print(F(" < " ));
-				Serial.println(this->actor.rangeLow);
+			Serial.print(measurment);
+			Serial.print(F(" < " ));
+			Serial.println(this->actor.rangeLow);
 
-				Serial.println(F("actor ON "));
+			Serial.println(F("Onboard Actor ON "));
 
-			#endif	
+		#endif	
 
-			}
-			else 
-			{
-				this->write( 0) ;
+		}
+		else 
+		{
+			this->write( 0) ;
+		
+		#if DEBUG == 1 
+
+			Serial.print(measurment);
+			Serial.print(F(" > " ));
+			Serial.println(this->actor.rangeLow);
+
+			Serial.println(F("Onboard Actor OFF "));
+
+		#endif	
 			
-			#if DEBUG == 1 
-
-				Serial.print(measurment);
-				Serial.print(F(" > " ));
-				Serial.println(this->actor.rangeLow);
-
-				Serial.println(F("actor OFF "));
-
-			#endif	
-				
-			}
+		}
 
 	}
 
@@ -1320,7 +1422,7 @@ void CoolBoardActor::hourMinuteAction(int hour,int minute)
 			this->write( 0) ;
 		#if DEBUG == 1 
 
-			Serial.println(F("actor OFF "));
+			Serial.println(F("Onboard Actor OFF "));
 
 		#endif	
 		}
@@ -1331,7 +1433,7 @@ void CoolBoardActor::hourMinuteAction(int hour,int minute)
 		this->write( 0) ;
 	#if DEBUG == 1 
 
-		Serial.println(F("actor OFF "));
+		Serial.println(F("Onboard Actor OFF "));
 
 	#endif	
 	
@@ -1441,7 +1543,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 				Serial.print(F(" >= " ));
 				Serial.println(this->actor.rangeHigh);
 
-				Serial.println(F("actor OFF "));
+				Serial.println(F("Onboard Actor OFF "));
 
 			#endif	
 
@@ -1456,7 +1558,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 				Serial.print(F(" < " ));
 				Serial.println(this->actor.rangeHigh);
 
-				Serial.println(F("actor ON "));
+				Serial.println(F("Onboard Actor ON "));
 
 			#endif	
 				
@@ -1476,7 +1578,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 			Serial.print(F(" >= " ));
 			Serial.println(this->actor.rangeHigh);
 
-			Serial.println(F("actor OFF "));
+			Serial.println(F("Onboard Actor OFF "));
 
 		#endif	
 
@@ -1491,7 +1593,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 			Serial.print(F(" < " ));
 			Serial.println(this->actor.rangeHigh);
 
-			Serial.println(F("actor ON "));
+			Serial.println(F("Onboard Actor ON "));
 
 		#endif	
 			
@@ -1514,7 +1616,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 				Serial.print(F(" < " ));
 				Serial.println(this->actor.rangeLow);
 
-				Serial.println(F("actor ON "));
+				Serial.println(F("Onboard Actor ON "));
 
 			#endif	
 
@@ -1529,7 +1631,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 				Serial.println(F(" > " ));
 				Serial.print(this->actor.rangeLow);
 
-				Serial.println(F("actor OFF "));
+				Serial.println(F("Onboard Actor OFF "));
 
 			#endif	
 				
@@ -1549,7 +1651,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 			Serial.print(F(" < " ));
 			Serial.println(this->actor.rangeLow);
 
-			Serial.println(F("actor ON "));
+			Serial.println(F("Onboard Actor ON "));
 
 		#endif	
 
@@ -1564,7 +1666,7 @@ void CoolBoardActor::mixedHourMinuteAction(int hour,int minute ,float measurment
 			Serial.println(F(" > " ));
 			Serial.print(this->actor.rangeLow);
 
-			Serial.println(F("actor OFF "));
+			Serial.println(F("Onboard Actor OFF "));
 
 		#endif	
 			

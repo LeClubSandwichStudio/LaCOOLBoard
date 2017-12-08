@@ -52,7 +52,7 @@ public:
  
 	void writeBit(byte pin,bool state); //writes to a single pin of the Jetpack
  
-	String doAction(const char* data );
+	String doAction(const char* data, int hour, int minute );
 
 	void normalAction(int actorNumber,float measurment);
 
@@ -202,6 +202,11 @@ private:
 		*	in ms
 		*/
 		unsigned long inactifTime=0;
+
+		/**
+		*	failsave : Switches of the actor if a metric rises above high treshold in mixed mode
+		*/
+		bool failsave = false ;
 	
 	}actors[8];
 

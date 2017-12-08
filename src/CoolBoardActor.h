@@ -49,7 +49,7 @@ public:
 
  	void write(bool action);			//CoolBoardActor
  
-	String doAction(const char* data );
+	String doAction(const char* data, int hour, int minute );
 
 	void normalAction(float measurment);
 
@@ -201,6 +201,11 @@ private:
 		*	in ms
 		*/
 		unsigned long inactifTime=0;
+ 
+		/**
+		*	failsave : Switches of the actor if a metric rises above high treshold in mixed mode
+		*/
+		bool failsave = false ;
 	
 	}actor;
 	

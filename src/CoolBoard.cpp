@@ -500,7 +500,11 @@ void CoolBoard::onLineMode()
 	//do action
 	if(this->manual == 0 )
 	{
-	
+		
+		//get Time for temporal actors
+		tmElements_t tm;
+		tm=rtc.getTimeDate();
+
 		if (jetpackActive)
 		{
 
@@ -516,7 +520,7 @@ void CoolBoard::onLineMode()
 			coolBoardLed.fade(100,100,150,0.5);//dark shade of blue		
 			byte lastAction = jetPack.action;//keeps last value to see if state changes
 
-			String jetpackStatus= jetPack.doAction(data.c_str());//{....}
+			String jetpackStatus= jetPack.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));//{....}
 			
 			if(lastAction != jetPack.action)//send a message if a actor has changed 
 			{
@@ -539,7 +543,7 @@ void CoolBoard::onLineMode()
 		}
 			bool lastActionB = digitalRead(onBoardActor.pin);
 
-			String onBoardActorStatus=onBoardActor.doAction( data.c_str() );
+			String onBoardActorStatus=onBoardActor.doAction( data.c_str(), int(tm.Hour), int(tm.Minute) );
 			
 			if(lastActionB != digitalRead(onBoardActor.pin))//send a message if actor has changed
 			{
@@ -724,6 +728,10 @@ void CoolBoard::offLineMode()
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
+	//get Time for temporal actors
+	tmElements_t tm;
+	tm=rtc.getTimeDate();
+
 	//do action
 
 	if (jetpackActive)
@@ -740,7 +748,7 @@ void CoolBoard::offLineMode()
 	#endif
 		coolBoardLed.fade(100,100,150,0.5);//dark shade of blue	
 	
-		data+=jetPack.doAction(data.c_str());//{..,..,..}{..,..,..}
+		data+=jetPack.doAction(data.c_str(), int(tm.Hour), (tm.Minute));//{..,..,..}{..,..,..}
 			
 		data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 			
@@ -751,7 +759,7 @@ void CoolBoard::offLineMode()
 	
 	delay(50);
 
-	data+=onBoardActor.doAction( data.c_str() );//{..,..,..}{..,..,..}
+	data+=onBoardActor.doAction( data.c_str(), int(tm.Hour), int(tm.Minute)  );//{..,..,..}{..,..,..}
 
 	data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
 		
@@ -1407,6 +1415,18 @@ String CoolBoard::readSensors()
 		
 		
 	}
+
+	//getting Hour:
+	/*tmElements_t tm;
+	tm=rtc.getTimeDate();
+	
+	//adding Hour
+	sensorsData.remove(sensorsData.lastIndexOf('}'), 1); // {..,..,..,..,..,..,..,..,	
+	sensorsData+=",\"hour\":";	
+	sensorsData+=tm.Hour;
+	sensorsData+=",\"minute\":";
+	sensorsData+=tm.Minute;
+	sensorsData+="}";*/
 	
 #if DEBUG == 1
 	Serial.println();
