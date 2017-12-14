@@ -33,9 +33,9 @@
 
 #ifndef IRENE3000_H
 #define IRENE3000_H
-
 #include "internals/CoolAdafruit_ADS1015.h"   
-#include<Arduino.h>
+
+#include <Arduino.h>
 
 
 #define ADC_MAXIMUM_VALUE     32767
