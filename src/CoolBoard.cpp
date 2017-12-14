@@ -147,7 +147,95 @@ void CoolBoard::begin()
 	if (ireneActive)
 	{
 		irene3000.config();
-		irene3000.begin();
+		irene3000.startADC();
+		coolBoardLed.write(128,128,128);
+		delay(2000);
+		int bValue=irene3000.readButton();
+		if (bValue >= 65000) bValue = 8800;
+		Serial.print(F("Irene Button : "));
+		Serial.println(bValue);
+		bValue=irene3000.readButton();
+		if (bValue >= 65000) bValue = 8800;
+		if (bValue < 2000)
+		{
+			Serial.println("Enter Irene config.");
+			coolBoardLed.write(255,255,255);
+			delay(5000);
+			coolBoardLed.write(0,50,0);
+			bValue=irene3000.readButton();
+			if (bValue >= 65000) bValue = 0;
+			while(bValue > 2000)
+			{
+				bValue=irene3000.readButton();
+				Serial.println(irene3000.readButton());
+				if (bValue >= 65000) bValue = 8800;
+				delay(1000);
+				yield();
+				Serial.println(F("while 1"));
+			}
+
+			coolBoardLed.write(0,255,0);
+
+			Serial.println(F("calibrating the Ph probe " ) );
+			
+			Serial.println(F("ph7 calibration for 25 seconds"));
+			
+			delay(10000);
+			
+			irene3000.calibratepH7();
+
+			delay(15000);		
+		
+			irene3000.calibratepH7();
+
+			coolBoardLed.write(50,0,0);
+			bValue=irene3000.readButton();
+			if (bValue >= 65000) bValue = 8800;
+			while(bValue > 2000)
+			{
+				bValue=irene3000.readButton();
+				Serial.println(irene3000.readButton());
+				if (bValue >= 65000) bValue = 8800;
+				delay(1000);
+				yield();
+				Serial.println(F("while 2"));
+			}
+
+			coolBoardLed.write(255,0,0);
+			
+			Serial.println(F("calibrating the Ph probe " ) );
+			
+			Serial.println(F("ph4 calibration for 25 seconds"));
+			
+			delay(10000);
+			
+			irene3000.calibratepH4();
+
+			delay(15000);		
+		
+			irene3000.calibratepH4();
+
+			irene3000.saveParams();
+
+			coolBoardLed.write(50,0,50);
+			bValue=irene3000.readButton();
+			if (bValue >= 65000) bValue = 8800;
+			while(bValue > 2000)
+			{
+				bValue=irene3000.readButton();
+				Serial.println(irene3000.readButton());
+				if (bValue >= 65000) bValue = 8800;
+				delay(1000);
+				yield();
+				Serial.println(F("while 3"));
+			}
+		}
+		
+
+
+
+		/*irene3000.config();
+		irene3000.begin();*/
 
 	#if DEBUG == 1
 
@@ -759,11 +847,14 @@ void CoolBoard::offLineMode()
 	
 	delay(50);
 
-	data+=onBoardActor.doAction( data.c_str(), int(tm.Hour), int(tm.Minute)  );//{..,..,..}{..,..,..}
+	if (onBoardActor.actor.actif == true)
+	{
+		data+=onBoardActor.doAction( data.c_str(), int(tm.Hour), int(tm.Minute)  );//{..,..,..}{..,..,..}
 
-	data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
-		
-	data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+		data.remove(data.lastIndexOf('{'), 1);//{..,..,..}..,..,..}
+			
+		data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
+	}
 
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	

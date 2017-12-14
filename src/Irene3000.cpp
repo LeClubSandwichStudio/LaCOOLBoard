@@ -36,13 +36,26 @@
 #include <Arduino.h>
 #include "ArduinoJson.h"
 #include <math.h>    
-
+#include "CoolBoardLed.h"	//CoolBoard Led Manager
 #include <Irene3000.h>
 
 
 
 
-#define DEBUG 0
+#define DEBUG 1
+
+
+/**
+*	Irene3000::begin():
+*	This method is provided to start the
+*	Irene3000 
+*/
+void Irene3000::startADC()
+{
+	this->ads.begin();
+
+	delay(2000);
+}
 
 /**
 *	Irene3000::begin():
@@ -67,9 +80,11 @@ void Irene3000::begin()
 #endif
 	Serial.println(F("Press the button to calibrate the Ph probe "));
 
+	
 	delay(2000);
 
 	int bValue=this->readButton();
+	if (bValue >= 65000) bValue = 0;
 	
 	while(bValue<500)
 	{
@@ -119,7 +134,6 @@ void Irene3000::begin()
 		this->saveParams();
 	
 	}
-
 }
 
 /**

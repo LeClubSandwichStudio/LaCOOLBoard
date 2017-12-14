@@ -60,9 +60,13 @@ class Irene3000
 {
 public:
 
+	void startADC();
+	
 	void begin();
 
 	bool config();
+
+	bool ireneButton();
 
 	void printConf();
 
@@ -97,6 +101,11 @@ private:
 	*	ADS1115 instance
 	*/
 	Adafruit_ADS1115 ads;                                                                                           
+
+	/**
+	*	Led handler instance
+	*/
+	CoolBoardLed coolBoardLed;
 
 	/**
 	*	PH Sensor Calibration parameters
