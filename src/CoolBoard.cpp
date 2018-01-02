@@ -169,7 +169,7 @@ void CoolBoard::begin()
 	#endif
 		delay(100);
 	}
-	
+	delay(100);
 	coolBoardLed.fadeOut(255,128,0,0.5);//orange
 
 	this->connect();
@@ -295,6 +295,8 @@ int CoolBoard::connect()
 	delay(100);
 
 #endif
+	//coolBoardLed.write(0,0,255);//blue
+	delay(10);
 	coolBoardLed.write(0,0,255);//blue
 
 	
@@ -861,7 +863,8 @@ bool CoolBoard::config()
 	//start the led
 	coolBoardLed.config();
 	coolBoardLed.begin();
-	coolBoardLed.fadeIn(243,171,46,0.5);//shade of orange		
+	delay(10);
+	coolBoardLed.blink(243,171,46,0.5);//shade of orange		
 
 	
 	//open configuration file
@@ -1031,6 +1034,8 @@ bool CoolBoard::config()
 
 			json.printTo(configFile);
 			configFile.close();
+			coolBoardLed.blink(0,255,0,0.5);//green blink
+
 			#if DEBUG == 0
 
 				Serial.println( F("Configuration loaded : OK"));
@@ -1042,7 +1047,7 @@ bool CoolBoard::config()
 		}
 	}
 
-	coolBoardLed.strobe(243,171,46,0.5);//shade of orange
+	//coolBoardLed.strobe(243,171,46,0.5);//shade of orange
 	
 	coolBoardLed.fadeOut(243,171,46,0.5);//shade of orange				
 }

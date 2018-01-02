@@ -111,7 +111,7 @@ void CoolBoardLed::blink(int R, int G, int B, float T)
 	{
 		neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
 		neoPixelLed->Show();
-		delay(T);
+		delay(T*1000);
 		neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
 		neoPixelLed->Show();
 	}
