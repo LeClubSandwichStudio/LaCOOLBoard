@@ -846,6 +846,8 @@ bool CoolBoard::config()
 {
 	yield();
 
+	Serial.println();
+	Serial.println("[" + WiFi.macAddress() + "]");
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolBoard.config() ") );
