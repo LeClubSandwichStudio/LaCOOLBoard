@@ -36,7 +36,8 @@
 #include "internals/CoolNDIR_I2C.h"
 #include <DallasTemperature.h>
 #include "internals/CoolAdafruit_TCS34725.h"
-#include "internals/CoolAdafruit_ADS1015.h"   
+#include "internals/CoolAdafruit_ADS1015.h" 
+#include "internals/CoolAdafruit_CCS811.h"  
 #include "Arduino.h" 
 
  
@@ -115,6 +116,11 @@ public:
 	virtual float read(int16_t *a)
 	{
 		return(-42,42);
+	}
+
+	virtual float read(int16_t *a,int16_t *b,float *c)
+	{
+		return(-42.42);	
 	}
 
 	virtual float read(int16_t *a,int16_t *b,int16_t *c,int16_t *d)
@@ -533,6 +539,94 @@ private:
 	Adafruit_TCS34725 sensor;
 
 };
+
+
+/**
+*	\class ExternalSensor<Adafruit_CCS881>	
+*	\brief Adafruit_CCS881 Specialization Class
+*	This is the template specialization
+*	for the Adafruit VOC/eCO2 Sensor
+*/
+
+template<>
+class ExternalSensor<Adafruit_CCS811> :public BaseExternalSensor
+{
+public:
+	/**
+	*	ExternalSensor():
+	*	Adafruit_CCS881 specific constructor
+	*/
+	ExternalSensor(uint8_t i2c_addr)
+	{
+		
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <CoolAdafruit_CCS811> constructor" );
+		Serial.println();
+	
+	#endif
+
+		sensor=Adafruit_CCS811();
+
+		if(!sensor.begin(i2c_addr)){
+		    Serial.println("Failed to start sensor! Please check your wiring.");
+		}
+
+	}
+	
+	virtual uint8_t begin()
+	{
+	
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_CCS811> begin()" );
+		Serial.println();
+	
+	#endif
+
+		//calibrate temperature sensor
+		while(!sensor.available());
+		float T = sensor.calculateTemperature();
+		sensor.setTempOffset(T - 25.0);
+
+	}
+
+	virtual float read(int16_t *a,int16_t *b,float *c)
+	{
+		uint16_t internC,internV;
+		float internT;
+
+		if(sensor.available()){
+		    internT = sensor.calculateTemperature();
+		    if(!sensor.readData()){
+		      	internC = sensor.geteCO2();
+		     	internV = sensor.getTVOC();
+		    }
+		}
+
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <Adafruit_TCS34725> read()" );
+		Serial.println();
+
+		Serial.print("C02 : "); Serial.print(internC); Serial.println(" ppm ");
+		Serial.print("VOT : "); Serial.print(internV); Serial.println(" ppb ");
+		Serial.print("Temp: "); Serial.print(internT); Serial.println(" °C ");
+		Serial.println(" ");
+	
+	#endif
+		*a=(int16_t)internC;
+		*b=(int16_t)internV;
+		*c=internT;
+		return( 0.0 );
+	}
+
+private:
+
+	Adafruit_CCS811 sensor;
+
+};
+
 
 /**
 *	\class ExternalSensor<Adafruit_ADS1015>	

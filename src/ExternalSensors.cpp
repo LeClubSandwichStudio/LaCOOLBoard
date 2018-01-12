@@ -95,6 +95,17 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
 		}
 
+		else if( (sensors[i].reference) == "Adafruit_CCS811")
+		{
+			int16_t C02, VOT;
+			float Temp;
+
+			std::unique_ptr< ExternalSensor<Adafruit_CCS811> > aqSensor(new ExternalSensor<Adafruit_CCS811> (this->sensors[i].address));
+			sensors[i].exSensor=aqSensor.release();
+			sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&C02, &VOT, &Temp);
+		}
+
 		else if( (sensors[i].reference) == "Adafruit_ADS1015")
 		{
 			int16_t channel0, channel1, channel2, channel3, diff01, diff23;
@@ -181,6 +192,18 @@ String ExternalSensors::read()
 						RGBCLK.add(c);
 						RGBCLK.add(colorTemp);
 						RGBCLK.add(lux);
+					}
+					else if(sensors[i].reference=="Adafruit_CCS811")
+					{
+						int16_t C, V ;
+						float T;
+
+			  			sensors[i].exSensor->read(&C,&V,&T);
+
+						JsonArray& CO2VOTC = root.createNestedArray(sensors[i].type);
+						CO2VOTC.add(C);
+						CO2VOTC.add(V);
+						CO2VOTC.add(T);
 					}
 					else if((sensors[i].reference=="Adafruit_ADS1015" ) || (sensors[i].reference=="Adafruit_ADS1115" ) )
 					{
