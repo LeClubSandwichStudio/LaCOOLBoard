@@ -185,13 +185,10 @@ String ExternalSensors::read()
 
 			  			sensors[i].exSensor->read(&r,&g,&b,&c,&colorTemp,&lux);
 
-						JsonArray& RGBCLK = root.createNestedArray(sensors[i].type);
-						RGBCLK.add(r);
-						RGBCLK.add(g);
-						RGBCLK.add(b);
-						RGBCLK.add(c);
-						RGBCLK.add(colorTemp);
-						RGBCLK.add(lux);
+			  			root[sensors[i].kind0] = r;
+						root[sensors[i].kind1] = g;
+						root[sensors[i].kind2] = b;
+						root[sensors[i].kind3] = c;
 					}
 					else if(sensors[i].reference=="Adafruit_CCS811")
 					{
@@ -200,10 +197,9 @@ String ExternalSensors::read()
 
 			  			sensors[i].exSensor->read(&C,&V,&T);
 
-						JsonArray& CO2VOTC = root.createNestedArray(sensors[i].type);
-						CO2VOTC.add(C);
-						CO2VOTC.add(V);
-						CO2VOTC.add(T);
+			  			root[sensors[i].kind0] = C;
+						root[sensors[i].kind1] = V;
+						root[sensors[i].kind2] = T;
 					}
 					else if((sensors[i].reference=="Adafruit_ADS1015" ) || (sensors[i].reference=="Adafruit_ADS1115" ) )
 					{
