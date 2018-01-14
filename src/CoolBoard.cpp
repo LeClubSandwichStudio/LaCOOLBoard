@@ -380,6 +380,15 @@ void CoolBoard::onLineMode()
 
 #endif
 
+	//check if we hit mqtt Timeout
+	if (mqtt.state() != 0)
+	{
+		Serial.println( F("reconnecting MQTT..."));
+
+		mqtt.connect(this -> getLogInterval()*2);
+		delay(200);
+	}
+
 	data="";
 	answer="";
 
@@ -610,7 +619,16 @@ void CoolBoard::onLineMode()
 	this -> update(answer.c_str());
 	
 	coolBoardLed.fadeIn(128,255,50,0.5);//shade of green	
+	
+	//check if we hit mqtt Timeout
+	if (mqtt.state() != 0)
+	{
+		Serial.println( F("reconnecting MQTT..."));
 
+		mqtt.connect(this -> getLogInterval()*2);
+		delay(200);
+	}
+	
 	//publishing data	
 	if( this->sleepActive==0 )	
 	{	

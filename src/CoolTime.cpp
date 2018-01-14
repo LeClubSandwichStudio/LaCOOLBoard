@@ -416,11 +416,6 @@ bool CoolTime::isTimeSync(unsigned long seconds)
 
 #endif 
 
-#if DEBUG == 0
-
-	Serial.println( F("Check if Clock is ok and in sync..."));
-
-#endif
 	// expermental to prevent slow rtc data
 	RTC.get(CLOCK_ADDRESS);
 	unsigned long instantTime = RTC.get(CLOCK_ADDRESS);

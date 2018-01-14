@@ -214,6 +214,7 @@ bool CoolMQTT::publish(const char* data)
 		Serial.println(wifiManager.state());
 		Serial.println( F("Deconnecting WiFi!"));
 		wifiManager.disconnect();
+		delay(500);
 		Serial.println( F("Wifi State after deconnecting is : "));
 		Serial.print(wifiManager.state());
 		Serial.println( F("Re-connecting WiFi!"));
