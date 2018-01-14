@@ -244,8 +244,8 @@ bool CoolMQTT::publish(const char* data,unsigned long logInterval)
 	Serial.println();
 
 #endif 
-	//log interval is passed in seconds, logInterval*1000 = logInterval in ms
-	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) )
+	//log interval is passed in seconds, logInterval*1000 = logInterval in ms or if no log was sent till now
+	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) || (this->previousLogTime == 0) )
 	{
 	
 	#if DEBUG == 1
