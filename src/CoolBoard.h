@@ -205,7 +205,13 @@ private:
 	*	the period of time between logs
 	-	in Seconds
 	*/
-	unsigned long logInterval=1;//s
+	unsigned long logInterval=1;
+
+	/**
+	*	last time the Client sent a Message over MQTT
+	*	in ms
+	*/
+	unsigned long previousLogTime=0;
 
 	/**
 	*	data string,

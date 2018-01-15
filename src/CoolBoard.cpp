@@ -628,32 +628,37 @@ void CoolBoard::onLineMode()
 		mqtt.connect(this -> getLogInterval()*2);
 		delay(200);
 	}
-	
-	//publishing data	
-	if( this->sleepActive==0 )	
-	{	
-		coolBoardLed.strobe(255,0,230,0.5);//shade of pink
-		
-		//logInterval in seconds
-		mqtt.publish( jsonData.c_str(), this->getLogInterval() );
 
-		mqtt.mqttLoop();
-	
-	}
-	else
+	//log interval is passed in seconds, logInterval*1000 = logInterval in ms, if no log was sent till now (so it also works when sleep is active since previusLogTime is 0 on startup
+	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) || (this->previousLogTime == 0) )
 	{
-		coolBoardLed.strobe(230,255,0,0.5);//shade of yellow	
+		//publishing data	
+		if( this->sleepActive==0 )	
+		{	
+			coolBoardLed.strobe(255,0,230,0.5);//shade of pink
+			
+			//logInterval in seconds
+			mqtt.publish( jsonData.c_str());//, this->getLogInterval() );
 
-		mqtt.publish(jsonData.c_str());	
-	
-		mqtt.mqttLoop();
+			mqtt.mqttLoop();
+		
+		}
+		else
+		{
+			coolBoardLed.strobe(230,255,0,0.5);//shade of yellow	
 
-		answer = mqtt.read();
+			mqtt.publish(jsonData.c_str());	
+		
+			mqtt.mqttLoop();
 
-		this ->update(answer.c_str());
+			answer = mqtt.read();
 
-		//logInterval in seconds
-		this->sleep( this->getLogInterval() ) ;
+			this ->update(answer.c_str());
+
+			//logInterval in seconds
+			this->sleep( this->getLogInterval() ) ;
+		}
+		this->previousLogTime=millis();
 	}
 
 	coolBoardLed.fadeOut(128,255,50,0.5);//shade of green		
@@ -785,25 +790,25 @@ void CoolBoard::offLineMode()
 		
 	data.setCharAt( data.indexOf('}') , ',');//{..,..,..,..,..,..}
 
-
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
-	
-	//saving data in the file system as JSON
-	if (this->saveAsJSON == 1)
+	//log interval is passed in seconds, logInterval*1000 = logInterval in ms, if no log was sent till now (so it also works when sleep is active since previusLogTime is 0 on startup
+	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) || (this->previousLogTime == 0) )
 	{
-		fileSystem.saveSensorData( data.c_str() );
+		//saving data in the file system as JSON
+		if (this->saveAsJSON == 1)
+		{
+			fileSystem.saveSensorData( data.c_str() );
+			Serial.println( F("saving Data as JSON in Memory : OK"));
+		}
+
+		if (this->saveAsCSV == 1)
+		{
+			fileSystem.saveSensorDataCSV( data.c_str() );
+			Serial.println( F("saving Data as CSV in Memory : OK"));
+		}
+
+		this->previousLogTime=millis();
 	}
-
-	if (this->saveAsCSV == 1)
-	{
-		fileSystem.saveSensorDataCSV( data.c_str() );
-	}
-
-	#if DEBUG == 0
-
-		Serial.println( F("saving Data in Memory : OK"));
-
-	#endif
 
 	coolBoardLed.fadeOut(51,100,50,0.5);//dark shade of green
 	if (wifiManager.nomad == 0 || this->sleepActive == 0)

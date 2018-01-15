@@ -227,57 +227,6 @@ bool CoolMQTT::publish(const char* data)
 
 }
 
-/**
-*	CoolMQTT::publish(data):
-*	This method is provided to publish data
-*	to the out topic every logInterval in seconds
-*
-*	\return true if publish successful,
-*	false otherwise
-*/
-bool CoolMQTT::publish(const char* data,unsigned long logInterval)
-{
-
-#if DEBUG == 1 
-
-	Serial.println( F("Entering CoolMQTT.publish() every logInterval ") );
-	Serial.println();
-
-#endif 
-	//log interval is passed in seconds, logInterval*1000 = logInterval in ms or if no log was sent till now
-	if( ( millis() - ( this->previousLogTime)  ) >= ( logInterval*1000 ) || (this->previousLogTime == 0) )
-	{
-	
-	#if DEBUG == 1
-
-		Serial.println( F("log Interval has passed ") );
-		Serial.println();
-	
-	#endif
-
-		this->publish(data);
-
-		this->previousLogTime=millis();
-	
-	#if DEBUG == 1 
-
-		Serial.print( F("last log time : ") );
-		Serial.println(this->previousLogTime);
-
-	#endif
-
-		return(true);
-	}
-
-#if DEBUG == 1 
-
-	Serial.println( F("log Interval still didn't pass ") );	
-	Serial.println();
-
-#endif
-
-	return(false);
-}
 
 /**
 *	CoolMQTT::mqttLoop():

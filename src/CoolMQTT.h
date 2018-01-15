@@ -124,13 +124,6 @@ private:
 	*/
 	bool newMsg=0;
 	
-	/**
-	*	last time the Client sent a Message over MQTT
-	*	in ms
-	*/
-	unsigned long previousLogTime=0;
-
-
 };
 
 #endif
