@@ -78,7 +78,7 @@ public:
 	
 	unsigned long getLastSyncTime();
 	
-	bool isTimeSync(unsigned long seconds=604800);
+	bool isTimeSync(unsigned long seconds=63113904);//604800);
 
 	time_t getNtpTime();
 

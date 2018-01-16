@@ -33,9 +33,9 @@
 
 #ifndef IRENE3000_H
 #define IRENE3000_H
-
 #include "internals/CoolAdafruit_ADS1015.h"   
-#include<Arduino.h>
+
+#include <Arduino.h>
 
 
 #define ADC_MAXIMUM_VALUE     32767
@@ -60,9 +60,13 @@ class Irene3000
 {
 public:
 
+	void startADC();
+	
 	void begin();
 
 	bool config();
+
+	bool ireneButton();
 
 	void printConf();
 
@@ -97,6 +101,11 @@ private:
 	*	ADS1115 instance
 	*/
 	Adafruit_ADS1115 ads;                                                                                           
+
+	/**
+	*	Led handler instance
+	*/
+	CoolBoardLed coolBoardLed;
 
 	/**
 	*	PH Sensor Calibration parameters

@@ -738,7 +738,6 @@ void WiFiManager::handleWifiReset() {
 
 
 bool WiFiManager::handleFileRead(String path){
-  //ESP8266WebServer server;
   String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
   Serial.print ("MAC address : ");

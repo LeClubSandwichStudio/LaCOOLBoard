@@ -86,7 +86,7 @@ public:
 	*/
 	const int pin = 15; //pin for the actor
 
-private:
+//private:
 	
 	/**
 	*	the Actor's state
