@@ -133,7 +133,16 @@ void ExternalSensors::begin()
 			sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2, &gain2, &channel3, &gain3);
 		}
 
-		
+		else if( (sensors[i].reference) == "CoolGauge")
+		{
+			uint32_t A, B, C;
+
+			std::unique_ptr< ExternalSensor<Gauges> > gauge(new ExternalSensor<Gauges> ());
+			 
+			sensors[i].exSensor=gauge.release();
+			//sensors[i].exSensor->begin();
+			sensors[i].exSensor->read(&A, &B, &C);
+		}
 		
 	}
 }
@@ -219,6 +228,16 @@ String ExternalSensors::read()
 						root["G2_" + sensors[i].kind2] = gain2;
 						root["3_" + sensors[i].kind3] = channel3;
 						root["G3_" + sensors[i].kind3] = gain3;
+					}
+					else if(sensors[i].reference=="CoolGauge")
+					{
+						uint32_t A, B, C;
+
+			  			sensors[i].exSensor->read(&A, &B, &C);
+
+			  			root[sensors[i].kind0] = A;
+						root[sensors[i].kind1] = B;
+						root[sensors[i].kind2] = C;
 					}
 					else
 					{

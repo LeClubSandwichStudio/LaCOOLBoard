@@ -38,6 +38,7 @@
 #include "internals/CoolAdafruit_TCS34725.h"
 #include "internals/CoolAdafruit_ADS1015.h" 
 #include "internals/CoolAdafruit_CCS811.h"  
+#include "internals/CoolGauge.h"
 #include "Arduino.h" 
 
  
@@ -119,6 +120,11 @@ public:
 	}
 
 	virtual float read(int16_t *a,int16_t *b,float *c)
+	{
+		return(-42.42);	
+	}
+
+	virtual float read(uint32_t *a,uint32_t *b,uint32_t *c)
 	{
 		return(-42.42);	
 	}
@@ -836,5 +842,59 @@ private:
 
 };
 
+template<>
+class ExternalSensor<Gauges> :public BaseExternalSensor
+{
+public:
+	/**
+	*	ExternalSensor():
+	*	CoolGauge specific constructor
+	*/
+	ExternalSensor()
+	{
+		
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <CoolAdafruit_CCS811> constructor" );
+		Serial.println();
+	
+	#endif
+
+		sensor=Gauges();
+	}
+	
+	virtual uint8_t begin()
+	{}
+
+	virtual float read(uint32_t *a,uint32_t *b,uint32_t *c)
+	{
+		uint32_t A, B, C;
+
+		A = sensor.readGauge1();
+		B = sensor.readGauge2();
+		C = sensor.readGauge3();
+
+	#if DEBUGExternal == 1 
+
+		Serial.println( "ExternalSensor <CoolGauge> read()" );
+		Serial.println();
+
+		Serial.print("Gauge 1 : "); Serial.print(A);
+		Serial.print("Gauge 2 : "); Serial.print(B);
+		Serial.print("Gauge 3 : "); Serial.print(C);
+		Serial.println(" ");
+	
+	#endif
+		*a=A;
+		*b=B;
+		*c=C;
+		return( 0.0 );
+	}
+
+private:
+
+	Gauges sensor;
+
+};
 
 #endif
