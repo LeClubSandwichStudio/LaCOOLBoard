@@ -1,6 +1,6 @@
 /*
  CoolPubSubClient.h 
- Mehdi Zemzem
+ Modified by Mehdi Zemzem
  -added dynamic buffer and parameters settings
 
   PubSubClient.cpp - A simple client for MQTT.

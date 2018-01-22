@@ -8,7 +8,7 @@
    https://github.com/esp8266/Arduino/tree/esp8266/hardware/esp8266com/esp8266/libraries/DNSServer/examples/CaptivePortalAdvanced
    Built by AlexT https://github.com/tzapu
 
-   Modified by MehdiZ 
+   Modified by MehdiZemZem
 
    Licensed under MIT license
  **************************************************************/

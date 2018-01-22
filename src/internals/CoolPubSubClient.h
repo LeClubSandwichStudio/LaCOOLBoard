@@ -1,6 +1,6 @@
 /*
  CoolPubSubClient.h 
- Mehdi Zemzem
+ Modified by Mehdi Zemzem
  -added dynamic buffer and parameters settings
 
  Forked from:
