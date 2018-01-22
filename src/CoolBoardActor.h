@@ -1,14 +1,5 @@
 /**
-*	\file	CoolBoardActor.h
-*  	\brief	CoolBoardActor Header file
-*	\version 1.0  
-*	\author	Mehdi Zemzem
-*	\version 0.0  
-*	\author Simon Juif
-*  	\date	27/06/2017
-*	\copyright La Cool Co SAS 
-*	\copyright MIT license
-*	Copyright (c) 2017 La Cool Co SAS
+*	Copyright (c) 2018 La Cool Co SAS
 *
 *	Permission is hereby granted, free of charge, to any person obtaining a copy
 *	of this software and associated documentation files (the "Software"), to deal
