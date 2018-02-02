@@ -301,6 +301,7 @@ tmElements_t CoolTime::getTimeDate()
 
 	tmElements_t tm;
 	rtc.get(CLOCK_ADDRESS);		//experimental to prevent slow rtc data
+	delay(50);
 	time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
 	breakTime(timeDate,tm);
 
