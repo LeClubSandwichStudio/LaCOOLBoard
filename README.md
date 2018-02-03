@@ -1,116 +1,95 @@
 # README #
 
+## What is La COOL Board?
+
+**La COOL Board** is a connected environmental monitoring and control board. It can be used to build custom weather stations, self-watering plants, hydroponic control systems, pH probes, and many other things. It's also extensible and compatible with numerous external sensors and actuators.
+
+* 100% Arduino compatible
+* Built on top of Espressif's ESP8266, wich includes WiFi
+* 7 onboard sensors : IR and visible light, UV index, atmospheric pressure, humidity, temperature, soil moisture.
+* onboard RTC Clock
+* RGB Led
+* Plug for a LiPo battery and a solar panel
+* Fully hackable and customizable open-hardware
+
+### How to make it?
+
+**Have a look at our [Eagle files](https://github.com/LaCoolCo/LaCOOLBoardHardware)
+
 ### What is this repository for? ###
 
-Quick summary : 
-
-CoolBoard API is a set of libraries and wrappers to simplify the access and usage of all 
-the capabilites of the CoolBoard.
-
-Version : 1.0
+This is a set of Arduino libraries, wrappers and sketches to simplify the access and usage of all 
+the capabilites of La COOL Board.
 
 ### How do I get set up? ###
 
-Configuration :
+#### Configuration
  
- 1/Download and Install the Arduino IDE (https://www.arduino.cc/en/Main/Software )
+ 1. Download and Install the Arduino IDE (https://www.arduino.cc/en/Main/Software )
  
- 2/Download and Add the ESP8266 Hardware extension to Arduino (https://github.com/esp8266/Arduino )
+ 2. Download and Add the ESP8266 Hardware extension to Arduino (https://github.com/esp8266/Arduino). **If you already have Arduino IDE and the ESP8266 Hardware extension , make sure you upgrade them to the latest version.**
  
- /!\ If you already have Arduino IDE and the ESP8266 Hardware extension , make sure you upgrade them to the latest version.
- 
- 3/Download and Add the CoolBoard Library set to the Arduino IDE :
+ 3. Download and add the COOL Board library set to the Arduino IDE :
 
-   a)First Method :
+   1. First Method :
+     * Open the Arduino IDE
+     * Go to the "Sketch" Menu 
+     * `Include Library > Manage Libraries.` 
+     * Search for `CoolBoard`
+     * Install
+     * Restart Arduino IDE
+     
+   2. Second Method (if you have a CoolBoard.zip file ):
+     * Open the Arduino IDE
+     * Go to the "Sketch" Menu 
+     * Include Library > "Add .ZIP Library". 
+     * Search for CoolBoard.zip 
+     * Click Open
+     * Restart Arduino IDE
    
-   -Open the Arduino IDE
-	
-   -Go to the "Sketch" Menu 
+   3. Third Method (if you have the github link):
+   
+     * Open Arduino IDE > File > Preferences
+     * Check the "SketchBook Location" path
+     * Go to the Arduino/libraries folder (if it doesn't exist, create one )
+     * Clone the repo there ( git clone "bitbucket/github link" )
+     * Restart Arduino IDE
+   
+4. Download ESP8266FS Tool (https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
+
+5. **Optional but Heavily Recommended:** Download the ESP8266 Exception Decoder (download link :https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6)
+
+  Install guide : https://github.com/me-no-dev/EspExceptionDecoder
+   
+#### Dependencies :
+
+You'll need the following libraries to be able to use the CoolBoard API:
+
+* ArduinoJson (https://github.com/bblanchon/ArduinoJson)
+* NeoPixelBus (https://github.com/Makuna/NeoPixelBus)
+* TimeLib (https://github.com/PaulStoffregen/Time)
+* DS1337RTC (https://github.com/etrombly/DS1337RTC)
+* DallasTemperature (https://github.com/milesburton/Arduino-Temperature-Control-Library)
+* OneWire (https://github.com/PaulStoffregen/OneWire)
+
+#### Configuration files
+
+The CoolBoard API heavily uses the SPIFFS for storing and retreiving configuration and data files. Here is a description of the configuration files and what are they used for :
   
-   -Include Library > Manage Libraries. 
-  
-   -Search for CoolBoard
-   
-   -Install
-   
-   -Restart Arduino IDE
-   
-   
-   b)Second Method (if you have a CoolBoard.zip file ):
-   
-   -Open the Arduino IDE
-   
-   -Go to the "Sketch" Menu 
-    
-   -Include Library > "Add .ZIP Library". 
-   
-   -Search for CoolBoard.zip 
-   
-   -Click Open
-   
-   -Restart Arduino IDE
-   
-   
-   
-   c)Third Method (if you have the bitbucket/github link):
-   
-   -Open Arduino IDE > File > Preferences
-   
-   -Check the "SketchBook Location" path
-   
-   -Go to the Arduino/libraries folder (if it doesn't exist, create one )
-   
-   -Clone the repo there ( git clone "bitbucket/github link" )
-   
-   -Restart Arduino IDE
-   
-   
- 4/Download ESP8266FS Tool (https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
- 
- 5/Optional but Heavily Recommended : Download the ESP8266 Exception Decoder ( download link :https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6)
-   Install guide : https://github.com/me-no-dev/EspExceptionDecoder
-   
-   
-   
-Dependencies :
+`coolBoardConfig.json`
+`logInterval`: time interval in seconds between two log events.
+`ireneActive`: Set this flag to 1 (true) if you are using the IRN3000 module
+`jetpackActive`: Set this flag to 1 (true) if you are using the JetPack module	
+`externalSensorsActive`: Set this flag to 1 (true) if you are using a supported external sensor
+`sleepActive`: Put this flag to 1(true) if you want your CoolBoard to enable sleep mode.
+In sleep mode, your COOL Board will run the following loop:
 
-You need the following libraries to be able to use the CoolBoard API:
-
--ArduinoJson(https://github.com/bblanchon/ArduinoJson)
-
--NeoPixelBus(https://github.com/Makuna/NeoPixelBus)
-
--TimeLib(https://github.com/PaulStoffregen/Time)
-
--DS1337RTC(https://github.com/etrombly/DS1337RTC)
-
--DallasTemperature(https://github.com/milesburton/Arduino-Temperature-Control-Library)
-
--OneWire(https://github.com/PaulStoffregen/OneWire)
-
-
-Configuration Files :
-
--The CoolBoard API heavily uses the SPIFFS for storing and retreiving configuration and data files
-
-This is a description of the configuration files and what are they used for :
-  
-  1/coolBoardConfig.json :
-  
-    logInterval: The time Interval to wait,in seconds, between two logs
-	
-    ireneActive: Put this flag to 1(true) if you are using the Irene3000 module
-	
-    jetpackActive:Put this flag to 1(true) if you are using the Jetpack modue
-	
-    externalSensorsActive: Put this flag to 1(true) if you are using a supported external Sensor
-    
-	sleepActive: Put this flag to 1(true) if you want your CoolBoard to enable Sleep mode
-                 In Sleep Mode : your CoolBoard will do the following : -readSensors
-                                                        				-activate Actors(if any)
-																		-log the data
-																		-check for updates
-																		-go to sleep for logInterval period of time
+1. read sensors values                                        				
+2. activate actuators
+3. log the data													
+4. log the data
+5. check for updates
+6. go to sleep for `logInterval` seconds
 	             
     userActive:Put this flag to 1(true) if you want your CoolBoard to collect userData : userName
 																						 CoolBoard MAC Address 
