@@ -14,7 +14,7 @@
 
 ## How to make it?
 
-**Have a look at our [Eagle files](https://github.com/LaCoolCo/LaCOOLBoardHardware)**
+**Have a look at our [Eagle files](https://github.com/LaCoolCo/LaCOOLBoardHardware)** - but you can also buy it from us! Don't hesitate to go and check [our website](https://github.com/LaCoolCo/LaCOOLBoard)
 
 ## What is this repository for?
 
@@ -24,8 +24,8 @@ the capabilites of La COOL Board.
 ## How does it operates?
 
 La COOL Board default operating mode is **sleep mode,** which uses the deep-sleep low-energy consumption mode of the ESP8266 (80µA). It is on by default and should be enabled whenever your board:
-- runs on battery power
-- runs on AC power, but logs data at a very slow rate. Time to do you part in saving the world! 
+- runs on battery power (e.g. in a weather station)
+- runs on AC power, but logs data at a very slow rate. Time to do you part in saving the planet! 
 
 If you need a higher sample rate, you may want to deactivate it.
 
@@ -35,6 +35,7 @@ In sleep mode, your COOL Board will run the following loop:
 3. log the data (either locally or over the network)
 4. check for updates
 5. go to sleep for `logInterval` seconds
+
 
 ## How can I contribute?
 
