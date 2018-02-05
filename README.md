@@ -49,7 +49,7 @@ At the same time, please refrain from putting multiple unrelated changes into a 
 
 ## How can I reach you guys?
 
-If you encounter a problem , have a good idea or just want to have a chat with us, please open an issue, a pull request or send us an email at team@lacool.co
+If you encounter a problem, have some genius, crazy idea or just want to have a chat with us, please open an issue, a pull request or send us an email at team@lacool.co - we'd absolutely love to hear from you !
 
 ## How do I get set up?
 
