@@ -7,7 +7,7 @@
 * Supported by an Espressif's ESP8266, including onboard WiFi
 * 7 onboard sensors: IR and visible light, UV index, atmospheric pressure, humidity, temperature, soil moisture.
 * Onboard RTC Clock
-* UART to USB with onboard FTDI (female micro-USB port)
+* USB to serial UART with onboard FTDI chip (female micro-USB port)
 * NeoPixel Digital RGB programmable LED
 * Solar panel and LiPo battery plug
 * Fully makeable, hackable and customizable open-hardware
