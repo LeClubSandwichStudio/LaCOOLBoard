@@ -4,35 +4,35 @@
 
 ### Key features and benefits
 * 100% Arduino compatible
-* Built on top of Espressif's ESP8266, with onboard WiFi
+* Supported by an Espressif's ESP8266, including onboard WiFi
 * 7 onboard sensors: IR and visible light, UV index, atmospheric pressure, humidity, temperature, soil moisture.
 * Onboard RTC Clock
-* UART over USB with onboard FTDI (female micro-USB port)
-* NeoPixel RGB programmable LED
-* Plug for a LiPo battery and a solar panel
-* Fully makable, hackable and customizable open-hardware
+* UART to USB with onboard FTDI (female micro-USB port)
+* NeoPixel Digital RGB programmable LED
+* Solar panel and LiPo battery plug
+* Fully makeable, hackable and customizable open-hardware
 
 ## How to make it?
 
-**Have a look at our [Eagle files](https://github.com/LaCoolCo/LaCOOLBoardHardware)** - but you can also buy it from us! Don't hesitate to go and check [our website](https://github.com/LaCoolCo/LaCOOLBoard)
+**Have a look at our [Eagle files](https://github.com/LaCoolCo/LaCOOLBoardHardware)** - but you can also buy it from us! Don't hesitate to contact or check out [our website](https://github.com/LaCoolCo/LaCOOLBoard)
 
 ## What is this repository for?
 
-This is a set of Arduino libraries, wrappers and sketches to simplify the access and usage of all 
+It contains a set of Arduino libraries, wrappers and sketches that simplify the access and usage of all 
 the capabilites of La COOL Board.
 
 ## How does it operates?
 
-La COOL Board default operating mode is **sleep mode,** which uses the deep-sleep low-energy consumption mode of the ESP8266 (80µA). It is on by default and should be enabled whenever your board:
+The default operating mode of La COOL Board is **sleep mode,** which uses the deep-sleep low-energy consumption mode of the ESP8266 (80µA). It is on by default and should be enabled whenever your board:
 - runs on battery power (e.g. in a weather station)
-- runs on AC power, but logs data at a very slow rate. Time to do you part in saving the planet! 
+- runs on AC power, but logs data at a very slow rate. It's time to do you part in saving the planet! 
 
 If you need a higher sample rate, you may want to deactivate it.
 
-In sleep mode, your COOL Board will run the following loop:
+When in sleep mode, your COOL Board will run the following loop:
 1. read sensors values
 2. activate actuators
-3. log the data (either locally or over the network)
+3. log data (either locally or over the network)
 4. check for updates
 5. go to sleep for `logInterval` seconds
 
@@ -79,7 +79,7 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
          * Clone the repository the there (`git clone <github_repo_url`)
          * Restart the Arduino IDE
 4. Download [ESP8266 FS Tool](https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
-5. **Optional but Heavily Recommended:** Download the [ESP8266 Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6) and follow its [installation guide](https://github.com/me-no-dev/EspExceptionDecoder)
+5. **Optional but highly recommended:** Download the [ESP8266 Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6) and follow its [installation guide](https://github.com/me-no-dev/EspExceptionDecoder)
    
 ### Dependencies :
 
@@ -94,7 +94,7 @@ You'll need the following libraries to be able to use the COOL Board API:
 
 ### Configuration files
 
-The COOL Board embedded software make heavy use of the SPIFFS for storing its configuration and data files. Here is a description of the configuration files and keys.
+The COOL Board embedded software makes heavy use of the SPIFFS for storing its configuration and data files. Here is a description of the configuration files and keys.
 
 #### `coolBoardConfig.json` 
 
@@ -104,8 +104,8 @@ The COOL Board embedded software make heavy use of the SPIFFS for storing its co
 * `externalSensorsActive`: set to `true` if you are using a supported external sensor
 * `sleepActive`: set to `true` if you want your COOL Board to enable [sleep mode](#sleep-mode)
 * `userActive`: set this to `true` if you want your COOL Board to collect `userData` (`userName`, `macAddress`, `timeStamp`)
-* `manual`: set this to `true` enables remoe-control of onboard actuators, bypassing rule-based configuration. **Be extremely careful with this mode:** when it is active, the COOL Board will not restart automatically to apply any new configuration sent on the `update` MQTT topic. Plus, restarting a COOL Board in manual mode will disable all the actuators. Thus, never forget to reset this to false to go back to normal mode!
-* `saveAsJSON`: set this to `true` if you want the COOL Board to store untransmitted messages in the SPIFFS and send them as soon as we have a network connection. This is the best solution when your COOL Board Internet connectivity isn't stable. Set it to `false` if you have no internet at all and use the `saveAsCSV` flag instead.
+* `manual`: set this to `true` to enable MQTT remote-control of onboard actuators, bypassing rule-based configuration. **Be extremely careful with this mode:** when it is active, the COOL Board will not restart automatically to apply any new configuration sent on the `update` MQTT topic. Plus, restarting a COOL Board in manual mode will disable all the actuators. Thus, never forget to reset this to false to go back to normal mode!
+* `saveAsJSON`: set this to `true` if you want La COOL Board to store untransmitted messages in the SPIFFS and send them as soon as a network connection is established. This is the best solution when your COOL Board Internet connectivity isn't stable. Set it to `false` if you have no internet at all and use the `saveAsCSV` flag instead.
 * `saveAsCSV`: set this to `true` if you want to save sensor data in a `.csv` file. Use it when your COOL Board is running in a fully offline scenario.
 
 #### `coolBoardLedConfig.json`
@@ -127,7 +127,7 @@ The COOL Board embedded software make heavy use of the SPIFFS for storing its co
 
 * `sensorsNumber`: the number of supported external sensors you connect to the COOL Board
 * `reference`: the reference of a supported external sensor (e.g. NDIR_I2C, Dallas Temperature...)
-* `type`: the type of the measurments you are making (e.g. CO2, temperature, voltage...)
+* `type`: the type of measurment you are taking (e.g. CO2, temperature, voltage...)
 * `address`: the sensor's address, if it has one (e.g. NDIR_I2C CO2 sensor's address is 77)
 * `kind0`...`kind4`: names of the sensors sensor connected to ADCs models ADS1015 and ADS1115 (`kind0` is sensor on A0, `kind1` is A1, and so on)
 
@@ -141,9 +141,9 @@ The COOL Board embedded software make heavy use of the SPIFFS for storing its co
 
 #### `jetPackConfig.json` and `coolBoardActorConfig.json`
 
-* `Act[i].actif`: set to `true` in order to use the jetpack output #`i` (0 to 7)
-* `Act[i].inverted`: set `true` if the actor is inverted (e.g. a cooler is turned on when `Temp > TempMax`)
-* `Act[i].temporal`: set this to `true` if you want the actor to turned on or of based on time of day.
+* `Act[i].actif`: set this to `true` in order to use the jetpack output #`i` (0 to 7)
+* `Act[i].inverted`: set this to `true` if the actor is inverted (e.g. a cooler is turned on when `Temp > TempMax`)
+* `Act[i].temporal`: set this to `true` if you want the actor to turn on or off based on time of day.
 * `Act[i].type: [ <primaryType>, <secondaryType> ]`: this array contains the primary type and the secondary type of the actuator
     * `primaryType` : type of the sensor (e.g. if `Temperature`, actuator is associated to the "Temperature" sensor).
     * `secondaryType` is only used in temporal mode. It can be: 
@@ -183,7 +183,7 @@ Note that `coolBoardActorConfig.json` contains only one actor.
     
 * `wifiCount`: the number of WiFi networks that can be saved in this configuration file
 * `timeOut`: access point timeout in seconds
-* `nomad`: set this to `true` in odrder to activate nomad mode. In nomad mode, La COOL Board won't launch the onboard access point in the event of WiFi connection loss
+* `nomad`: set this to `true` in order to activate nomad mode. In nomad mode, La COOL Board won't activate the onboard access point in the event of WiFi connection loss
 
 
 
