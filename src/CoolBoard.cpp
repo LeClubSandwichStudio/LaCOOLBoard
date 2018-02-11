@@ -483,8 +483,6 @@ void CoolBoard::onLineMode()
 		mqtt.publish("sending saved data");
 		mqtt.mqttLoop();
 
-
-		
 		int size=0;
 		std::unique_ptr<String[]> savedData(std::move(fileSystem.getSensorSavedData(size)));//{..,..,..}
 

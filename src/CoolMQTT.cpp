@@ -187,6 +187,8 @@ bool CoolMQTT::publish(const char* data)
 #endif
 
 	bool pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+	delay(100);			//wait a little and treat network
+	yield();
 
 #if DEBUG == 1 
 
@@ -194,23 +196,31 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println(pub);	
 
 #endif
-	if (pub == 0
+	byte repeats = 0;
+	while (pub == 0)
 	{
 		Serial.println( F("Publish : FAIL!!!"));
 		if (wifiManager.state()!=3)
 		{
-			Serial.print( F("No WiFi Re-connecting.."));
+			Serial.println( F("No WiFi Re-connecting.."));
 			wifiManager.disconnect();
-			delay(500);
+			delay(200);
 			wifiManager.begin();
 		}
 		if (state() != 0)
 		{
-			Serial.print( F("No MQTT Re-connecting.."));
+			Serial.println( F("No MQTT Re-connecting.."));
+			delay(200);
 			connect(1000);
 		}
 		pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+		yield();
+		//give the MQTT 5 retrys if publish fails
+		if (repeats >= 4) break;
+		repeats++;
 	}
+	delay(100);
+	yield();
 	if (pub == 1)
 	{
 		Serial.println( F("Publish : OK"));
