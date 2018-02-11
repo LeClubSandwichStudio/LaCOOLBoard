@@ -194,25 +194,26 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println(pub);	
 
 #endif
+	if (pub == 0
+	{
+		Serial.println( F("Publish : FAIL!!!"));
+		if (wifiManager.state()!=3)
+		{
+			Serial.print( F("No WiFi Re-connecting.."));
+			wifiManager.disconnect();
+			delay(500);
+			wifiManager.begin();
+		}
+		if (state() != 0)
+		{
+			Serial.print( F("No MQTT Re-connecting.."));
+			connect(1000);
+		}
+		pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+	}
 	if (pub == 1)
 	{
 		Serial.println( F("Publish : OK"));
-	}
-	else 
-	{
-		Serial.println( F("Publish : FAIL!!!"));
-		Serial.print( F("Wifi State is : "));
-		Serial.println(wifiManager.state());
-		Serial.println( F("Deconnecting WiFi!"));
-		wifiManager.disconnect();
-		delay(500);
-		Serial.println( F("Wifi State after deconnecting is : "));
-		Serial.print(wifiManager.state());
-		Serial.println( F("Re-connecting WiFi!"));
-		wifiManager.begin();
-		Serial.println( F("Wifi State after re-connecting is : "));
-		Serial.print(wifiManager.state());
-		begin();
 	}
 	return(pub);
 

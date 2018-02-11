@@ -469,8 +469,8 @@ void CoolBoard::onLineMode()
 	data="";
 	answer="";
 
-	//send saved data if any
-	if(fileSystem.isDataSaved() && mqtt.state() == 0)
+	//send saved data if any, check once again if the mqtt connection is ok!
+	if(fileSystem.isDataSaved() && isConnected() == 0)
 	{
 
 		coolBoardLed.fadeIn(128,128,255,0.5);//shade of blue
