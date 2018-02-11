@@ -346,7 +346,7 @@ int CoolBoard::isConnected()
 		Serial.println(mqtt.state());	
 	
 	#endif
-
+		return(-1);
 	}
 	
 	return(0);
@@ -470,7 +470,7 @@ void CoolBoard::onLineMode()
 	answer="";
 
 	//send saved data if any
-	if(fileSystem.isDataSaved())
+	if(fileSystem.isDataSaved() && mqtt.state() == 0)
 	{
 
 		coolBoardLed.fadeIn(128,128,255,0.5);//shade of blue
