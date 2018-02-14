@@ -346,6 +346,10 @@ int CoolBoard::isConnected()
 		Serial.println(mqtt.state());	
 	
 	#endif
+<<<<<<< Updated upstream
+=======
+		//return(-1);
+>>>>>>> Stashed changes
 	}
 	
 	return(0);
@@ -401,7 +405,7 @@ int CoolBoard::connect()
 		//logInterval in seconds
 		mqtt.connect(this -> getLogInterval()*2);
 		delay(100);
-		if (mqtt.state() <0 && wifiManager.nomad == 1)
+		if (mqtt.state() != 0 && wifiManager.nomad == 1)
 		{
 			Serial.println( F("Known WIFI in the area but no internet connection"));
 			Serial.println( F("  --->   Launching Configuration Portal   <---"));
@@ -469,7 +473,7 @@ void CoolBoard::onLineMode()
 	answer="";
 
 	//send saved data if any, check once again if the mqtt connection is ok!
-	if(fileSystem.isDataSaved() && isConnected() == 0)
+	if(fileSystem.isDataSaved() && isConnected() == 0 && mqtt.state() == 0)
 	{
 
 		coolBoardLed.fadeIn(128,128,255,0.5);//shade of blue
@@ -715,7 +719,7 @@ void CoolBoard::onLineMode()
 			if (!mqtt.publish( jsonData.c_str()))
 			{
 				fileSystem.saveSensorData( data.c_str() );
-				Serial.println( F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+				Serial.println( F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
 			}
 
 			mqtt.mqttLoop();

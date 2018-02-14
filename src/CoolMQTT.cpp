@@ -186,9 +186,6 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println();
 #endif
 
-	bool pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
-	delay(100);			//wait a little and treat network
-	yield();
 
 #if DEBUG == 1 
 
@@ -196,36 +193,40 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println(pub);	
 
 #endif
-	byte repeats = 0;
-	while (pub == 0)
+	byte retries = 0;
+	//bool published = false;
+	bool published = client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+	while (!published && retries < 5)
 	{
-		Serial.println( F("Publish : FAIL!!!"));
-		if (wifiManager.state()!=3)
+		published = client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+		if (!published )
 		{
-			Serial.println( F("No WiFi Re-connecting.."));
-			wifiManager.disconnect();
-			delay(200);
-			wifiManager.begin();
+			if (wifiManager.state() != 3)
+			{
+				Serial.println( F("No WiFi Re-connecting.."));
+				wifiManager.disconnect();
+				delay(200);
+				wifiManager.begin();	
+				delay(200);
+			}
 		}
-		if (state() != 0)
-		{
-			Serial.println( F("No MQTT Re-connecting.."));
-			delay(200);
-			connect(1000);
-		}
-		pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+		Serial.println( F("No MQTT, re-connecting.."));
+		connect(100);
+		delay(100);			//wait a little and treat network
 		yield();
-		//give the MQTT 5 retrys if publish fails
-		if (repeats >= 4) break;
-		repeats++;
+		retries++;
 	}
 	delay(100);
 	yield();
-	if (pub == 1)
+	if (published)
 	{
 		Serial.println( F("Publish : OK"));
+	} 
+	else 
+	{
+		Serial.println( F("Published failed after 5 retries"));
 	}
-	return(pub);
+	return(published);
 
 }
 
