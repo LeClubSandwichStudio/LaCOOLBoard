@@ -339,14 +339,13 @@ int CoolBoard::isConnected()
 	if(mqtt.state() != 0)
 	{
 		
-		Serial.println( F("MQTT not Connected"));
+		Serial.println( F("MQTT not Connected, reconnecting later..."));
 
 	#if DEBUG==1
 		Serial.println( F("mqtt state is :") );
 		Serial.println(mqtt.state());	
 	
 	#endif
-		return(-1);
 	}
 	
 	return(0);
