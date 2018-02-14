@@ -111,10 +111,17 @@ int CoolMQTT::connect(unsigned long keepAlive)
 #endif
 	Serial.println( F("MQTT connecting...") );
 	
+	String tempMAC = WiFi.macAddress();
+
+	tempMAC.replace(":", "");
+
+	char MAC[12];
+	tempMAC.toCharArray(MAC, 12);
+
 	while( ( !this->client.connected() ) && ( i<5 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user,keepAlive*10  ) )
+		if( this->client.connect( MAC ) ) //use the mac as MQTT client ID to assure a unique id
 		{
 			client.subscribe( this->inTopic );
 
@@ -526,24 +533,6 @@ bool CoolMQTT::config()
 			}
 			json["outTopic"]=this->outTopic;
 		
-			
-			if(json["user"].success() )
-			{				
-				const char* tempUser = json["user"]; 
-				for(int i =0;i<50;i++)
-				{
-					user[i]=tempUser[i];
-				}
-			}
-			else
-			{
-				for(int i=0;i<50;i++)
-				{
-					this->user[i]=this->user[i];
-				}				
-			}
-			json["user"]=this->user;
-			
 			if(json["bufferSize"].success() )
 			{
 				int tempBufferSize = json["bufferSize"]; 
@@ -588,11 +577,11 @@ bool CoolMQTT::config()
 }
 
 /**
-*	CoolMQTT::config(server,in topic, out topic , user Id, buffer size):
+*	CoolMQTT::config(server,in topic, out topic, buffer size):
 *	This method is provided to manually configure the mqtt client	
 *
 */
-void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize)
+void CoolMQTT::config(const char mqttServer[], const char inTopic[], const char outTopic[], int bufferSize)
 {
 
 #if DEBUG == 1
@@ -604,12 +593,11 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 
 	for(int i =0;i< 50 ;i++)
 	{
-		this->mqttServer[i]=mqttServer[i];
-		this->inTopic[i]=inTopic[i];
-		this->outTopic[i]=outTopic[i];
-		this->user[i]=user[i];
+		this->mqttServer[i] = mqttServer[i];
+		this->inTopic[i] = inTopic[i];
+		this->outTopic[i] = outTopic[i];
 	}
-	this->bufferSize=bufferSize;
+	this->bufferSize = bufferSize;
 	
 
 }
@@ -640,32 +628,10 @@ void CoolMQTT::printConf()
 	Serial.print("outTopic : ");
 	Serial.println(this->outTopic);
 
-	Serial.print("user : ");
-	Serial.println(this->user);
-
 	Serial.print("bufferSize : ");
 	Serial.println(this->bufferSize);
 
 	Serial.println();
 
 
-}
-
-/**
-*	CoolMQTT::getUser():
-*	This method is provided to get the user name
-*/
-String CoolMQTT::getUser()
-{
-
-#if DEBUG == 1 
-	Serial.println( F("Entering CoolMQTT.getUser()") );
-	Serial.println();
-	
-	Serial.print( F("user : ") );
-	Serial.println(this->user);
-
-#endif
-
-	return String(this->user);
 }

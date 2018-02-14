@@ -346,10 +346,10 @@ int CoolBoard::isConnected()
 		Serial.println(mqtt.state());	
 	
 	#endif
-<<<<<<< Updated upstream
-=======
+//<<<<<<< Updated upstream
+//=======
 		//return(-1);
->>>>>>> Stashed changes
+//>>>>>>> Stashed changes
 	}
 	
 	return(0);
@@ -1601,11 +1601,7 @@ String CoolBoard::userData()
 
 	tempMAC.replace(":", "");
 
-	String userJson = "{\"user\":\"";
-
-	userJson += mqtt.getUser();
-
-	userJson += "\",\"timestamp\":\"";
+	String userJson = "{\"timestamp\":\"";
 
 	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
 

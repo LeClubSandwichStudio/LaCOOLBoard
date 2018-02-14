@@ -227,7 +227,7 @@ boolean CoolPubSubClient::connect(const char *id, const char *user, const char *
 
             while (!_client->available()) {
                 unsigned long t = millis();
-                if (t-lastInActivity >= ((int32_t) this->socketTimeout*1000UL)) {
+                if (t-lastInActivity >= ((int32_t) this->socketTimeout)) {
                     _state = MQTT_CONNECTION_TIMEOUT;
                     _client->stop();
                     return false;
