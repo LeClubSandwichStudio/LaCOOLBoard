@@ -346,10 +346,6 @@ int CoolBoard::isConnected()
 		Serial.println(mqtt.state());	
 	
 	#endif
-//<<<<<<< Updated upstream
-//=======
-		//return(-1);
-//>>>>>>> Stashed changes
 	}
 	
 	return(0);
@@ -536,55 +532,26 @@ void CoolBoard::onLineMode()
 	Serial.println( F("Re-checking RTC..."));
 	rtc.update();
 
-	//read user data if user is active
-	if(userActive)
-	{
-		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
+	//reading board data
+	data=this->boardData();//{"":"","":"","",""}
+
+	//formatting json 
+	data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+			
+	//read sensors data
+#if DEBUG == 1
+
+	Serial.println( F("Collecting sensors data ") );
+	Serial.println();
+
+#endif
+
+	data+=this->readSensors();//{"":"","":"","","",{.......}		
+
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
 	
-	#if DEBUG == 1
-
-		Serial.println( F("User is Active") );
-		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
-		Serial.println();
-	
-	#endif	
-		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
-
-		//reading user data
-		data=this->userData();//{"":"","":"","",""}
-
-		//formatting json 
-		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
-				
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-	
-	#endif
-
-		data+=this->readSensors();//{"":"","":"","","",{.......}		
-
-		//formatting json correctly
-		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
-		
-		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
-				
-	}	
-	else
-	{
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-	
-	#endif
-		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
-		data=this->readSensors();//{..,..,..}
-	}
-
+	coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
 
 	//do action
 	if(this->manual == 0 )
@@ -784,58 +751,36 @@ void CoolBoard::offLineMode()
 
 #endif
 
-	//read user data if user is active
-	if(userActive)
-	{
+	coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
 
-		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
+#if DEBUG == 1
+	
+	Serial.println( F("User is Active") );
+	Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
+	Serial.println();
 
-	#if DEBUG == 1
-		
-		Serial.println( F("User is Active") );
-		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
-		Serial.println();
+#endif
 
-	#endif
+	coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
 
-		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
+	//reading user data
+	data=this->boardData();//{"":"","":"","",""}
 
-		//reading user data
-		data=this->userData();//{"":"","":"","",""}
+	//formatting json 
+	data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+	
+			
+	//read sensors data
 
-		//formatting json 
-		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
-		
-				
-		//read sensors data
+	Serial.println( F("Collecting sensors data ") );
+	Serial.println();
 
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
+	data+=this->readSensors();//{"":"","":"","","",{.......}
 
-		data+=this->readSensors();//{"":"","":"","","",{.......}
+	
 
-		
-
-		//formatting json correctly
-		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
-
-		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
-				
-	}	
-	else
-	{
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-
-	#endif
-
-		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
-
-		data=this->readSensors();//{..,..,..}
-	}
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
@@ -1587,12 +1532,12 @@ void CoolBoard::initReadI2C()
 *	
 *	\return json string of the user's data
 */
-String CoolBoard::userData()
+String CoolBoard::boardData()
 {
 
 #if DEBUG == 1
 
-	Serial.println( F("Entering CoolBoard.userData() ") );
+	Serial.println( F("Entering CoolBoard.boardData() ") );
 	Serial.println();
 
 #endif
@@ -1601,25 +1546,25 @@ String CoolBoard::userData()
 
 	tempMAC.replace(":", "");
 
-	String userJson = "{\"timestamp\":\"";
+	String boardJson = "{\"timestamp\":\"";
 
-	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+	boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
 
-	userJson += "\",\"mac\":\"";
+	boardJson += "\",\"mac\":\"";
 
-	userJson += tempMAC;
+	boardJson += tempMAC;
 
-	userJson += "\"}";
+	boardJson += "\"}";
 
 #if DEBUG == 1
 
 	Serial.println( F("userData is : ") );
-	Serial.println(userJson);
+	Serial.println(boardJson);
 	Serial.println();
 
 #endif	
 	
-	return(userJson);
+	return(boardJson);
 	
 }
 

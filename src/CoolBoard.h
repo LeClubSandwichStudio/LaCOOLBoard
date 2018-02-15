@@ -75,7 +75,7 @@ public:
 	
 	void initReadI2C();
 	
-	String userData();
+	String boardData();
 
 	bool sendConfig(const char* moduleName, const char* filePath);
 
