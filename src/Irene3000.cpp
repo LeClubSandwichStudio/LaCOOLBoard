@@ -33,7 +33,7 @@
 
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 /**
@@ -536,23 +536,18 @@ float Irene3000::readPh(double t)
 	
 	float phT=7 - (temporary / params.pHStep);
 
-	float ph25= ( phT / ( 1 + 0.009*( t - 25 ) ) );
-
 #if DEBUG == 1 
 
 	Serial.println( F("ph is : ") );
 	Serial.println( phT ) ;
-	
-	Serial.println(F("corrected ph to 25°C is : "));
-	Serial.println(ph25);
 
 #endif 
-	if(isnan(ph25) )
+	if(isnan(phT) )
 	{
 		return(-42);	
 	}
 
-	return(ph25);
+	return(phT);
 
 }
 
