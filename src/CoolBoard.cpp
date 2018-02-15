@@ -1530,7 +1530,11 @@ String CoolBoard::boardData()
 
 	boardJson += tempMAC;
 
-	boardJson += "\"}";
+	boardJson += "\",\"wifiSignal\":";
+
+	boardJson += WiFi.RSSI();
+
+	boardJson += "}";
 
 #if DEBUG == 1
 
