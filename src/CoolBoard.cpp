@@ -399,7 +399,7 @@ int CoolBoard::connect()
 	
 	#endif	
 		//logInterval in seconds
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(100);
 		if (mqtt.state() != 0 && wifiManager.nomad == 1)
 		{
@@ -461,7 +461,7 @@ void CoolBoard::onLineMode()
 	{
 		Serial.println( F("reconnecting MQTT..."));
 
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(200);
 	}
 
@@ -670,7 +670,7 @@ void CoolBoard::onLineMode()
 	{
 		Serial.println( F("reconnecting MQTT..."));
 
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(200);
 	}
 

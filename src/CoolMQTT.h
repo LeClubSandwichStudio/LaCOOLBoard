@@ -41,7 +41,7 @@ public:
 
 	void begin();
 
-	int connect(unsigned long keepAlive); //keepAlive in seconds
+	int connect();
 
 	bool publish(const char* data);
 

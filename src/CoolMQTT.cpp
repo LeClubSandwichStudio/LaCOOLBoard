@@ -92,14 +92,13 @@ int CoolMQTT::state()
 }
 
 /**
-*	CoolMQTT::connect( time to keep the connection alive in seconds ):
+*	CoolMQTT::connect():
 *	This method is provided to connect the client to the server,
-*	publish to the out topic , subscribe to the in topic and set
-*	the keepAlive time.
+*	publish to the out topic and subscribe to the in topic.
 *	
 *	\return mqtt client state
 */
-int CoolMQTT::connect(unsigned long keepAlive)
+int CoolMQTT::connect()
 {       
 
 	int i=0;
@@ -218,7 +217,7 @@ bool CoolMQTT::publish(const char* data)
 			}
 		}
 		Serial.println( F("No MQTT, re-connecting.."));
-		connect(100);
+		connect();
 		delay(100);			//wait a little and treat network
 		yield();
 		retries++;
