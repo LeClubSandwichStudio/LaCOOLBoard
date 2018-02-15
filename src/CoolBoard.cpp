@@ -752,15 +752,6 @@ void CoolBoard::offLineMode()
 #endif
 
 	coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
-
-#if DEBUG == 1
-	
-	Serial.println( F("User is Active") );
-	Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
-	Serial.println();
-
-#endif
-
 	coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
 
 	//reading user data
@@ -975,18 +966,6 @@ bool CoolBoard::config()
 			Serial.println();
 
 		#endif
-			
-			//parsing userActive Key
-			if (json["userActive"].success())
-			{
-				this -> userActive = json["userActive"];
-			}
-
-			else
-			{
-				this -> userActive = this -> userActive;
-			}
-			json["userActive"] = this -> userActive;
 
 			//parsing logInterval key
 			if (json["logInterval"].success())
@@ -1143,9 +1122,6 @@ void CoolBoard::printConf()
 
 	Serial.print( F("sleep active 		: "));
 	Serial.println(this->sleepActive);
-
-	Serial.print( F("user active 		: "));
-	Serial.println(this->userActive);
 
 	Serial.print( F("manual active		: "));
 	Serial.println(this->manual);
@@ -1526,11 +1502,11 @@ void CoolBoard::initReadI2C()
 
 
 /**
-*	CoolBoard::userData():
+*	CoolBoard::boardData():
 *	This method is provided to
-*	return the user's data.
+*	return the board's data.
 *	
-*	\return json string of the user's data
+*	\return json string of the data's data
 */
 String CoolBoard::boardData()
 {
@@ -1558,7 +1534,7 @@ String CoolBoard::boardData()
 
 #if DEBUG == 1
 
-	Serial.println( F("userData is : ") );
+	Serial.println( F("boardData is : ") );
 	Serial.println(boardJson);
 	Serial.println();
 
