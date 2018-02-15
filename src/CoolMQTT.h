@@ -41,7 +41,7 @@ public:
 
 	void begin();
 
-	int connect(unsigned long keepAlive); //keepAlive in seconds
+	int connect();
 
 	bool publish(const char* data);
 
@@ -49,7 +49,7 @@ public:
 
 	String read();
 
-	void config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize);
+	void config(const char mqttServer[],const char inTopic[],const char outTopic[],int bufferSize);
 
 	bool config();
 
@@ -84,11 +84,6 @@ private:
 	*	MQTT topic to publish/write to
 	*/
 	char outTopic[50]={'0'};
-
-	/**
-	*	MQTT user name
-	*/
-	char user[50]={'0'};
 	
 	/**
 	*	MQTT inner bufferSize

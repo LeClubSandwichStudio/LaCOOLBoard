@@ -399,9 +399,9 @@ int CoolBoard::connect()
 	
 	#endif	
 		//logInterval in seconds
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(100);
-		if (mqtt.state() <0 && wifiManager.nomad == 1)
+		if (mqtt.state() != 0 && wifiManager.nomad == 1)
 		{
 			Serial.println( F("Known WIFI in the area but no internet connection"));
 			Serial.println( F("  --->   Launching Configuration Portal   <---"));
@@ -461,7 +461,7 @@ void CoolBoard::onLineMode()
 	{
 		Serial.println( F("reconnecting MQTT..."));
 
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(200);
 	}
 
@@ -469,7 +469,7 @@ void CoolBoard::onLineMode()
 	answer="";
 
 	//send saved data if any, check once again if the mqtt connection is ok!
-	if(fileSystem.isDataSaved() && isConnected() == 0)
+	if(fileSystem.isDataSaved() && isConnected() == 0 && mqtt.state() == 0)
 	{
 
 		coolBoardLed.fadeIn(128,128,255,0.5);//shade of blue
@@ -532,55 +532,26 @@ void CoolBoard::onLineMode()
 	Serial.println( F("Re-checking RTC..."));
 	rtc.update();
 
-	//read user data if user is active
-	if(userActive)
-	{
-		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
+	//reading board data
+	data=this->boardData();//{"":"","":"","",""}
+
+	//formatting json 
+	data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+			
+	//read sensors data
+#if DEBUG == 1
+
+	Serial.println( F("Collecting sensors data ") );
+	Serial.println();
+
+#endif
+
+	data+=this->readSensors();//{"":"","":"","","",{.......}		
+
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
 	
-	#if DEBUG == 1
-
-		Serial.println( F("User is Active") );
-		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
-		Serial.println();
-	
-	#endif	
-		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
-
-		//reading user data
-		data=this->userData();//{"":"","":"","",""}
-
-		//formatting json 
-		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
-				
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-	
-	#endif
-
-		data+=this->readSensors();//{"":"","":"","","",{.......}		
-
-		//formatting json correctly
-		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
-		
-		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
-				
-	}	
-	else
-	{
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-	
-	#endif
-		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
-		data=this->readSensors();//{..,..,..}
-	}
-
+	coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
 
 	//do action
 	if(this->manual == 0 )
@@ -699,7 +670,7 @@ void CoolBoard::onLineMode()
 	{
 		Serial.println( F("reconnecting MQTT..."));
 
-		mqtt.connect(this -> getLogInterval()*2);
+		mqtt.connect();
 		delay(200);
 	}
 
@@ -715,7 +686,7 @@ void CoolBoard::onLineMode()
 			if (!mqtt.publish( jsonData.c_str()))
 			{
 				fileSystem.saveSensorData( data.c_str() );
-				Serial.println( F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+				Serial.println( F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
 			}
 
 			mqtt.mqttLoop();
@@ -780,58 +751,36 @@ void CoolBoard::offLineMode()
 
 #endif
 
-	//read user data if user is active
-	if(userActive)
-	{
+	coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
 
-		coolBoardLed.fadeIn(245,237,27,0.5);//shade of yellow
+#if DEBUG == 1
+	
+	Serial.println( F("User is Active") );
+	Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
+	Serial.println();
 
-	#if DEBUG == 1
-		
-		Serial.println( F("User is Active") );
-		Serial.println( F("Collecting User's data ( mac,username,timeStamp )") );
-		Serial.println();
+#endif
 
-	#endif
+	coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
 
-		coolBoardLed.blink(245,237,27,0.5);//shade of yellow	
+	//reading user data
+	data=this->boardData();//{"":"","":"","",""}
 
-		//reading user data
-		data=this->userData();//{"":"","":"","",""}
+	//formatting json 
+	data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
+	
+			
+	//read sensors data
 
-		//formatting json 
-		data.setCharAt( data.lastIndexOf('}') , ',');//{"":"","":"","","",
-		
-				
-		//read sensors data
+	Serial.println( F("Collecting sensors data ") );
+	Serial.println();
 
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
+	data+=this->readSensors();//{"":"","":"","","",{.......}
 
-		data+=this->readSensors();//{"":"","":"","","",{.......}
+	
 
-		
-
-		//formatting json correctly
-		data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
-
-		coolBoardLed.fadeOut(245,237,27,0.5);//shade of yellow
-				
-	}	
-	else
-	{
-		//read sensors data
-	#if DEBUG == 1
-
-		Serial.println( F("Collecting sensors data ") );
-		Serial.println();
-
-	#endif
-
-		coolBoardLed.fade(190,100,150,0.5);//shade of violet		
-
-		data=this->readSensors();//{..,..,..}
-	}
+	//formatting json correctly
+	data.remove(data.lastIndexOf('{'), 1);//{"":"","":"","","",.......}
 
 	coolBoardLed.fade(51,100,50,0.5);//dark shade of green	
 
@@ -1583,12 +1532,12 @@ void CoolBoard::initReadI2C()
 *	
 *	\return json string of the user's data
 */
-String CoolBoard::userData()
+String CoolBoard::boardData()
 {
 
 #if DEBUG == 1
 
-	Serial.println( F("Entering CoolBoard.userData() ") );
+	Serial.println( F("Entering CoolBoard.boardData() ") );
 	Serial.println();
 
 #endif
@@ -1597,29 +1546,25 @@ String CoolBoard::userData()
 
 	tempMAC.replace(":", "");
 
-	String userJson = "{\"user\":\"";
+	String boardJson = "{\"timestamp\":\"";
 
-	userJson += mqtt.getUser();
+	boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
 
-	userJson += "\",\"timestamp\":\"";
+	boardJson += "\",\"mac\":\"";
 
-	userJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
+	boardJson += tempMAC;
 
-	userJson += "\",\"mac\":\"";
-
-	userJson += tempMAC;
-
-	userJson += "\"}";
+	boardJson += "\"}";
 
 #if DEBUG == 1
 
 	Serial.println( F("userData is : ") );
-	Serial.println(userJson);
+	Serial.println(boardJson);
 	Serial.println();
 
 #endif	
 	
-	return(userJson);
+	return(boardJson);
 	
 }
 

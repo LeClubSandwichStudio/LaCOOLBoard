@@ -92,14 +92,13 @@ int CoolMQTT::state()
 }
 
 /**
-*	CoolMQTT::connect( time to keep the connection alive in seconds ):
+*	CoolMQTT::connect():
 *	This method is provided to connect the client to the server,
-*	publish to the out topic , subscribe to the in topic and set
-*	the keepAlive time.
+*	publish to the out topic and subscribe to the in topic.
 *	
 *	\return mqtt client state
 */
-int CoolMQTT::connect(unsigned long keepAlive)
+int CoolMQTT::connect()
 {       
 
 	int i=0;
@@ -111,10 +110,17 @@ int CoolMQTT::connect(unsigned long keepAlive)
 #endif
 	Serial.println( F("MQTT connecting...") );
 	
+	String tempMAC = WiFi.macAddress();
+
+	tempMAC.replace(":", "");
+
+	char MAC[12];
+	tempMAC.toCharArray(MAC, 12);
+
 	while( ( !this->client.connected() ) && ( i<5 ) ) 
 	{
 		// Attempt to connect
-		if( this->client.connect( this-> user,keepAlive*10  ) )
+		if( this->client.connect( MAC ) ) //use the mac as MQTT client ID to assure a unique id
 		{
 			client.subscribe( this->inTopic );
 
@@ -186,9 +192,6 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println();
 #endif
 
-	bool pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
-	delay(100);			//wait a little and treat network
-	yield();
 
 #if DEBUG == 1 
 
@@ -196,36 +199,40 @@ bool CoolMQTT::publish(const char* data)
 	Serial.println(pub);	
 
 #endif
-	byte repeats = 0;
-	while (pub == 0)
+	byte retries = 0;
+	//bool published = false;
+	bool published = client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+	while (!published && retries < 5)
 	{
-		Serial.println( F("Publish : FAIL!!!"));
-		if (wifiManager.state()!=3)
+		published = client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+		if (!published )
 		{
-			Serial.println( F("No WiFi Re-connecting.."));
-			wifiManager.disconnect();
-			delay(200);
-			wifiManager.begin();
+			if (wifiManager.state() != 3)
+			{
+				Serial.println( F("No WiFi Re-connecting.."));
+				wifiManager.disconnect();
+				delay(200);
+				wifiManager.begin();	
+				delay(200);
+			}
 		}
-		if (state() != 0)
-		{
-			Serial.println( F("No MQTT Re-connecting.."));
-			delay(200);
-			connect(1000);
-		}
-		pub=client.publish( this->outTopic,(byte*) data,strlen(data),false  );
+		Serial.println( F("No MQTT, re-connecting.."));
+		connect();
+		delay(100);			//wait a little and treat network
 		yield();
-		//give the MQTT 5 retrys if publish fails
-		if (repeats >= 4) break;
-		repeats++;
+		retries++;
 	}
 	delay(100);
 	yield();
-	if (pub == 1)
+	if (published)
 	{
 		Serial.println( F("Publish : OK"));
+	} 
+	else 
+	{
+		Serial.println( F("Published failed after 5 retries"));
 	}
-	return(pub);
+	return(published);
 
 }
 
@@ -525,24 +532,6 @@ bool CoolMQTT::config()
 			}
 			json["outTopic"]=this->outTopic;
 		
-			
-			if(json["user"].success() )
-			{				
-				const char* tempUser = json["user"]; 
-				for(int i =0;i<50;i++)
-				{
-					user[i]=tempUser[i];
-				}
-			}
-			else
-			{
-				for(int i=0;i<50;i++)
-				{
-					this->user[i]=this->user[i];
-				}				
-			}
-			json["user"]=this->user;
-			
 			if(json["bufferSize"].success() )
 			{
 				int tempBufferSize = json["bufferSize"]; 
@@ -587,11 +576,11 @@ bool CoolMQTT::config()
 }
 
 /**
-*	CoolMQTT::config(server,in topic, out topic , user Id, buffer size):
+*	CoolMQTT::config(server,in topic, out topic, buffer size):
 *	This method is provided to manually configure the mqtt client	
 *
 */
-void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char outTopic[],const char user[],int bufferSize)
+void CoolMQTT::config(const char mqttServer[], const char inTopic[], const char outTopic[], int bufferSize)
 {
 
 #if DEBUG == 1
@@ -603,12 +592,11 @@ void CoolMQTT::config(const char mqttServer[],const char inTopic[],const char ou
 
 	for(int i =0;i< 50 ;i++)
 	{
-		this->mqttServer[i]=mqttServer[i];
-		this->inTopic[i]=inTopic[i];
-		this->outTopic[i]=outTopic[i];
-		this->user[i]=user[i];
+		this->mqttServer[i] = mqttServer[i];
+		this->inTopic[i] = inTopic[i];
+		this->outTopic[i] = outTopic[i];
 	}
-	this->bufferSize=bufferSize;
+	this->bufferSize = bufferSize;
 	
 
 }
@@ -639,32 +627,10 @@ void CoolMQTT::printConf()
 	Serial.print("outTopic : ");
 	Serial.println(this->outTopic);
 
-	Serial.print("user : ");
-	Serial.println(this->user);
-
 	Serial.print("bufferSize : ");
 	Serial.println(this->bufferSize);
 
 	Serial.println();
 
 
-}
-
-/**
-*	CoolMQTT::getUser():
-*	This method is provided to get the user name
-*/
-String CoolMQTT::getUser()
-{
-
-#if DEBUG == 1 
-	Serial.println( F("Entering CoolMQTT.getUser()") );
-	Serial.println();
-	
-	Serial.print( F("user : ") );
-	Serial.println(this->user);
-
-#endif
-
-	return String(this->user);
 }
