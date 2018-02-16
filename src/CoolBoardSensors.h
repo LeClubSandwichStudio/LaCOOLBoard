@@ -25,56 +25,46 @@
 #define CoolBoardSensors_H
 
 #include "Arduino.h"
-#include "internals/CoolSI114X.h"         // Light sensor Support
-#include "internals/CoolSparkFunBME280.h" // Environmental sensor Support
+#include "internals/CoolSI114X.h" // light sensor
+#include "SparkFunBME280.h"       // atmosperic sensor
 
 /**
  *
  *  \class CoolBoardSensors
- *  \brief This class handles the On-Board Sensors.
- *
+ *  \brief This class handles the on-board sensors.
  *
  */
 class CoolBoardSensors {
 
 public:
-  // Constructor
   CoolBoardSensors();
 
   void begin();
 
-  // data is in json
+  // data is in JSON
   String read();
 
   void allActive();
 
-  // additional method
   void end();
 
   bool config();
 
   void printConf();
 
-  // environment sensor methods
-
-  // set the enviornment sensor settings , if argument is ommitted , default
-  // value will be assigned
   void setEnvSensorSettings(uint8_t commInterface = I2C_MODE,
                             uint8_t I2CAddress = 0x76, uint8_t runMode = 3,
-
                             uint8_t tStandby = 0, uint8_t filter = 0,
                             uint8_t tempOverSample = 1,
                             uint8_t pressOverSample = 1,
                             uint8_t humidOverSample = 1);
 
-  // VBat
+  // battery level
   float readVBat();
 
-  // Moisture
-
+  // moisture
   float readMoisture();
 
-  // sensor objects :
   /**
    *  SI114X light sensor instance
    */
@@ -89,52 +79,46 @@ private:
   /**
    *  lightActive structure
    *
-   *  set visible to 1 to have visibleLight Readings
-   *
-   *  set ir to 1 to have infraRed Readings
-   *
-   *  set uv to 1 to have ultraViolet Readings
+   *  set visible to 1 to have visibleLight readings
+   *  set ir to 1 to have infraRed readings
+   *  set uv to 1 to have ultraViolet readings
    */
   struct lightActive {
     bool visible = 1;
     bool ir = 1;
     bool uv = 1;
-
   } lightDataActive;
 
   /**
    *  airActive structure
    *
-   *  set temperature to 1 to have temperature Readings
-   *
-   *  set humidity to 1 to have humidity Readings
-   *
-   *  set pressure to 1 to have pressure Readings
+   *  set temperature to 1 to have temperature readings
+   *  set humidity to 1 to have humidity readings
+   *  set pressure to 1 to have pressure readings
    */
   struct airActive {
     bool temperature = 1;
     bool humidity = 1;
     bool pressure = 1;
-
   } airDataActive;
 
   /**
-   *   Moisture Enable Pin
+   *   Moisture enable pin
    */
   const int EnMoisture = 13;
 
   /**
-   *  Analog Multiplexer  LOW=Vbat , HIGH=Moisture
+   *  Analog multiplexer: LOW=Vbat, HIGH=Moisture
    */
   const int AnMplex = 12;
 
   /**
-   *  set vbatActive to 1 to have battery voltage Readings
+   *  set vbatActive to 1 to have battery voltage readings
    */
   bool vbatActive = 1;
 
   /**
-   *  set soilMoistureActive to 1 to have soil Moisture Readings
+   *  set soilMoistureActive to 1 to have soil Moisture readings
    */
   bool soilMoistureActive = 1;
 };

@@ -18,8 +18,7 @@
 
 ## What is this repository for?
 
-It contains a set of Arduino libraries, wrappers and sketches that simplify the access and usage of all 
-the capabilites of La COOL Board.
+It contains a set of Arduino libraries, wrappers and sketches that simplify the access to and usage of the sensors and other hardware features provided by La COOL Board.
 
 ## How does it operates?
 
@@ -53,10 +52,10 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 
 ## How do I get set up?
 
-### Configuration
+### First steps
  
- 1. Download and Install the [Arduino IDE](https://www.arduino.cc/en/Main/Software)
- 2. Download and add the [ESP8266 hardware extension to Arduino](https://github.com/esp8266/Arduino). **If you already have Arduino IDE and the ESP8266 Hardware extension, make sure you upgrade them to the latest version.**
+ 1. Download and install the [Arduino IDE](https://www.arduino.cc/en/Main/Software)
+ 2. Download and add the [ESP8266 hardware extension to Arduino](https://github.com/esp8266/Arduino). **If you already have Arduino IDE and the ESP8266 Hardware extension, make sure you upgrade these to the latest version.**
  3. Download and add the COOL Board library set to the Arduino IDE
      1. First Method
          * Open the Arduino IDE
@@ -78,12 +77,12 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
          * Go to the `Arduino/libraries` folder (create it if necessary)
          * Clone the repository the there (`git clone <github_repo_url`)
          * Restart the Arduino IDE
-4. Download [ESP8266 FS Tool](https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
+4. Download [ESP8266 SPIFFS Tool](https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
 5. **Optional but highly recommended:** Download the [ESP8266 Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6) and follow its [installation guide](https://github.com/me-no-dev/EspExceptionDecoder)
-   
-### Dependencies :
 
-You'll need the following libraries to be able to use the COOL Board API:
+### Dependencies
+
+You'll need the following libraries to be able to use the COOL Board:
 
 * [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
 * [NeoPixelBus](https://github.com/Makuna/NeoPixelBus)
@@ -91,6 +90,7 @@ You'll need the following libraries to be able to use the COOL Board API:
 * [DS1337RTC](https://github.com/etrombly/DS1337RTC)
 * [DallasTemperature](https://github.com/milesburton/Arduino-Temperature-Control-Library)
 * [OneWire](https://github.com/PaulStoffregen/OneWire)
+* [Sparkfun BME280](https://github.com/sparkfun/SparkFun_BME280_Arduino_Library)
 
 ### Configuration files
 
