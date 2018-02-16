@@ -75,7 +75,8 @@ bool CoolFileSystem::saveSensorData(const char* data )
 #if DEBUG == 1
 
 	Serial.println( F("Entering CoolFileSystem.saveSensorData()") );
-	Serial.println();
+	Serial.print("Input Data : ");
+	Serial.println(data);
 
 #endif
 	
