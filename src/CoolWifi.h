@@ -59,6 +59,8 @@ public:
 	wl_status_t state();
 
 	wl_status_t disconnect();
+
+	String getExternalIP();
 	
 	void printConf();
 	

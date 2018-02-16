@@ -1530,9 +1530,16 @@ String CoolBoard::boardData()
 
 	boardJson += tempMAC;
 
-	boardJson += "\",\"wifiSignal\":";
+	if (isConnected() == 0)		//don't care about network if we are not connected
+	{
+		boardJson += "\",\"wifiSignal\":";
 
-	boardJson += WiFi.RSSI();
+		boardJson += WiFi.RSSI();
+
+		boardJson += ",\"publicIP\":";
+
+		boardJson += wifiManager.getExternalIP();
+	}
 
 	boardJson += "}";
 
