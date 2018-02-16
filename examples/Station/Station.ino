@@ -20,17 +20,15 @@ void setup() {
 
   coolBoard.begin();
 
-  coolBoard.printConf();
-
   Serial.print("one log every ");
   Serial.print(coolBoard.getLogInterval());
   Serial.println(" s ");
-}
 
-void loop() {
-  if (coolBoard.isConnected() == 0) {
+  if (coolBoard.connect() == 0) {
     coolBoard.onLineMode();
   } else {
     coolBoard.offLineMode();
   }
 }
+
+void loop() {}
