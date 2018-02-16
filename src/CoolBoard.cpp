@@ -1530,9 +1530,11 @@ String CoolBoard::boardData()
 
 	boardJson += tempMAC;
 
+	boardJson += "\"";
+
 	if (isConnected() == 0)		//don't care about network if we are not connected
 	{
-		boardJson += "\",\"wifiSignal\":";
+		boardJson += ",\"wifiSignal\":";
 
 		boardJson += WiFi.RSSI();
 
