@@ -28,7 +28,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
  *  CoolBoard::CoolBoard():
@@ -347,6 +347,7 @@ int CoolBoard::connect() {
       wifiManager.connectAP();
     }
   }
+  sendPublicIP();
 
 #if DEBUG == 1
   Serial.println(F("mqtt state is :"));
@@ -1277,4 +1278,31 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
       return (true);
     }
   }
+}
+
+/**
+ *  CoolBoard::sendPublicIP():
+ *  This method is provided to send
+ *  the public IP of a device to the 
+ *  CoolMenu over MQTT
+ *
+ *  \return true if successful, false if not
+ */
+bool CoolBoard::sendPublicIP()
+{
+#if DEBUG == 1
+  Serial.println(F("Entering CoolBoard.sendConfig()"));
+#endif
+
+  String publicIP = "{\"state\":{\"reported\":{\"publicIP\":\"";
+  publicIP += wifiManager.getExternalIP();
+  publicIP += "\"}}}";
+
+#if DEBUG == 1
+  Serial.println();
+  Serial.print("sending external IP : ");
+  Serial.println(publicIP);
+#endif
+
+  mqtt.publish( publicIP.c_str() );
 }

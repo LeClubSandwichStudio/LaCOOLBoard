@@ -57,6 +57,8 @@ public:
 
   wl_status_t disconnect();
 
+  String getExternalIP();
+
   void printConf();
 
   bool addWifi(String ssid, String pass = "");
