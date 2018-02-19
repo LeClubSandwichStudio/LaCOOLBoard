@@ -1181,9 +1181,13 @@ String CoolBoard::boardData() {
   boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
   boardJson += "\",\"mac\":\"";
   boardJson += tempMAC;
-	boardJson += "\",\"wifiSignal\":";
-	boardJson += WiFi.RSSI();
-	boardJson += "}";
+  boardJson += "\"";
+  //only send signal strenght if you got a existing wifi connection, logic, isn't it...
+  if (isConnected() == 0) {
+    boardJson += ",\"wifiSignal\":";
+    boardJson += WiFi.RSSI();
+  }
+  boardJson += "}";
 
 #if DEBUG == 1
   Serial.println(F("boardData is : "));
@@ -1293,16 +1297,18 @@ bool CoolBoard::sendPublicIP()
 #if DEBUG == 1
   Serial.println(F("Entering CoolBoard.sendConfig()"));
 #endif
-
-  String publicIP = "{\"state\":{\"reported\":{\"publicIP\":\"";
-  publicIP += wifiManager.getExternalIP();
-  publicIP += "\"}}}";
+  //only send public if you got a existing wifi connection, logic, isn't it...
+  if (isConnected() == 0) {
+    String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
+    publicIP += wifiManager.getExternalIP();
+    publicIP += "}}}";
 
 #if DEBUG == 1
-  Serial.println();
-  Serial.print("sending external IP : ");
-  Serial.println(publicIP);
+    Serial.println();
+    Serial.print("sending external IP : ");
+    Serial.println(publicIP);
 #endif
 
-  mqtt.publish( publicIP.c_str() );
+    mqtt.publish( publicIP.c_str() );
+  }
 }
