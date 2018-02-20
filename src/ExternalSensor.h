@@ -24,15 +24,16 @@
 #ifndef BaseExternalSensor_H
 #define BaseExternalSensor_H
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <DallasTemperature.h>
+
 #include "internals/CoolAdafruit_ADS1015.h"
 #include "internals/CoolAdafruit_CCS811.h"
 #include "internals/CoolAdafruit_TCS34725.h"
 #include "internals/CoolGauge.h"
 #include "internals/CoolNDIR_I2C.h"
-#include <DallasTemperature.h>
 
-#define DEBUGExternal 0
+#include "CoolLog.h"
 
 /**
  *  \class BaseExternalSensor:
@@ -47,15 +48,7 @@ public:
    *  BaseExternalSensor():
    *  Base class generic Constructor
    */
-  BaseExternalSensor() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("BaseExternalSensor Constructor");
-    Serial.println();
-
-#endif
-  }
+  BaseExternalSensor() {}
 
   /**
    *  begin():
@@ -65,17 +58,7 @@ public:
    *  \return generic value as it's not supposed
    *  to be used
    */
-  virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("BaseExternalSensor.begin()");
-    Serial.println();
-
-#endif
-
-    return (-2);
-  }
+  virtual uint8_t begin() { return (-2); }
 
   /**
    *  read():
@@ -86,17 +69,7 @@ public:
    *  as it is not supposed
    *  to be used
    */
-  virtual float read() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("BaseExternalSensor.read()");
-    Serial.println();
-
-#endif
-
-    return (-2);
-  }
+  virtual float read() { return (-2); }
 
   virtual float read(int16_t *a) { return (-42, 42); }
 
@@ -143,47 +116,17 @@ public:
   /**
    *  Generic Constructor
    */
-  ExternalSensor() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Generic> Constructor");
-    Serial.println();
-
-#endif
-
-    sensor();
-  }
+  ExternalSensor() { sensor(); }
 
   /**
    *  Generic begin method
    */
-  virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Generic> begin()");
-    Serial.println();
-
-#endif
-
-    return (sensor.begin());
-  }
+  virtual uint8_t begin() { return (sensor.begin()); }
 
   /**
    *  Generic read method
    */
-  virtual float read() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Generic> read() ");
-    Serial.println();
-
-#endif
-
-    return (sensor.read());
-  }
+  virtual float read() { return (sensor.read()); }
 
 private:
   T sensor; // the sensor itself
@@ -201,17 +144,7 @@ public:
    *  ExternalSensor(I2C address):
    *  NDIR_I2C specific constructor
    */
-  ExternalSensor(uint8_t i2c_addr) {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <NDIR_I2C> constructor");
-    Serial.println();
-
-#endif
-
-    sensor = NDIR_I2C(i2c_addr);
-  }
+  ExternalSensor(uint8_t i2c_addr) { sensor = NDIR_I2C(i2c_addr); }
 
   /**
    *  begin():
@@ -221,35 +154,12 @@ public:
    *  false otherwise
    */
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <NDIR_I2C> begin()");
-    Serial.println();
-
-#endif
-
     if (sensor.begin()) {
-
-#if DEBUGExternal == 1
-
-      Serial.println("NDIR_I2C init : wait 10 seconds");
-      Serial.println();
-
-#endif
-
+      // INFO_LOG("NDIR_I2C init, wating 10 seconds");
       delay(10000);
       return (true);
-
     } else {
-
-#if DEBUGExternal == 1
-
-      Serial.println("NDIR_I2C init : fail ");
-      Serial.println();
-
-#endif
-
+      // ERROR_LOG("Failed to init NDIR_I2C");
       return (false);
     }
   }
@@ -262,38 +172,11 @@ public:
    *  else return -42
    */
   virtual float read() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <NDIR_I2C> read()");
-    Serial.println();
-
-#endif
-
     if (sensor.measure()) {
-
-#if DEBUGExternal == 1
-
-      Serial.print("NDIR_I2C ppm :");
-      Serial.println((float)sensor.ppm);
-
-      Serial.println();
-
-#endif
-
+      // DEBUG_VAR("Reading NDIR_I2C ppm:", (float)sensor.ppm);
       return ((float)sensor.ppm);
-
-    }
-
-    else {
-
-#if DEBUGExternal == 1
-
-      Serial.println("NDIR_I2C read fail ");
-      Serial.println();
-
-#endif
-
+    } else {
+      // ERROR_LOG("Failed to read from NDIR_I2C");
       return (-42);
     }
   }
@@ -316,13 +199,6 @@ public:
    *  DallasTemperature specific constructor
    */
   ExternalSensor(OneWire *oneWire) {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <DallasTemperature> constructor");
-    Serial.println();
-
-#endif
     sensor = DallasTemperature(oneWire);
   }
 
@@ -333,14 +209,6 @@ public:
    *  \return true if successful
    */
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <DallasTemperature> begin()");
-    Serial.println();
-
-#endif
-
     sensor.begin();
     delay(5);
     sensor.getAddress(this->dallasAddress, 0);
@@ -356,20 +224,7 @@ public:
 
     sensor.requestTemperatures(); // Send the command to get temperatures
     float result = (float)sensor.getTempCByIndex(0);
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <DallasTemperature> read()");
-    Serial.println();
-
-    Serial.print("Requesting temperature...");
-
-    Serial.print("temperature : ");
-    Serial.print(result);
-    Serial.print("°C");
-    Serial.println();
-
-#endif
-
+    // DEBUG_VAR("Dallas temperature sensor value:", result);
     return (result);
   }
 
@@ -393,13 +248,6 @@ public:
    *  Adafruit_TCS34725 specific constructor
    */
   ExternalSensor() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_TCS34725> constructor");
-    Serial.println();
-
-#endif
     /* Initialise with default values (int time = 2.4ms, gain = 1x) */
     sensor =
         Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
@@ -412,19 +260,11 @@ public:
    *  \return true if successful
    */
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_TCS34725> begin()");
-    Serial.println();
-
-#endif
-
     if (sensor.begin()) {
-      Serial.println("Found sensor");
+      // DEBUG_LOG("Found TCS34725 RGB sensor");
       return (true);
     } else {
-      Serial.println("No TCS34725 found ... check your connections");
+      // ERROR_LOG("Failed to find TCS3472 RGB sensor, check connection");
       return (false);
     }
   }
@@ -446,29 +286,14 @@ public:
 
     internLux = sensor.calculateLux(internR, internG, internB);
 
-#if DEBUGExternal == 1
-    Serial.println("ExternalSensor <Adafruit_TCS34725> read()");
-    Serial.println();
-    Serial.print("Color Temp: ");
-    Serial.print(internColorTemp, DEC);
-    Serial.print(" K - ");
-    Serial.print("Lux: ");
-    Serial.print(internLux, DEC);
-    Serial.print(" - ");
-    Serial.print("R: ");
-    Serial.print(internR, DEC);
-    Serial.print(" ");
-    Serial.print("G: ");
-    Serial.print(internG, DEC);
-    Serial.print(" ");
-    Serial.print("B: ");
-    Serial.print(internB, DEC);
-    Serial.print(" ");
-    Serial.print("C: ");
-    Serial.print(internC, DEC);
-    Serial.print(" ");
-    Serial.println(" ");
-#endif
+    // DEBUG_LOG("TCS34725 RGB sensor value:");
+    // DEBUG_VAR("Color temperature in Kelvin:", internColorTemp);
+    // DEBUG_VAR("Illuminance in lux:", internLux);
+    // DEBUG_VAR("Red value:", internR);
+    // DEBUG_VAR("Green value:", internG);
+    // DEBUG_VAR("Blue value:", internB);
+    // DEBUG_VAR("C value:", internC);
+
     *a = (int16_t)internR;
     *b = (int16_t)internG;
     *c = (int16_t)internB;
@@ -497,31 +322,14 @@ public:
    *  Adafruit_CCS881 specific constructor
    */
   ExternalSensor(uint8_t i2c_addr) {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <CoolAdafruit_CCS811> constructor");
-    Serial.println();
-
-#endif
-
     sensor = Adafruit_CCS811();
 
     if (!sensor.begin(i2c_addr)) {
-      Serial.println("Failed to start sensor! Please check your wiring.");
+      // ERROR_LOG("Failed to start CCS881 VOC/eCO2 sensor, check connection");
     }
   }
 
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_CCS811> begin()");
-    Serial.println();
-
-#endif
-
-    // calibrate temperature sensor
     while (!sensor.available())
       ;
     float T = sensor.calculateTemperature();
@@ -539,24 +347,10 @@ public:
         internV = sensor.getTVOC();
       }
     }
+    // DEBUG_VAR("TCS3472 CO2 value in ppm:", internC);
+    // DEBUG_VAR("TCS3472 VOC in ppb:", internV);
+    // DEBUG_VAR("TCS3472 Temperature in °CL", internT);
 
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_TCS34725> read()");
-    Serial.println();
-
-    Serial.print("C02 : ");
-    Serial.print(internC);
-    Serial.println(" ppm ");
-    Serial.print("VOT : ");
-    Serial.print(internV);
-    Serial.println(" ppb ");
-    Serial.print("Temp: ");
-    Serial.print(internT);
-    Serial.println(" °C ");
-    Serial.println(" ");
-
-#endif
     *a = (int16_t)internC;
     *b = (int16_t)internV;
     *c = internT;
@@ -581,14 +375,6 @@ public:
    *  Adafruit_ADS1015 specific constructor
    */
   ExternalSensor(uint8_t i2c_addr) {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1015> constructor");
-    Serial.println();
-
-#endif
-
     sensor = Adafruit_ADS1015(i2c_addr);
   }
 
@@ -599,14 +385,6 @@ public:
    *  \return true if successful
    */
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1015> begin()");
-    Serial.println();
-
-#endif
-
     sensor.begin();
     return (true);
   }
@@ -631,23 +409,10 @@ public:
     gain2 = sensor.getGain();
     channel3 = sensor.readADC_SingleEnded(3);
     gain3 = sensor.getGain();
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1115> read()");
-    Serial.println();
-
-    Serial.print("Channel 0 : ");
-    Serial.print(channel0, DEC);
-    Serial.print("Channel 1 : ");
-    Serial.print(channel1, DEC);
-    Serial.print("Channel 2 : ");
-    Serial.print(channel2, DEC);
-    Serial.print("Channel 3 :  ");
-    Serial.print(channel3, DEC);
-    Serial.println(" ");
-
-#endif
+    // DEBUG_VAR("ADS1015 ADC Channel 0 value:", channel0);
+    // DEBUG_VAR("ADS1015 ADC Channel 2 value:", channel1);
+    // DEBUG_VAR("ADS1015 ADC Channel 2 value:", channel2);
+    // DEBUG_VAR("ADS1015 ADC Channel 3 value:", channel3);
     *a = (int16_t)channel0;
     *b = (int16_t)gain0;
     *c = (int16_t)channel1;
@@ -656,7 +421,6 @@ public:
     *f = (int16_t)gain2;
     *g = (int16_t)channel3;
     *h = (int16_t)gain3;
-
     return (0.0);
   }
 
@@ -678,14 +442,6 @@ public:
    *  Adafruit_ADS1115 specific constructor
    */
   ExternalSensor(uint8_t i2c_addr) {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1115> constructor");
-    Serial.println();
-
-#endif
-
     sensor = Adafruit_ADS1115(i2c_addr);
   }
 
@@ -696,14 +452,6 @@ public:
    *  \return true if successful
    */
   virtual uint8_t begin() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1115> begin()");
-    Serial.println();
-
-#endif
-
     sensor.begin();
     return (true);
   }
@@ -728,23 +476,10 @@ public:
     gain2 = sensor.getGain();
     channel3 = sensor.readADC_SingleEnded(3);
     gain3 = sensor.getGain();
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <Adafruit_ADS1115> read()");
-    Serial.println();
-
-    Serial.print("Channel 0 : ");
-    Serial.print(channel0, DEC);
-    Serial.print("Channel 1 : ");
-    Serial.print(channel1, DEC);
-    Serial.print("Channel 2 : ");
-    Serial.print(channel2, DEC);
-    Serial.print("Channel 3 :  ");
-    Serial.print(channel3, DEC);
-    Serial.println(" ");
-
-#endif
+    // DEBUG_VAR("ADS1015 ADC Channel 0 value:", channel0);
+    // DEBUG_VAR("ADS1015 ADC Channel 2 value:", channel1);
+    // DEBUG_VAR("ADS1015 ADC Channel 2 value:", channel2);
+    // DEBUG_VAR("ADS1015 ADC Channel 3 value:", channel3);
     *a = (int16_t)channel0;
     *b = (int16_t)gain0;
     *c = (int16_t)channel1;
@@ -753,7 +488,6 @@ public:
     *f = (int16_t)gain2;
     *g = (int16_t)channel3;
     *h = (int16_t)gain3;
-
     return (0.0);
   }
 
@@ -768,14 +502,6 @@ public:
    *  CoolGauge specific constructor
    */
   ExternalSensor() {
-
-#if DEBUGExternal == 1
-
-    Serial.println("ExternalSensor <CoolAdafruit_CCS811> constructor");
-    Serial.println();
-
-#endif
-
     sensor = Gauges();
   }
 
@@ -788,20 +514,10 @@ public:
     B = sensor.readGauge2();
     C = sensor.readGauge3();
 
-#if DEBUGExternal == 1
+    // DEBUG_VAR("COOL Gauge 1:", A);
+    // DEBUG_VAR("COOL Gauge 2:", B);
+    // DEBUG_VAR("COOL Gauge 3:", C);
 
-    Serial.println("ExternalSensor <CoolGauge> read()");
-    Serial.println();
-
-    Serial.print("Gauge 1 : ");
-    Serial.print(A);
-    Serial.print("Gauge 2 : ");
-    Serial.print(B);
-    Serial.print("Gauge 3 : ");
-    Serial.print(C);
-    Serial.println(" ");
-
-#endif
     *a = A;
     *b = B;
     *c = C;

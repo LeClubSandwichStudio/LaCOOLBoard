@@ -26,6 +26,8 @@
 
 #include "Arduino.h"
 
+#include <ArduinoJson.h>
+
 /**
  *  \class CoolFileSystem
  *
@@ -39,7 +41,7 @@ public:
 
   bool updateConfigFiles(String answer);
 
-  bool fileUpdate(String update, const char *path);
+  bool fileUpdate(JsonObject &jsonUpdate, const char *path);
 
   bool saveSensorData(const char *data);
 
@@ -49,9 +51,9 @@ public:
 
   String *getSensorSavedData(int &size);
 
-  bool incrementsavedData();
+  bool incrementSavedDataCount();
 
-  void getsavedData();
+  void printSavedDataCount();
 
 private:
   /**
