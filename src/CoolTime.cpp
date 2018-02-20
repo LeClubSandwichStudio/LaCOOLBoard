@@ -605,35 +605,24 @@ bool CoolTime::config() {
 
       if (json["localPort"].success()) {
         this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
       }
       json["localPort"] = this->localPort;
 
       if (json["timeSync"].success()) {
-
         this->timeSync = json["timeSync"];
-      } else {
-        this->timeSync = this->timeSync;
       }
       json["timeSync"] = this->timeSync;
 
       if (json["NTP"].success()) {
-
         this->NTP = json["NTP"].as<bool>();
-      } else {
-        this->NTP = this->NTP;
       }
       json["NTP"] = this->NTP;
 
-      if (json["compileTime"].success()) // Get the compile Flag and immediatly
-                                         // reset it to prevent re-reading on a
-                                         // later startup
-      {
-
+      // Get the compile flag and immediatly
+      // reset it to prevent re-reading on a
+      // later startup
+      if (json["compileTime"].success()) {
         this->compileTime = json["compileTime"].as<bool>();
-      } else {
-        this->compileTime = this->compileTime;
       }
       json["compileTime"] = this->compileTime;
 
@@ -732,31 +721,21 @@ bool CoolTime::saveTimeSync() {
 
       if (json["localPort"].success()) {
         this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
       }
       json["localPort"] = this->localPort;
 
       if (json["timeSync"].success()) {
         json["timeSync"] = this->timeSync;
-      } else {
-        this->timeSync = this->timeSync;
       }
       json["timeSync"] = this->timeSync;
 
       if (json["NTP"].success()) {
-
         json["NTP"] = this->NTP;
-      } else {
-        this->NTP = this->NTP;
       }
       json["NTP"] = this->NTP;
 
       if (json["compileTime"].success()) {
-
         json["compileTime"] = this->compileTime;
-      } else {
-        this->compileTime = this->compileTime;
       }
       json["compileTime"] = this->compileTime;
 

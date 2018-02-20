@@ -296,32 +296,24 @@ bool CoolBoardActor::config() {
       // parsing actif key
       if (json["actif"].success()) {
         this->actor.actif = json["actif"];
-      } else {
-        this->actor.actif = this->actor.actif;
       }
       json["actif"] = this->actor.actif;
 
       // parsing temporal key
       if (json["temporal"].success()) {
         this->actor.temporal = json["temporal"];
-      } else {
-        this->actor.temporal = this->actor.temporal;
       }
       json["temporal"] = this->actor.temporal;
 
       // parsing inverted key
       if (json["inverted"].success()) {
         this->actor.inverted = json["inverted"];
-      } else {
-        this->actor.inverted = this->actor.inverted;
       }
       json["inverted"] = this->actor.inverted;
 
       // parsing inverted key
       if (json["inverted"].success()) {
         this->actor.inverted = json["inverted"];
-      } else {
-        this->actor.inverted = this->actor.inverted;
       }
       json["inverted"] = this->actor.inverted;
 
@@ -331,11 +323,6 @@ bool CoolBoardActor::config() {
         this->actor.timeLow = json["low"][1];
         this->actor.hourLow = json["low"][2];
         this->actor.minuteLow = json["low"][3];
-      } else {
-        this->actor.rangeLow = this->actor.rangeLow;
-        this->actor.timeLow = this->actor.timeLow;
-        this->actor.hourLow = this->actor.hourLow;
-        this->actor.minuteLow = this->actor.minuteLow;
       }
       json["low"][0] = this->actor.rangeLow;
       json["low"][1] = this->actor.timeLow;
@@ -348,11 +335,6 @@ bool CoolBoardActor::config() {
         this->actor.timeHigh = json["high"][1];
         this->actor.hourHigh = json["high"][2];
         this->actor.minuteHigh = json["high"][3];
-      } else {
-        this->actor.rangeHigh = this->actor.rangeHigh;
-        this->actor.timeHigh = this->actor.timeHigh;
-        this->actor.hourHigh = this->actor.hourHigh;
-        this->actor.minuteHigh = this->actor.minuteHigh;
       }
       json["high"][0] = this->actor.rangeHigh;
       json["high"][1] = this->actor.timeHigh;
@@ -363,10 +345,6 @@ bool CoolBoardActor::config() {
       if (json["type"].success()) {
         this->actor.primaryType = json["type"][0].as<String>();
         this->actor.secondaryType = json["type"][1].as<String>();
-
-      } else {
-        this->actor.primaryType = this->actor.primaryType;
-        this->actor.secondaryType = this->actor.secondaryType;
       }
       json["type"][0] = this->actor.primaryType;
       json["type"][1] = this->actor.secondaryType;

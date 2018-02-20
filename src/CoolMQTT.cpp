@@ -476,8 +476,6 @@ bool CoolMQTT::config() {
       if (json["bufferSize"].success()) {
         int tempBufferSize = json["bufferSize"];
         bufferSize = tempBufferSize;
-      } else {
-        this->bufferSize = this->bufferSize;
       }
       json["bufferSize"] = this->bufferSize;
 

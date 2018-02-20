@@ -793,64 +793,48 @@ bool CoolBoard::config() {
       // parsing logInterval key
       if (json["logInterval"].success()) {
         this->logInterval = json["logInterval"].as<unsigned long>();
-      } else {
-        this->logInterval = this->logInterval;
       }
       json["logInterval"] = this->logInterval;
 
       // parsing ireneActive key
       if (json["ireneActive"].success()) {
         this->ireneActive = json["ireneActive"];
-      } else {
-        this->ireneActive = this->ireneActive;
       }
       json["ireneActive"] = this->ireneActive;
 
       // parsing jetpackActive key
       if (json["jetpackActive"].success()) {
         this->jetpackActive = json["jetpackActive"];
-      } else {
-        this->jetpackActive = this->jetpackActive;
       }
       json["jetpackActive"] = this->jetpackActive;
 
       // parsing externalSensorsActive key
       if (json["externalSensorsActive"].success()) {
         this->externalSensorsActive = json["externalSensorsActive"];
-      } else {
-        this->externalSensorsActive = this->externalSensorsActive;
       }
       json["externalSensorsActive"] = this->externalSensorsActive;
 
       // parsing sleepActive key
       if (json["sleepActive"].success()) {
         this->sleepActive = json["sleepActive"];
-      } else {
-        this->sleepActive = this->sleepActive;
       }
       json["sleepActive"] = this->sleepActive;
 
       // parsing manual key
       if (json["manual"].success()) {
         this->manual = json["manual"].as<bool>();
-      } else {
-        this->manual = this->manual;
       }
       json["manual"] = this->manual;
 
       // parsing saveAsJSON key
       if (json["saveAsJSON"].success()) {
         this->saveAsJSON = json["saveAsJSON"].as<bool>();
-      } else {
-        this->saveAsJSON = this->saveAsJSON;
       }
       json["saveAsJSON"] = this->saveAsJSON;
 
       // parsing saveAsCSV key
       if (json["saveAsCSV"].success()) {
         this->saveAsCSV = json["saveAsCSV"].as<bool>();
-      } else {
-        this->saveAsCSV = this->saveAsCSV;
       }
       json["saveAsCSV"] = this->saveAsCSV;
 

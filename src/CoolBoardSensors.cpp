@@ -325,65 +325,47 @@ bool CoolBoardSensors::config() {
 
       if (json["BME280"]["temperature"].success()) {
         this->airDataActive.temperature = json["BME280"]["temperature"];
-      } else {
-        this->airDataActive.temperature = this->airDataActive.temperature;
       }
       json["BME280"]["temperature"] = this->airDataActive.temperature;
 
       if (json["BME280"]["humidity"].success()) {
-
         this->airDataActive.humidity = json["BME280"]["humidity"];
-      } else {
-        this->airDataActive.humidity = this->airDataActive.humidity;
       }
       json["BME280"]["humidity"] = this->airDataActive.humidity;
 
       if (json["BME280"]["pressure"].success()) {
         this->airDataActive.pressure = json["BME280"]["pressure"];
-      } else {
-        this->airDataActive.pressure = this->airDataActive.pressure;
       }
       json["BME280"]["pressure"] = this->airDataActive.pressure;
 
       if (json["SI114X"]["visible"].success()) {
         this->lightDataActive.visible = json["SI114X"]["visible"];
-      } else {
-        this->lightDataActive.visible = this->lightDataActive.visible;
       }
       json["SI114X"]["visible"] = this->lightDataActive.visible;
 
       if (json["SI114X"]["ir"].success()) {
         this->lightDataActive.ir = json["SI114X"]["ir"];
-      } else {
-        this->lightDataActive.ir = this->lightDataActive.ir;
       }
       json["SI114X"]["ir"] = this->lightDataActive.ir;
 
       if (json["SI114X"]["uv"].success()) {
         this->lightDataActive.uv = json["SI114X"]["uv"];
-      } else {
-        this->lightDataActive.uv = this->lightDataActive.uv;
       }
       json["SI114X"]["uv"] = this->lightDataActive.uv;
 
       if (json["vbat"].success()) {
         this->vbatActive = json["vbat"];
-      } else {
-        this->vbatActive = this->vbatActive;
       }
       json["vbat"] = this->vbatActive;
 
       if (json["soilMoisture"].success()) {
         this->soilMoistureActive = json["soilMoisture"];
-      } else {
-        this->soilMoistureActive = this->soilMoistureActive;
       }
       json["soilMoisture"] = this->soilMoistureActive;
 
       coolBoardSensorsConfig.close();
       coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");
       if (!coolBoardSensorsConfig) {
-
         Serial.println(F("failed to write to /coolBoardSensorsConfig.json"));
         Serial.println();
 
