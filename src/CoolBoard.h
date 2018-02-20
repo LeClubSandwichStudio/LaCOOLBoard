@@ -131,12 +131,6 @@ private:
   CoolBoardActor onBoardActor;
 
   /**
-   *  userActive flag,
-   *  set to 1 to collect userData(MAC,userName,TimeStamp)
-   */
-  bool userActive = 0;
-
-  /**
    *  ireneActive flag,
    *  set to 1 when using an Irene module
    */
@@ -161,7 +155,7 @@ private:
    *  a cycle (init, read sensors, do action,log)
    *  and go to sleep for a LogInterval period of time
    */
-  bool sleepActive = 0;
+  bool sleepActive = 1;
 
   /**
    *  manual flag,
@@ -187,14 +181,14 @@ private:
    *  save data in a CSV file when in offLineMode
    *  BEST FOR OFF GRID SOLUTIONS!!!
    */
-  bool saveAsCSV = 1;
+  bool saveAsCSV = 0;
 
   /**
   *  log Interval value,
   *  the period of time between logs
   -  in Seconds
   */
-  unsigned long logInterval = 1;
+  unsigned long logInterval = 3600;
 
   /**
    *  last time the Client sent a Message over MQTT

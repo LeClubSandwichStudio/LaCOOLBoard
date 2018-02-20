@@ -96,9 +96,9 @@ private:
    *  set uv to 1 to have ultraViolet Readings
    */
   struct lightActive {
-    bool visible = 0;
-    bool ir = 0;
-    bool uv = 0;
+    bool visible = 1;
+    bool ir = 1;
+    bool uv = 1;
 
   } lightDataActive;
 
@@ -112,9 +112,9 @@ private:
    *  set pressure to 1 to have pressure Readings
    */
   struct airActive {
-    bool temperature = 0;
-    bool humidity = 0;
-    bool pressure = 0;
+    bool temperature = 1;
+    bool humidity = 1;
+    bool pressure = 1;
 
   } airDataActive;
 
@@ -131,12 +131,12 @@ private:
   /**
    *  set vbatActive to 1 to have battery voltage Readings
    */
-  bool vbatActive = 0;
+  bool vbatActive = 1;
 
   /**
    *  set soilMoistureActive to 1 to have soil Moisture Readings
    */
-  bool soilMoistureActive = 0;
+  bool soilMoistureActive = 1;
 };
 
 #endif
