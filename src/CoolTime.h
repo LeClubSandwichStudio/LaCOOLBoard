@@ -110,7 +110,7 @@ private:
    *   this flag set's the RTC and timeSync from __TIMESTAMP__
    *   then reset's the flag
    */
-  bool compileTime = 1;
+  bool compileTime = 0;
 
   /**
    *  UDP Client instance

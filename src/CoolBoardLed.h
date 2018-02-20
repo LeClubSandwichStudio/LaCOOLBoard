@@ -69,7 +69,7 @@ private:
    *  ledActive flag
    *  set to 1 if you want LED animation
    */
-  bool ledActive = 0;
+  bool ledActive = 1;
 };
 
 #endif
