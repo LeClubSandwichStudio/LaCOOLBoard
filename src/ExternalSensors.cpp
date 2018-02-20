@@ -307,50 +307,36 @@ bool ExternalSensors::config() {
 
             if (sensorJson["reference"].success()) {
               this->sensors[i].reference = sensorJson["reference"].as<String>();
-            } else {
-              this->sensors[i].reference = this->sensors[i].reference;
             }
             sensorJson["reference"] = this->sensors[i].reference;
 
             if (sensorJson["type"].success()) {
               this->sensors[i].type = sensorJson["type"].as<String>();
-            } else {
-              this->sensors[i].type = this->sensors[i].type;
             }
             sensorJson["type"] = this->sensors[i].type;
 
             if (sensorJson["address"].success()) {
               this->sensors[i].address = sensorJson["address"];
-            } else {
-              this->sensors[i].address = this->sensors[i].address;
             }
             sensorJson["address"] = this->sensors[i].address;
 
             if (sensorJson["kind0"].success()) {
               this->sensors[i].kind0 = sensorJson["kind0"].as<String>();
-            } else {
-              this->sensors[i].kind0 = this->sensors[i].kind0;
             }
             sensorJson["kind0"] = this->sensors[i].kind0;
 
             if (sensorJson["kind1"].success()) {
               this->sensors[i].kind1 = sensorJson["kind1"].as<String>();
-            } else {
-              this->sensors[i].kind1 = this->sensors[i].kind1;
             }
             sensorJson["kind1"] = this->sensors[i].kind1;
 
             if (sensorJson["kind2"].success()) {
               this->sensors[i].kind2 = sensorJson["kind2"].as<String>();
-            } else {
-              this->sensors[i].kind2 = this->sensors[i].kind2;
             }
             sensorJson["kind2"] = this->sensors[i].kind2;
 
             if (sensorJson["kind3"].success()) {
               this->sensors[i].kind3 = sensorJson["kind3"].as<String>();
-            } else {
-              this->sensors[i].kind3 = this->sensors[i].kind3;
             }
             sensorJson["sensor3"] = this->sensors[i].kind3;
 

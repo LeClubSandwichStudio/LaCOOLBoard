@@ -229,58 +229,42 @@ bool Irene3000::config() {
 #endif
       if (json["waterTemp"]["active"].success()) {
         this->waterTemp.active = json["waterTemp"]["active"];
-      } else {
-        this->waterTemp.active = this->waterTemp.active;
       }
       json["waterTemp"]["active"] = this->waterTemp.active;
 
       if (json["phProbe"]["active"].success()) {
         this->phProbe.active = json["phProbe"]["active"];
-      } else {
-        this->phProbe.active = this->phProbe.active;
       }
       json["phProbe"]["active"] = this->phProbe.active;
 
       if (json["adc2"]["active"].success()) {
         this->adc2.active = json["adc2"]["active"];
-      } else {
-        this->adc2.active = this->adc2.active;
       }
       json["adc2"]["active"] = this->adc2.active;
 
       if (json["adc2"]["gain"].success()) {
         tempGain = json["adc2"]["gain"];
         this->adc2.gain = this->gainConvert(tempGain);
-      } else {
-        this->adc2.gain = this->adc2.gain;
       }
       json["adc2"]["gain"] = this->adc2.gain;
 
       if (json["adc2"]["type"].success()) {
         this->adc2.type = json["adc2"]["type"].as<String>();
-      } else {
-        this->adc2.type = this->adc2.type;
       }
       json["adc2"]["type"] = this->adc2.type;
 
       if (json["pH7Cal"].success()) {
         this->params.pH7Cal = json["pH7Cal"];
-      } else {
-        this->params.pH7Cal = this->params.pH7Cal;
       }
       json["pH7Cal"] = this->params.pH7Cal;
 
       if (json["pH4Cal"].success()) {
         this->params.pH4Cal = json["pH4Cal"];
-      } else {
-        this->params.pH4Cal = this->params.pH4Cal;
       }
       json["pH4Cal"] = this->params.pH4Cal;
 
       if (json["pHStep"].success()) {
         this->params.pHStep = json["pHStep"];
-      } else {
-        this->params.pHStep = this->params.pHStep;
       }
       json["pHStep"] = this->params.pHStep;
 

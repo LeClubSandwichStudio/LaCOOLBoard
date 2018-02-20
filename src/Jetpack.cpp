@@ -351,8 +351,6 @@ bool Jetpack::config() {
           // parsing actif key
           if (json[String("Act") + String(i)]["actif"].success()) {
             this->actors[i].actif = json[String("Act") + String(i)]["actif"];
-          } else {
-            this->actors[i].actif = this->actors[i].actif;
           }
           json[String("Act") + String(i)]["actif"] = this->actors[i].actif;
 
@@ -360,8 +358,6 @@ bool Jetpack::config() {
           if (json[String("Act") + String(i)]["temporal"].success()) {
             this->actors[i].temporal =
                 json[String("Act") + String(i)]["temporal"];
-          } else {
-            this->actors[i].temporal = this->actors[i].temporal;
           }
           json[String("Act") + String(i)]["temporal"] =
               this->actors[i].temporal;
@@ -370,8 +366,6 @@ bool Jetpack::config() {
           if (json[String("Act") + String(i)]["inverted"].success()) {
             this->actors[i].inverted =
                 json[String("Act") + String(i)]["inverted"];
-          } else {
-            this->actors[i].inverted = this->actors[i].inverted;
           }
           json[String("Act") + String(i)]["inverted"] =
               this->actors[i].inverted;
@@ -380,8 +374,6 @@ bool Jetpack::config() {
           if (json[String("Act") + String(i)]["inverted"].success()) {
             this->actors[i].inverted =
                 json[String("Act") + String(i)]["inverted"];
-          } else {
-            this->actors[i].inverted = this->actors[i].inverted;
           }
           json[String("Act") + String(i)]["inverted"] =
               this->actors[i].inverted;
@@ -394,11 +386,6 @@ bool Jetpack::config() {
             this->actors[i].hourLow = json[String("Act") + String(i)]["low"][2];
             this->actors[i].minuteLow =
                 json[String("Act") + String(i)]["low"][3];
-          } else {
-            this->actors[i].rangeLow = this->actors[i].rangeLow;
-            this->actors[i].timeLow = this->actors[i].timeLow;
-            this->actors[i].hourLow = this->actors[i].hourLow;
-            this->actors[i].minuteLow = this->actors[i].minuteLow;
           }
           json[String("Act") + String(i)]["low"][0] = this->actors[i].rangeLow;
           json[String("Act") + String(i)]["low"][1] = this->actors[i].timeLow;
@@ -415,11 +402,6 @@ bool Jetpack::config() {
                 json[String("Act") + String(i)]["high"][2];
             this->actors[i].minuteHigh =
                 json[String("Act") + String(i)]["high"][3];
-          } else {
-            this->actors[i].rangeHigh = this->actors[i].rangeHigh;
-            this->actors[i].timeHigh = this->actors[i].timeHigh;
-            this->actors[i].hourHigh = this->actors[i].hourHigh;
-            this->actors[i].minuteHigh = this->actors[i].minuteHigh;
           }
           json[String("Act") + String(i)]["high"][0] =
               this->actors[i].rangeHigh;
@@ -434,18 +416,11 @@ bool Jetpack::config() {
                 json[String("Act") + String(i)]["type"][0].as<String>();
             this->actors[i].secondaryType =
                 json[String("Act") + String(i)]["type"][1].as<String>();
-
-          } else {
-            this->actors[i].primaryType = this->actors[i].primaryType;
-            this->actors[i].secondaryType = this->actors[i].secondaryType;
           }
           json[String("Act") + String(i)]["type"][0] =
               this->actors[i].primaryType;
           json[String("Act") + String(i)]["type"][1] =
               this->actors[i].secondaryType;
-
-        } else {
-          this->actors[i] = this->actors[i];
         }
 
         json[String("Act") + String(i)]["actif"] = this->actors[i].actif;

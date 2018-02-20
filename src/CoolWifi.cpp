@@ -343,51 +343,35 @@ bool CoolWifi::config() {
       // wifiCount
       if (json["wifiCount"].success()) {
         this->wifiCount = json["wifiCount"];
-      } else {
-        this->wifiCount = this->wifiCount;
       }
       json["wifiCount"] = this->wifiCount;
 
       // AP timeOut
       if (json["timeOut"].success()) {
         this->timeOut = json["timeOut"];
-      } else {
-        this->timeOut = this->timeOut;
       }
       json["timeOut"] = this->timeOut;
 
       // nomad
       if (json["nomad"].success()) {
         this->nomad = json["nomad"];
-      } else {
-        this->nomad = this->nomad;
       }
       json["nomad"] = this->nomad;
 
       // Wifis SSID and PASS
       for (int i = 0; i < this->wifiCount; i++) {
         if (json["Wifi" + String(i)].success()) {
-
           if (json["Wifi" + String(i)]["ssid"].success()) {
             const char *tempSsid = json["Wifi" + String(i)]["ssid"];
             this->ssid[i] = tempSsid;
-          } else {
-            this->ssid[i] = this->ssid[i];
           }
           json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
 
           if (json["Wifi" + String(i)]["pass"].success()) {
             const char *tempPass = json["Wifi" + String(i)]["pass"];
             this->pass[i] = tempPass;
-          } else {
-            this->pass[i] = this->pass[i];
           }
           json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
-
-        } else {
-
-          this->ssid[i] = this->ssid[i];
-          this->pass[i] = this->pass[i];
         }
         json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
         json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
@@ -580,16 +564,12 @@ bool CoolWifi::addWifi(String ssid, String pass) {
       // wifiCount
       if (json["wifiCount"].success()) {
         json["wifiCount"] = this->wifiCount;
-      } else {
-        this->wifiCount = this->wifiCount;
       }
       json["wifiCount"] = this->wifiCount;
 
       // AP timeOut
       if (json["timeOut"].success()) {
         this->timeOut = json["timeOut"];
-      } else {
-        this->timeOut = this->timeOut;
       }
       json["timeOut"] = this->timeOut;
 

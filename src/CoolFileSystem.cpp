@@ -949,8 +949,6 @@ bool CoolFileSystem::fileUpdate(String update, const char *path) {
   for (auto kv : fileJson) {
     if (updateJson[kv.key].success()) {
       fileJson[kv.key] = updateJson[kv.key];
-    } else {
-      fileJson[kv.key] = fileJson[kv.key];
     }
   }
 
