@@ -77,6 +77,8 @@ public:
 
   bool sendConfig(const char *moduleName, const char *filePath);
 
+  bool sendPublicIP();
+
 private:
   /**
    *  fileSystem handler instance

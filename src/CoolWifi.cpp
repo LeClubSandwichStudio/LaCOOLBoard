@@ -628,3 +628,46 @@ bool CoolWifi::addWifi(String ssid, String pass) {
 
   return (true);
 }
+
+
+/**
+ *  CoolWifi::getExternalIP():
+ *  This method is provided to print the
+ *  public IP of a device to a String
+ */
+String CoolWifi::getExternalIP()
+{
+#if DEBUG == 1
+
+  Serial.println("Entering CoolWifi.getExternalIP() ");
+
+#endif
+
+  WiFiClient client;
+  String IP;
+  if (!client.connect("api.ipify.org", 80)) {
+    Serial.println(F ("Failed to connect with 'api.ipify.org' !"));
+  } else {
+    int timeout = millis() + 800;
+    client.print("GET /?format=json HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n");
+    while (client.available() == 0) {
+      if (timeout - millis() < 0) {
+        Serial.println(">>> Client Timeout !");
+      }
+      yield();
+    }
+    while (client.available()) {
+      char msg = client.read();
+      IP += msg;
+    }
+    client.stop();
+
+#if DEBUG == 1
+    Serial.print("Received Message : ");
+    Serial.println(IP);
+#endif
+    
+  }
+  //return only the IP in the string
+  return IP.substring(IP.indexOf("{")+6,IP.lastIndexOf("}"));
+}

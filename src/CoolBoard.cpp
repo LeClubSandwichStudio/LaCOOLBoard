@@ -28,7 +28,7 @@
 #include <Wire.h>
 #include <memory>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
  *  CoolBoard::CoolBoard():
@@ -347,6 +347,7 @@ int CoolBoard::connect() {
       wifiManager.connectAP();
     }
   }
+  sendPublicIP();
 
 #if DEBUG == 1
   Serial.println(F("mqtt state is :"));
@@ -1180,9 +1181,13 @@ String CoolBoard::boardData() {
   boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
   boardJson += "\",\"mac\":\"";
   boardJson += tempMAC;
-	boardJson += "\",\"wifiSignal\":";
-	boardJson += WiFi.RSSI();
-	boardJson += "}";
+  boardJson += "\"";
+  //only send signal strenght if you got a existing wifi connection, logic, isn't it...
+  if (isConnected() == 0) {
+    boardJson += ",\"wifiSignal\":";
+    boardJson += WiFi.RSSI();
+  }
+  boardJson += "}";
 
 #if DEBUG == 1
   Serial.println(F("boardData is : "));
@@ -1276,5 +1281,34 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
       mqtt.mqttLoop();
       return (true);
     }
+  }
+}
+
+/**
+ *  CoolBoard::sendPublicIP():
+ *  This method is provided to send
+ *  the public IP of a device to the 
+ *  CoolMenu over MQTT
+ *
+ *  \return true if successful, false if not
+ */
+bool CoolBoard::sendPublicIP()
+{
+#if DEBUG == 1
+  Serial.println(F("Entering CoolBoard.sendConfig()"));
+#endif
+  //only send public if you got a existing wifi connection, logic, isn't it...
+  if (isConnected() == 0) {
+    String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
+    publicIP += wifiManager.getExternalIP();
+    publicIP += "}}}";
+
+#if DEBUG == 1
+    Serial.println();
+    Serial.print("sending external IP : ");
+    Serial.println(publicIP);
+#endif
+
+    mqtt.publish( publicIP.c_str() );
   }
 }
