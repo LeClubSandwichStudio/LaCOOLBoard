@@ -639,7 +639,7 @@ String CoolWifi::getExternalIP()
 {
 #if DEBUG == 1
 
-  Serial.println("Entering CoolWifi.addWifi() ");
+  Serial.println("Entering CoolWifi.getExternalIP() ");
 
 #endif
 
@@ -647,9 +647,8 @@ String CoolWifi::getExternalIP()
   String IP;
   if (!client.connect("api.ipify.org", 80)) {
     Serial.println(F ("Failed to connect with 'api.ipify.org' !"));
-  }
-  else {
-  int timeout = millis() + 800;
+  } else {
+    int timeout = millis() + 800;
     client.print("GET /?format=json HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n");
     while (client.available() == 0) {
       if (timeout - millis() < 0) {
