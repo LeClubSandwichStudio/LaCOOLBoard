@@ -21,14 +21,14 @@
  *
  */
 
-#include "Arduino.h"
-#include "ArduinoJson.h"
-#include "FS.h"
+#include <Arduino.h>
+#include <FS.h>
+
+#include <ArduinoJson.h>
 
 #include "CoolBoardActor.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
-
-#define DEBUG 0
 
 /**
  *  CoolBoardActor::begin():
@@ -173,84 +173,66 @@ String CoolBoardActor::doAction(const char *data, int hour, int minute) {
  */
 bool CoolBoardActor::config() {
   DEBUG_LOG("Entering CoolBoardActor.config()");
-  File coolBoardActorConfig = SPIFFS.open("/coolBoardActorConfig.json", "r");
 
-  if (!coolBoardActorConfig) {
-    ERROR_LOG("Failed to read /coolBoardActorConfig.json");
+  CoolConfig config("/coolBoardActorConfig.json");
+
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read onboard actuator config");
     return (false);
-  } else {
-    size_t size = coolBoardActorConfig.size();
-
-    // Allocate a buffer to store content of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    coolBoardActorConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON actuator config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("Actuator config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["actif"].success()) {
-        this->actor.actif = json["actif"];
-      }
-      json["actif"] = this->actor.actif;
-      // parsing temporal key
-      if (json["temporal"].success()) {
-        this->actor.temporal = json["temporal"];
-      }
-      json["temporal"] = this->actor.temporal;
-      // parsing inverted key
-      if (json["inverted"].success()) {
-        this->actor.inverted = json["inverted"];
-      }
-      json["inverted"] = this->actor.inverted;
-
-      // parsing low key
-      if (json["low"].success()) {
-        this->actor.rangeLow = json["low"][0];
-        this->actor.timeLow = json["low"][1];
-        this->actor.hourLow = json["low"][2];
-        this->actor.minuteLow = json["low"][3];
-      }
-      json["low"][0] = this->actor.rangeLow;
-      json["low"][1] = this->actor.timeLow;
-      json["low"][2] = this->actor.hourLow;
-      json["low"][3] = this->actor.minuteLow;
-
-      // parsing high key
-      if (json["high"].success()) {
-        this->actor.rangeHigh = json["high"][0];
-        this->actor.timeHigh = json["high"][1];
-        this->actor.hourHigh = json["high"][2];
-        this->actor.minuteHigh = json["high"][3];
-      }
-      json["high"][0] = this->actor.rangeHigh;
-      json["high"][1] = this->actor.timeHigh;
-      json["high"][2] = this->actor.hourHigh;
-      json["high"][3] = this->actor.minuteHigh;
-
-      // parsing type key
-      if (json["type"].success()) {
-        this->actor.primaryType = json["type"][0].as<String>();
-        this->actor.secondaryType = json["type"][1].as<String>();
-      }
-      json["type"][0] = this->actor.primaryType;
-      json["type"][1] = this->actor.secondaryType;
-      coolBoardActorConfig.close();
-      coolBoardActorConfig = SPIFFS.open("/coolBoardActorConfig.json", "w");
-
-      if (!coolBoardActorConfig) {
-        ERROR_LOG("Failed to write to /coolBoardActorConfig.json");
-        return (false);
-      }
-      json.printTo(coolBoardActorConfig);
-      coolBoardActorConfig.close();
-      DEBUG_JSON("Saved actuator config to /coolBoardActorConfig.json", json);
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  if (json["actif"].success()) {
+    this->actor.actif = json["actif"];
+  }
+  json["actif"] = this->actor.actif;
+  // parsing temporal key
+  if (json["temporal"].success()) {
+    this->actor.temporal = json["temporal"];
+  }
+  json["temporal"] = this->actor.temporal;
+  // parsing inverted key
+  if (json["inverted"].success()) {
+    this->actor.inverted = json["inverted"];
+  }
+  json["inverted"] = this->actor.inverted;
+
+  // parsing low key
+  if (json["low"].success()) {
+    this->actor.rangeLow = json["low"][0];
+    this->actor.timeLow = json["low"][1];
+    this->actor.hourLow = json["low"][2];
+    this->actor.minuteLow = json["low"][3];
+  }
+  json["low"][0] = this->actor.rangeLow;
+  json["low"][1] = this->actor.timeLow;
+  json["low"][2] = this->actor.hourLow;
+  json["low"][3] = this->actor.minuteLow;
+
+  // parsing high key
+  if (json["high"].success()) {
+    this->actor.rangeHigh = json["high"][0];
+    this->actor.timeHigh = json["high"][1];
+    this->actor.hourHigh = json["high"][2];
+    this->actor.minuteHigh = json["high"][3];
+  }
+  json["high"][0] = this->actor.rangeHigh;
+  json["high"][1] = this->actor.timeHigh;
+  json["high"][2] = this->actor.hourHigh;
+  json["high"][3] = this->actor.minuteHigh;
+
+  // parsing type key
+  if (json["type"].success()) {
+    this->actor.primaryType = json["type"][0].as<String>();
+    this->actor.secondaryType = json["type"][1].as<String>();
+  }
+  json["type"][0] = this->actor.primaryType;
+  json["type"][1] = this->actor.secondaryType;
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to write onboard actuator config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

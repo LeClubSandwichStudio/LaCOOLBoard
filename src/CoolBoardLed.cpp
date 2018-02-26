@@ -21,13 +21,15 @@
  *
  */
 
-#include "Arduino.h"
-#include "FS.h"
+#include <Arduino.h>
+#include <FS.h>
 
-#include "ArduinoJson.h"
-#include "CoolBoardLed.h"
-#include "CoolLog.h"
+#include <ArduinoJson.h>
 #include <NeoPixelBus.h>
+
+#include "CoolBoardLed.h"
+#include "CoolConfig.h"
+#include "CoolLog.h"
 
 /**
  *  CoolBoardLed::fade ( Red , Green , Blue, Time in seconds ):
@@ -199,41 +201,22 @@ void CoolBoardLed::write(int R, int G, int B) {
 bool CoolBoardLed::config() {
   DEBUG_LOG("Entering CoolBoardLed.config()");
 
-  File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "r");
+  CoolConfig config("/coolBoardLedConfig.json");
 
-  if (!coolBoardLedConfig) {
-    ERROR_LOG("Failed to read /coolBoardLedConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read LED config");
     return (false);
-  } else {
-    size_t size = coolBoardLedConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardLedConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON LED config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("LED config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["ledActive"].success()) {
-        this->ledActive = json["ledActive"];
-      }
-      json["ledActive"] = this->ledActive;
-      coolBoardLedConfig.close();
-      coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");
-      if (!coolBoardLedConfig) {
-        ERROR_LOG("Failed to write to /coolBoardLedConfig.json");
-        return (false);
-      }
-      json.printTo(coolBoardLedConfig);
-      coolBoardLedConfig.close();
-      INFO_LOG("Saved LED config to /coolBoardLedConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  if (json["ledActive"].success()) {
+    this->ledActive = json["ledActive"];
+  }
+  json["ledActive"] = this->ledActive;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to write LED config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

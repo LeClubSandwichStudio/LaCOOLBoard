@@ -21,14 +21,15 @@
  *
  */
 
-#include "Arduino.h"
-#include "FS.h"
+#include <Arduino.h>
+#include <FS.h>
 
-#include "ArduinoJson.h"
-#include "TimeLib.h"
+#include <ArduinoJson.h>
+#include <TimeLib.h>
 
-#include "CoolTime.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
+#include "CoolTime.h"
 
 /**
  *  CoolTime::begin():
@@ -315,17 +316,6 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
 }
 
 /**
- *  CoolTime::config(Time server IP , udp Port):
- *  This method is provided to do manual configuration.
- *
- */
-void CoolTime::config(IPAddress timeServer, unsigned int localPort) {
-  DEBUG_LOG("Entering CoolTime.config()");
-  this->timeServerIP = timeServerIP;
-  this->localPort = localPort;
-}
-
-/**
  *  CoolTime::config():
  *  This method is provided to configure
  *  the CoolTime object through a configuration
@@ -336,67 +326,47 @@ void CoolTime::config(IPAddress timeServer, unsigned int localPort) {
 bool CoolTime::config() {
   DEBUG_LOG("Entering CoolTime.config()");
 
-  File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+  CoolConfig config("/rtcConfig.json");
 
-  if (!rtcConfig) {
-    ERROR_LOG("Failed to read /rtcConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read RTC config");
     return (false);
-  } else {
-    size_t size = rtcConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    rtcConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+  }
+  JsonObject &json = config.get();
 
-    if (!json.success()) {
-      ERROR_LOG("Failed to RTC config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("RTC config JSON", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
-      } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
-      }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      }
-      json["localPort"] = this->localPort;
-
-      if (json["timeSync"].success()) {
-        this->timeSync = json["timeSync"];
-      }
-      json["timeSync"] = this->timeSync;
-
-      if (json["NTP"].success()) {
-        this->NTP = json["NTP"].as<bool>();
-      }
-      json["NTP"] = this->NTP;
-
-      if (json["compileTime"].success()) {
-        this->compileTime = json["compileTime"].as<bool>();
-      }
-      json["compileTime"] = this->compileTime;
-      rtcConfig.close();
-      rtcConfig = SPIFFS.open("/rtcConfig.json", "w");
-
-      if (!rtcConfig) {
-        ERROR_LOG("failed to write RTC config to /rtcConfig.json");
-        return (false);
-      }
-      rtcConfig.close();
-      DEBUG_LOG("Saved RTC config to /rtcConfig.json");
-      return (true);
+  if (json["timeServer"].success()) {
+    const char *tempServer = json["timeServer"];
+    for (int i = 0; i < 50; i++) {
+      timeServer[i] = tempServer[i];
     }
   }
+  json["timeServer"] = this->timeServer;
+
+  if (json["localPort"].success()) {
+    this->localPort = json["localPort"];
+  }
+  json["localPort"] = this->localPort;
+
+  if (json["timeSync"].success()) {
+    this->timeSync = json["timeSync"];
+  }
+  json["timeSync"] = this->timeSync;
+
+  if (json["NTP"].success()) {
+    this->NTP = json["NTP"].as<bool>();
+  }
+  json["NTP"] = this->NTP;
+
+  if (json["compileTime"].success()) {
+    this->compileTime = json["compileTime"].as<bool>();
+  }
+  json["compileTime"] = this->compileTime;
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("failed to write RTC config");
+    return (false);
+  }
+  return (true);
 }
 
 /**
@@ -411,68 +381,22 @@ bool CoolTime::config() {
 bool CoolTime::saveTimeSync() {
   DEBUG_LOG("Entering CoolTime.saveTimeSync()");
 
-  File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+  CoolConfig config("/rtcConfig.json");
 
-  if (!rtcConfig) {
+  if (!config.readFileAsJson()) {
     ERROR_LOG("Failed to read /rtcConfig.json");
     return (false);
-  } else {
-    size_t size = rtcConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    rtcConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to RTC config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("RTC config JSON", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
-      } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
-      }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      }
-      json["localPort"] = this->localPort;
-
-      if (json["timeSync"].success()) {
-        json["timeSync"] = this->timeSync;
-      }
-      json["timeSync"] = this->timeSync;
-
-      if (json["NTP"].success()) {
-        json["NTP"] = this->NTP;
-      }
-      json["NTP"] = this->NTP;
-
-      if (json["compileTime"].success()) {
-        json["compileTime"] = this->compileTime;
-      }
-      json["compileTime"] = this->compileTime;
-      rtcConfig.close();
-      rtcConfig = SPIFFS.open("/rtcConfig.json", "w");
-
-      if (!rtcConfig) {
-        ERROR_LOG("failed to write RTC config to /rtcConfig.json");
-        return (false);
-      }
-      json.printTo(rtcConfig);
-      rtcConfig.close();
-      DEBUG_LOG("Saved RTC config to /rtcConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  json["timeSync"] = this->timeSync;
+  json["NTP"] = this->NTP;
+  json["compileTime"] = this->compileTime;
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("failed to save RTC config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

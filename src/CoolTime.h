@@ -56,8 +56,6 @@ public:
 
   bool config();
 
-  void config(IPAddress timeServer, unsigned int localPort);
-
   void printConf();
 
   void setDateTime(int year, int month, int day, int hour, int minutes,
