@@ -29,6 +29,7 @@
 #include <Wire.h>
 
 #include "CoolBoard.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
 /**
@@ -474,7 +475,7 @@ void CoolBoard::onLineMode() {
  */
 void CoolBoard::offLineMode() {
   INFO_LOG("COOL Board is in offline mode");
-  coolBoardLed.fade(51, 100, 50, 0.5);    // dark shade of green
+  coolBoardLed.fade(51, 100, 50, 0.5); // dark shade of green
   coolBoardLed.fadeIn(245, 237, 27, 0.5); // shade of yellow
   coolBoardLed.blink(245, 237, 27, 0.5);  // shade of yellow
   // read user data
@@ -572,89 +573,62 @@ bool CoolBoard::config() {
   delay(10);
   coolBoardLed.blink(243, 171, 46, 0.5); // shade of orange
 
-  // open configuration file
-  File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
+  CoolConfig config("/coolBoardConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /coolBoardConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read COOL board general config");
     coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
     return (false);
   }
+  JsonObject &json = config.get();
 
-  else {
-    size_t size = configFile.size();
-
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse COOL Board configuration as JSON");
-      coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
-      return (false);
-    } else {
-      DEBUG_JSON("Configuration JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      // parsing logInterval key
-      if (json["logInterval"].success()) {
-        this->logInterval = json["logInterval"].as<unsigned long>();
-      }
-      json["logInterval"] = this->logInterval;
-      // parsing ireneActive key
-      if (json["ireneActive"].success()) {
-        this->ireneActive = json["ireneActive"];
-      }
-      json["ireneActive"] = this->ireneActive;
-      // parsing jetpackActive key
-      if (json["jetpackActive"].success()) {
-        this->jetpackActive = json["jetpackActive"];
-      }
-      json["jetpackActive"] = this->jetpackActive;
-      // parsing externalSensorsActive key
-      if (json["externalSensorsActive"].success()) {
-        this->externalSensorsActive = json["externalSensorsActive"];
-      }
-      json["externalSensorsActive"] = this->externalSensorsActive;
-      // parsing sleepActive key
-      if (json["sleepActive"].success()) {
-        this->sleepActive = json["sleepActive"];
-      }
-      json["sleepActive"] = this->sleepActive;
-      // parsing manual key
-      if (json["manual"].success()) {
-        this->manual = json["manual"].as<bool>();
-      }
-      json["manual"] = this->manual;
-      // parsing saveAsJSON key
-      if (json["saveAsJSON"].success()) {
-        this->saveAsJSON = json["saveAsJSON"].as<bool>();
-      }
-      json["saveAsJSON"] = this->saveAsJSON;
-      // parsing saveAsCSV key
-      if (json["saveAsCSV"].success()) {
-        this->saveAsCSV = json["saveAsCSV"].as<bool>();
-      }
-      json["saveAsCSV"] = this->saveAsCSV;
-      // saving the current/correct configuration
-      configFile.close();
-      configFile = SPIFFS.open("/coolBoardConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("failed to write to /coolBoardConfig.json");
-        coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      coolBoardLed.blink(0, 255, 0, 0.5); // green blink
-      INFO_LOG("Configuration loaded");
-      return (true);
-    }
+  if (json["logInterval"].success()) {
+    this->logInterval = json["logInterval"].as<unsigned long>();
   }
-  coolBoardLed.fadeOut(243, 171, 46, 0.5); // shade of orange
+  json["logInterval"] = this->logInterval;
+
+  if (json["ireneActive"].success()) {
+    this->ireneActive = json["ireneActive"];
+  }
+  json["ireneActive"] = this->ireneActive;
+
+  if (json["jetpackActive"].success()) {
+    this->jetpackActive = json["jetpackActive"];
+  }
+  json["jetpackActive"] = this->jetpackActive;
+
+  if (json["externalSensorsActive"].success()) {
+    this->externalSensorsActive = json["externalSensorsActive"];
+  }
+  json["externalSensorsActive"] = this->externalSensorsActive;
+
+  if (json["sleepActive"].success()) {
+    this->sleepActive = json["sleepActive"];
+  }
+  json["sleepActive"] = this->sleepActive;
+
+  if (json["manual"].success()) {
+    this->manual = json["manual"].as<bool>();
+  }
+  json["manual"] = this->manual;
+
+  if (json["saveAsJSON"].success()) {
+    this->saveAsJSON = json["saveAsJSON"].as<bool>();
+  }
+  json["saveAsJSON"] = this->saveAsJSON;
+
+  if (json["saveAsCSV"].success()) {
+    this->saveAsCSV = json["saveAsCSV"].as<bool>();
+  }
+  json["saveAsCSV"] = this->saveAsCSV;
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("failed to write to /coolBoardConfig.json");
+    coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
+    return (false);
+  }
+  coolBoardLed.blink(0, 255, 0, 0.5); // green blink
+  return (true);
 }
 
 /**
@@ -892,45 +866,26 @@ void CoolBoard::sleep(unsigned long interval) {
  */
 bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   String result;
+  CoolConfig config(filePath);
 
-  // open file
-  File configFile = SPIFFS.open(filePath, "r");
-  if (!configFile) {
+  if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     return (false);
-  } else {
-    size_t size = configFile.size();
-
-    // allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON object");
-      return (false);
-    } else {
-      String temporary;
-      DEBUG_JSON("Configuration JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      // JSON to string
-      json.printTo(temporary);
-
-      // format string
-      result = "{\"state\":{\"reported\":{\"";
-      result += moduleName;
-      result += "\":";
-      result += temporary;
-      result += "} } }";
-
-      // send over MQTT
-      mqtt.publish(result.c_str());
-      mqtt.mqttLoop();
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  String temporary;
+  json.printTo(temporary);
+
+  // format string
+  result = "{\"state\":{\"reported\":{\"";
+  result += moduleName;
+  result += "\":";
+  result += temporary;
+  result += "} } }";
+
+  mqtt.publish(result.c_str());
+  mqtt.mqttLoop();
+  return (true);
 }
 
 /**

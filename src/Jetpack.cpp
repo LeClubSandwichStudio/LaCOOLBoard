@@ -26,6 +26,7 @@
 
 #include <ArduinoJson.h>
 
+#include "CoolConfig.h"
 #include "CoolLog.h"
 #include "Jetpack.h"
 
@@ -198,129 +199,94 @@ String Jetpack::doAction(const char *data, int hour, int minute) {
  *  \return true if successful,false otherwise
  */
 bool Jetpack::config() {
-  File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "r");
+  CoolConfig config("/jetPackConfig.json");
 
-  if (!jetPackConfig) {
-    ERROR_LOG("Failed to read /jetPackConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read Jetpack config");
     return (false);
-  } else {
-    size_t size = jetPackConfig.size();
-
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    jetPackConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON Jetpack config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("Jetpack config JSON:", json);
-      for (int i = 0; i < 8; i++) {
-        if (json[String("Act") + String(i)].success()) {
-          // parsing actif key
-          if (json[String("Act") + String(i)]["actif"].success()) {
-            this->actors[i].actif = json[String("Act") + String(i)]["actif"];
-          }
-          json[String("Act") + String(i)]["actif"] = this->actors[i].actif;
-
-          // parsing temporal key
-          if (json[String("Act") + String(i)]["temporal"].success()) {
-            this->actors[i].temporal =
-                json[String("Act") + String(i)]["temporal"];
-          }
-          json[String("Act") + String(i)]["temporal"] =
-              this->actors[i].temporal;
-
-          // parsing inverted key
-          if (json[String("Act") + String(i)]["inverted"].success()) {
-            this->actors[i].inverted =
-                json[String("Act") + String(i)]["inverted"];
-          }
-          json[String("Act") + String(i)]["inverted"] =
-              this->actors[i].inverted;
-
-          // parsing inverted key
-          if (json[String("Act") + String(i)]["inverted"].success()) {
-            this->actors[i].inverted =
-                json[String("Act") + String(i)]["inverted"];
-          }
-          json[String("Act") + String(i)]["inverted"] =
-              this->actors[i].inverted;
-
-          // parsing low key
-          if (json[String("Act") + String(i)]["low"].success()) {
-            this->actors[i].rangeLow =
-                json[String("Act") + String(i)]["low"][0];
-            this->actors[i].timeLow = json[String("Act") + String(i)]["low"][1];
-            this->actors[i].hourLow = json[String("Act") + String(i)]["low"][2];
-            this->actors[i].minuteLow =
-                json[String("Act") + String(i)]["low"][3];
-          }
-          json[String("Act") + String(i)]["low"][0] = this->actors[i].rangeLow;
-          json[String("Act") + String(i)]["low"][1] = this->actors[i].timeLow;
-          json[String("Act") + String(i)]["low"][2] = this->actors[i].hourLow;
-          json[String("Act") + String(i)]["low"][3] = this->actors[i].minuteLow;
-
-          // parsing high key
-          if (json[String("Act") + String(i)]["high"].success()) {
-            this->actors[i].rangeHigh =
-                json[String("Act") + String(i)]["high"][0];
-            this->actors[i].timeHigh =
-                json[String("Act") + String(i)]["high"][1];
-            this->actors[i].hourHigh =
-                json[String("Act") + String(i)]["high"][2];
-            this->actors[i].minuteHigh =
-                json[String("Act") + String(i)]["high"][3];
-          }
-          json[String("Act") + String(i)]["high"][0] =
-              this->actors[i].rangeHigh;
-          json[String("Act") + String(i)]["high"][1] = this->actors[i].timeHigh;
-          json[String("Act") + String(i)]["high"][2] = this->actors[i].hourHigh;
-          json[String("Act") + String(i)]["high"][3] =
-              this->actors[i].minuteHigh;
-
-          // parsing type key
-          if (json[String("Act") + String(i)]["type"].success()) {
-            this->actors[i].primaryType =
-                json[String("Act") + String(i)]["type"][0].as<String>();
-            this->actors[i].secondaryType =
-                json[String("Act") + String(i)]["type"][1].as<String>();
-          }
-          json[String("Act") + String(i)]["type"][0] =
-              this->actors[i].primaryType;
-          json[String("Act") + String(i)]["type"][1] =
-              this->actors[i].secondaryType;
-        }
-        json[String("Act") + String(i)]["actif"] = this->actors[i].actif;
-        json[String("Act") + String(i)]["temporal"] = this->actors[i].temporal;
-        json[String("Act") + String(i)]["inverted"] = this->actors[i].inverted;
-        json[String("Act") + String(i)]["low"][0] = this->actors[i].rangeLow;
-        json[String("Act") + String(i)]["low"][1] = this->actors[i].timeLow;
-        json[String("Act") + String(i)]["low"][2] = this->actors[i].hourLow;
-        json[String("Act") + String(i)]["low"][3] = this->actors[i].minuteLow;
-        json[String("Act") + String(i)]["high"][0] = this->actors[i].rangeHigh;
-        json[String("Act") + String(i)]["high"][1] = this->actors[i].timeHigh;
-        json[String("Act") + String(i)]["high"][2] = this->actors[i].hourHigh;
-        json[String("Act") + String(i)]["high"][3] = this->actors[i].minuteHigh;
-        json[String("Act") + String(i)]["type"][0] =
-            this->actors[i].primaryType;
-        json[String("Act") + String(i)]["type"][1] =
-            this->actors[i].secondaryType;
-      }
-      jetPackConfig.close();
-      jetPackConfig = SPIFFS.open("/jetPackConfig.json", "w");
-
-      if (!jetPackConfig) {
-        ERROR_LOG("Failed to write to /jetPackConfig.json");
-        return (false);
-      }
-      json.printTo(jetPackConfig);
-      jetPackConfig.close();
-      INFO_LOG("Saved Jetpack config to /jetPackConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  for (int i = 0; i < 8; i++) {
+    if (json[String("Act") + String(i)].success()) {
+      // parsing actif key
+      if (json[String("Act") + String(i)]["actif"].success()) {
+        this->actors[i].actif = json[String("Act") + String(i)]["actif"];
+      }
+      json[String("Act") + String(i)]["actif"] = this->actors[i].actif;
+
+      // parsing temporal key
+      if (json[String("Act") + String(i)]["temporal"].success()) {
+        this->actors[i].temporal = json[String("Act") + String(i)]["temporal"];
+      }
+      json[String("Act") + String(i)]["temporal"] = this->actors[i].temporal;
+
+      // parsing inverted key
+      if (json[String("Act") + String(i)]["inverted"].success()) {
+        this->actors[i].inverted = json[String("Act") + String(i)]["inverted"];
+      }
+      json[String("Act") + String(i)]["inverted"] = this->actors[i].inverted;
+
+      // parsing inverted key
+      if (json[String("Act") + String(i)]["inverted"].success()) {
+        this->actors[i].inverted = json[String("Act") + String(i)]["inverted"];
+      }
+      json[String("Act") + String(i)]["inverted"] = this->actors[i].inverted;
+
+      // parsing low key
+      if (json[String("Act") + String(i)]["low"].success()) {
+        this->actors[i].rangeLow = json[String("Act") + String(i)]["low"][0];
+        this->actors[i].timeLow = json[String("Act") + String(i)]["low"][1];
+        this->actors[i].hourLow = json[String("Act") + String(i)]["low"][2];
+        this->actors[i].minuteLow = json[String("Act") + String(i)]["low"][3];
+      }
+      json[String("Act") + String(i)]["low"][0] = this->actors[i].rangeLow;
+      json[String("Act") + String(i)]["low"][1] = this->actors[i].timeLow;
+      json[String("Act") + String(i)]["low"][2] = this->actors[i].hourLow;
+      json[String("Act") + String(i)]["low"][3] = this->actors[i].minuteLow;
+
+      // parsing high key
+      if (json[String("Act") + String(i)]["high"].success()) {
+        this->actors[i].rangeHigh = json[String("Act") + String(i)]["high"][0];
+        this->actors[i].timeHigh = json[String("Act") + String(i)]["high"][1];
+        this->actors[i].hourHigh = json[String("Act") + String(i)]["high"][2];
+        this->actors[i].minuteHigh = json[String("Act") + String(i)]["high"][3];
+      }
+      json[String("Act") + String(i)]["high"][0] = this->actors[i].rangeHigh;
+      json[String("Act") + String(i)]["high"][1] = this->actors[i].timeHigh;
+      json[String("Act") + String(i)]["high"][2] = this->actors[i].hourHigh;
+      json[String("Act") + String(i)]["high"][3] = this->actors[i].minuteHigh;
+
+      // parsing type key
+      if (json[String("Act") + String(i)]["type"].success()) {
+        this->actors[i].primaryType =
+            json[String("Act") + String(i)]["type"][0].as<String>();
+        this->actors[i].secondaryType =
+            json[String("Act") + String(i)]["type"][1].as<String>();
+      }
+      json[String("Act") + String(i)]["type"][0] = this->actors[i].primaryType;
+      json[String("Act") + String(i)]["type"][1] =
+          this->actors[i].secondaryType;
+    }
+    json[String("Act") + String(i)]["actif"] = this->actors[i].actif;
+    json[String("Act") + String(i)]["temporal"] = this->actors[i].temporal;
+    json[String("Act") + String(i)]["inverted"] = this->actors[i].inverted;
+    json[String("Act") + String(i)]["low"][0] = this->actors[i].rangeLow;
+    json[String("Act") + String(i)]["low"][1] = this->actors[i].timeLow;
+    json[String("Act") + String(i)]["low"][2] = this->actors[i].hourLow;
+    json[String("Act") + String(i)]["low"][3] = this->actors[i].minuteLow;
+    json[String("Act") + String(i)]["high"][0] = this->actors[i].rangeHigh;
+    json[String("Act") + String(i)]["high"][1] = this->actors[i].timeHigh;
+    json[String("Act") + String(i)]["high"][2] = this->actors[i].hourHigh;
+    json[String("Act") + String(i)]["high"][3] = this->actors[i].minuteHigh;
+    json[String("Act") + String(i)]["type"][0] = this->actors[i].primaryType;
+    json[String("Act") + String(i)]["type"][1] = this->actors[i].secondaryType;
+  }
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save Jetpack config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

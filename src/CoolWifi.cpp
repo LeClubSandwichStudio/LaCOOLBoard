@@ -31,6 +31,7 @@
 
 #include "internals/WiFiManagerReadFileButton.h"
 
+#include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolWifi.h"
 
@@ -183,91 +184,49 @@ wl_status_t CoolWifi::connectAP() {
  *  \return true if successful,false otherwise
  */
 bool CoolWifi::config() {
-  File configFile = SPIFFS.open("/wifiConfig.json", "r");
+  CoolConfig config("/wifiConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /wifiConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to configure Wifi");
     return (false);
-  } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
+  }
+  JsonObject &json = config.get();
 
-    configFile.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse Wifi config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("Wifi config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["wifiCount"].success()) {
-        this->wifiCount = json["wifiCount"];
+  if (json["wifiCount"].success()) {
+    this->wifiCount = json["wifiCount"];
+  }
+  json["wifiCount"] = this->wifiCount;
+
+  if (json["timeOut"].success()) {
+    this->timeOut = json["timeOut"];
+  }
+  json["timeOut"] = this->timeOut;
+
+  if (json["nomad"].success()) {
+    this->nomad = json["nomad"];
+  }
+  json["nomad"] = this->nomad;
+
+  for (int i = 0; i < this->wifiCount; i++) {
+    if (json["Wifi" + String(i)].success()) {
+      if (json["Wifi" + String(i)]["ssid"].success()) {
+        const char *tempSsid = json["Wifi" + String(i)]["ssid"];
+        this->ssid[i] = tempSsid;
       }
-      json["wifiCount"] = this->wifiCount;
+      json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
 
-      if (json["timeOut"].success()) {
-        this->timeOut = json["timeOut"];
+      if (json["Wifi" + String(i)]["pass"].success()) {
+        const char *tempPass = json["Wifi" + String(i)]["pass"];
+        this->pass[i] = tempPass;
       }
-      json["timeOut"] = this->timeOut;
-
-      if (json["nomad"].success()) {
-        this->nomad = json["nomad"];
-      }
-      json["nomad"] = this->nomad;
-
-      for (int i = 0; i < this->wifiCount; i++) {
-        if (json["Wifi" + String(i)].success()) {
-          if (json["Wifi" + String(i)]["ssid"].success()) {
-            const char *tempSsid = json["Wifi" + String(i)]["ssid"];
-            this->ssid[i] = tempSsid;
-          }
-          json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
-
-          if (json["Wifi" + String(i)]["pass"].success()) {
-            const char *tempPass = json["Wifi" + String(i)]["pass"];
-            this->pass[i] = tempPass;
-          }
-          json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
-        }
-        json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
-        json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
-      }
-
-      configFile.close();
-      configFile = SPIFFS.open("/wifiConfig.json", "w");
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /wifiConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved Wifi config to /wifiConfig.json");
-      return (true);
+      json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
     }
+    json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
+    json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
   }
-}
-
-/**
- *  CoolWifi::config(ssid array, pass array, number of wifis, AP
- *timeout,nomad flag ); This method is provided to configure the Wifi without
- *SPIFFS
- *
- *  \return true if successfull, false otherwise
- */
-bool CoolWifi::config(String ssid[], String pass[], int wifiNumber,
-                      int APTimeOut, bool nomad) {
-  if (wifiNumber > 50) {
-    DEBUG_LOG("The limit of configured Wifi networks is 50");
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save Wifi configuration");
     return (false);
-  }
-  this->wifiCount = wifiNumber;
-  this->timeOut = APTimeOut;
-  this->nomad = nomad;
-
-  for (int i = 0; i < wifiNumber; i++) {
-    this->ssid[i] = ssid[i];
-    this->pass[i] = pass[i];
   }
   return (true);
 }
@@ -301,51 +260,36 @@ bool CoolWifi::addWifi(String ssid, String pass) {
   this->wifiCount++;
 
   if (this->wifiCount >= 50) {
-    DEBUG_LOG("You have reached the limit of 50 networks");
+    DEBUG_LOG("You have reached the limit of 50 Wifi networks");
     return (false);
   }
   this->ssid[this->wifiCount - 1] = ssid;
   this->pass[this->wifiCount - 1] = pass;
-  File configFile = SPIFFS.open("/wifiConfig.json", "r");
+  CoolConfig config("/wifiConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /wifiConfig.json");
-  } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read Wifi config");
+    return false;
+  }
+  JsonObject &json = config.get();
 
-    if (!json.success()) {
-      ERROR_LOG("failed to parse Wifi config from file");
-    } else {
-      DEBUG_JSON("Wifi config JSON:", json);
+  if (json["wifiCount"].success()) {
+    json["wifiCount"] = this->wifiCount;
+  }
+  json["wifiCount"] = this->wifiCount;
 
-      if (json["wifiCount"].success()) {
-        json["wifiCount"] = this->wifiCount;
-      }
-      json["wifiCount"] = this->wifiCount;
+  if (json["timeOut"].success()) {
+    this->timeOut = json["timeOut"];
+  }
+  json["timeOut"] = this->timeOut;
+  JsonObject &newWifi =
+      json.createNestedObject("Wifi" + String(this->wifiCount - 1));
+  newWifi["ssid"] = this->ssid[this->wifiCount - 1];
+  newWifi["pass"] = this->pass[this->wifiCount - 1];
 
-      if (json["timeOut"].success()) {
-        this->timeOut = json["timeOut"];
-      }
-      json["timeOut"] = this->timeOut;
-      JsonObject &newWifi =
-          json.createNestedObject("Wifi" + String(this->wifiCount - 1));
-      newWifi["ssid"] = this->ssid[this->wifiCount - 1];
-      newWifi["pass"] = this->pass[this->wifiCount - 1];
-      configFile.close();
-      configFile = SPIFFS.open("/wifiConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("failed to write to /wifiConfig.json");
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved Wifi config to /wifiConfig.json");
-      return (true);
-    }
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save Wifi config");
+    return (false);
   }
   return (true);
 }

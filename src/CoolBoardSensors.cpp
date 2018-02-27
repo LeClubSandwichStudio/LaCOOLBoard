@@ -28,6 +28,7 @@
 #include <ArduinoJson.h>
 
 #include "CoolBoardSensors.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
 /**
@@ -180,69 +181,50 @@ String CoolBoardSensors::read() {
  *  false otherwise
  */
 bool CoolBoardSensors::config() {
-  File coolBoardSensorsConfig =
-      SPIFFS.open("/coolBoardSensorsConfig.json", "r");
+  CoolConfig config("/coolBoardSensorsConfig.json");
 
-  if (!coolBoardSensorsConfig) {
-    ERROR_LOG("Failed to read /coolBoardSensorsConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read onboard sensors config");
     return (false);
-  } else {
-    size_t size = coolBoardSensorsConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardSensorsConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse onboard sensors configuration JSON");
-      return (false);
-    } else {
-      DEBUG_JSON("Onboard sensors config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["BME280"]["temperature"].success()) {
-        this->airDataActive.temperature = json["BME280"]["temperature"];
-      }
-      json["BME280"]["temperature"] = this->airDataActive.temperature;
-      if (json["BME280"]["humidity"].success()) {
-        this->airDataActive.humidity = json["BME280"]["humidity"];
-      }
-      json["BME280"]["humidity"] = this->airDataActive.humidity;
-      if (json["BME280"]["pressure"].success()) {
-        this->airDataActive.pressure = json["BME280"]["pressure"];
-      }
-      json["BME280"]["pressure"] = this->airDataActive.pressure;
-      if (json["SI114X"]["visible"].success()) {
-        this->lightDataActive.visible = json["SI114X"]["visible"];
-      }
-      json["SI114X"]["visible"] = this->lightDataActive.visible;
-      if (json["SI114X"]["ir"].success()) {
-        this->lightDataActive.ir = json["SI114X"]["ir"];
-      }
-      json["SI114X"]["ir"] = this->lightDataActive.ir;
-      if (json["SI114X"]["uv"].success()) {
-        this->lightDataActive.uv = json["SI114X"]["uv"];
-      }
-      json["SI114X"]["uv"] = this->lightDataActive.uv;
-      if (json["vbat"].success()) {
-        this->vbatActive = json["vbat"];
-      }
-      json["vbat"] = this->vbatActive;
-      if (json["soilMoisture"].success()) {
-        this->soilMoistureActive = json["soilMoisture"];
-      }
-      json["soilMoisture"] = this->soilMoistureActive;
-      coolBoardSensorsConfig.close();
-      coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");
-      if (!coolBoardSensorsConfig) {
-        ERROR_LOG("Failed to write to /coolBoardSensorsConfig.json");
-        return (false);
-      }
-      json.printTo(coolBoardSensorsConfig);
-      coolBoardSensorsConfig.close();
-      DEBUG_LOG("Saved onboard sensors config to /coolBoardSensorsConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  if (json["BME280"]["temperature"].success()) {
+    this->airDataActive.temperature = json["BME280"]["temperature"];
+  }
+  json["BME280"]["temperature"] = this->airDataActive.temperature;
+  if (json["BME280"]["humidity"].success()) {
+    this->airDataActive.humidity = json["BME280"]["humidity"];
+  }
+  json["BME280"]["humidity"] = this->airDataActive.humidity;
+  if (json["BME280"]["pressure"].success()) {
+    this->airDataActive.pressure = json["BME280"]["pressure"];
+  }
+  json["BME280"]["pressure"] = this->airDataActive.pressure;
+  if (json["SI114X"]["visible"].success()) {
+    this->lightDataActive.visible = json["SI114X"]["visible"];
+  }
+  json["SI114X"]["visible"] = this->lightDataActive.visible;
+  if (json["SI114X"]["ir"].success()) {
+    this->lightDataActive.ir = json["SI114X"]["ir"];
+  }
+  json["SI114X"]["ir"] = this->lightDataActive.ir;
+  if (json["SI114X"]["uv"].success()) {
+    this->lightDataActive.uv = json["SI114X"]["uv"];
+  }
+  json["SI114X"]["uv"] = this->lightDataActive.uv;
+  if (json["vbat"].success()) {
+    this->vbatActive = json["vbat"];
+  }
+  json["vbat"] = this->vbatActive;
+  if (json["soilMoisture"].success()) {
+    this->soilMoistureActive = json["soilMoisture"];
+  }
+  json["soilMoisture"] = this->soilMoistureActive;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to write onboard sensors config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

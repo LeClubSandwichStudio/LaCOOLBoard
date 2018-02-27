@@ -28,6 +28,7 @@
 
 #include <ArduinoJson.h>
 
+#include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolMQTT.h"
 #include "CoolWifi.h"
@@ -222,98 +223,62 @@ String CoolMQTT::read() {
  *  \return true if successful,false otherwise
  */
 bool CoolMQTT::config() {
-  File configFile = SPIFFS.open("/mqttConfig.json", "r");
+  CoolConfig config("/mqttConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /mqttConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read MQTT config");
     return (false);
-  } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
+  }
+  JsonObject &json = config.get();
 
-    configFile.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse MQTT configuration JSON");
-      return (false);
-    } else {
-      DEBUG_JSON("MQTT configi JSON", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      if (json["mqttServer"].success()) {
-        const char *tempmqttServer = json["mqttServer"];
-        for (int i = 0; i < 50; i++) {
-          mqttServer[i] = tempmqttServer[i];
-        }
-      } else {
-        for (int i = 0; i < 50; i++) {
-          this->mqttServer[i] = this->mqttServer[i];
-        }
-      }
-      json["mqttServer"] = this->mqttServer;
-
-      if (json["inTopic"].success()) {
-        const char *tempInTopic = json["inTopic"];
-        for (int i = 0; i < 50; i++) {
-          inTopic[i] = tempInTopic[i];
-        }
-      } else {
-        String tempMAC = WiFi.macAddress();
-        tempMAC.replace(":", "");
-        snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta",
-                 tempMAC.c_str());
-        DEBUG_VAR("Setting outgoing MQTT Channel to:", inTopic);
-      }
-      json["inTopic"] = this->inTopic;
-
-      if (json["outTopic"].success()) {
-        const char *tempOutTopic = json["outTopic"];
-        for (int i = 0; i < 50; i++) {
-          outTopic[i] = tempOutTopic[i];
-        }
-      } else {
-        String tempMAC = WiFi.macAddress();
-        tempMAC.replace(":", "");
-        snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
-        DEBUG_VAR("Setting outgoing MQTT Channel to:", outTopic);
-      }
-      json["outTopic"] = this->outTopic;
-
-      if (json["bufferSize"].success()) {
-        int tempBufferSize = json["bufferSize"];
-        bufferSize = tempBufferSize;
-      }
-      configFile.close();
-      configFile = SPIFFS.open("/mqttConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /mqttConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved MQTT configuration to /mqttConfig.json");
-      return (true);
+  // FIXME: we don't need 50 MQTT servers
+  if (json["mqttServer"].success()) {
+    const char *tempmqttServer = json["mqttServer"];
+    for (int i = 0; i < 50; i++) {
+      mqttServer[i] = tempmqttServer[i];
     }
   }
-}
+  json["mqttServer"] = this->mqttServer;
 
-/**
- *  CoolMQTT::config(server,in topic, out topic, buffer size):
- *  This method is provided to manually configure the mqtt client
- *
- */
-void CoolMQTT::config(const char mqttServer[], const char inTopic[],
-                      const char outTopic[], int bufferSize) {
-  // FIXME: useless
-  for (int i = 0; i < 50; i++) {
-    this->mqttServer[i] = mqttServer[i];
-    this->inTopic[i] = inTopic[i];
-    this->outTopic[i] = outTopic[i];
+  // FIXME: we don't need 50 MQTT input topics
+  if (json["inTopic"].success()) {
+    const char *tempInTopic = json["inTopic"];
+    for (int i = 0; i < 50; i++) {
+      inTopic[i] = tempInTopic[i];
+    }
+  } else {
+    String tempMAC = WiFi.macAddress();
+    tempMAC.replace(":", "");
+    snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta",
+             tempMAC.c_str());
+    DEBUG_VAR("Setting outgoing MQTT Channel to:", inTopic);
   }
-  this->bufferSize = bufferSize;
+  json["inTopic"] = this->inTopic;
+
+  // FIXME: we don't need 50 MQTT output topics
+  if (json["outTopic"].success()) {
+    const char *tempOutTopic = json["outTopic"];
+    for (int i = 0; i < 50; i++) {
+      outTopic[i] = tempOutTopic[i];
+    }
+  } else {
+    String tempMAC = WiFi.macAddress();
+    tempMAC.replace(":", "");
+    snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
+    DEBUG_VAR("Setting outgoing MQTT Channel to:", outTopic);
+  }
+  json["outTopic"] = this->outTopic;
+
+  if (json["bufferSize"].success()) {
+    int tempBufferSize = json["bufferSize"];
+    bufferSize = tempBufferSize;
+  }
+
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save MQTT config");
+    return (false);
+  }
+  return (true);
 }
 
 /**

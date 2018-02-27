@@ -21,57 +21,50 @@
  *
  */
 
-#ifndef ExternalSensors_H
-#define ExternalSensors_H
+#include <FS.h>
 
-#include "ExternalSensor.h"
+#include "CoolConfig.h"
+#include "CoolLog.h"
 
-/**
- *  \class ExternalSensors
- *  \brief This class handles the external sensors
- *  run time defintion , configuartion and actions
- *
- */
-class ExternalSensors {
-public:
-  void begin();
+bool CoolConfig::readFileAsJson() {
+  File file = SPIFFS.open(this->path, "r");
 
-  String read();
+  if (!file) {
+    ERROR_VAR("Failed to open file for reading:", path);
+    return (false);
+  }
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf(new char[size]);
+  file.readBytes(buf.get(), size);
+  this->json = this->buffer.parseObject(buf.get());
 
-  bool config();
+  if (!this->json.success()) {
+    file.close();
+    ERROR_VAR("Failed to parse file as JSON:", this->path);
+    return (false);
+  }
+  DEBUG_JSON("Config JSON:", this->json);
+  file.close();
+  DEBUG_VAR("Read config file as JSON:", this->path);
+  return (true);
+}
 
-  void printConf();
+JsonObject &CoolConfig::get() {
+  return this->json;
+}
 
-private:
-  /**
-   *  Array of 50 External Sensors
-   *
-   *  An External Sensor is described by :
-   *
-   *  sensor.reference : the sensor's reference ( NDIR_I2C...)
-   *
-   *  sensor.type : the sensor's Type ( CO2 , Temperature , .... )
-   *
-   *  sensor.address : the sensor's Address if it has one
-   *
-   *  sensor.exSensor : pointer to the dynmacially instanciated sensor
-   */
-  struct sensor {
-    String reference = "";
-    String type = "";
-    uint8_t address = 0;
-    BaseExternalSensor *exSensor = NULL;
-    String kind0 = "0";
-    String kind1 = "0";
-    String kind2 = "0";
-    String kind3 = "0";
-  } sensors[50];
+void CoolConfig::setConfig(JsonVariant json) {
+  this->json = json;
+}
 
-  /**
-   *  External Sensors Number
-   *  Maximum is 50
-   */
-  int sensorsNumber = 0;
-};
-
-#endif
+bool CoolConfig::writeJsonToFile() {
+  File file = SPIFFS.open(this->path, "w");
+  if (!file) {
+    ERROR_VAR("Failed to open file for writing:", this->path);
+    return (false);
+  }
+  json.printTo(file);
+  file.close();
+  DEBUG_VAR("Saved JSON config to:", this->path);
+  return (true);
+}

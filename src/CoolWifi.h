@@ -44,9 +44,6 @@ public:
 
   bool config();
 
-  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut,
-              bool nomad);
-
   wl_status_t connect();
 
   wl_status_t connectWifiMulti();
