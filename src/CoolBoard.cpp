@@ -406,7 +406,6 @@ void CoolBoard::onLineMode() {
     Serial.println();
     coolBoardLed.strobe(128, 128, 255, 0.5); // shade of blue
 
-    mqtt.publish("sending saved data");
     mqtt.mqttLoop();
 
     int size = 0;
