@@ -733,7 +733,7 @@ int CoolFileSystem::isDataSaved() {
 *  lines left
 */
 String *CoolFileSystem::getSensorSavedData(int &lines) {
-  int maxString = 5;
+  int maxString = 2;
   String *sensorsDataArray = new String[maxString];
   lines = 0;
 
