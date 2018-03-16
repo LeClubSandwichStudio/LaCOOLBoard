@@ -79,6 +79,8 @@ public:
 
   bool sendPublicIP();
 
+  void startAP();
+
 private:
   /**
    *  fileSystem handler instance
@@ -214,6 +216,13 @@ private:
    *register latch All I2C is over pins (2,14)
    */
   const int EnI2C = 5;
+
+  /**
+   *  Bootstrap pin,
+   *  double usage for flashing the Coolboard 
+   *  and start up the AP for further configuration
+   */
+  const int Bootstrap = 0;
 };
 
 #endif

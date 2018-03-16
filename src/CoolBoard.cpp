@@ -44,6 +44,7 @@ CoolBoard::CoolBoard() {
 
   Wire.begin(2, 14);      // I2C init
   pinMode(EnI2C, OUTPUT); // Declare I2C Enable pin
+  pinMode(Bootstrap, INPUT);  //Declare Bootstrap pin
 }
 
 /**
@@ -580,6 +581,7 @@ void CoolBoard::onLineMode() {
             F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
       }
       mqtt.mqttLoop();
+      startAP();  // check if the user wants to start the AP for configuration
 
     } else {
       coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
@@ -593,8 +595,9 @@ void CoolBoard::onLineMode() {
       mqtt.mqttLoop();
       answer = mqtt.read();
       this->update(answer.c_str());
-      // logInterval in seconds
-      this->sleep(this->getLogInterval());
+      startAP();  // check if the user wants to start the AP for configuration
+      
+      this->sleep(this->getLogInterval());  // logInterval in seconds
     }
     this->previousLogTime = millis();
   }
@@ -712,6 +715,7 @@ void CoolBoard::offLineMode() {
     }
   }
 
+  startAP();  // check if the user wants to start the AP for configuration
   if (this->sleepActive == 1) {
     this->sleep(this->getLogInterval());
   }
@@ -1309,5 +1313,27 @@ bool CoolBoard::sendPublicIP()
 #endif
 
     mqtt.publish( publicIP.c_str() );
+  }
+}
+
+/**
+ *  CoolBoard::startAP():
+ *  This method is provided to check if the user 
+ *  used the run/load switch to start the AP
+ *  for further configuration/download
+ *
+ */
+void CoolBoard::startAP()
+{
+#if DEBUG == 1
+  Serial.println(F("Entering Coolboard.startAP"));
+#endif
+  Serial.print(F("Bootstrap Switch : "));
+  Serial.println(digitalRead(Bootstrap));
+  if (digitalRead(Bootstrap) == LOW)
+  {
+    wifiManager.disconnect();
+    delay(100);
+    wifiManager.connectAP();
   }
 }
