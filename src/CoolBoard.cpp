@@ -575,7 +575,7 @@ void CoolBoard::onLineMode() {
       coolBoardLed.strobe(255, 0, 230, 0.5); // shade of pink
       // logInterval in seconds
       if (!mqtt.publish(jsonData.c_str())) {
-        fileSystem.saveSensorData(data.c_str());
+        fileSystem.saveMessageToFile(data.c_str());
         Serial.println(
             F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
       }
@@ -676,7 +676,7 @@ void CoolBoard::offLineMode() {
       (this->previousLogTime == 0)) {
     // saving data in the file system as JSON
     if (this->saveAsJSON == 1) {
-      fileSystem.saveSensorData(data.c_str());
+      fileSystem.saveMessageToFile(data.c_str());
       Serial.println(F("saving Data as JSON in Memory: OK"));
     }
 

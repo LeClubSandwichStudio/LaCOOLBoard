@@ -53,6 +53,8 @@ public:
 
   void getsavedData();
 
+  void saveMessageToFile(const char *data);
+
 private:
   /**
    *  Number of lines to read when

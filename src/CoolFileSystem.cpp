@@ -1082,3 +1082,62 @@ void CoolFileSystem::getsavedData() {
 
 #endif
 }
+
+void CoolFileSystem::saveMessageToFile(const char *data) {
+  String lastName = "0";
+
+  FSInfo fs_info;
+
+  if (SPIFFS.info(fs_info) == true) {
+    Serial.print(F("used bytes/total bytes : "));
+    Serial.print(fs_info.usedBytes);
+    Serial.print(F("/"));
+    Serial.print(fs_info.totalBytes);
+    Serial.println();
+  }
+
+  Dir dir = SPIFFS.openDir("/log");
+  while (dir.next()) {
+    Serial.println(dir.fileName());
+    lastName = dir.fileName();
+  }
+  Serial.print("last filename in list : ");
+  Serial.println(lastName);
+  if (lastName == "0") {
+    Serial.println("No Message in FS, creating first file...");
+    File f = SPIFFS.open("/log/1.json", "w");
+    f.print(data);
+    f.close();
+  }
+  else {
+    Serial.print("filename to analize : ");
+    Serial.println(lastName);
+    String index = lastName.substring(5);
+    Serial.println("result substring : ");
+    Serial.println(index);
+    int next = index.toInt();
+    next++;
+    char nextName[32] = "0";
+    snprintf(nextName, 32, "/log/%ld.json", next);
+    Serial.println("number for next filename : ");
+    Serial.println(next);
+    Serial.print("Name for next file : ");
+    Serial.println(nextName);
+    File f = SPIFFS.open(nextName, "w");
+    Serial.println("Saved Data in file : ");
+    Serial.println(data);
+    f.print(data);
+    Serial.print(F("savedData : "));
+    
+    f.close();
+  }
+
+
+  if (SPIFFS.info(fs_info) == true) {
+    Serial.print(F("used bytes/total bytes : "));
+    Serial.print(fs_info.usedBytes);
+    Serial.print(F("/"));
+    Serial.print(fs_info.totalBytes);
+    Serial.println();
+  }
+}
