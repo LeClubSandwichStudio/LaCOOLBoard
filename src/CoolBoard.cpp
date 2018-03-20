@@ -397,44 +397,26 @@ void CoolBoard::onLineMode() {
   answer = "";
 
   // send saved data if any, check once again if the MQTT connection is OK!
-  if (fileSystem.isDataSaved() && isConnected() == 0 && mqtt.state() == 0) {
-
-    coolBoardLed.fadeIn(128, 128, 255, 0.5); // shade of blue
-
-    Serial.println(F("There is data saved on the File System"));
-    Serial.println(F("Sending saved data over MQTT "));
-    Serial.println();
-    coolBoardLed.strobe(128, 128, 255, 0.5); // shade of blue
-
-    mqtt.mqttLoop();
-
-    int size = 0;
-    std::unique_ptr<String[]> savedData(
-        std::move(fileSystem.getSensorSavedData(size)));
-
-    int i = 0;
-    // loop through the array
-    while (i < size) {
-      // format JSON
-      String jsonData = "{\"state\":{\"reported\":";
-      jsonData += savedData[i];
-      jsonData += " } }";
+  if (fileSystem.isFileSaved() != 0 && isConnected() == 0 && mqtt.state() == 0) {
+    for (int i = 0; i<=9; i++) {
+      int lastLog = fileSystem.lastFileSaved();
+      // only send a log IF there is a log. 0 means zero files in the SPIFFS
+      if (lastLog != 0) {
+        mqtt.mqttLoop();
+        String jsonData = "{\"state\":{\"reported\":";
+        jsonData += fileSystem.getFileString(lastLog);
+        jsonData += " } }";
+        coolBoardLed.strobe(128, 128, 255, 0.5); // shade of blue
 
 #if DEBUG == 1
-      Serial.println(F("Size is : "));
-      Serial.println(size);
-      Serial.print(F("sending line N°"));
-      Serial.println(i);
-      Serial.println(jsonData);
-      Serial.println();
+        Serial.print("Formatted Data from file : ");
+        Serial.println(jsonData);
 #endif
-
-      coolBoardLed.strobe(128, 128, 255, 0.5); // shade of blue
-      mqtt.publish(jsonData.c_str());
-      mqtt.mqttLoop();
-      coolBoardLed.fadeOut(128, 128, 255, 0.5); // shade of blue
-      i++;
-      yield();
+        //delete file only if the message was published
+        if (mqtt.publish(jsonData.c_str())){
+          fileSystem.deleteLogFile(lastLog); 
+        } else break;     // just break,
+      } else break;       // don't insist if you got a bad connection, it's not your day ;)
     }
 
 #if DEBUG == 1
@@ -585,7 +567,7 @@ void CoolBoard::onLineMode() {
       coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
 
       if (!mqtt.publish(jsonData.c_str())) {
-        fileSystem.saveSensorData(data.c_str());
+        fileSystem.saveMessageToFile(data.c_str());
         Serial.println(
             F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
       }
