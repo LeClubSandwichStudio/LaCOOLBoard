@@ -738,9 +738,9 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
   snprintf(nextName, 32, "/log/%ld.json", nextLog);
 
 #if DEBUG == 1
-  Serial.println("number for next filename : ");
+  Serial.println(F("number for next filename : "));
   Serial.println(nextLog);
-  Serial.print("Name for next file : ");
+  Serial.print(F("Name for next file : "));
   Serial.println(nextName);
 #endif
 
@@ -749,6 +749,8 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
     File f = SPIFFS.open(nextName, "w");
     f.print(data);
     f.close();
+    Serial.print(F("File Saved as : "));
+    Serial.println(nextName);
   } else return false;
 
 #if DEBUG == 1
@@ -801,9 +803,9 @@ int CoolFileSystem::lastFileSaved() {
     temp = index.toInt();
 
 #if DEBUG == 1
-    Serial.print("filename: ");
+    Serial.print(F("filename: "));
     Serial.println(lastName);
-    Serial.println("result substring : ");
+    Serial.println(F("result substring : "));
     Serial.println(index);
 #endif
     // only take the resulting number if it's higher than the stored value
@@ -813,7 +815,7 @@ int CoolFileSystem::lastFileSaved() {
   }
   
   if (lastName == "0") {
-    Serial.println("No Message in FS, create first file mate...");
+    Serial.println(F("No Message in FS, create first file mate..."));
     return 0;
   }
   else return next;
@@ -830,8 +832,8 @@ int CoolFileSystem::lastFileSaved() {
 
 String CoolFileSystem::getFileString(int num) {
 #if DEBUG == 1
-  Serial.println("Entering getFileString");
-  Serial.print("Get file number : ");
+  Serial.println(F("Entering getFileString"));
+  Serial.print(F("Get file number : "));
   Serial.println(num);
 #endif
 
@@ -842,7 +844,7 @@ String CoolFileSystem::getFileString(int num) {
   data = f.readString();
 
 #if DEBUG == 1
-  Serial.print("Data from File : ");
+  Serial.print(F("Data from File : "));
   Serial.println(data);
 #endif
 
@@ -863,14 +865,14 @@ String CoolFileSystem::getFileString(int num) {
 
 bool CoolFileSystem::deleteLogFile(int num) {
 #if DEBUG == 1
-  Serial.println("Entering deleteLogFile");
+  Serial.println(F("Entering deleteLogFile"));
 #endif
 
   char logName[32] = "0";
   snprintf(logName, 32, "/log/%ld.json", num);
 
 #if DEBUG == 1
-  Serial.print("file number to delete : ");
+  Serial.print(F("file number to delete : "));
   Serial.println(logName);
 #endif
 
