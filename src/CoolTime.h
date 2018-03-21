@@ -79,6 +79,8 @@ public:
 
   bool saveTimeSync();
 
+  int timePoolConfig();
+
 private:
   /**
    *  last Time the RTC syncronised with the NTP server
@@ -144,6 +146,8 @@ private:
    *  RTC instance
    */
   DS1337RTC rtc;
+
+  int timePool = -1;
 };
 
 #endif

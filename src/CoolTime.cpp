@@ -31,7 +31,9 @@
 
 #include "TimeLib.h"
 
-#define DEBUG 0
+#define DEBUG 1
+
+#define NTP_OVERSAMPLE 5
 
 /**
  *  CoolTime::begin():
@@ -197,6 +199,7 @@ void CoolTime::update() {
 #endif
   if (this->NTP == 1) // ensure that NTP is accessible!!!
   {
+    if (this->timePool == -1) timePoolConfig();
     if (!(this->isTimeSync())) {
 
 #if DEBUG == 1
@@ -209,7 +212,7 @@ void CoolTime::update() {
       this->timeSync = this->getNtpTime();
       breakTime(this->getNtpTime(), this->tmSet);
       this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
-      this->saveTimeSync();
+      this->saveTimeSync();   //
     }
   }
 }
@@ -414,7 +417,7 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
   Serial.println(F("time is syncronised : OK"));
   Serial.println();
 
-  return (true);
+  return (false);//true);
 }
 
 /**
@@ -437,31 +440,28 @@ time_t CoolTime::getNtpTime() {
   while (Udp.parsePacket() > 0)
       ; // discard any previously received packets
 
-  for (int i = 0; i <= 6; i++) {
-    Serial.printf("FOR LOOP %ld SERVER", i);
-    Serial.println(timeServer[i]);
-    WiFi.hostByName(timeServer[i], timeServerIP);
+  
+  WiFi.hostByName(timeServer[timePool], timeServerIP);
 
-  #if DEBUG == 1
+#if DEBUG == 1
 
-    Serial.println(timeServer[i]);
-    Serial.println(timeServerIP);
+  Serial.println(timeServer[timePool]);
+  Serial.println(timeServerIP);
 
-  #endif
+#endif
 
-    Serial.println(F("Transmit NTP Request"));
+  Serial.println(F("Transmit NTP Request"));
 
-    sendNTPpacket(timeServerIP);
+  sendNTPpacket(timeServerIP);
 
-    uint32_t beginWait = millis();
+  uint32_t beginWait = millis();
 
-    while (millis() - beginWait < 2000) {
-      int size = Udp.parsePacket();
-      if (size >= NTP_PACKET_SIZE) {
-        Serial.println(F("Receive NTP Response"));
-        Serial.printf("latency : %ld ms \n", millis() - beginWait);
-        break;
-      }
+  while (millis() - beginWait < 2000) {
+    int size = Udp.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println(F("Receive NTP Response"));
+      Serial.printf("latency : %ld ms \n", millis() - beginWait);
+      break;
     }
   }
 
@@ -591,25 +591,13 @@ bool CoolTime::config() {
       Serial.println();
 
 #endif
+      if (json["timePool"].success()) {
 
-      /*if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
+        this->timePool = json["timePool"];
       } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
+        this->timePool = this->timePool;
       }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
-      }
-      json["localPort"] = this->localPort;*/
+      json["timePool"] = this->timePool;
 
       if (json["timeSync"].success()) {
 
@@ -716,27 +704,12 @@ bool CoolTime::saveTimeSync() {
       Serial.println();
 
 #endif
-
-      // String server;
-
-      /*if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
+      if (json["timePool"].success()) {
+        json["timePool"] = this->timePool;
       } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
+        this->timePool = this->timePool;
       }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
-      }
-      json["localPort"] = this->localPort;*/
+      json["timePool"] = this->timePool;
 
       if (json["timeSync"].success()) {
         json["timeSync"] = this->timeSync;
@@ -857,4 +830,75 @@ String CoolTime::formatDigits(int digits) {
 #endif
 
   return (String(digits));
+}
+
+/**
+ *  CoolTime::timePool()
+ *
+ *  utility method for chosing the server with the best ping
+ *  returns 0 if it fails or returns the number of the const char* timeServer[]
+ *
+ *  \return formatted string of the input digit
+ */
+int CoolTime::timePoolConfig() {
+  Serial.println();
+  Serial.println("Enter timePoolConfig");
+  Serial.println();
+
+  unsigned long timer[6] = {0, 0, 0, 0, 0, 0};
+  bool timeout[6] = {false, false, false, false, false, false};
+  int result = -1;
+  for (int j = 1; j <= NTP_OVERSAMPLE; j++) {
+  //check all servers to get the fastest
+    for (int i = 0; i <= 6 - 1; i++) {
+      while (Udp.parsePacket() > 0)
+        ; // discard any previously received packets
+
+      WiFi.hostByName(timeServer[i], timeServerIP);
+
+    #if DEBUG == 1
+
+      Serial.println(timeServer[i]);
+      Serial.println(timeServerIP);
+
+    #endif
+
+      Serial.println(F("Transmit NTP Request"));
+
+      sendNTPpacket(timeServerIP);
+
+      uint32_t beginWait = millis();
+
+      while (millis() - beginWait < 2000) {
+        int size = Udp.parsePacket();
+        yield();
+        if (size >= NTP_PACKET_SIZE) {
+          Serial.print(F("Receive NTP Response from "));
+          Serial.println(timeServer[i]);
+          timer[i] = timer[i] + (millis() - beginWait);
+          Serial.printf("latency : %ld ms \n", timer[i] );
+          break;
+        }
+      }
+      if (millis() - beginWait >= 2000) {
+        timeout[i] = true;
+      }
+    }
+  }
+  unsigned long temp = 0;
+  if (timer[0] != 0 && !timeout[0]) {
+    temp = timer[0];
+    result = 0;
+  }
+  for (int i = 1; i <= 5; i++) {
+    if ((timer[i] != 0) && (timer[i] < temp) && !timeout[i]){
+      temp = timer[i];
+      result = i;
+    }
+    //break;
+  }
+  Serial.printf("\n\nresult : %s \n",timeServer[result]);
+  Serial.printf("latency : %ld ms \n\n", timer[result] / NTP_OVERSAMPLE);
+  this->timePool = result;
+  return result;
 }
