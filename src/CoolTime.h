@@ -94,7 +94,14 @@ private:
   /**
    *  NTP Server DNS Address
    */
-  char timeServer[50] = {'0'};
+  //char timeServer[50] = {'0'};
+  const char* timeServer[6] = {
+        "africa.pool.ntp.org",
+        "asia.pool.ntp.org",
+        "europe.pool.ntp.org",
+        "north-america.pool.ntp.org",
+        "oceania.pool.ntp.org",
+        "south-america.pool.ntp.org"};
 
   /**
    *  NTP flag,

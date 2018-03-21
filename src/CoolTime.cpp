@@ -435,52 +435,53 @@ time_t CoolTime::getNtpTime() {
 #endif
 
   while (Udp.parsePacket() > 0)
-    ; // discard any previously received packets
+      ; // discard any previously received packets
 
-  WiFi.hostByName(timeServer, timeServerIP);
+  for (int i = 0; i <= 6; i++) {
+    Serial.printf("FOR LOOP %ld SERVER", i);
+    Serial.println(timeServer[i]);
+    WiFi.hostByName(timeServer[i], timeServerIP);
 
-#if DEBUG == 1
+  #if DEBUG == 1
 
-  Serial.println(timeServer);
-  Serial.println(timeServerIP);
+    Serial.println(timeServer[i]);
+    Serial.println(timeServerIP);
 
-#endif
+  #endif
 
-  Serial.println(F("Transmit NTP Request"));
+    Serial.println(F("Transmit NTP Request"));
 
-  sendNTPpacket(timeServerIP);
+    sendNTPpacket(timeServerIP);
 
-  uint32_t beginWait = millis();
+    uint32_t beginWait = millis();
 
-  while (millis() - beginWait < 2000) {
-    int size = Udp.parsePacket();
-    if (size >= NTP_PACKET_SIZE) {
-
-#if DEBUG == 1
-
-      Serial.println(F("Receive NTP Response"));
-
-#endif
-
-      Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
-      unsigned long secsSince1900;
-      // convert four bytes starting at location 40 to a long integer
-      secsSince1900 = (unsigned long)packetBuffer[40] << 24;
-      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-      secsSince1900 |= (unsigned long)packetBuffer[43];
-
-#if DEBUG == 1
-
-      Serial.print(F("received unix time : "));
-      Serial.println(secsSince1900 - 2208988800UL);
-      Serial.println();
-
-#endif
-
-      return secsSince1900 - 2208988800UL;
+    while (millis() - beginWait < 2000) {
+      int size = Udp.parsePacket();
+      if (size >= NTP_PACKET_SIZE) {
+        Serial.println(F("Receive NTP Response"));
+        Serial.printf("latency : %ld ms \n", millis() - beginWait);
+        break;
+      }
     }
   }
+
+  Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
+  unsigned long secsSince1900;
+  // convert four bytes starting at location 40 to a long integer
+  secsSince1900 = (unsigned long)packetBuffer[40] << 24;
+  secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+  secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+  secsSince1900 |= (unsigned long)packetBuffer[43];
+
+#if DEBUG == 1
+
+  Serial.print(F("received unix time : "));
+  Serial.println(secsSince1900 - 2208988800UL);
+  Serial.println();
+
+#endif
+
+  return secsSince1900 - 2208988800UL;
 
   Serial.println(F("No NTP Response :-("));
 
@@ -534,7 +535,7 @@ void CoolTime::config(IPAddress timeServer, unsigned int localPort) {
 
 #endif
 
-  this->timeServerIP = timeServerIP;
+  //this->timeServerIP = timeServerIP;
   this->localPort = localPort;
 }
 
@@ -591,7 +592,7 @@ bool CoolTime::config() {
 
 #endif
 
-      if (json["timeServer"].success()) {
+      /*if (json["timeServer"].success()) {
         const char *tempServer = json["timeServer"];
         for (int i = 0; i < 50; i++) {
           timeServer[i] = tempServer[i];
@@ -608,7 +609,7 @@ bool CoolTime::config() {
       } else {
         this->localPort = this->localPort;
       }
-      json["localPort"] = this->localPort;
+      json["localPort"] = this->localPort;*/
 
       if (json["timeSync"].success()) {
 
@@ -718,7 +719,7 @@ bool CoolTime::saveTimeSync() {
 
       // String server;
 
-      if (json["timeServer"].success()) {
+      /*if (json["timeServer"].success()) {
         const char *tempServer = json["timeServer"];
         for (int i = 0; i < 50; i++) {
           timeServer[i] = tempServer[i];
@@ -735,7 +736,7 @@ bool CoolTime::saveTimeSync() {
       } else {
         this->localPort = this->localPort;
       }
-      json["localPort"] = this->localPort;
+      json["localPort"] = this->localPort;*/
 
       if (json["timeSync"].success()) {
         json["timeSync"] = this->timeSync;
@@ -806,11 +807,11 @@ void CoolTime::printConf() {
 
   Serial.println(F("RTC Configuration"));
 
-  Serial.print(F("timeServer : "));
+  /*Serial.print(F("timeServer : "));
   Serial.println(timeServer);
 
   Serial.print(F("localPort : :"));
-  Serial.println(localPort);
+  Serial.println(localPort);*/
 
   Serial.print(F("NTP Flag :"));
   Serial.println(NTP);
