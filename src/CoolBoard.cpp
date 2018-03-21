@@ -1333,7 +1333,8 @@ void CoolBoard::startAP()
   if (digitalRead(Bootstrap) == LOW)
   {
     wifiManager.disconnect();
-    delay(100);
+    delay(200);
+    coolBoardLed.write(255, 128, 255); // whiteish violet..
     wifiManager.connectAP();
   }
 }
