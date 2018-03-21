@@ -29,6 +29,7 @@
 #include <memory>
 
 #define DEBUG 0
+#define SEND_MSG_BATCH 10
 
 /**
  *  CoolBoard::CoolBoard():
@@ -398,7 +399,7 @@ void CoolBoard::onLineMode() {
 
   // send saved data if any, check once again if the MQTT connection is OK!
   if (fileSystem.isFileSaved() != 0 && isConnected() == 0 && mqtt.state() == 0) {
-    for (int i = 0; i<=9; i++) {
+    for (int i = 1; i <= SEND_MSG_BATCH; i++) {
       int lastLog = fileSystem.lastFileSaved();
       // only send a log IF there is a log. 0 means zero files in the SPIFFS
       if (lastLog != 0) {
@@ -413,7 +414,7 @@ void CoolBoard::onLineMode() {
         Serial.println(jsonData);
 #endif
         //delete file only if the message was published
-        if (mqtt.publish(jsonData.c_str())){
+        if (mqtt.publish(jsonData.c_str())) {
           fileSystem.deleteLogFile(lastLog); 
         } else break;     // just break,
       } else break;       // don't insist if you got a bad connection, it's not your day ;)
