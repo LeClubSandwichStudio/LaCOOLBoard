@@ -44,7 +44,8 @@ CoolBoard::CoolBoard() {
 #endif
 
   Wire.begin(2, 14);      // I2C init
-  pinMode(EnI2C, OUTPUT); // Declare I2C Enable pin
+  pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
+  pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
 }
 
 /**
@@ -563,7 +564,7 @@ void CoolBoard::onLineMode() {
             F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
       }
       mqtt.mqttLoop();
-
+      
     } else {
       coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
 
@@ -576,12 +577,14 @@ void CoolBoard::onLineMode() {
       mqtt.mqttLoop();
       answer = mqtt.read();
       this->update(answer.c_str());
-      // logInterval in seconds
-      this->sleep(this->getLogInterval());
+      startAP();  // check if the user wants to start the AP for configuration
+      
+      this->sleep(this->getLogInterval());  // logInterval in seconds
     }
     this->previousLogTime = millis();
   }
-
+  //If we got here we must be in Farm Mode
+  startAP();  // check if the user wants to start the AP for configuration
   coolBoardLed.fadeOut(128, 255, 50, 0.5); // shade of green
   mqtt.mqttLoop();
   // read mqtt answer
@@ -695,6 +698,7 @@ void CoolBoard::offLineMode() {
     }
   }
 
+  startAP();  // check if the user wants to start the AP for configuration
   if (this->sleepActive == 1) {
     this->sleep(this->getLogInterval());
   }
@@ -1140,7 +1144,7 @@ void CoolBoard::initReadI2C() {
   Serial.println();
 #endif
 
-  digitalWrite(EnI2C, HIGH); // HIGH = I2C enabled
+  digitalWrite(enI2C, HIGH); // HIGH = I2C enabled
 }
 
 /**
@@ -1292,5 +1296,28 @@ bool CoolBoard::sendPublicIP()
 #endif
 
     mqtt.publish( publicIP.c_str() );
+  }
+}
+
+/**
+ *  CoolBoard::startAP():
+ *  This method is provided to check if the user 
+ *  used the run/load switch to start the AP
+ *  for further configuration/download
+ *
+ */
+void CoolBoard::startAP() {
+#if DEBUG == 1
+  Serial.println(F("Entering Coolboard.startAP"));
+  Serial.print(F("Bootstrap Switch : "));
+  Serial.println(digitalRead(bootstrap));
+#endif
+  
+  if (digitalRead(bootstrap) == LOW) {
+    Serial.println(F("Bootstrap in load position, starting AP for further configuration..."));
+    wifiManager.disconnect();
+    delay(200);
+    coolBoardLed.write(255, 128, 255); // whiteish violet..
+    wifiManager.connectAP();
   }
 }
