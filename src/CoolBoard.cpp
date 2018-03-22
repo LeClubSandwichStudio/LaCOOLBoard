@@ -43,8 +43,8 @@ CoolBoard::CoolBoard() {
 #endif
 
   Wire.begin(2, 14);      // I2C init
-  pinMode(EnI2C, OUTPUT); // Declare I2C Enable pin
-  pinMode(Bootstrap, INPUT);  //Declare Bootstrap pin
+  pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
+  pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
 }
 
 /**
@@ -1161,7 +1161,7 @@ void CoolBoard::initReadI2C() {
   Serial.println();
 #endif
 
-  digitalWrite(EnI2C, HIGH); // HIGH = I2C enabled
+  digitalWrite(enI2C, HIGH); // HIGH = I2C enabled
 }
 
 /**
@@ -1323,16 +1323,14 @@ bool CoolBoard::sendPublicIP()
  *  for further configuration/download
  *
  */
-void CoolBoard::startAP()
-{
+void CoolBoard::startAP() {
 #if DEBUG == 1
   Serial.println(F("Entering Coolboard.startAP"));
   Serial.print(F("Bootstrap Switch : "));
-  Serial.println(digitalRead(Bootstrap));
+  Serial.println(digitalRead(bootstrap));
 #endif
   
-  if (digitalRead(Bootstrap) == LOW)
-  {
+  if (digitalRead(bootstrap) == LOW) {
     Serial.println(F("Bootstrap in load position, starting AP for further configuration..."));
     wifiManager.disconnect();
     delay(200);

@@ -215,14 +215,14 @@ private:
    *  double usage for I2C and shift register latch , HIGH=I2C , LOW=shift
    *register latch All I2C is over pins (2,14)
    */
-  const int EnI2C = 5;
+  const int enI2C = 5;
 
   /**
    *  Bootstrap pin,
    *  double usage for flashing the Coolboard 
    *  and start up the AP for further configuration
    */
-  const int Bootstrap = 0;
+  const int bootstrap = 0;
 };
 
 #endif
