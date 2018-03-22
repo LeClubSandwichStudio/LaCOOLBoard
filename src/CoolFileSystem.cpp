@@ -28,6 +28,8 @@
 
 #define DEBUG 0
 
+#define JSON_FILE_EXT_SIZE 5
+
 /**
  *  CoolFileSystem::begin():
  *  This method is provided to start the
@@ -734,7 +736,7 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
 
   int nextLog = lastFileSaved();
   nextLog++;
-  char nextName[32] = "0";
+  char nextName[32];
   snprintf(nextName, 32, "/log/%ld.json", nextLog);
 
 #if DEBUG == 1
@@ -744,8 +746,7 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
   Serial.println(nextName);
 #endif
 
-  if (!SPIFFS.exists(nextName))
-  {
+  if (!SPIFFS.exists(nextName)) {
     File f = SPIFFS.open(nextName, "w");
     f.print(data);
     f.close();
@@ -791,34 +792,25 @@ bool CoolFileSystem::isFileSaved() {
  *
  */
 int CoolFileSystem::lastFileSaved() {
-  String lastName = "0";
-  String index = "0";
   int next = 0;
   int temp = 0;
   Dir dir = SPIFFS.openDir("/log");
   //skip through the "directory " 
   while (dir.next()) {
-    lastName = dir.fileName();
-    index = lastName.substring(5);
-    temp = index.toInt();
+    temp = dir.fileName().substring(JSON_FILE_EXT_SIZE).toInt();
 
 #if DEBUG == 1
     Serial.print(F("filename: "));
-    Serial.println(lastName);
-    Serial.println(F("result substring : "));
-    Serial.println(index);
+    Serial.println(dir.fileName());
+    Serial.println(F("resulting int from substring : "));
+    Serial.println(dir.fileName().substring(JSON_FILE_EXT_SIZE).toInt());
 #endif
     // only take the resulting number if it's higher than the stored value
     if (temp >= next) {
       next = temp;
     }
   }
-  
-  if (lastName == "0") {
-    Serial.println(F("No Message in FS, create first file mate..."));
-    return 0;
-  }
-  else return next;
+  return next;
 }
 
 
@@ -838,7 +830,7 @@ String CoolFileSystem::getFileString(int num) {
 #endif
 
   String data = "0";
-  char nextName[32] = "0";
+  char nextName[32];
   snprintf(nextName, 32, "/log/%ld.json", num);
   File f = SPIFFS.open(nextName, "r");
   data = f.readString();
