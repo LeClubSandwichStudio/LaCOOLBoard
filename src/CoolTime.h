@@ -101,7 +101,6 @@ private:
   /**
    *  NTP Server DNS Address
    */
-  //char timeServer[50] = {'0'};
   const char* timeServer[SERVERCOUNT] = {
         "africa.pool.ntp.org",
         "asia.pool.ntp.org",
