@@ -41,17 +41,17 @@ public:
 
   bool fileUpdate(String update, const char *path);
 
-  bool saveSensorData(const char *data);
-
   bool saveSensorDataCSV(const char *data);
 
-  int isDataSaved();
+  bool saveMessageToFile(const char *data);
 
-  String *getSensorSavedData(int &size);
+  bool isFileSaved();
 
-  bool incrementsavedData();
+  int lastFileSaved();
 
-  void getsavedData();
+  String getFileString(int num);
+
+  bool deleteLogFile(int num);
 
 private:
   /**
