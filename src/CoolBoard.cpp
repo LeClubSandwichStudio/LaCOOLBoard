@@ -581,8 +581,7 @@ void CoolBoard::onLineMode() {
             F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
       }
       mqtt.mqttLoop();
-      startAP();  // check if the user wants to start the AP for configuration
-
+      
     } else {
       coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
 
@@ -601,7 +600,8 @@ void CoolBoard::onLineMode() {
     }
     this->previousLogTime = millis();
   }
-
+  //If we got here we must be in Farm Mode
+  startAP();  // check if the user wants to start the AP for configuration
   coolBoardLed.fadeOut(128, 255, 50, 0.5); // shade of green
   mqtt.mqttLoop();
   // read mqtt answer
@@ -1327,11 +1327,13 @@ void CoolBoard::startAP()
 {
 #if DEBUG == 1
   Serial.println(F("Entering Coolboard.startAP"));
-#endif
   Serial.print(F("Bootstrap Switch : "));
   Serial.println(digitalRead(Bootstrap));
+#endif
+  
   if (digitalRead(Bootstrap) == LOW)
   {
+    Serial.println(F("Bootstrap in load position, starting AP for further configuration..."));
     wifiManager.disconnect();
     delay(200);
     coolBoardLed.write(255, 128, 255); // whiteish violet..
