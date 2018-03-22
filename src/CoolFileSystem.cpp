@@ -860,7 +860,7 @@ bool CoolFileSystem::deleteLogFile(int num) {
   Serial.println(F("Entering deleteLogFile"));
 #endif
 
-  char logName[32] = "0";
+  char logName[32];
   snprintf(logName, 32, "/log/%ld.json", num);
 
 #if DEBUG == 1
