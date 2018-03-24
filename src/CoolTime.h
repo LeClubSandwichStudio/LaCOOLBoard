@@ -40,6 +40,10 @@
 
 #define SERVERCOUNT 6
 
+#define NTP_OVERSAMPLE 5
+
+#define TIMEOUT 2000
+
 /**
  *  \class CoolTime
  *
@@ -99,15 +103,16 @@ private:
   int timePool = -1;
 
   /**
-   *  NTP Server DNS Address
+   *  NTP Server DNS Addresses
    */
   const char* timeServer[SERVERCOUNT] = {
-        "africa.pool.ntp.org",
-        "asia.pool.ntp.org",
-        "europe.pool.ntp.org",
-        "north-america.pool.ntp.org",
-        "oceania.pool.ntp.org",
-        "south-america.pool.ntp.org"};
+    "africa.pool.ntp.org",
+    "asia.pool.ntp.org",
+    "europe.pool.ntp.org",
+    "north-america.pool.ntp.org",
+    "oceania.pool.ntp.org",
+    "south-america.pool.ntp.org"
+  };
 
   /**
    *  NTP flag,

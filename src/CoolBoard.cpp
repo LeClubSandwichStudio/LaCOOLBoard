@@ -446,7 +446,7 @@ void CoolBoard::onLineMode() {
   coolBoardLed.blink(128, 255, 50, 0.5); // shade of green
 
   // update RTC only if wifi is connected
-  if (isConnected()==0) {
+  if (isConnected() == 0) {
     Serial.println(F("Re-checking RTC..."));
     rtc.update();
   }
