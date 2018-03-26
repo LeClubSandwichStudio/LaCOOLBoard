@@ -195,8 +195,7 @@ void CoolTime::update() {
   Serial.println();
 
 #endif
-  if (this->NTP == 1) // ensure that NTP is accessible!!!
-  {
+  if (this->NTP == 1 && WiFi.status() == WL_CONNECTED) { // ensure that NTP is accessible!!!
     if (this->timePool == -1) {
       this->timePool = timePoolConfig();
     }
@@ -208,8 +207,22 @@ void CoolTime::update() {
       Serial.println();
 
 #endif
-
+      // give 5 trys 
+      int repeats = 0;
       this->timeSync = this->getNtpTime();
+      // check if we got an answer, if not repeat
+      while (this->timeSync == 0) {
+        delay(1000);
+        this->timeSync = this->getNtpTime();
+        // if after 5 trys it doesn't worked, check the NTP pools and give it a last try..
+        if (repeats >= 4) {
+          timePoolConfig();
+          delay(500);
+          this->timeSync = this->getNtpTime();
+          break;
+        }
+        repeats++;
+      }
       breakTime(this->timeSync, this->tmSet);
       this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
       this->saveTimeSync();
@@ -437,46 +450,52 @@ time_t CoolTime::getNtpTime() {
 
 #endif
 
-  while (Udp.parsePacket() > 0)
-    ; // discard any previously received packets
   WiFi.hostByName(timeServer[timePool], timeServerIP);
+  if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 && timeServerIP[3] == 0) {
+    Serial.printf("No IP for Host %s, do benchmark and check back later... \n\n",timeServer[timePool]);
+    //timePoolConfig();
+    return 0;
+  } else {
 
 #if DEBUG == 1
 
-  Serial.println(timeServer[timePool]);
-  Serial.println(timeServerIP);
+    Serial.println(timeServer[timePool]);
+    Serial.println(timeServerIP);
 
 #endif
 
-  Serial.println(F("Transmit NTP Request"));
+    Serial.println(F("Transmit NTP Request"));
 
-  sendNTPpacket(timeServerIP);
+    while (Udp.parsePacket() > 0)
+    ; // discard any previously received packets
+    sendNTPpacket(timeServerIP);
 
-  uint32_t beginWait = millis();
+    uint32_t beginWait = millis();
 
-  while (millis() - beginWait < TIMEOUT) {
-    int size = Udp.parsePacket();
-    if (size >= NTP_PACKET_SIZE) {
-      Serial.println(F("Receive NTP Response"));
-      Serial.printf("latency : %ld ms \n", millis() - beginWait);
-      //break;
-      Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
-      unsigned long secsSince1900;
-      // convert four bytes starting at location 40 to a long integer
-      secsSince1900 = (unsigned long)packetBuffer[40] << 24;
-      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-      secsSince1900 |= (unsigned long)packetBuffer[43];
-    
-    #if DEBUG == 1
-    
-      Serial.print(F("received unix time : "));
-      Serial.println(secsSince1900 - 2208988800UL);
-      Serial.println();
-    
-    #endif
-    
-      return secsSince1900 - 2208988800UL;
+    while (millis() - beginWait < TIMEOUT) {
+      int size = Udp.parsePacket();
+      if (size >= NTP_PACKET_SIZE) {
+        Serial.println(F("Receive NTP Response"));
+        Serial.printf("latency : %ld ms \n", millis() - beginWait);
+        //break;
+        Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
+        unsigned long secsSince1900;
+        // convert four bytes starting at location 40 to a long integer
+        secsSince1900 = (unsigned long)packetBuffer[40] << 24;
+        secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+        secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+        secsSince1900 |= (unsigned long)packetBuffer[43];
+      
+      #if DEBUG == 1
+      
+        Serial.print(F("received unix time : "));
+        Serial.println(secsSince1900 - 2208988800UL);
+        Serial.println();
+      
+      #endif
+      
+        return secsSince1900 - 2208988800UL;
+      }
     }
   }
 
