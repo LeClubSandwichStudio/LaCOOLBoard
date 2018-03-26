@@ -40,7 +40,7 @@
 
 #define SERVERCOUNT 6
 
-#define NTP_OVERSAMPLE 5
+#define NTP_OVERSAMPLE 3
 
 #define TIMEOUT 2000
 
