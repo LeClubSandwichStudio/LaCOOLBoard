@@ -841,42 +841,47 @@ int CoolTime::timePoolConfig() {
         ; // discard any previously received packets
       }
       WiFi.hostByName(timeServer[i], timeServerIP);
+      // check if we got a valid IP
+      if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 && timeServerIP[3] == 0) {
+        Serial.printf("No IP for Host %s, setting Timeout and check next...\n\n",timeServer[i]);
+        timeout[i] = true;
+        //break;
+      } else {
 
 #if DEBUG == 1
-      Serial.println(timeServer[i]);
-      Serial.println(timeServerIP);
-      Serial.println(F("Transmit NTP Request"));
+        Serial.println(timeServer[i]);
+        Serial.println(timeServerIP);
+        Serial.println(F("Transmit NTP Request"));
 #endif
 
-      sendNTPpacket(timeServerIP);
+        sendNTPpacket(timeServerIP);
 
-      uint32_t beginWait = millis();
+        uint32_t beginWait = millis();
 
-      while ((millis() - beginWait) < (TIMEOUT + 200)) {
-        int size = Udp.parsePacket();
-        //yield();
-        if (size >= NTP_PACKET_SIZE) {
-          latency[i] += (millis() - beginWait);
+        while ((millis() - beginWait) < (TIMEOUT + 200)) {
+          int size = Udp.parsePacket();
+          if (size >= NTP_PACKET_SIZE) {
+            latency[i] += (millis() - beginWait);
 
 #if DEBUG == 1
-          Serial.print(F("Receive NTP Response from "));
-          Serial.println(timeServer[i]);
-          Serial.printf("latency : %ld ms \n \n", latency[i] );
+            Serial.print(F("Receive NTP Response from "));
+            Serial.println(timeServer[i]);
+            Serial.printf("latency : %ld ms \n \n", latency[i] );
 #endif
 
-          break;
-        }
-        if ((millis() - beginWait) >= TIMEOUT) {
-          timeout[i] = true;
+            break;
+          }
+          if ((millis() - beginWait) >= TIMEOUT) {
+            timeout[i] = true;
 
-#if DEBUG == 1
-          Serial.println(F("Hit Timeout !"));
-          Serial.println();
-#endif
-          break;
+  #if DEBUG == 1
+            Serial.println(F("Hit Timeout !"));
+            Serial.println();
+  #endif
+            break;
+          }
         }
       }
-      
     }
   }
 
