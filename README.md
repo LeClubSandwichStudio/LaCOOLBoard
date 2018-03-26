@@ -175,6 +175,7 @@ Note that `coolBoardActorConfig.json` contains only one actor.
 #### `rtcConfig.json`
 
 * `NTP`: set to `true` if you want the RTC to synchronize with a NTP Pool. **Disable this if you don't have an Internet connection!**
+* `timePool`: indicates the NTP Server with the lowest latency in CoolTime.h
 * `timeSync`: the last time the board updated the RTC (UNIX Time). By default, La COOL Board tries to update once a week.
 
 #### `wifiConfig.json`
