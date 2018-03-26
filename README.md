@@ -186,7 +186,3 @@ Note that `coolBoardActorConfig.json` contains only one actor.
     
 * `wifiCount`: the number of WiFi networks that can be saved in this configuration file
 * `timeOut`: access point timeout in seconds
-* `nomad`: set this to `true` in order to activate nomad mode. In nomad mode, La COOL Board won't activate the onboard access point in the event of WiFi connection loss
-
-
-
