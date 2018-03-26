@@ -195,8 +195,10 @@ void CoolTime::update() {
   Serial.println();
 
 #endif
-  if (this->NTP == 1) // ensure that NTP is accessible!!!
-  {
+  if (this->NTP == 1 && WiFi.status() == WL_CONNECTED) { // ensure that NTP is accessible!!!
+    if (this->timePool == -1) {
+      this->timePool = timePoolConfig();
+    }
     if (!(this->isTimeSync())) {
 
 #if DEBUG == 1
@@ -205,9 +207,23 @@ void CoolTime::update() {
       Serial.println();
 
 #endif
-
+      // give 5 trys 
+      int repeats = 0;
       this->timeSync = this->getNtpTime();
-      breakTime(this->getNtpTime(), this->tmSet);
+      // check if we got an answer, if not repeat
+      while (this->timeSync == 0) {
+        delay(1000);
+        this->timeSync = this->getNtpTime();
+        // if after 5 trys it doesn't worked, check the NTP pools and give it a last try..
+        if (repeats >= 4) {
+          timePoolConfig();
+          delay(500);
+          this->timeSync = this->getNtpTime();
+          break;
+        }
+        repeats++;
+      }
+      breakTime(this->timeSync, this->tmSet);
       this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
       this->saveTimeSync();
     }
@@ -418,7 +434,7 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
 }
 
 /**
- *  CoolTime::getNtopTime():
+ *  CoolTime::getNtpTime():
  *  This method is provided to get the
  *  Time through an NTP request to
  *  a Time Server
@@ -434,51 +450,52 @@ time_t CoolTime::getNtpTime() {
 
 #endif
 
-  while (Udp.parsePacket() > 0)
+  WiFi.hostByName(timeServer[timePool], timeServerIP);
+  if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 && timeServerIP[3] == 0) {
+    Serial.printf("No IP for Host %s, do benchmark and check back later... \n\n",timeServer[timePool]);
+    //timePoolConfig();
+    return 0;
+  } else {
+
+#if DEBUG == 1
+
+    Serial.println(timeServer[timePool]);
+    Serial.println(timeServerIP);
+
+#endif
+
+    Serial.println(F("Transmit NTP Request"));
+
+    while (Udp.parsePacket() > 0)
     ; // discard any previously received packets
+    sendNTPpacket(timeServerIP);
 
-  WiFi.hostByName(timeServer, timeServerIP);
+    uint32_t beginWait = millis();
 
-#if DEBUG == 1
-
-  Serial.println(timeServer);
-  Serial.println(timeServerIP);
-
-#endif
-
-  Serial.println(F("Transmit NTP Request"));
-
-  sendNTPpacket(timeServerIP);
-
-  uint32_t beginWait = millis();
-
-  while (millis() - beginWait < 2000) {
-    int size = Udp.parsePacket();
-    if (size >= NTP_PACKET_SIZE) {
-
-#if DEBUG == 1
-
-      Serial.println(F("Receive NTP Response"));
-
-#endif
-
-      Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
-      unsigned long secsSince1900;
-      // convert four bytes starting at location 40 to a long integer
-      secsSince1900 = (unsigned long)packetBuffer[40] << 24;
-      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-      secsSince1900 |= (unsigned long)packetBuffer[43];
-
-#if DEBUG == 1
-
-      Serial.print(F("received unix time : "));
-      Serial.println(secsSince1900 - 2208988800UL);
-      Serial.println();
-
-#endif
-
-      return secsSince1900 - 2208988800UL;
+    while (millis() - beginWait < TIMEOUT) {
+      int size = Udp.parsePacket();
+      if (size >= NTP_PACKET_SIZE) {
+        Serial.println(F("Receive NTP Response"));
+        Serial.printf("latency : %ld ms \n", millis() - beginWait);
+        //break;
+        Udp.read(packetBuffer, NTP_PACKET_SIZE); // read packet into the buffer
+        unsigned long secsSince1900;
+        // convert four bytes starting at location 40 to a long integer
+        secsSince1900 = (unsigned long)packetBuffer[40] << 24;
+        secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+        secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+        secsSince1900 |= (unsigned long)packetBuffer[43];
+      
+      #if DEBUG == 1
+      
+        Serial.print(F("received unix time : "));
+        Serial.println(secsSince1900 - 2208988800UL);
+        Serial.println();
+      
+      #endif
+      
+        return secsSince1900 - 2208988800UL;
+      }
     }
   }
 
@@ -497,7 +514,6 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
 #if DEBUG == 1
 
   Serial.println(F("Enter CoolTime.sendNTPpacket()"));
-  Serial.println();
 
 #endif
 
@@ -520,23 +536,6 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
   Udp.endPacket();
 }
 
-/**
- *  CoolTime::config(Time server IP , udp Port):
- *  This method is provided to do manual configuration.
- *
- */
-void CoolTime::config(IPAddress timeServer, unsigned int localPort) {
-
-#if DEBUG == 1
-
-  Serial.println(F("Enter CoomTime.config() , no SPIFFS variant "));
-  Serial.println();
-
-#endif
-
-  this->timeServerIP = timeServerIP;
-  this->localPort = localPort;
-}
 
 /**
  *  CoolTime::config():
@@ -590,25 +589,13 @@ bool CoolTime::config() {
       Serial.println();
 
 #endif
+      if (json["timePool"].success()) {
 
-      if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
+        this->timePool = json["timePool"];
       } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
+        this->timePool = this->timePool;
       }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
-      }
-      json["localPort"] = this->localPort;
+      json["timePool"] = this->timePool;
 
       if (json["timeSync"].success()) {
 
@@ -715,27 +702,12 @@ bool CoolTime::saveTimeSync() {
       Serial.println();
 
 #endif
-
-      // String server;
-
-      if (json["timeServer"].success()) {
-        const char *tempServer = json["timeServer"];
-        for (int i = 0; i < 50; i++) {
-          timeServer[i] = tempServer[i];
-        }
+      if (json["timePool"].success()) {
+        json["timePool"] = this->timePool;
       } else {
-        for (int i = 0; i < 50; i++) {
-          this->timeServer[i] = this->timeServer[i];
-        }
+        this->timePool = this->timePool;
       }
-      json["timeServer"] = this->timeServer;
-
-      if (json["localPort"].success()) {
-        this->localPort = json["localPort"];
-      } else {
-        this->localPort = this->localPort;
-      }
-      json["localPort"] = this->localPort;
+      json["timePool"] = this->timePool;
 
       if (json["timeSync"].success()) {
         json["timeSync"] = this->timeSync;
@@ -806,11 +778,10 @@ void CoolTime::printConf() {
 
   Serial.println(F("RTC Configuration"));
 
-  Serial.print(F("timeServer : "));
-  Serial.println(timeServer);
-
-  Serial.print(F("localPort : :"));
-  Serial.println(localPort);
+  Serial.println(F("Time Server List "));
+  for (int i = 1; i < SERVERCOUNT; i++ ){
+    Serial.println(timeServer[i]);
+  }
 
   Serial.print(F("NTP Flag :"));
   Serial.println(NTP);
@@ -856,4 +827,111 @@ String CoolTime::formatDigits(int digits) {
 #endif
 
   return (String(digits));
+}
+
+/**
+ *  CoolTime::timePoolConfigl()
+ *
+ *  utility method for chosing the server with the best ping
+ *  returns 0 if it fails or returns the number of the const char* timeServer[]
+ *
+ *  \return formatted string of the input digit
+ */
+int CoolTime::timePoolConfig() {
+
+#if DEBUG == 1
+  Serial.println();
+  Serial.println(F("Enter timePoolConfig"));
+  Serial.println();
+#endif
+
+  Serial.println(F("Please wait, performing NTP server test..."));
+  unsigned long latency[SERVERCOUNT];
+  bool timeout[SERVERCOUNT];
+  for (int i = 0; i < SERVERCOUNT; i++) {
+    latency[i] = 0;
+    timeout[i] = false;
+  }
+
+  for (int j = 1; j <= NTP_OVERSAMPLE; j++) {
+  //check all servers to get the fastest
+    for (int i = 0; i < SERVERCOUNT; i++) {
+      while (Udp.parsePacket() > 0) {
+        ; // discard any previously received packets
+      }
+      WiFi.hostByName(timeServer[i], timeServerIP);
+      // check if we got a valid IP
+      if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 && timeServerIP[3] == 0) {
+        Serial.printf("No IP for Host %s, setting Timeout and check next...\n\n",timeServer[i]);
+        timeout[i] = true;
+        //break;
+      } else {
+
+#if DEBUG == 1
+        Serial.println(timeServer[i]);
+        Serial.println(timeServerIP);
+        Serial.println(F("Transmit NTP Request"));
+#endif
+
+        sendNTPpacket(timeServerIP);
+
+        uint32_t beginWait = millis();
+
+        while ((millis() - beginWait) < (TIMEOUT + 200)) {
+          int size = Udp.parsePacket();
+          if (size >= NTP_PACKET_SIZE) {
+            latency[i] += (millis() - beginWait);
+
+#if DEBUG == 1
+            Serial.print(F("Receive NTP Response from "));
+            Serial.println(timeServer[i]);
+            Serial.printf("latency : %ld ms \n \n", latency[i] );
+#endif
+
+            break;
+          }
+          if ((millis() - beginWait) >= TIMEOUT) {
+            timeout[i] = true;
+
+  #if DEBUG == 1
+            Serial.println(F("Hit Timeout !"));
+            Serial.println();
+  #endif
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  //compare values and if we run into timeout...
+  unsigned long temp = 0;
+  int result = -1;
+  //get first value 
+  if (latency[0] != 0 && !timeout[0]) {
+    temp = latency[0];
+    result = 0;
+  }
+  //compare if a other server was faster, check also if we hit timeout
+  for (int i = 0; i < SERVERCOUNT; i++) {
+    if ((latency[i] != 0) && !timeout[i] && (latency[i] < temp)){
+      temp = latency[i];
+      result = i;
+    }
+  }
+  Serial.println();
+
+#if DEBUG == 1  
+  Serial.print(F("Timeout Flag : "));
+    for (int i = 0; i < SERVERCOUNT; i++) {
+    Serial.print(timeout[i]);
+  }
+  Serial.println();
+#endif
+
+  Serial.println();
+  Serial.println(F("Latency test finished !"));
+  Serial.printf("\nresult : %s \n",timeServer[result]);
+  Serial.printf("latency : %ld ms \n\n", latency[result] / NTP_OVERSAMPLE);
+  return result;
 }

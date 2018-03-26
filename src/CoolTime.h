@@ -38,6 +38,12 @@
 
 #define NTP_PACKET_SIZE 48 // NTP time is in the first 48 bytes of message
 
+#define SERVERCOUNT 6
+
+#define NTP_OVERSAMPLE 3
+
+#define TIMEOUT 2000
+
 /**
  *  \class CoolTime
  *
@@ -56,8 +62,6 @@ public:
 
   bool config();
 
-  void config(IPAddress timeServer, unsigned int localPort);
-
   void printConf();
 
   void setDateTime(int year, int month, int day, int hour, int minutes,
@@ -69,7 +73,7 @@ public:
 
   unsigned long getLastSyncTime();
 
-  bool isTimeSync(unsigned long seconds = 63113904); // 604800);
+  bool isTimeSync(unsigned long seconds = 604800); // one week = 604800 ; one year = 63113904);
 
   time_t getNtpTime();
 
@@ -78,6 +82,8 @@ public:
   String formatDigits(int digits);
 
   bool saveTimeSync();
+
+  int timePoolConfig();
 
 private:
   /**
@@ -92,9 +98,21 @@ private:
   IPAddress timeServerIP;
 
   /**
-   *  NTP Server DNS Address
+   *  Index of the fastest NTP server in timeServer array
    */
-  char timeServer[50] = {'0'};
+  int timePool = -1;
+
+  /**
+   *  NTP Server DNS Addresses
+   */
+  const char* timeServer[SERVERCOUNT] = {
+    "africa.pool.ntp.org",
+    "asia.pool.ntp.org",
+    "europe.pool.ntp.org",
+    "north-america.pool.ntp.org",
+    "oceania.pool.ntp.org",
+    "south-america.pool.ntp.org"
+  };
 
   /**
    *  NTP flag,
