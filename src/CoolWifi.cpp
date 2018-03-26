@@ -134,20 +134,13 @@ wl_status_t CoolWifi::connect() {
 
     this->connectWifiMulti();
 
-    // if nomad is true, only check wifi list
-    if (this->nomad == true) {
-
 #if DEBUG == 1
 
-      Serial.print(F("nomad mode :"));
-      Serial.println(this->nomad);
-
-      Serial.print(F("Wifi status: "));
-      Serial.println(WiFi.status());
+    Serial.print(F("Wifi status: "));
+    Serial.println(WiFi.status());
 
 #endif
-      return (WiFi.status());
-    }
+    return (WiFi.status());
 
   } else {
     WiFiManager wifiManager;
@@ -356,14 +349,6 @@ bool CoolWifi::config() {
       }
       json["timeOut"] = this->timeOut;
 
-      // nomad
-      if (json["nomad"].success()) {
-        this->nomad = json["nomad"];
-      } else {
-        this->nomad = this->nomad;
-      }
-      json["nomad"] = this->nomad;
-
       // Wifis SSID and PASS
       for (int i = 0; i < this->wifiCount; i++) {
         if (json["Wifi" + String(i)].success()) {
@@ -422,13 +407,13 @@ bool CoolWifi::config() {
 
 /**
  *  CoolWifi::config(ssid array, pass array, number of wifis, AP
- *timeout,nomad flag ); This method is provided to configure the Wifi without
+ *timeout); This method is provided to configure the Wifi without
  *SPIFFS
  *
  *  \return true if successfull, false otherwise
  */
 bool CoolWifi::config(String ssid[], String pass[], int wifiNumber,
-                      int APTimeOut, bool nomad) {
+                      int APTimeOut) {
 
 #if DEBUG == 1
 
@@ -449,8 +434,6 @@ bool CoolWifi::config(String ssid[], String pass[], int wifiNumber,
   this->wifiCount = wifiNumber;
 
   this->timeOut = APTimeOut;
-
-  this->nomad = nomad;
 
   for (int i = 0; i < wifiNumber; i++) {
     this->ssid[i] = ssid[i];
@@ -499,9 +482,6 @@ void CoolWifi::printConf() {
 
   Serial.println(F("timeOut : "));
   Serial.println(this->timeOut);
-
-  Serial.println(F("nomad : "));
-  Serial.println(this->nomad);
 
   Serial.println();
 }

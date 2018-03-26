@@ -44,8 +44,7 @@ public:
 
   bool config();
 
-  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut,
-              bool nomad);
+  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut);
 
   wl_status_t connect();
 
@@ -62,15 +61,6 @@ public:
   void printConf();
 
   bool addWifi(String ssid, String pass = "");
-
-  /**
-   *  nomad Mode Flag
-   *  in Nomad Mode , the Wifi Access Point will
-   *  Only Lunch on Start when there's NO saved wifis ( wifiCount = 0)
-   *  After that, the Wifi will ONLY try to connect to known Wifis via
-   *  WifiMulti
-   */
-  bool nomad = 0;
 
 private:
   /**

@@ -340,7 +340,7 @@ int CoolBoard::connect() {
     // logInterval in seconds
     mqtt.connect();
     delay(100);
-    if (mqtt.state() != 0 && wifiManager.nomad == 1) {
+    if (mqtt.state() != 0) {
       Serial.println(F("Known WIFI in the area but no internet connection"));
       Serial.println(F("  --->   Launching Configuration Portal   <---"));
       wifiManager.disconnect();
@@ -676,28 +676,16 @@ void CoolBoard::offLineMode() {
   }
 
   coolBoardLed.fadeOut(51, 100, 50, 0.5); // dark shade of green
-  if (wifiManager.nomad == 0 || this->sleepActive == 0) {
-    // case we have wifi but no internet
-    if ((wifiManager.state() == WL_CONNECTED) && (mqtt.state() != 0)) {
 
-      Serial.println(F("there is Wifi but no Internet"));
-      Serial.println(F("launching AP to serve sensor dump files"));
-      Serial.println(F("and reconfigure new WiFi if needed"));
-
-      wifiManager.connectAP();
-    }
-
-    // case we have no connection at all
-    if (wifiManager.state() != WL_CONNECTED) {
-      Serial.println(F("there is no WiFi..."));
+  // case we have no connection at all
+  if (wifiManager.state() != WL_CONNECTED) {
+    Serial.println(F("there is no WiFi..."));
 
 #if DEBUG == 1
-      Serial.println(F("retrying to connect"));
+    Serial.println(F("retrying to connect"));
 #endif
 
-      this->connect(); // nomad case: just run wifiMulti
-                       // normal case: run wifiMulti + AP
-    }
+    this->connect();
   }
 
   startAP();  // check if the user wants to start the AP for configuration
