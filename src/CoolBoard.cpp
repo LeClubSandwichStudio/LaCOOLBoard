@@ -319,14 +319,30 @@ int CoolBoard::connect() {
 #endif
 
   delay(10);
-  coolBoardLed.write(0, 0, 255); // blue
+  if (wifiManager.wifiCount > 0){   //we have a WiFi in Memory -> blue light and connect
+    coolBoardLed.write(0, 0, 255);
 
 #if DEBUG == 1
-  Serial.println(F("Launching CoolWifi"));
-  Serial.println();
+    Serial.println(F("Launching CoolWifi"));
+    Serial.println();
 #endif
+  
+    wifiManager.connect();
 
-  wifiManager.connect();
+  } else if (wifiManager.wifiCount == 0) {    //we have no Memory -> violet light and start AP
+
+#if DEBUG == 1
+    Serial.println(F("no WiFi in memory, launching AP for configuration"));
+    Serial.println();
+#endif
+    
+    wifiManager.disconnect();
+    delay(200);
+    coolBoardLed.write(255, 128, 255); // whiteish violet..
+    wifiManager.connectAP();
+  }
+
+
   delay(100);
 
   // only attempt MQTT connection if Wifi is connected
@@ -1269,7 +1285,7 @@ bool CoolBoard::sendPublicIP()
   if (isConnected() == 0) {
     
   String tempStr = wifiManager.getExternalIP();
-  
+
 #if DEBUG == 1
     Serial.printf ("External IP lenght : %ld \n", tempStr.length());
 #endif
@@ -1310,5 +1326,8 @@ void CoolBoard::startAP() {
     delay(200);
     coolBoardLed.write(255, 128, 255); // whiteish violet..
     wifiManager.connectAP();
+    yield();
+    delay(500);
+    ESP.restart();
   }
 }

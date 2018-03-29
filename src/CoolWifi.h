@@ -62,16 +62,16 @@ public:
 
   bool addWifi(String ssid, String pass = "");
 
+  /**
+   *  number of saved WiFi's
+   */
+  int wifiCount = 0;
+
 private:
   /**
    *  ESP8266WiFiMulti instance
    */
   ESP8266WiFiMulti wifiMulti;
-
-  /**
-   *  number of saved WiFi's
-   */
-  int wifiCount = 0;
 
   /**
    *  WiFi SSID Array
