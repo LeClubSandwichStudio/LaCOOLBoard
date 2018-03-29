@@ -29,6 +29,8 @@
 #include "internals/CoolPubSubClient.h"
 #include <ESP8266WiFi.h>
 
+#define MQTT_RETRY 2
+
 /**
  *  \class CoolMQTT
  *  \brief This class handles the mqtt client
