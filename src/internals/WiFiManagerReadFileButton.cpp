@@ -287,27 +287,7 @@ void WiFiManager::startWPS() {
   WiFi.beginWPSConfig();
   DEBUG_WM("END WPS");
 }
-/*
-  String WiFiManager::getSSID() {
-  if (_ssid == "") {
-    DEBUG_WM(F("Reading SSID"));
-    _ssid = WiFi.SSID();
-    DEBUG_WM(F("SSID: "));
-    DEBUG_WM(_ssid);
-  }
-  return _ssid;
-  }
 
-  String WiFiManager::getPassword() {
-  if (_pass == "") {
-    DEBUG_WM(F("Reading Password"));
-    _pass = WiFi.psk();
-    DEBUG_WM("Password: " + _pass);
-    //DEBUG_WM(_pass);
-  }
-  return _pass;
-  }
-*/
 String WiFiManager::getConfigPortalSSID() {
   return _apName;
 }
@@ -658,21 +638,9 @@ void WiFiManager::handleEraseData() {
     Serial.println(F("File erased!"));
   }
   else Serial.println(F("sensorsData.csv does not exist!"));
-
-
-  if(SPIFFS.exists("/sensorsData.json"))
-  {
-    Serial.println("/sensorsData.json EXISTS!");
-    while( SPIFFS.remove("/sensorsData.json") == 0 )
-    {
-      delay(2);
-    }
-    Serial.println(F("File erased!"));
-  }
-  else Serial.println(F("sensorsData.json does not exist!"));
   
   delay(500);
-  ESP.reset();
+  ESP.restart();
   delay(2000);
 }
 
@@ -691,7 +659,7 @@ void WiFiManager::handleEspReset()  {
 
   DEBUG_WM(F("Sent reset page"));
   delay(500);
-  ESP.reset();
+  ESP.restart();
   delay(2000);
 }
 
@@ -705,7 +673,7 @@ void WiFiManager::handleWifiReset() {
   page += FPSTR(HTTP_STYLE);
   page += _customHeadElement;
   page += FPSTR(HTTP_HEAD_END);
-  page += F("Reset Wifi settings to : count = 0, timeout = 300, nomad = false\r\nModule will reset in a few seconds.");
+  page += F("Reset Wifi settings to : count = 0, timeout = 300\r\nModule will reset in a few seconds.");
   //page += F("Module will reset in a few seconds.");
   page += FPSTR(HTTP_END);
   server->send(200, "text/html", page);
@@ -715,11 +683,11 @@ void WiFiManager::handleWifiReset() {
   
   DEBUG_WM(F("reset ESP and Wifi configuration file"));
 
- //create json wifi count = 0 ,timeout=300,nomad=0
+ //create json wifi count = 0 ,timeout=300
  const size_t bufferSize = JSON_OBJECT_SIZE(3) + 40;
  DynamicJsonBuffer jsonBuffer(bufferSize);
 
- const char* json = "{\"wifiCount\":0,\"timeOut\":300,\"nomad\":0}";
+ const char* json = "{\"wifiCount\":0,\"timeOut\":300}";
 
  JsonObject& root = jsonBuffer.parseObject(json);
 
@@ -730,7 +698,7 @@ void WiFiManager::handleWifiReset() {
  //close file 
  configFile.close();
  delay(500);
- ESP.reset();
+ ESP.restart();
  delay(2000);
 }
 

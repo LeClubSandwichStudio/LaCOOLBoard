@@ -340,14 +340,6 @@ int CoolBoard::connect() {
     // logInterval in seconds
     mqtt.connect();
     delay(100);
-    if (mqtt.state() != 0) {
-      Serial.println(F("Known WIFI in the area but no internet connection"));
-      Serial.println(F("  --->   Launching Configuration Portal   <---"));
-      wifiManager.disconnect();
-      delay(200);
-      coolBoardLed.write(255, 128, 255); // whiteish violet..
-      wifiManager.connectAP();
-    }
   }
   sendPublicIP();
 
@@ -1275,17 +1267,26 @@ bool CoolBoard::sendPublicIP()
 #endif
   //only send public if you got a existing wifi connection, logic, isn't it...
   if (isConnected() == 0) {
-    String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
-    publicIP += wifiManager.getExternalIP();
-    publicIP += "}}}";
-
+    
+  String tempStr = wifiManager.getExternalIP();
+  
 #if DEBUG == 1
-    Serial.println();
-    Serial.print("sending external IP : ");
-    Serial.println(publicIP);
+    Serial.printf ("External IP lenght : %ld \n", tempStr.length());
 #endif
 
-    mqtt.publish( publicIP.c_str() );
+    if (tempStr.length() > 6) { // why 6? because a public IP should at least have 7 signs and look like this : 1.2.3.4
+      String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
+      publicIP += tempStr;
+      publicIP += "}}}";
+
+#if DEBUG == 1
+      Serial.println();
+      Serial.print("sending external IP : ");
+      Serial.println(publicIP);
+#endif
+
+      mqtt.publish( publicIP.c_str() );
+    }
   }
 }
 
