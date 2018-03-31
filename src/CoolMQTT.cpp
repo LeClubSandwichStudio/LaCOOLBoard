@@ -212,7 +212,9 @@ bool CoolMQTT::publish(const char *data) {
   if (published) {
     Serial.println(F("Publish : OK"));
   } else {
-    Serial.println(F("Published failed after 5 retries"));
+    Serial.print(F("Published failed after "));
+    Serial.print(MQTT_RETRY);
+    Serial.println(F(" retries"));
   }
   return (published);
 }
