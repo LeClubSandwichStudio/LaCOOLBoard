@@ -26,7 +26,7 @@
 
 #include "Arduino.h"
 #include "CoolWifi.h"
-#include "internals/CoolPubSubClient.h"
+#include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 
 #define MQTT_RETRY 2
@@ -97,7 +97,7 @@ private:
   /**
    *  MQTT Client instance
    */
-  CoolPubSubClient client;
+  PubSubClient client;
 
   /**
    *  WiFi Client instance
