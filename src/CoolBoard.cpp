@@ -320,14 +320,18 @@ int CoolBoard::connect() {
 
   delay(10);
   if (wifiManager.wifiCount > 0){   //we have a WiFi in Memory -> blue light and connect
-    coolBoardLed.write(0, 0, 255);
+    coolBoardLed.write(0, 0, 127);
 
 #if DEBUG == 1
     Serial.println(F("Launching CoolWifi"));
     Serial.println();
 #endif
   
-    wifiManager.connect();
+    if (wifiManager.connect() != 3) {
+      coolBoardLed.blink(255, 0, 0, 1);    //Light the led in RED to say that you are not happy
+    } else {
+      coolBoardLed.blink(0, 255, 255, 0.8);  
+    }
 
   } else if (wifiManager.wifiCount == 0) {    //we have no Memory -> violet light and start AP
 
@@ -353,9 +357,12 @@ int CoolBoard::connect() {
     Serial.println();
 #endif
 
-    // logInterval in seconds
-    mqtt.connect();
+    // blink twice in red if there is no mqtt
+    if (mqtt.connect() != 0) {
+      mqttProblem();
+    }
     delay(100);
+
   }
   sendPublicIP();
 
@@ -365,8 +372,6 @@ int CoolBoard::connect() {
   Serial.println();
   delay(100);
 #endif
-
-  coolBoardLed.blink(0, 0, 255, 0.5); // blue
 
   return (mqtt.state());
 }
@@ -399,7 +404,9 @@ void CoolBoard::onLineMode() {
   if (mqtt.state() != 0) {
     Serial.println(F("reconnecting MQTT..."));
 
-    mqtt.connect();
+    if (mqtt.connect() != 0) {
+      mqttProblem();
+    }
     delay(200);
   }
 
@@ -425,8 +432,14 @@ void CoolBoard::onLineMode() {
         //delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
           fileSystem.deleteLogFile(lastLog); 
-        } else break;     // just break,
-      } else break;       // don't insist if you got a bad connection, it's not your day ;)
+        } else {
+          mqttProblem();
+          break;     // just break
+        }
+      } else {
+        mqttProblem();
+        break;       // don't insist if you got a bad connection, it's not your day ;)
+      }
     }
 
 #if DEBUG == 1
@@ -512,7 +525,9 @@ void CoolBoard::onLineMode() {
 
       jsonOnBoardActorStatus += onBoardActorStatus;
       jsonOnBoardActorStatus += " } }";
-      mqtt.publish(jsonOnBoardActorStatus.c_str());
+      if (!mqtt.publish(jsonOnBoardActorStatus.c_str())) {
+        mqttProblem();
+      }
     }
   } else if (this->manual == 1) {
     Serial.println(F("we are in manual mode"));
@@ -554,7 +569,9 @@ void CoolBoard::onLineMode() {
   // check if we hit MQTT timeout
   if (mqtt.state() != 0) {
     Serial.println(F("reconnecting MQTT..."));
-    mqtt.connect();
+    if (mqtt.connect() != 0) {
+      mqttProblem();
+    }
     delay(200);
   }
 
@@ -570,8 +587,8 @@ void CoolBoard::onLineMode() {
       // logInterval in seconds
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
-        Serial.println(
-            F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
+        Serial.println(F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
+        mqttProblem();
       }
       mqtt.mqttLoop();
       
@@ -580,8 +597,8 @@ void CoolBoard::onLineMode() {
 
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
-        Serial.println(
-            F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+        Serial.println(F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+        mqttProblem();
       }
 
       mqtt.mqttLoop();
@@ -1330,4 +1347,17 @@ void CoolBoard::startAP() {
     delay(500);
     ESP.restart();
   }
+}
+
+/**
+ *  CoolBoard::mqttProblem():
+ *  This method is provided to signal the user 
+ *  a problem with the mqtt connection.
+ *
+ */
+void CoolBoard::mqttProblem() {
+  coolBoardLed.blink(255, 0, 0, 0.2);
+  delay(200);
+  coolBoardLed.blink(255, 0, 0, 0.2);
+  delay(200);
 }

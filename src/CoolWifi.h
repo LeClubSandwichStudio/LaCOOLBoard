@@ -86,7 +86,7 @@ private:
   /**
    *  WiFi Access Point TimeOut Value in Seconds
    */
-  int timeOut = 0;
+  int timeOut = 180;
 };
 
 #endif
