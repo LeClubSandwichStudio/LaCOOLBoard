@@ -44,8 +44,7 @@ public:
 
   bool config();
 
-  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut,
-              bool nomad);
+  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut);
 
   wl_status_t connect();
 
@@ -64,24 +63,15 @@ public:
   bool addWifi(String ssid, String pass = "");
 
   /**
-   *  nomad Mode Flag
-   *  in Nomad Mode , the Wifi Access Point will
-   *  Only Lunch on Start when there's NO saved wifis ( wifiCount = 0)
-   *  After that, the Wifi will ONLY try to connect to known Wifis via
-   *  WifiMulti
+   *  number of saved WiFi's
    */
-  bool nomad = 0;
+  int wifiCount = 0;
 
 private:
   /**
    *  ESP8266WiFiMulti instance
    */
   ESP8266WiFiMulti wifiMulti;
-
-  /**
-   *  number of saved WiFi's
-   */
-  int wifiCount = 0;
 
   /**
    *  WiFi SSID Array
@@ -96,7 +86,7 @@ private:
   /**
    *  WiFi Access Point TimeOut Value in Seconds
    */
-  int timeOut = 0;
+  int timeOut = 180;
 };
 
 #endif

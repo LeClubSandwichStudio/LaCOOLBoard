@@ -319,14 +319,34 @@ int CoolBoard::connect() {
 #endif
 
   delay(10);
-  coolBoardLed.write(0, 0, 255); // blue
+  if (wifiManager.wifiCount > 0){   //we have a WiFi in Memory -> blue light and connect
+    coolBoardLed.write(0, 0, 127);
 
 #if DEBUG == 1
-  Serial.println(F("Launching CoolWifi"));
-  Serial.println();
+    Serial.println(F("Launching CoolWifi"));
+    Serial.println();
 #endif
+  
+    if (wifiManager.connect() != 3) {
+      coolBoardLed.blink(255, 0, 0, 1);    //Light the led in RED to say that you are not happy
+    } else {
+      coolBoardLed.blink(0, 255, 255, 0.8);  
+    }
 
-  wifiManager.connect();
+  } else if (wifiManager.wifiCount == 0) {    //we have no Memory -> violet light and start AP
+
+#if DEBUG == 1
+    Serial.println(F("no WiFi in memory, launching AP for configuration"));
+    Serial.println();
+#endif
+    
+    wifiManager.disconnect();
+    delay(200);
+    coolBoardLed.write(255, 128, 255); // whiteish violet..
+    wifiManager.connectAP();
+  }
+
+
   delay(100);
 
   // only attempt MQTT connection if Wifi is connected
@@ -337,17 +357,12 @@ int CoolBoard::connect() {
     Serial.println();
 #endif
 
-    // logInterval in seconds
-    mqtt.connect();
-    delay(100);
-    if (mqtt.state() != 0 && wifiManager.nomad == 1) {
-      Serial.println(F("Known WIFI in the area but no internet connection"));
-      Serial.println(F("  --->   Launching Configuration Portal   <---"));
-      wifiManager.disconnect();
-      delay(200);
-      coolBoardLed.write(255, 128, 255); // whiteish violet..
-      wifiManager.connectAP();
+    // blink twice in red if there is no mqtt
+    if (mqtt.connect() != 0) {
+      mqttProblem();
     }
+    delay(100);
+
   }
   sendPublicIP();
 
@@ -357,8 +372,6 @@ int CoolBoard::connect() {
   Serial.println();
   delay(100);
 #endif
-
-  coolBoardLed.blink(0, 0, 255, 0.5); // blue
 
   return (mqtt.state());
 }
@@ -391,7 +404,9 @@ void CoolBoard::onLineMode() {
   if (mqtt.state() != 0) {
     Serial.println(F("reconnecting MQTT..."));
 
-    mqtt.connect();
+    if (mqtt.connect() != 0) {
+      mqttProblem();
+    }
     delay(200);
   }
 
@@ -417,8 +432,14 @@ void CoolBoard::onLineMode() {
         //delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
           fileSystem.deleteLogFile(lastLog); 
-        } else break;     // just break,
-      } else break;       // don't insist if you got a bad connection, it's not your day ;)
+        } else {
+          mqttProblem();
+          break;     // just break
+        }
+      } else {
+        mqttProblem();
+        break;       // don't insist if you got a bad connection, it's not your day ;)
+      }
     }
 
 #if DEBUG == 1
@@ -504,7 +525,9 @@ void CoolBoard::onLineMode() {
 
       jsonOnBoardActorStatus += onBoardActorStatus;
       jsonOnBoardActorStatus += " } }";
-      mqtt.publish(jsonOnBoardActorStatus.c_str());
+      if (!mqtt.publish(jsonOnBoardActorStatus.c_str())) {
+        mqttProblem();
+      }
     }
   } else if (this->manual == 1) {
     Serial.println(F("we are in manual mode"));
@@ -546,7 +569,9 @@ void CoolBoard::onLineMode() {
   // check if we hit MQTT timeout
   if (mqtt.state() != 0) {
     Serial.println(F("reconnecting MQTT..."));
-    mqtt.connect();
+    if (mqtt.connect() != 0) {
+      mqttProblem();
+    }
     delay(200);
   }
 
@@ -562,8 +587,8 @@ void CoolBoard::onLineMode() {
       // logInterval in seconds
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
-        Serial.println(
-            F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
+        Serial.println(F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
+        mqttProblem();
       }
       mqtt.mqttLoop();
       
@@ -572,8 +597,8 @@ void CoolBoard::onLineMode() {
 
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
-        Serial.println(
-            F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+        Serial.println(F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
+        mqttProblem();
       }
 
       mqtt.mqttLoop();
@@ -676,28 +701,16 @@ void CoolBoard::offLineMode() {
   }
 
   coolBoardLed.fadeOut(51, 100, 50, 0.5); // dark shade of green
-  if (wifiManager.nomad == 0 || this->sleepActive == 0) {
-    // case we have wifi but no internet
-    if ((wifiManager.state() == WL_CONNECTED) && (mqtt.state() != 0)) {
 
-      Serial.println(F("there is Wifi but no Internet"));
-      Serial.println(F("launching AP to serve sensor dump files"));
-      Serial.println(F("and reconfigure new WiFi if needed"));
-
-      wifiManager.connectAP();
-    }
-
-    // case we have no connection at all
-    if (wifiManager.state() != WL_CONNECTED) {
-      Serial.println(F("there is no WiFi..."));
+  // case we have no connection at all
+  if (wifiManager.state() != WL_CONNECTED) {
+    Serial.println(F("there is no WiFi..."));
 
 #if DEBUG == 1
-      Serial.println(F("retrying to connect"));
+    Serial.println(F("retrying to connect"));
 #endif
 
-      this->connect(); // nomad case: just run wifiMulti
-                       // normal case: run wifiMulti + AP
-    }
+    this->connect();
   }
 
   startAP();  // check if the user wants to start the AP for configuration
@@ -1287,17 +1300,26 @@ bool CoolBoard::sendPublicIP()
 #endif
   //only send public if you got a existing wifi connection, logic, isn't it...
   if (isConnected() == 0) {
-    String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
-    publicIP += wifiManager.getExternalIP();
-    publicIP += "}}}";
+    
+  String tempStr = wifiManager.getExternalIP();
 
 #if DEBUG == 1
-    Serial.println();
-    Serial.print("sending external IP : ");
-    Serial.println(publicIP);
+    Serial.printf ("External IP lenght : %ld \n", tempStr.length());
 #endif
 
-    mqtt.publish( publicIP.c_str() );
+    if (tempStr.length() > 6) { // why 6? because a public IP should at least have 7 signs and look like this : 1.2.3.4
+      String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
+      publicIP += tempStr;
+      publicIP += "}}}";
+
+#if DEBUG == 1
+      Serial.println();
+      Serial.print("sending external IP : ");
+      Serial.println(publicIP);
+#endif
+
+      mqtt.publish( publicIP.c_str() );
+    }
   }
 }
 
@@ -1321,5 +1343,21 @@ void CoolBoard::startAP() {
     delay(200);
     coolBoardLed.write(255, 128, 255); // whiteish violet..
     wifiManager.connectAP();
+    yield();
+    delay(500);
+    ESP.restart();
   }
+}
+
+/**
+ *  CoolBoard::mqttProblem():
+ *  This method is provided to signal the user 
+ *  a problem with the mqtt connection.
+ *
+ */
+void CoolBoard::mqttProblem() {
+  coolBoardLed.blink(255, 0, 0, 0.2);
+  delay(200);
+  coolBoardLed.blink(255, 0, 0, 0.2);
+  delay(200);
 }
