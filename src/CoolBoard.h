@@ -81,6 +81,8 @@ public:
 
   void startAP();
 
+  void mqttProblem();
+
 private:
   /**
    *  fileSystem handler instance

@@ -110,7 +110,7 @@ int CoolMQTT::connect() {
   char MAC[12];
   tempMAC.toCharArray(MAC, 12);
 
-  while ((!this->client.connected()) && (i < 5)) {
+  while ((!this->client.connected()) && (i < MQTT_RETRY)) {
     // Attempt to connect
     if (this->client.connect(
             MAC)) // use the mac as MQTT client ID to assure a unique id
@@ -189,7 +189,7 @@ bool CoolMQTT::publish(const char *data) {
   // bool published = false;
   bool published =
       client.publish(this->outTopic, (byte *)data, strlen(data), false);
-  while (!published && retries < 5) {
+  while (!published && retries < MQTT_RETRY) {
     published =
         client.publish(this->outTopic, (byte *)data, strlen(data), false);
     if (!published) {
@@ -212,7 +212,9 @@ bool CoolMQTT::publish(const char *data) {
   if (published) {
     Serial.println(F("Publish : OK"));
   } else {
-    Serial.println(F("Published failed after 5 retries"));
+    Serial.print(F("Published failed after "));
+    Serial.print(MQTT_RETRY);
+    Serial.println(F(" retries"));
   }
   return (published);
 }
