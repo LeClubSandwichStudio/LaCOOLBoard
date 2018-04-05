@@ -1,0 +1,30 @@
+language: c
+sudo: false
+before_install:
+- source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+install:
+- arduino --install-library "ArduinoJson","NeoPixelBus by Makuna","SparkFun BME280","DallasTemperature","OneWire","Time"
+- git clone https://github.com/etrombly/DS1337RTC
+- mv DS1337RTC /home/travis/arduino_ide/libraries/
+script:
+- arduino --verify --verbose --pref build.path=/home/travis/dist --board esp8266:esp8266:generic:CpuFrequency=80,FlashFreq=40,FlashMode=dio,UploadSpeed=460800,FlashSize=2M,ResetMethod=ck,Debug=Disabled,DebugLevel=None____
+  $PWD/examples/WeatherStation/WeatherStation.ino
+- mkdir -p /home/travis/dist
+- export RELEASE_VERSION=$(git describe --tags --always)
+- export FIRMWARE=/home/travis/dist/LaCOOLBoard-${RELEASE_VERSION}.bin
+- mv /home/travis/dist/WeatherStation.ino.bin ${FIRMWARE}
+notifications:
+  email:
+    on_success: build@lacool.co
+    on_failure: build@lacool.co
+deploy:
+  provider: releases
+  file: 
+  api_key:
+    secure: rKQbtn2MgGMKqlc85hng89PcjDoU2H+lsIcXXTb56inOWUzINhtR+Uxjvixk9U5yNjX/KUYLzcZYWyxvybv0qlW7ZRH5LJsK0F/RFMp4t7u7IG/OCHjpixbLM3hlWynrraX1XULPbvM3UDpnGa8yzFt0oLk1pBaU85G91UAwRQOb5ZE/LcG+P5ZxrQLWzVxW8ezE6d1201/gDjeIyTlfRnL26k1rtkk+znVtCtBncuPRxfNGJyBX4Es2XzOgx8YQQAnQFp0eHYYsetOn/d3h3AbClNI8mG6p6sy3k/z1EhO3CCWypfEWuZ2wwopMDEA//Py+BoIZ4BLws0LwVbjI+dznfcexsXtCIAWHxEqiqqLQsQFxxk7L1hFa1m4aQjS6AGpy3rvJx+uQOPrcdP+749wjsxzIfp0eQgi4TcASI2AVtJPw/x0MyPerrlusf7mOhSdz+WC+M4AjSUoYGQzejFaWNZbDkDgYebrxqAcTHiHc2PVSjbLtAtM9FTtjRoMUF7Ys2jsHDpcfIGzT6pBFUHh3MotQAfB9oH/OvsNu5EB56lLdHsSl9sHfZNz5wLNbXcqW1sW9JlvFnDC8/t60WXv+lPBn1QI6DBA8kCTuO3HRRiFwVxTSe4T90Pep56sg+ALwBO8obER3JCNIGSh61BxM/TIV1s2oRYAp6wpxiOs=
+  on:
+    name: La COOL Board ${RELEASE_VERSION}
+    file_glob: true
+    file: ${FIRMWARE}
+    repo: LaCoolCo/LaCOOLBoard
+    tags: true

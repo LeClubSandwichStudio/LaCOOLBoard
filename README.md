@@ -1,3 +1,7 @@
+# La COOL Board
+
+[![Build Status](https://travis-ci.org/LaCoolCo/LaCOOLBoard.svg?branch=master)](https://travis-ci.org/LaCoolCo/LaCOOLBoard)
+
 ## What is La COOL Board?
 
 **La COOL Board** is a connected environmental monitoring and control board. It can be used to build custom weather stations, self-watering plants, hydroponic control systems, pH probes, and many other things. It's also extensible and compatible with numerous external sensors and actuators.

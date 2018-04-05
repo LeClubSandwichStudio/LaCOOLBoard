@@ -357,12 +357,18 @@ int CoolBoard::connect() {
     Serial.println();
 #endif
 
+<<<<<<< HEAD
     // blink twice in red if there is no mqtt
     if (mqtt.connect() != 0) {
       mqttProblem();
     }
     delay(100);
 
+=======
+    // logInterval in seconds
+    mqtt.connect();
+    delay(100);
+>>>>>>> fd5ac48de2e72a22758ec8667277b17a321e083d
   }
   sendPublicIP();
 
@@ -1302,6 +1308,7 @@ bool CoolBoard::sendPublicIP()
   if (isConnected() == 0) {
     
   String tempStr = wifiManager.getExternalIP();
+<<<<<<< HEAD
 
 #if DEBUG == 1
     Serial.printf ("External IP lenght : %ld \n", tempStr.length());
@@ -1313,6 +1320,19 @@ bool CoolBoard::sendPublicIP()
       publicIP += "}}}";
 
 #if DEBUG == 1
+=======
+  
+#if DEBUG == 1
+    Serial.printf ("External IP lenght : %ld \n", tempStr.length());
+#endif
+
+    if (tempStr.length() > 6) { // why 6? because a public IP should at least have 7 signs and look like this : 1.2.3.4
+      String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
+      publicIP += tempStr;
+      publicIP += "}}}";
+
+#if DEBUG == 1
+>>>>>>> fd5ac48de2e72a22758ec8667277b17a321e083d
       Serial.println();
       Serial.print("sending external IP : ");
       Serial.println(publicIP);
