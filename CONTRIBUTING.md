@@ -65,6 +65,8 @@ Instructions for tagging with git:
 
 ### General
 
+* Respect the LLVM style guide (https://llvm.org/docs/CodingStandards.html)
+
 * The file format is UNIX. Lines are terminated by a single `\n` character. If you are running windows (which terminate lines with `\r\n`), make sure to configure your editor with UNIX style end of lines.
 
 * The indent rules are: two spaces, no tabs.
