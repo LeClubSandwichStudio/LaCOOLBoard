@@ -66,7 +66,7 @@ void CoolBoard::begin() {
 
   delay(100);
 
-  coolBoardLed.write(255, 128, 0); // orange
+  coolBoardLed.write(127, 63, 0); // orange
   this->initReadI2C();
   delay(100);
 
@@ -221,16 +221,15 @@ void CoolBoard::begin() {
 #endif
 
   }
-  coolBoardLed.fadeOut(255, 128, 0, 0.5); // orange
 
   this->connect();
+  coolBoardLed.write(127, 63, 0); // orange
   delay(100);
 
   // RTC must be configured at startup to ensure RTC in off-grid configuration
   rtc.begin();
 
   if (this->sleepActive == 0) {
-    coolBoardLed.strobe(255, 0, 230, 0.5); // shade of pink
 
     // send all config over mqtt
     this->sendConfig("CoolBoard", "/coolBoardConfig.json");
@@ -258,7 +257,7 @@ void CoolBoard::begin() {
 #endif
 
   delay(100);
-  coolBoardLed.blink(0, 255, 0, 0.5); // green
+  coolBoardLed.fadeOut(127, 63, 32, 0.5); // configuration finished
 }
 
 /**
@@ -330,7 +329,7 @@ int CoolBoard::connect() {
     if (wifiManager.connect() != 3) {
       coolBoardLed.blink(255, 0, 0, 1);    //Light the led in RED to say that you are not happy
     } else {
-      coolBoardLed.blink(0, 255, 255, 0.8);  
+      coolBoardLed.blink(0, 63, 63, 0.5);  
     }
 
   } else if (wifiManager.wifiCount == 0) {    //we have no Memory -> violet light and start AP
@@ -389,8 +388,6 @@ int CoolBoard::connect() {
  */
 void CoolBoard::onLineMode() {
 
-  coolBoardLed.fadeIn(128, 255, 50, 0.5); // shade of green
-
 #if DEBUG == 1
   Serial.println(F("Entering CoolBoard.onLineMode() "));
   Serial.println();
@@ -423,7 +420,6 @@ void CoolBoard::onLineMode() {
         String jsonData = "{\"state\":{\"reported\":";
         jsonData += fileSystem.getFileString(lastLog);
         jsonData += " } }";
-        coolBoardLed.strobe(128, 128, 255, 0.5); // shade of blue
 
 #if DEBUG == 1
         Serial.print("Formatted Data from file : ");
@@ -432,6 +428,7 @@ void CoolBoard::onLineMode() {
         //delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
           fileSystem.deleteLogFile(lastLog); 
+          coolBoardLed.strobe(100, 100, 100, 0.3); // flash white = message sent
         } else {
           mqttProblem();
           break;     // just break
@@ -447,8 +444,6 @@ void CoolBoard::onLineMode() {
     Serial.println();
 #endif
   }
-
-  coolBoardLed.blink(128, 255, 50, 0.5); // shade of green
 
   // update RTC only if wifi is connected
   if (isConnected() == 0) {
@@ -472,7 +467,6 @@ void CoolBoard::onLineMode() {
 
   // format JSON
   data.remove(data.lastIndexOf('{'), 1);
-  coolBoardLed.fadeOut(245, 237, 27, 0.5); // shade of yellow
 
   // do actions
   if (this->manual == 0) {
@@ -488,7 +482,6 @@ void CoolBoard::onLineMode() {
 #endif
 
       Serial.println(F("jetpack is active"));
-      coolBoardLed.fade(100, 100, 150, 0.5); // dark shade of blue
 
       // save last value to see if state has changed
       byte lastAction = jetPack.action;
@@ -538,16 +531,12 @@ void CoolBoard::onLineMode() {
 
   delay(50);
 
-  coolBoardLed.fadeIn(128, 255, 50, 0.5); // shade of green
-
   String jsonData = "{\"state\":{\"reported\":";
   jsonData += data;
   jsonData += " } }";
 
   // MQTT client loop to handle incoming data
   mqtt.mqttLoop();
-
-  coolBoardLed.blink(128, 255, 50, 0.5); // shade of green
 
   // read mqtt answer
   answer = mqtt.read();
@@ -559,12 +548,8 @@ void CoolBoard::onLineMode() {
   Serial.println();
 #endif
 
-  coolBoardLed.fadeOut(128, 255, 50, 0.5); // shade of green
-
   // update configuration if needed
   this->update(answer.c_str());
-
-  coolBoardLed.fadeIn(128, 255, 50, 0.5); // shade of green
 
   // check if we hit MQTT timeout
   if (mqtt.state() != 0) {
@@ -583,22 +568,23 @@ void CoolBoard::onLineMode() {
   // works in sleep mode since previousLogTime is 0 on startup.
   if (millisSinceLastLog >= logIntervalMillis || this->previousLogTime == 0) {
     if (this->sleepActive == 0) {
-      coolBoardLed.strobe(255, 0, 230, 0.5); // shade of pink
       // logInterval in seconds
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
         Serial.println(F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
         mqttProblem();
+      } else {
+        coolBoardLed.strobe(100, 100, 100, 0.3);
       }
       mqtt.mqttLoop();
       
     } else {
-      coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
-
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
         Serial.println(F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
         mqttProblem();
+      } else {
+        coolBoardLed.strobe(100, 100, 100, 0.3);
       }
 
       mqtt.mqttLoop();
@@ -612,12 +598,10 @@ void CoolBoard::onLineMode() {
   }
   //If we got here we must be in Farm Mode
   startAP();  // check if the user wants to start the AP for configuration
-  coolBoardLed.fadeOut(128, 255, 50, 0.5); // shade of green
   mqtt.mqttLoop();
   // read mqtt answer
   answer = mqtt.read();
   this->update(answer.c_str());
-  coolBoardLed.blink(128, 255, 50, 0.5); // shade of green
 }
 
 /**
@@ -631,12 +615,8 @@ void CoolBoard::onLineMode() {
  *    - if there is no connection : retry to connect
  */
 void CoolBoard::offLineMode() {
-  coolBoardLed.fade(51, 100, 50, 0.5); // dark shade of green
 
   Serial.println(F("CoolBoard is in Offline Mode"));
-
-  coolBoardLed.fadeIn(245, 237, 27, 0.5); // shade of yellow
-  coolBoardLed.blink(245, 237, 27, 0.5);  // shade of yellow
 
   // reading user data
   data = this->boardData();
@@ -651,7 +631,6 @@ void CoolBoard::offLineMode() {
 
   // formatting json correctly
   data.remove(data.lastIndexOf('{'), 1);
-  coolBoardLed.fade(51, 100, 50, 0.5); // dark shade of green
 
   // get Time for temporal actors
   tmElements_t tm;
@@ -666,7 +645,6 @@ void CoolBoard::offLineMode() {
     Serial.println();
 #endif
 
-    coolBoardLed.fade(100, 100, 150, 0.5); // dark shade of blue
     data += jetPack.doAction(data.c_str(), int(tm.Hour),
                              int(tm.Minute)); //{..,..,..}{..,..,..}
     data.remove(data.lastIndexOf('{'), 1);    //{..,..,..}..,..,..}
@@ -681,7 +659,6 @@ void CoolBoard::offLineMode() {
     data.setCharAt(data.indexOf('}'), ',');
   }
 
-  coolBoardLed.fade(51, 100, 50, 0.5); // dark shade of green
   // log interval is passed in seconds, logInterval*1000 = logInterval in ms, if
   // no log was sent till now (so it also works when sleep is active since
   // previousLogTime is 0 on startup
@@ -699,8 +676,6 @@ void CoolBoard::offLineMode() {
     }
     this->previousLogTime = millis();
   }
-
-  coolBoardLed.fadeOut(51, 100, 50, 0.5); // dark shade of green
 
   // case we have no connection at all
   if (wifiManager.state() != WL_CONNECTED) {
@@ -754,14 +729,14 @@ bool CoolBoard::config() {
   coolBoardLed.config();
   coolBoardLed.begin();
   delay(10);
-  coolBoardLed.blink(243, 171, 46, 0.5); // shade of orange
+  coolBoardLed.write(127, 63, 32); // shade of orange
 
   // open configuration file
   File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
 
   if (!configFile) {
     Serial.println(F("failed to read /coolBoardConfig.json"));
-    coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
+    spiffsProblem();
     return (false);
   }
 
@@ -776,7 +751,7 @@ bool CoolBoard::config() {
 
     if (!json.success()) {
       Serial.println(F("failed to parse CoolBoard Config json object"));
-      coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
+      spiffsProblem();
       return (false);
     }
 
@@ -862,13 +837,12 @@ bool CoolBoard::config() {
       if (!configFile) {
         Serial.println(F("failed to write to /coolBoardConfig.json"));
         Serial.println();
-        coolBoardLed.blink(255, 0, 0, 0.5); // shade of red
+        spiffsProblem();
         return (false);
       }
 
       json.printTo(configFile);
       configFile.close();
-      coolBoardLed.blink(0, 255, 0, 0.5); // green blink
 
 #if DEBUG == 0
       Serial.println(F("Configuration loaded : OK"));
@@ -878,8 +852,6 @@ bool CoolBoard::config() {
       return (true);
     }
   }
-
-  coolBoardLed.fadeOut(243, 171, 46, 0.5); // shade of orange
 }
 
 /**
@@ -921,7 +893,6 @@ void CoolBoard::printConf() {
  *  configuration update of the different parts
  */
 void CoolBoard::update(const char *answer) {
-  coolBoardLed.fadeIn(153, 76, 0, 0.5); // shade of brown
 
 #if DEBUG == 1
   Serial.println(F("Entering CoolBoard.update() "));
@@ -1073,10 +1044,8 @@ void CoolBoard::update(const char *answer) {
         F("Failed to parse update message( OR no message received )"));
     Serial.println();
 #endif
-  }
 
-  coolBoardLed.strobe(153, 76, 0, 0.5);  // shade of brown
-  coolBoardLed.fadeOut(153, 76, 0, 0.5); // shade of brown
+  }
 }
 
 /**
@@ -1110,9 +1079,6 @@ unsigned long CoolBoard::getLogInterval() {
 String CoolBoard::readSensors() {
   String sensorsData;
 
-  coolBoardLed.fadeIn(128, 255, 0, 0.5); // light shade of green
-  coolBoardLed.strobe(128, 255, 0, 0.5); // light shade of green
-
 #if DEBUG == 1
   Serial.println(F("Entering CoolBoard.readSensors()"));
   Serial.println();
@@ -1143,7 +1109,7 @@ String CoolBoard::readSensors() {
   Serial.println();
 #endif
 
-  coolBoardLed.fadeOut(128, 255, 0, 0.5); // light shade of green
+  coolBoardLed.blink(0, 100, 0, 0.5); // blink green to say your finished
   return (sensorsData);
 }
 
@@ -1360,4 +1326,16 @@ void CoolBoard::mqttProblem() {
   delay(200);
   coolBoardLed.blink(255, 0, 0, 0.2);
   delay(200);
+}
+
+/**
+ *  CoolBoard::spiffsProblem():
+ *  This method is provided to signal the user 
+ *  a problem with the mqtt connection.
+ *
+ */
+void CoolBoard::spiffsProblem() {
+  for (int i = 0; i <= 10; i++) {
+    coolBoardLed.strobe(255, 0, 0, 0.1);
+  }
 }

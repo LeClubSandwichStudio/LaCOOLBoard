@@ -83,6 +83,8 @@ public:
 
   void mqttProblem();
 
+  void spiffsProblem();
+
 private:
   /**
    *  fileSystem handler instance
