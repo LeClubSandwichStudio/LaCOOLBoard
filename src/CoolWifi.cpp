@@ -126,33 +126,7 @@ wl_status_t CoolWifi::connect() {
 #endif
 
   Serial.println(F("Wifi connecting..."));
-<<<<<<< HEAD
   this->connectWifiMulti();
-=======
-
-  // if WifiCount > 0 , lunch wifiMulti
-  // else no need to , skip this part
-  // to wifiManager
-  if (this->wifiCount != 0) {
-
-    this->connectWifiMulti();
-
-#if DEBUG == 1
-
-    Serial.print(F("Wifi status: "));
-    Serial.println(WiFi.status());
-
-#endif
-    return (WiFi.status());
-
-  } else {
-    WiFiManager wifiManager;
-    wifiManager.resetSettings();
-  }
-
-  // Wifi Manager
-  if (WiFi.status() != WL_CONNECTED) {
->>>>>>> fd5ac48de2e72a22758ec8667277b17a321e083d
 
 #if DEBUG == 1
 
