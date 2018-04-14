@@ -66,7 +66,6 @@ void CoolBoard::begin() {
 
   delay(100);
 
-  coolBoardLed.write(127, 63, 0); // orange
   this->initReadI2C();
   delay(100);
 
@@ -113,7 +112,7 @@ void CoolBoard::begin() {
   if (ireneActive) {
     irene3000.config();
     irene3000.startADC();
-    coolBoardLed.write(128, 128, 128);
+    coolBoardLed.write(60, 60, 60);
     delay(2000);
 
     int bValue = irene3000.readButton();
@@ -131,7 +130,7 @@ void CoolBoard::begin() {
       Serial.println("Enter Irene config.");
       coolBoardLed.write(255, 255, 255);
       delay(5000);
-      coolBoardLed.write(0, 50, 0);
+      coolBoardLed.write(0, 30, 0);
       bValue = irene3000.readButton();
       if (bValue >= 65000) {
         bValue = 0;
@@ -157,7 +156,7 @@ void CoolBoard::begin() {
       delay(15000);
 
       irene3000.calibratepH7();
-      coolBoardLed.write(50, 0, 0);
+      coolBoardLed.write(30, 0, 0);
       bValue = irene3000.readButton();
 
       if (bValue >= 65000) {
@@ -187,7 +186,7 @@ void CoolBoard::begin() {
       irene3000.calibratepH4();
       irene3000.saveParams();
 
-      coolBoardLed.write(50, 0, 50);
+      coolBoardLed.write(30, 0, 30);
       bValue = irene3000.readButton();
       if (bValue >= 65000) {
         bValue = 8800;
@@ -223,7 +222,6 @@ void CoolBoard::begin() {
   }
 
   this->connect();
-  coolBoardLed.write(127, 63, 0); // orange
   delay(100);
 
   // RTC must be configured at startup to ensure RTC in off-grid configuration
@@ -257,7 +255,6 @@ void CoolBoard::begin() {
 #endif
 
   delay(100);
-  coolBoardLed.fadeOut(127, 63, 32, 0.5); // configuration finished
 }
 
 /**
@@ -319,7 +316,7 @@ int CoolBoard::connect() {
 
   delay(10);
   if (wifiManager.wifiCount > 0){   //we have a WiFi in Memory -> blue light and connect
-    coolBoardLed.write(0, 0, 127);
+    coolBoardLed.write(0, 0, 50);
 
 #if DEBUG == 1
     Serial.println(F("Launching CoolWifi"));
@@ -329,7 +326,7 @@ int CoolBoard::connect() {
     if (wifiManager.connect() != 3) {
       coolBoardLed.blink(255, 0, 0, 1);    //Light the led in RED to say that you are not happy
     } else {
-      coolBoardLed.blink(0, 63, 63, 0.5);  
+      coolBoardLed.blink(0, 25, 25, 0.5);  //tuquoise to show that your connected
     }
 
   } else if (wifiManager.wifiCount == 0) {    //we have no Memory -> violet light and start AP
@@ -428,7 +425,7 @@ void CoolBoard::onLineMode() {
         //delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
           fileSystem.deleteLogFile(lastLog); 
-          coolBoardLed.strobe(100, 100, 100, 0.3); // flash white = message sent
+          messageSent(); // flash white = message sent
         } else {
           mqttProblem();
           break;     // just break
@@ -574,7 +571,7 @@ void CoolBoard::onLineMode() {
         Serial.println(F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
         mqttProblem();
       } else {
-        coolBoardLed.strobe(100, 100, 100, 0.3);
+        messageSent();
       }
       mqtt.mqttLoop();
       
@@ -584,7 +581,7 @@ void CoolBoard::onLineMode() {
         Serial.println(F("MQTT publish failed! Saving Data as JSON in Memory : OK"));
         mqttProblem();
       } else {
-        coolBoardLed.strobe(100, 100, 100, 0.3);
+        messageSent();
       }
 
       mqtt.mqttLoop();
@@ -729,7 +726,7 @@ bool CoolBoard::config() {
   coolBoardLed.config();
   coolBoardLed.begin();
   delay(10);
-  coolBoardLed.write(127, 63, 32); // shade of orange
+  coolBoardLed.write(30, 30, 0); // yellow
 
   // open configuration file
   File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
@@ -933,6 +930,7 @@ void CoolBoard::update(const char *answer) {
     Serial.println();
 #endif
 
+    coolBoardLed.strobe(0, 63, 63, 0.5);  //strobe turquoise to show that you got a message
     String answerDesired;
 
     stateDesired.printTo(answerDesired);
@@ -1109,7 +1107,7 @@ String CoolBoard::readSensors() {
   Serial.println();
 #endif
 
-  coolBoardLed.blink(0, 100, 0, 0.5); // blink green to say your finished
+  coolBoardLed.blink(0, 30, 0, 0.5); // blink green to say your finished
   return (sensorsData);
 }
 
@@ -1335,7 +1333,19 @@ void CoolBoard::mqttProblem() {
  *
  */
 void CoolBoard::spiffsProblem() {
-  for (int i = 0; i <= 10; i++) {
-    coolBoardLed.strobe(255, 0, 0, 0.1);
+  coolBoardLed.write(255, 0, 0);
+  int i = 0;
+  while(i == 0) {
+    yield();
   }
+}
+
+/**
+ *  CoolBoard::messageSent():
+ *  This method is provided to signal the user 
+ *  that we just had sent a message.
+ *
+ */
+void CoolBoard::messageSent() {
+  coolBoardLed.strobe(20, 20, 20, 0.3); // flash white = message sent
 }

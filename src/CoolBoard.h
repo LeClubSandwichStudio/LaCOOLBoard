@@ -84,6 +84,8 @@ public:
   void mqttProblem();
 
   void spiffsProblem();
+  
+  void messageSent();
 
 private:
   /**
