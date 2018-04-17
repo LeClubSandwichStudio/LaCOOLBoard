@@ -23,8 +23,6 @@
 
 #include "FS.h"
 
-#include "Arduino.h"
-
 #include "CoolTime.h"
 
 #include "ArduinoJson.h"

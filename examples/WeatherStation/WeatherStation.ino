@@ -17,7 +17,6 @@ CoolBoard coolBoard;
 void setup() {
   Serial.begin(115200);
   coolBoard.config();
-
   coolBoard.begin();
 
   coolBoard.printConf();
@@ -28,6 +27,8 @@ void setup() {
 }
 
 void loop() {
+  delay(100);
+  Serial.print("one log");
   if (coolBoard.isConnected() == 0) {
     coolBoard.onLineMode();
   } else {

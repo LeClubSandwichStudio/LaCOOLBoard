@@ -25,7 +25,6 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 #include "FS.h"
-#include <Wire.h>
 #include <memory>
 
 #define DEBUG 0
@@ -43,9 +42,6 @@ CoolBoard::CoolBoard() {
   Serial.println();
 #endif
 
-  Wire.begin();      // I2C init
-  pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
-  pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
 }
 
 /**
@@ -67,6 +63,8 @@ void CoolBoard::begin() {
   delay(100);
 
   coolBoardLed.write(255, 128, 0); // orange
+  pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
+  pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
   this->initReadI2C();
   delay(100);
 
@@ -416,7 +414,7 @@ void CoolBoard::onLineMode() {
 #endif
         //delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
-          fileSystem.deleteLogFile(lastLog); 
+          fileSystem.deleteLogFile(lastLog);
         } else break;     // just break,
       } else break;       // don't insist if you got a bad connection, it's not your day ;)
     }
@@ -566,7 +564,7 @@ void CoolBoard::onLineMode() {
             F("MQTT publish failed! Saved Data as JSON in Memory : OK"));
       }
       mqtt.mqttLoop();
-      
+
     } else {
       coolBoardLed.strobe(230, 255, 0, 0.5); // shade of yellow
 
@@ -580,7 +578,7 @@ void CoolBoard::onLineMode() {
       answer = mqtt.read();
       this->update(answer.c_str());
       startAP();  // check if the user wants to start the AP for configuration
-      
+
       this->sleep(this->getLogInterval());  // logInterval in seconds
     }
     this->previousLogTime = millis();
@@ -1275,7 +1273,7 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 /**
  *  CoolBoard::sendPublicIP():
  *  This method is provided to send
- *  the public IP of a device to the 
+ *  the public IP of a device to the
  *  CoolMenu over MQTT
  *
  *  \return true if successful, false if not
@@ -1303,7 +1301,7 @@ bool CoolBoard::sendPublicIP()
 
 /**
  *  CoolBoard::startAP():
- *  This method is provided to check if the user 
+ *  This method is provided to check if the user
  *  used the run/load switch to start the AP
  *  for further configuration/download
  *
@@ -1314,7 +1312,7 @@ void CoolBoard::startAP() {
   Serial.print(F("Bootstrap Switch : "));
   Serial.println(digitalRead(bootstrap));
 #endif
-  
+
   if (digitalRead(bootstrap) == LOW) {
     Serial.println(F("Bootstrap in load position, starting AP for further configuration..."));
     wifiManager.disconnect();

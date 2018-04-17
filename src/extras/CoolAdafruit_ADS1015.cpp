@@ -24,7 +24,7 @@
 #include "Arduino.h"
 #include "CoolAdafruit_ADS1015.h"
 
-#include <Wire.h>
+#include "Wire.h"
 
 
 

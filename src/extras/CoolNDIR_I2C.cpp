@@ -21,7 +21,7 @@ Please keep the above information when you use this code in your project.
 modified by Mehdi Zemzem
 */
 
-#include <Wire.h>
+#include "Wire.h"
 #include "CoolNDIR_I2C.h"
 
 //General Registers

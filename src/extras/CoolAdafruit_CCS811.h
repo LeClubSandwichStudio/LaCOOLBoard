@@ -7,7 +7,7 @@
  #include "WProgram.h"
 #endif
 
-#include <Wire.h>
+#include "Wire.h"
 
 /*=========================================================================
     I2C ADDRESS/BITS

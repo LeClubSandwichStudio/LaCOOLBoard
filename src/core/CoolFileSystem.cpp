@@ -22,7 +22,6 @@
  */
 
 #include "CoolFileSystem.h"
-#include "Arduino.h"
 #include "ArduinoJson.h" // Arduino JSON File controller  https://github.com/bblanchon/ArduinoJson
 #include <FS.h>
 

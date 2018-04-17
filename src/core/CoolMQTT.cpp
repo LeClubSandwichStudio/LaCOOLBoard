@@ -22,7 +22,6 @@
  */
 
 #include "CoolMQTT.h"
-#include "Arduino.h"
 #include "ArduinoJson.h"
 #include "CoolWifi.h"
 #include "FS.h"

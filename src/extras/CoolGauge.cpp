@@ -24,7 +24,7 @@
 #include <Arduino.h>
 #include "ArduinoJson.h"
 #include <math.h>    
-#include <Wire.h>
+#include "Wire.h"
 #include "CoolGauge.h"
 
 #define WIRE Wire

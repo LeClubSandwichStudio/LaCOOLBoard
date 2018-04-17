@@ -25,11 +25,11 @@
 #define BaseExternalSensor_H
 
 #include "Arduino.h"
-#include "internals/CoolAdafruit_ADS1015.h"
-#include "internals/CoolAdafruit_CCS811.h"
-#include "internals/CoolAdafruit_TCS34725.h"
-#include "internals/CoolGauge.h"
-#include "internals/CoolNDIR_I2C.h"
+#include "CoolAdafruit_ADS1015.h"
+#include "CoolAdafruit_CCS811.h"
+#include "CoolAdafruit_TCS34725.h"
+#include "CoolGauge.h"
+#include "CoolNDIR_I2C.h"
 #include <DallasTemperature.h>
 
 #define DEBUGExternal 0

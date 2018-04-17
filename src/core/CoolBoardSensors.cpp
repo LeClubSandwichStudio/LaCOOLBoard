@@ -21,11 +21,12 @@
  *
  */
 
+#include "Wire.h"
 #include "CoolBoardSensors.h"
-#include "Arduino.h"
 #include "ArduinoJson.h"
 #include "FS.h"
 #include <stdint.h>
+
 
 #define DEBUG 0
 
@@ -89,7 +90,8 @@ void CoolBoardSensors::begin() {
   Serial.println();
 
 #endif
-
+  Wire.begin(2, 14);
+  delay(100);
   while (!lightSensor.Begin()) {
 
 #if DEBUG == 1

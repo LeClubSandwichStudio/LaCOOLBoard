@@ -22,15 +22,9 @@
  */
 
 #include "FS.h"
-
-#include "Arduino.h"
-
 #include "OneWire.h"
-
 #include "ExternalSensors.h"
-
 #include "ArduinoJson.h"
-
 #include "ExternalSensor.h"
 
 #define DEBUG 0

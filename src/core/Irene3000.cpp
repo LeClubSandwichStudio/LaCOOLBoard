@@ -25,7 +25,6 @@
 
 #include "ArduinoJson.h"
 #include "CoolBoardLed.h" //CoolBoard Led Manager
-#include <Arduino.h>
 #include <Irene3000.h>
 #include <math.h>
 

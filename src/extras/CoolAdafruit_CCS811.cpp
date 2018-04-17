@@ -1,4 +1,4 @@
-#include "internals/CoolAdafruit_CCS811.h"
+#include "CoolAdafruit_CCS811.h"
 
 bool Adafruit_CCS811::begin(uint8_t addr)
 {

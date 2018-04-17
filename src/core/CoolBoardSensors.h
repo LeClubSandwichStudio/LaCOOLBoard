@@ -25,7 +25,7 @@
 #define CoolBoardSensors_H
 
 #include "Arduino.h"
-#include "internals/CoolSI114X.h" // light sensor
+#include "CoolSI114X.h" // light sensor
 #include "SparkFunBME280.h"       // atmosperic sensor
 
 /**
