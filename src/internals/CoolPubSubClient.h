@@ -1,10 +1,5 @@
 /*
- CoolPubSubClient.h 
- Modified by Mehdi Zemzem
- -added dynamic buffer and parameters settings
-
- Forked from:
- PubSubClient.h - A simple client for MQTT.
+ CoolPubSubClient.h - A simple client for MQTT.
   Nick O'Leary
   http://knolleary.net
 */
@@ -26,9 +21,9 @@
 #define MQTT_VERSION MQTT_VERSION_3_1_1
 #endif
 
-// MQTT_MAX_PACKET_SIZE : Maximum packet size. Override with setBufferSize().
+// MQTT_MAX_PACKET_SIZE : Maximum packet size
 #ifndef MQTT_MAX_PACKET_SIZE
-#define MQTT_MAX_PACKET_SIZE 128
+#define MQTT_MAX_PACKET_SIZE 4096
 #endif
 
 // MQTT_KEEPALIVE : keepAlive interval in Seconds
@@ -88,8 +83,7 @@
 class CoolPubSubClient {
 private:
    Client* _client;
-   uint8_t* buffer;
-   uint16_t buffer_size;
+   uint8_t buffer[MQTT_MAX_PACKET_SIZE];
    uint16_t nextMsgId;
    unsigned long lastOutActivity;
    unsigned long lastInActivity;
@@ -105,9 +99,6 @@ private:
    uint16_t port;
    Stream* stream;
    int _state;
-   uint16_t keepAlive;
-   uint16_t socketTimeout;
-
 public:
    CoolPubSubClient();
    CoolPubSubClient(Client& client);
@@ -124,22 +115,17 @@ public:
    CoolPubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
    CoolPubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
 
-   ~CoolPubSubClient();
-
    CoolPubSubClient& setServer(IPAddress ip, uint16_t port);
    CoolPubSubClient& setServer(uint8_t * ip, uint16_t port);
    CoolPubSubClient& setServer(const char * domain, uint16_t port);
    CoolPubSubClient& setCallback(MQTT_CALLBACK_SIGNATURE);
    CoolPubSubClient& setClient(Client& client);
    CoolPubSubClient& setStream(Stream& stream);
-   CoolPubSubClient& setTimeout(uint16_t socketTimeout); 
 
-   boolean connect(const char* id, uint16_t keepAlive=MQTT_KEEPALIVE, uint16_t socketTimeout=MQTT_SOCKET_TIMEOUT);
-   boolean connect(const char* id, const char* user, const char* pass, uint16_t keepAlive=MQTT_KEEPALIVE, uint16_t socketTimeout=MQTT_SOCKET_TIMEOUT);
-   boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, uint16_t keepAlive=MQTT_KEEPALIVE, uint16_t socketTimeout=MQTT_SOCKET_TIMEOUT);
-   boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, uint16_t keepAlive=MQTT_KEEPALIVE, uint16_t socketTimeout=MQTT_SOCKET_TIMEOUT);
-
-
+   boolean connect(const char* id);
+   boolean connect(const char* id, const char* user, const char* pass);
+   boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+   boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
    void disconnect();
    boolean publish(const char* topic, const char* payload);
    boolean publish(const char* topic, const char* payload, boolean retained);
@@ -152,8 +138,6 @@ public:
    boolean loop();
    boolean connected();
    int state();
-   boolean setBufferSize(uint16_t size);
-   uint16_t getBufferSize();
 };
 
 

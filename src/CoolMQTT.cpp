@@ -52,7 +52,7 @@ void CoolMQTT::begin() {
   client.setCallback([this](char *topic, byte *payload, unsigned int length) {
     this->callback(topic, payload, length);
   });
-  client.setBufferSize((unsigned short)bufferSize);
+  //client.setBufferSize((unsigned short)bufferSize);
 }
 
 /**

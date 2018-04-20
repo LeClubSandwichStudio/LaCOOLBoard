@@ -126,7 +126,7 @@ wl_status_t CoolWifi::connect() {
 #endif
 
   Serial.println(F("Wifi connecting..."));
-  this->connectWifiMulti();
+  this->connectWifi();
 
 #if DEBUG == 1
 
@@ -139,48 +139,27 @@ wl_status_t CoolWifi::connect() {
 }
 
 /**
- *  CoolWifi::connectWifiMulti()
+ *  CoolWifi::connectWifi()
  *  This function is provided to
  *  run the WifiMulti part of the
  *  Wifi connection process
  *
  *  \return wifi state
  */
-wl_status_t CoolWifi::connectWifiMulti() {
+wl_status_t CoolWifi::connectWifi() {
   int i = 0;
 
+  Serial.println("Connecting to wifi...\n");
+  WiFi.begin(this->ssid[0].c_str(), this->pass[0].c_str());
+  while (WiFi.status() != WL_CONNECTED && i < 180) { // Wait for the Wi-Fi to connect
+    delay(1000);
 #if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.connectWifiMulti()"));
-  Serial.println();
-
-  Serial.println(F("entry time to multi : "));
-  Serial.println(millis());
-
+    if (!(i % 5)) {
+      Serial.print(++i);
+      Serial.println(" seconds elapsed");
+    }
 #endif
-
-  // Wifi MULTI
-  while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 500)) {
-
-#if DEBUG == 1
-
-    Serial.print(F("."));
-
-#endif
-    i++;
-    delay(5);
   }
-
-#if DEBUG == 1
-
-  Serial.println();
-  Serial.println(F("exit point from multi : "));
-  Serial.println(millis());
-
-  Serial.print(F("Wifi Status :"));
-  Serial.println(WiFi.status());
-#endif
-
   return (WiFi.status());
 }
 

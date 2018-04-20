@@ -1,9 +1,5 @@
 /*
- CoolPubSubClient.h 
- Modified by Mehdi Zemzem
- -added dynamic buffer and parameters settings
-
-  PubSubClient.cpp - A simple client for MQTT.
+  CoolPubSubClient.cpp - A simple client for MQTT.
   Nick O'Leary
   http://knolleary.net
 */
@@ -16,16 +12,12 @@ CoolPubSubClient::CoolPubSubClient() {
     this->_client = NULL;
     this->stream = NULL;
     setCallback(NULL);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 
 CoolPubSubClient::CoolPubSubClient(Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 
 CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, Client& client) {
@@ -33,16 +25,12 @@ CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, Client& client
     setServer(addr, port);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -50,8 +38,6 @@ CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -59,8 +45,6 @@ CoolPubSubClient::CoolPubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_
     setCallback(callback);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 
 CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, Client& client) {
@@ -68,16 +52,12 @@ CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, Client& client) {
     setServer(ip, port);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -85,8 +65,6 @@ CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIG
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -94,8 +72,6 @@ CoolPubSubClient::CoolPubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIG
     setCallback(callback);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 
 CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, Client& client) {
@@ -103,16 +79,12 @@ CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, Client& cl
     setServer(domain,port);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
@@ -120,8 +92,6 @@ CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, MQTT_CALLB
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
@@ -129,27 +99,21 @@ CoolPubSubClient::CoolPubSubClient(const char* domain, uint16_t port, MQTT_CALLB
     setCallback(callback);
     setClient(client);
     setStream(stream);
-    this->buffer_size = MQTT_MAX_PACKET_SIZE;
-    this->buffer = (uint8_t*)malloc(MQTT_MAX_PACKET_SIZE);
 }
 
-CoolPubSubClient::~CoolPubSubClient() {
-  free(this->buffer);
+boolean CoolPubSubClient::connect(const char *id) {
+    return connect(id,NULL,NULL,0,0,0,0);
 }
 
-boolean CoolPubSubClient::connect(const char *id, uint16_t keepAlive, uint16_t socketTimeout) {
-    return connect(id,NULL,NULL,0,0,0,0,keepAlive,socketTimeout);
- }
+boolean CoolPubSubClient::connect(const char *id, const char *user, const char *pass) {
+    return connect(id,user,pass,0,0,0,0);
+}
 
-boolean CoolPubSubClient::connect(const char *id, const char *user, const char *pass, uint16_t keepAlive, uint16_t socketTimeout) {
-    return connect(id,user,pass,0,0,0,0,keepAlive,socketTimeout);
- }
+boolean CoolPubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+    return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
+}
 
-boolean CoolPubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, uint16_t keepAlive, uint16_t socketTimeout) {
-    return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage,keepAlive,socketTimeout);
- }
-
-boolean CoolPubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, uint16_t keepAlive, uint16_t socketTimeout) {  
+boolean CoolPubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     if (!connected()) {
         int result = 0;
 
@@ -192,15 +156,8 @@ boolean CoolPubSubClient::connect(const char *id, const char *user, const char *
 
             buffer[length++] = v;
 
-            if (keepAlive > 0) {
-                this->keepAlive = keepAlive;
-            } else {
-                this->keepAlive = MQTT_KEEPALIVE;
-            }
-
-            buffer[length++] = ((this->keepAlive) >> 8);
-            buffer[length++] = ((this->keepAlive) & 0xFF);
-
+            buffer[length++] = ((MQTT_KEEPALIVE) >> 8);
+            buffer[length++] = ((MQTT_KEEPALIVE) & 0xFF);
             length = writeString(id,buffer,length);
             if (willTopic) {
                 length = writeString(willTopic,buffer,length);
@@ -217,17 +174,10 @@ boolean CoolPubSubClient::connect(const char *id, const char *user, const char *
             write(MQTTCONNECT,buffer,length-5);
 
             lastInActivity = lastOutActivity = millis();
-		
-	    if (socketTimeout > 0) {
-                this->socketTimeout = socketTimeout;
-            } else {
-                this->socketTimeout = MQTT_SOCKET_TIMEOUT;
-            }
-
 
             while (!_client->available()) {
                 unsigned long t = millis();
-                if (t-lastInActivity >= ((int32_t) this->socketTimeout)) {
+                if (t-lastInActivity >= ((int32_t) MQTT_SOCKET_TIMEOUT*1000UL)) {
                     _state = MQTT_CONNECTION_TIMEOUT;
                     _client->stop();
                     return false;
@@ -258,11 +208,9 @@ boolean CoolPubSubClient::connect(const char *id, const char *user, const char *
 // reads a byte into result
 boolean CoolPubSubClient::readByte(uint8_t * result) {
    uint32_t previousMillis = millis();
-   while(!_client->available()) 
-   {
+   while(!_client->available()) {
      uint32_t currentMillis = millis();
-     if(currentMillis - previousMillis >= ((int32_t) this->socketTimeout * 1000))
-     { 
+     if(currentMillis - previousMillis >= ((int32_t) MQTT_SOCKET_TIMEOUT * 1000)){
        return false;
      }
    }
@@ -318,13 +266,13 @@ uint16_t CoolPubSubClient::readPacket(uint8_t* lengthLength) {
                 this->stream->write(digit);
             }
         }
-        if (len < this->buffer_size) {
+        if (len < MQTT_MAX_PACKET_SIZE) {
             buffer[len] = digit;
         }
         len++;
     }
 
-    if (!this->stream && len > this->buffer_size) {
+    if (!this->stream && len > MQTT_MAX_PACKET_SIZE) {
         len = 0; // This will cause the packet to be ignored.
     }
 
@@ -334,7 +282,7 @@ uint16_t CoolPubSubClient::readPacket(uint8_t* lengthLength) {
 boolean CoolPubSubClient::loop() {
     if (connected()) {
         unsigned long t = millis();
-        if ((t - lastInActivity > this->keepAlive*1000UL) || (t - lastOutActivity > this->keepAlive*1000UL)) { 
+        if ((t - lastInActivity > MQTT_KEEPALIVE*1000UL) || (t - lastOutActivity > MQTT_KEEPALIVE*1000UL)) {
             if (pingOutstanding) {
                 this->_state = MQTT_CONNECTION_TIMEOUT;
                 _client->stop();
@@ -407,8 +355,8 @@ boolean CoolPubSubClient::publish(const char* topic, const uint8_t* payload, uns
 }
 
 boolean CoolPubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
-    if (connected()) {
-        if (this->buffer_size < 5 + 2+strlen(topic) + plength) {
+   if (connected()) {
+        if (MQTT_MAX_PACKET_SIZE < 5 + 2+strlen(topic) + plength) {
             // Too long
             return false;
         }
@@ -520,10 +468,10 @@ boolean CoolPubSubClient::subscribe(const char* topic) {
 }
 
 boolean CoolPubSubClient::subscribe(const char* topic, uint8_t qos) {
-    if (qos < 0 || qos > 1) {
+    if (qos > 1) {
         return false;
     }
-    if (this->buffer_size < 9 + strlen(topic)) {
+    if (MQTT_MAX_PACKET_SIZE < 9 + strlen(topic)) {
         // Too long
         return false;
     }
@@ -544,7 +492,7 @@ boolean CoolPubSubClient::subscribe(const char* topic, uint8_t qos) {
 }
 
 boolean CoolPubSubClient::unsubscribe(const char* topic) {
-    if (this->buffer_size < 9 + strlen(topic)) {
+    if (MQTT_MAX_PACKET_SIZE < 9 + strlen(topic)) {
         // Too long
         return false;
     }
@@ -638,19 +586,3 @@ CoolPubSubClient& CoolPubSubClient::setStream(Stream& stream){
 int CoolPubSubClient::state() {
     return this->_state;
 }
-
-boolean CoolPubSubClient::setBufferSize(uint16_t size) {
-  this->buffer = (uint8_t*)realloc(this->buffer, size);
-  this->buffer_size = size;
-  return (this->buffer == NULL);
-}
-
-uint16_t CoolPubSubClient::getBufferSize() {
-  return this->buffer_size;
-}
-
-CoolPubSubClient& CoolPubSubClient::setTimeout(uint16_t socketTimeout){
-    this->socketTimeout = socketTimeout;
-    return *this;
-}
-
