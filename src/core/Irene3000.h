@@ -23,7 +23,7 @@
 
 #ifndef IRENE3000_H
 #define IRENE3000_H
-#include "internals/CoolAdafruit_ADS1015.h"
+#include "CoolAdafruit_ADS1015.h"
 
 #include <Arduino.h>
 

@@ -26,7 +26,7 @@
 
 #include "Arduino.h"
 #include "CoolWifi.h"
-#include "internals/CoolPubSubClient.h"
+#include "CoolPubSubClient.h"
 #include <ESP8266WiFi.h>
 
 #define MQTT_RETRY 2
