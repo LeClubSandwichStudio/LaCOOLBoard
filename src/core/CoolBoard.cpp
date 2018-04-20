@@ -27,7 +27,11 @@
 #include "FS.h"
 #include <memory>
 
-#define DEBUG 0
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
+
+
+#define DEBUG 1
 #define SEND_MSG_BATCH 10
 
 /**
@@ -520,7 +524,9 @@ void CoolBoard::onLineMode() {
   } else if (this->manual == 1) {
     Serial.println(F("we are in manual mode"));
     mqtt.mqttLoop();
+    Serial.println(F("Answer Print"));
     answer = mqtt.read();
+    Serial.println(answer);
     this->update(answer.c_str());
   }
 
@@ -900,7 +906,7 @@ void CoolBoard::update(const char *answer) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
-
+  
 #if DEBUG == 1
   Serial.println(F("root json : "));
   root.printTo(Serial);
@@ -920,6 +926,70 @@ void CoolBoard::update(const char *answer) {
     Serial.println(this->manual);
 #endif
   }
+/////////////////////////////////////
+   if (stateDesired["CoolBoard"]["firmwareUpdate"].success()) {
+     const String FW_obj =  stateDesired["CoolBoard"]["firmwareUpdate"];
+          #if DEBUG == 1
+          Serial.println("Firmware OBJ:  ");
+          Serial.println(FW_obj);
+          #endif
+          JsonObject& FWroot = jsonBuffer.parseObject(FW_obj);
+          const String FW_VERSION = FWroot.get<String>("version");
+          const String FW_URL = FWroot.get<String>("url");
+          const String URL_Fingerprint = FWroot.get<String>("fingerPrint");
+        #if DEBUG == 1
+        Serial.println("Fingerprint HTTPS: ");
+        Serial.println(URL_Fingerprint);
+        Serial.println("UpdateFirmware URL: ");
+        Serial.println(FW_URL);
+        Serial.println("Firmware Version: ");
+        Serial.println(FW_VERSION);
+        Serial.setDebugOutput(true);
+        #endif     
+      if(FW_URL != "" && FW_VERSION != "v0.1.4" && URL_Fingerprint =="" ){
+            t_httpUpdate_return ret = ESPhttpUpdate.update(FW_URL);
+    switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+        break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+        Serial.println("HTTP_UPDATE_NO_UPDATES");
+        break;
+
+      case HTTP_UPDATE_OK:
+        Serial.println("HTTP_UPDATE_OK");
+        break;
+         }
+      } else if(FW_URL != "" && FW_VERSION != "v0.1.4" && URL_Fingerprint.length() > 5 ){
+        #if DEBUG == 1
+        Serial.println("HTTPS UPDATE TESTING: ");
+        Serial.println("Fingerprint HTTPS: ");
+        Serial.println(URL_Fingerprint);
+        Serial.println("UpdateFirmware URL: ");
+        Serial.println(FW_URL);
+        Serial.println("Firmware Version: ");
+        Serial.println(FW_VERSION);
+        Serial.setDebugOutput(true);
+        #endif  
+            t_httpUpdate_return ret = ESPhttpUpdate.update(FW_URL, "HTTP/1.0\r\n\r\n", URL_Fingerprint);
+    switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+        break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+        Serial.println("HTTP_UPDATE_NO_UPDATES");
+        break;
+
+      case HTTP_UPDATE_OK:
+        Serial.println("HTTP_UPDATE_OK");
+        break;
+         }
+      }
+    }
+  
+/////////////////////////////////////  
 
   if (stateDesired.success()) {
 

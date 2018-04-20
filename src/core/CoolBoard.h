@@ -229,6 +229,20 @@ private:
    *  and start up the AP for further configuration
    */
   const int bootstrap = 0;
+
+  /**
+   *  Firmware Update URL,
+   *  URL link contain firmware binary
+   *  
+   */
+  String fwURL = "";
+
+  /**
+   *  Server URL Firmware Host Address,
+   *  URL Server host firmware binary
+   *  
+   */
+  String fwServer = "http://kababekhalil.com";
 };
 
 #endif

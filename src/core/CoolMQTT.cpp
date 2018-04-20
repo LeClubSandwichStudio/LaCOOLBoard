@@ -28,7 +28,7 @@
 #include "FS.h"
 #include <ESP8266WiFi.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
  *  CoolMQTT::begin():
@@ -182,7 +182,7 @@ bool CoolMQTT::publish(const char *data) {
 #if DEBUG == 1
 
   Serial.print(F("success : "));
-  Serial.println(pub);
+ // Serial.println(data);
 
 #endif
   byte retries = 0;

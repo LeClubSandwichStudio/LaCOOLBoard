@@ -29,7 +29,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 /**
  *  CoolWifi::begin():
