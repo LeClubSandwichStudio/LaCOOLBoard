@@ -24,7 +24,7 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 #include "FS.h"
-#include "internals/WiFiManagerReadFileButton.h"
+#include "WiFiManagerReadFileButton.h"
 #include <CoolWifi.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>

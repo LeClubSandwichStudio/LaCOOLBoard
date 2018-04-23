@@ -90,7 +90,7 @@ void CoolSI114X::DeInit(void)
  */
 bool CoolSI114X::Begin(void)
 {
-  Wire.begin(2,14);
+  Wire.begin();
   //
   //Init IIC  and reset si1145
   //

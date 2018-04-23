@@ -1,4 +1,4 @@
-#include "internals/CoolAdafruit_CCS811.h"
+#include "CoolAdafruit_CCS811.h"
 
 bool Adafruit_CCS811::begin(uint8_t addr)
 {
@@ -166,7 +166,7 @@ uint8_t Adafruit_CCS811::read8(byte reg)
 
 void Adafruit_CCS811::_i2c_init()
 {
-	Wire.begin(2,14);
+	Wire.begin();
 }
 
 void Adafruit_CCS811::read(uint8_t reg, uint8_t *buf, uint8_t num)

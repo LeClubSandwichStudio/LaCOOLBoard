@@ -26,6 +26,7 @@
 #include "ArduinoJson.h"
 #include "FS.h"
 #include <stdint.h>
+#include <Wire.h>
 
 #define DEBUG 0
 
@@ -42,7 +43,6 @@ CoolBoardSensors::CoolBoardSensors() {
   Serial.println();
 
 #endif
-
   pinMode(AnMplex, OUTPUT);       // Declare Analog Multiplexer OUTPUT
   pinMode(EnMoisture, OUTPUT);    // Declare Moisture enable Pin
   digitalWrite(EnMoisture, HIGH); // Prevent Wearing on the soil moisture fork
@@ -82,7 +82,7 @@ void CoolBoardSensors::allActive() {
  *  sensors that are on the sensor board
  */
 void CoolBoardSensors::begin() {
-
+  Wire.begin(2, 14);
 #if DEBUG == 1
 
   Serial.println(F("Entering CoolBoardSensors.begin()"));

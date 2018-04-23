@@ -25,7 +25,6 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 #include "FS.h"
-#include <Wire.h>
 #include <memory>
 
 #define DEBUG 0
@@ -43,7 +42,6 @@ CoolBoard::CoolBoard() {
   Serial.println();
 #endif
 
-  Wire.begin(2, 14);      // I2C init
   pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
   pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
 }
