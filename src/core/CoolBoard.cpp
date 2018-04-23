@@ -31,7 +31,7 @@
 #include <ESP8266httpUpdate.h>
 
 
-#define DEBUG 1
+#define DEBUG 0
 #define SEND_MSG_BATCH 10
 
 /**

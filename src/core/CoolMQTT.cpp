@@ -28,7 +28,7 @@
 #include "FS.h"
 #include <ESP8266WiFi.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /**
  *  CoolMQTT::begin():
