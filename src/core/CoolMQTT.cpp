@@ -21,14 +21,12 @@
  *
  */
 
-#include "CoolMQTT.h"
-#include "Arduino.h"
-#include "ArduinoJson.h"
-#include "CoolWifi.h"
-#include "FS.h"
-#include <ESP8266WiFi.h>
+#include <FS.h>
 
-#define DEBUG 0
+#include <ArduinoJson.h>
+
+#include "CoolMQTT.h"
+#include "CoolLog.h"
 
 /**
  *  CoolMQTT::begin():
@@ -39,20 +37,11 @@
  *        -buffer size
  */
 void CoolMQTT::begin() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.begin()"));
-  Serial.println();
-
-#endif
-
   client.setClient(espClient);
   client.setServer(mqttServer, 1883);
   client.setCallback([this](char *topic, byte *payload, unsigned int length) {
     this->callback(topic, payload, length);
   });
-  //client.setBufferSize((unsigned short)bufferSize);
 }
 
 /**
@@ -61,27 +50,24 @@ void CoolMQTT::begin() {
  *  mqtt client's state.
  *  \return mqtt client state:
  *    -4 : MQTT_CONNECTION_TIMEOUT - the server didn't respond within
- *the keepalive time -3 : MQTT_CONNECTION_LOST - the network connection was
- *broken -2 : MQTT_CONNECT_FAILED - the network connection failed -1 :
- *MQTT_DISCONNECTED - the client is disconnected cleanly 0 : MQTT_CONNECTED -
- *the cient is connected 1 : MQTT_CONNECT_BAD_PROTOCOL - the server doesn't
- *support the requested version of MQTT 2 : MQTT_CONNECT_BAD_CLIENT_ID - the
- *server rejected the client identifier 3 : MQTT_CONNECT_UNAVAILABLE - the
- *server was unable to accept the connection 4 : MQTT_CONNECT_BAD_CREDENTIALS
- *- the username/password were rejected 5 : MQTT_CONNECT_UNAUTHORIZED - the
- *client was not authorized to connect
+ *         the keepalive time
+ *    -3 : MQTT_CONNECTION_LOST - the network connection was broken
+ *    -2 : MQTT_CONNECT_FAILED - the network connection failed
+ *    -1 : MQTT_DISCONNECTED - the client is disconnected cleanly
+ *     0 : MQTT_CONNECTED - the cient is connected
+ *     1 : MQTT_CONNECT_BAD_PROTOCOL - the server doesn't support the
+ *         requested version of MQTT
+ *     2 : MQTT_CONNECT_BAD_CLIENT_ID - the server rejected the client
+ *         identifier
+ *     3 : MQTT_CONNECT_UNAVAILABLE - the server was unable to accept
+ *         the connection
+ *     4 : MQTT_CONNECT_BAD_CREDENTIALS - the username/password were
+ *         rejected
+ *     5 : MQTT_CONNECT_UNAUTHORIZED - the client was not authorized
+ *         to connect
  */
 int CoolMQTT::state() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.state()"));
-  Serial.println();
-  Serial.print(F("state : "));
-  Serial.println(this->client.state());
-
-#endif
-
+  DEBUG_VAR("MQTT state:", this->client.state());
   return (this->client.state());
 }
 
@@ -93,56 +79,30 @@ int CoolMQTT::state() {
  *  \return mqtt client state
  */
 int CoolMQTT::connect() {
-
   int i = 0;
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.connect()"));
-
-#endif
-  Serial.println(F("MQTT connecting..."));
-
-  String tempMAC = WiFi.macAddress();
-
-  tempMAC.replace(":", "");
-
   char MAC[12];
+
+  DEBUG_LOG("MQTT connecting...");
+  String tempMAC = WiFi.macAddress();
+  tempMAC.replace(":", "");
   tempMAC.toCharArray(MAC, 12);
 
   while ((!this->client.connected()) && (i < MQTT_RETRY)) {
-    // Attempt to connect
-    if (this->client.connect(
-            MAC)) // use the mac as MQTT client ID to assure a unique id
-    {
+    if (this->client.connect(MAC)) {
       client.subscribe(this->inTopic);
-
-#if DEBUG == 1
-
-      Serial.println(F(" subscribed , leavin "));
-
-#endif
-
+      DEBUG_LOG("Subscribed to MQTT input topic");
       return (this->state());
+    } else {
+      WARN_LOG("MQTT connection failed, retrying");
     }
-
-    else {
-
-#if DEBUG == 1
-
-      Serial.println(F("not connected , retrying"));
-
-#endif
-    }
-
     delay(5);
     i++;
   }
   if (state() == 0) {
-    Serial.println(F("MQTT connected : OK"));
-    Serial.println();
-  } else
-    Serial.println(F("MQTT not jet connected..."));
+    DEBUG_LOG("MQTT connected");
+  } else {
+    ERROR_LOG("MQTT connection failed after 5 retries");
+  }
   return (this->state());
 }
 
@@ -158,63 +118,35 @@ int CoolMQTT::connect() {
  *  false otherwise
  */
 bool CoolMQTT::publish(const char *data) {
+  DEBUG_VAR("Message to publish:", data);
+  DEBUG_VAR("Message size", strlen(data));
 
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.publish()"));
-  Serial.println();
-  // data is in JSON, publish it directly
-
-  Serial.println(F("data to publish : "));
-  Serial.println(data);
-  Serial.print(F("data size : "));
-  Serial.println(strlen(data));
-
-  Serial.println();
-
-#endif
-#if DEBUG == 0
-  Serial.println(F("Publishing Message : "));
-  Serial.println(data);
-  Serial.println();
-#endif
-
-#if DEBUG == 1
-
-  Serial.print(F("success : "));
-  Serial.println(pub);
-
-#endif
   byte retries = 0;
-  // bool published = false;
   bool published =
       client.publish(this->outTopic, (byte *)data, strlen(data), false);
+
   while (!published && retries < MQTT_RETRY) {
     published =
         client.publish(this->outTopic, (byte *)data, strlen(data), false);
     if (!published) {
+      WARN_LOG("MQTT publish failed, retrying...");
       if (wifiManager.state() != 3) {
-        Serial.println(F("No WiFi Re-connecting.."));
+        WARN_LOG("Wifi offline, reconnecting...");
         wifiManager.disconnect();
         delay(200);
         wifiManager.begin();
         delay(200);
       }
+      DEBUG_LOG("Reconnecting to MQTT server...");
+      connect();
+      delay(100); // wait a little and treat network
     }
-    Serial.println(F("No MQTT, re-connecting.."));
-    connect();
-    delay(100); // wait a little and treat network
-    yield();
     retries++;
   }
-  delay(100);
-  yield();
   if (published) {
-    Serial.println(F("Publish : OK"));
+    DEBUG_LOG("MQTT publish successful");
   } else {
-    Serial.print(F("Published failed after "));
-    Serial.print(MQTT_RETRY);
-    Serial.println(F(" retries"));
+    ERROR_LOG("MQTT publish failed, no more retries left!");
   }
   return (published);
 }
@@ -228,30 +160,15 @@ bool CoolMQTT::publish(const char *data) {
  *  otherwise
  */
 bool CoolMQTT::mqttLoop() {
-
   unsigned long lastTime = millis();
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.mqttLoop()"));
-  Serial.println();
-
-#endif
 
   while ((millis() - lastTime) < 1000) {
     this->client.loop();
     yield();
   }
-
-#if DEBUG == 1
-
-  Serial.print(F("loop result : "));
-  Serial.println(this->client.loop());
-  Serial.println();
-
-#endif
-
-  return (this->client.loop());
+  bool connected = this->client.loop();
+  DEBUG_VAR("MQTT connection status after listen loop", connected);
+  return (connected);
 }
 
 /**
@@ -262,68 +179,18 @@ bool CoolMQTT::mqttLoop() {
  *  Arguments are automatically assigned in client.setCallback()
  */
 void CoolMQTT::callback(char *topic, byte *payload, unsigned int length) {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.callback() "));
-  Serial.println();
-
-#endif
-
   if (this->newMsg == false) {
     char temp[length + 1];
-
-#if DEBUG == 1
-
-    Serial.println(F("received temp msg : "));
-
-#endif
-
     for (unsigned int i = 0; i < length; i++) {
       temp[i] = (char)payload[i];
-
-#if DEBUG == 1
-
-      Serial.print((char)payload[i]);
-
-#endif
     }
-
-#if DEBUG == 1
-
-    Serial.println();
-    Serial.println(F("storing new message : "));
-
-    Serial.print(F("length : "));
-    Serial.println(length);
-
-    Serial.print(F("size : "));
-    Serial.print(sizeof(payload));
-    Serial.println();
-
-#endif
-
     this->newMsg = true;
-
     temp[length + 1] = '\0';
-
     this->msg = String(temp);
     this->msg.remove(length, 1);
-
-#if DEBUG == 1
-
-    Serial.println(F("stored message : "));
-    Serial.println(this->msg);
-
-#endif
-
+    DEBUG_VAR("Received new MQTT message:", this->msg);
   } else {
-
-#if DEBUG == 1
-
-    Serial.println(F("did not read last message"));
-
-#endif
+    DEBUG_LOG("No MQTT message to read");
   }
 }
 
@@ -333,26 +200,9 @@ void CoolMQTT::callback(char *topic, byte *payload, unsigned int length) {
  *  read message.
  */
 String CoolMQTT::read() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.read()"));
-  Serial.println();
-
-#endif
-
   if (this->newMsg == true) {
-
     this->newMsg = false;
-
-#if DEBUG == 1
-    Serial.println(F("received new message"));
-    Serial.println(F("message : "));
-    Serial.println(this->msg);
-    Serial.println();
-
-#endif
-
+    DEBUG_VAR("Last MQTT message received:", this->msg);
     return (this->msg);
   }
   return ("");
@@ -370,59 +220,25 @@ String CoolMQTT::read() {
  *  \return true if successful,false otherwise
  */
 bool CoolMQTT::config() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.config()"));
-  Serial.println();
-
-#endif
-
-  // read config file
-  // update data
   File configFile = SPIFFS.open("/mqttConfig.json", "r");
 
   if (!configFile) {
-
-#if DEBUG == 1
-
-    Serial.println(F("failed to read /mqttConfig.json"));
-    Serial.println();
-
-#endif
-
+    ERROR_LOG("Failed to read /mqttConfig.json");
     return (false);
   } else {
     size_t size = configFile.size();
-    // Allocate a buffer to store contents of the file.
     std::unique_ptr<char[]> buf(new char[size]);
 
     configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
     JsonObject &json = jsonBuffer.parseObject(buf.get());
+
     if (!json.success()) {
-
-#if DEBUG == 1
-
-      Serial.println(F("failed to parse json "));
-      Serial.println();
-
-#endif
-
+      ERROR_LOG("Failed to parse MQTT configuration JSON");
       return (false);
     } else {
-
-#if DEBUG == 1
-
-      Serial.println(F("configuration json is "));
-      json.printTo(Serial);
-      Serial.println();
-
-      Serial.print(F("jsonBuffer size: "));
-      Serial.println(jsonBuffer.size());
-      Serial.println();
-
-#endif
+      DEBUG_JSON("MQTT configi JSON", json);
+      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
 
       if (json["mqttServer"].success()) {
         const char *tempmqttServer = json["mqttServer"];
@@ -446,13 +262,7 @@ bool CoolMQTT::config() {
         tempMAC.replace(":", "");
         snprintf(inTopic, 50, "$aws/things/%s/shadow/update/delta",
                  tempMAC.c_str());
-
-#if DEBUG == 1
-
-        Serial.print(F("Set Incomming MQTT Channel to : "));
-        Serial.println(inTopic);
-
-#endif
+        DEBUG_VAR("Setting outgoing MQTT Channel to:", inTopic);
       }
       json["inTopic"] = this->inTopic;
 
@@ -465,74 +275,27 @@ bool CoolMQTT::config() {
         String tempMAC = WiFi.macAddress();
         tempMAC.replace(":", "");
         snprintf(outTopic, 50, "$aws/things/%s/shadow/update", tempMAC.c_str());
-
-#if DEBUG == 1
-
-        Serial.print(F("Set Outgoing MQTT Channel to : "));
-        Serial.println(outTopic);
-
-#endif
+        DEBUG_VAR("Setting outgoing MQTT Channel to:", outTopic);
       }
       json["outTopic"] = this->outTopic;
 
       if (json["bufferSize"].success()) {
         int tempBufferSize = json["bufferSize"];
         bufferSize = tempBufferSize;
-      } else {
-        this->bufferSize = this->bufferSize;
       }
-      json["bufferSize"] = this->bufferSize;
-
       configFile.close();
       configFile = SPIFFS.open("/mqttConfig.json", "w");
+
       if (!configFile) {
-
-#if DEBUG == 1
-
-        Serial.println(F("failed to write to /mqttConfig.json"));
-
-#endif
-
+        ERROR_LOG("Failed to write to /mqttConfig.json");
         return (false);
       }
-
       json.printTo(configFile);
       configFile.close();
-
-#if DEBUG == 1
-
-      Serial.println(F("saved configuration is :"));
-      json.printTo(Serial);
-      Serial.println();
-
-#endif
-
+      DEBUG_LOG("Saved MQTT configuration to /mqttConfig.json");
       return (true);
     }
   }
-}
-
-/**
- *  CoolMQTT::config(server,in topic, out topic, buffer size):
- *  This method is provided to manually configure the mqtt client
- *
- */
-void CoolMQTT::config(const char mqttServer[], const char inTopic[],
-                      const char outTopic[], int bufferSize) {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.config() , no SPIFFS variant"));
-  Serial.println();
-
-#endif
-
-  for (int i = 0; i < 50; i++) {
-    this->mqttServer[i] = mqttServer[i];
-    this->inTopic[i] = inTopic[i];
-    this->outTopic[i] = outTopic[i];
-  }
-  this->bufferSize = bufferSize;
 }
 
 /**
@@ -541,27 +304,9 @@ void CoolMQTT::config(const char mqttServer[], const char inTopic[],
  *  configuration to the Serial Monitor
  */
 void CoolMQTT::printConf() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolMQTT.printConf()"));
-  Serial.println();
-
-#endif
-
-  Serial.println("MQTT configuration ");
-
-  Serial.print("mqttServer : ");
-  Serial.println(this->mqttServer);
-
-  Serial.print("inTopic : ");
-  Serial.println(this->inTopic);
-
-  Serial.print("outTopic : ");
-  Serial.println(this->outTopic);
-
-  Serial.print("bufferSize : ");
-  Serial.println(this->bufferSize);
-
-  Serial.println();
+  INFO_LOG("MQTT configuration");
+  INFO_VAR("  MQTT server:", this->mqttServer);
+  INFO_VAR("  In topic   :", this->inTopic);
+  INFO_VAR("  Out topic  :", this->outTopic);
+  INFO_VAR("  Buffer size:", this->bufferSize);
 }

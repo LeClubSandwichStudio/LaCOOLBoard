@@ -21,15 +21,13 @@
  *
  */
 
-#include "Arduino.h"
-#include "ArduinoJson.h"
-#include "FS.h"
-#include "WiFiManagerReadFileButton.h"
-#include <CoolWifi.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
+#include <FS.h>
 
-#define DEBUG 0
+#include <ArduinoJson.h>
+
+#include "WiFiManagerReadFileButton.h"
+#include "CoolWifi.h"
+#include "CoolLog.h"
 
 /**
  *  CoolWifi::begin():
@@ -38,14 +36,8 @@
  *  wifiManager time out
  */
 void CoolWifi::begin() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.begin()"));
-  Serial.println();
-
-#endif
   for (int i = 0; i < this->wifiCount; i++) {
+    INFO_VAR("Adding access point:", this->ssid[i]);
     this->wifiMulti.addAP(this->ssid[i].c_str(), this->pass[i].c_str());
   }
 }
@@ -65,16 +57,7 @@ void CoolWifi::begin() {
  *    WL_DISCONNECTED = 6
  */
 wl_status_t CoolWifi::state() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.state()"));
-  Serial.println();
-  Serial.print(F("state : "));
-  Serial.println(WiFi.status());
-
-#endif
-
+  DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
@@ -94,18 +77,8 @@ wl_status_t CoolWifi::state() {
  *    WL_DISCONNECTED = 6
  */
 wl_status_t CoolWifi::disconnect() {
-
   WiFi.disconnect();
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.disconnect()"));
-  Serial.println();
-  Serial.print(F("state : "));
-  Serial.println(WiFi.status());
-
-#endif
-
+  DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
@@ -118,23 +91,9 @@ wl_status_t CoolWifi::disconnect() {
  *  \return wifi state
  */
 wl_status_t CoolWifi::connect() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.connect()"));
-
-#endif
-
-  Serial.println(F("Wifi connecting..."));
+  DEBUG_LOG("Wifi connecting...");
   this->connectWifi();
-
-#if DEBUG == 1
-
-  Serial.print(F("Wifi status: "));
-  Serial.println(WiFi.status());
-
-#endif
-
+  DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
@@ -149,17 +108,13 @@ wl_status_t CoolWifi::connect() {
 wl_status_t CoolWifi::connectWifi() {
   int i = 0;
 
-  Serial.println("Connecting to wifi...\n");
   WiFi.begin(this->ssid[0].c_str(), this->pass[0].c_str());
-  while (WiFi.status() != WL_CONNECTED && i < 180) { // Wait for the Wi-Fi to connect
+  while (WiFi.status() != WL_CONNECTED && i < 180) {
     delay(1000);
     ++i;
-#if DEBUG == 1
     if (!(i % 5)) {
-      Serial.print(i);
-      Serial.println(" seconds elapsed");
+      DEBUG_VAR("Seconds spent connecting:", i);
     }
-#endif
   }
   return (WiFi.status());
 }
@@ -173,50 +128,22 @@ wl_status_t CoolWifi::connectWifi() {
  *  \return wifi state
  */
 wl_status_t CoolWifi::connectAP() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.connectAP()"));
-  Serial.println();
-
-#endif
   WiFiManager wifiManager;
+  String tempMAC = WiFi.macAddress();
 
   wifiManager.setRemoveDuplicateAPs(true);
-
   wifiManager.setTimeout(this->timeOut);
-
-  String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
 
   String name = "CoolBoard-" + tempMAC;
 
-  if (!wifiManager.autoConnect(name.c_str())) {
-
-    Serial.println(F("failed to connect and hit timeout"));
-
-    delay(30);
-  }
-
-  // if you get here you have connected to the WiFi
-
+  wifiManager.autoConnect(name.c_str());
   if (WiFi.status() == WL_CONNECTED) {
-
-#if DEBUG == 1
-
-    Serial.println(F("connected...yeey :)"));
-    Serial.println("connected to ");
-    Serial.println(WiFi.SSID());
-    // Serial.println( WiFi.psk() ) ;
-
-#endif
-
+    DEBUG_VAR("Wifi network selected:", WiFi.SSID());
     this->addWifi(WiFi.SSID(), WiFi.psk());
-
   } else {
-    Serial.println(F("Not connected...:("));
+    ERROR_LOG("No Wifi network was configured.");
   }
-
   return (WiFi.status());
 }
 
@@ -231,96 +158,47 @@ wl_status_t CoolWifi::connectAP() {
  *  \return true if successful,false otherwise
  */
 bool CoolWifi::config() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.config()"));
-  Serial.println();
-
-#endif
-#if DEBUG == 0
-
-  Serial.println("Reading Wifi Configuration..");
-  delay(100);
-#endif
-
-  // read config file
-  // update data
   File configFile = SPIFFS.open("/wifiConfig.json", "r");
 
   if (!configFile) {
-
-    Serial.println(F("failed to read /wifiConfig.json"));
-    Serial.println();
-
+    ERROR_LOG("Failed to read /wifiConfig.json");
     return (false);
   } else {
     size_t size = configFile.size();
-    // Allocate a buffer to store contents of the file.
     std::unique_ptr<char[]> buf(new char[size]);
 
     configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
     JsonObject &json = jsonBuffer.parseObject(buf.get());
     if (!json.success()) {
-
-      Serial.println(F("failed to parse json "));
-      Serial.println();
-
+      ERROR_LOG("Failed to parse Wifi config from file");
       return (false);
     } else {
-
-#if DEBUG == 1
-
-      Serial.println(F("configuration json is "));
-      json.printTo(Serial);
-      Serial.println();
-
-      Serial.print(F("jsonBuffer size: "));
-      Serial.println(jsonBuffer.size());
-      Serial.println();
-
-#endif
-      // wifiCount
+      DEBUG_JSON("Wifi config JSON:", json);
+      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
       if (json["wifiCount"].success()) {
         this->wifiCount = json["wifiCount"];
-      } else {
-        this->wifiCount = this->wifiCount;
       }
       json["wifiCount"] = this->wifiCount;
 
-      // AP timeOut
       if (json["timeOut"].success()) {
         this->timeOut = json["timeOut"];
-      } else {
-        this->timeOut = this->timeOut;
       }
       json["timeOut"] = this->timeOut;
 
-      // Wifis SSID and PASS
       for (int i = 0; i < this->wifiCount; i++) {
         if (json["Wifi" + String(i)].success()) {
-
           if (json["Wifi" + String(i)]["ssid"].success()) {
             const char *tempSsid = json["Wifi" + String(i)]["ssid"];
             this->ssid[i] = tempSsid;
-          } else {
-            this->ssid[i] = this->ssid[i];
           }
           json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
 
           if (json["Wifi" + String(i)]["pass"].success()) {
             const char *tempPass = json["Wifi" + String(i)]["pass"];
             this->pass[i] = tempPass;
-          } else {
-            this->pass[i] = this->pass[i];
           }
           json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
-
-        } else {
-
-          this->ssid[i] = this->ssid[i];
-          this->pass[i] = this->pass[i];
         }
         json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
         json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
@@ -329,109 +207,15 @@ bool CoolWifi::config() {
       configFile.close();
       configFile = SPIFFS.open("/wifiConfig.json", "w");
       if (!configFile) {
-
-        Serial.println(F("failed to write to /wifiConfig.json"));
-
+        ERROR_LOG("Failed to write to /wifiConfig.json");
         return (false);
       }
-
       json.printTo(configFile);
       configFile.close();
-
-#if DEBUG == 1
-
-      Serial.println(F("saved configuration is :"));
-      json.printTo(Serial);
-      Serial.println();
-
-#endif
-#if DEBUG == 0
-      Serial.println(F("Configuration loaded : OK"));
-#endif
+      DEBUG_LOG("Saved Wifi config to /wifiConfig.json");
       return (true);
     }
   }
-}
-
-/**
- *  CoolWifi::config(ssid array, pass array, number of wifis, AP
- *timeout); This method is provided to configure the Wifi without
- *SPIFFS
- *
- *  \return true if successfull, false otherwise
- */
-bool CoolWifi::config(String ssid[], String pass[], int wifiNumber,
-                      int APTimeOut) {
-
-#if DEBUG == 1
-
-  Serial.println("Entering CoolWifi.config(), no SPIFFS variant ");
-
-#endif
-
-  if (wifiNumber > 50) {
-
-#if DEBUG == 1
-
-    Serial.println("the limit of WiFis is 50 ");
-
-#endif
-    return (false);
-  }
-
-  this->wifiCount = wifiNumber;
-
-  this->timeOut = APTimeOut;
-
-  for (int i = 0; i < wifiNumber; i++) {
-    this->ssid[i] = ssid[i];
-
-    this->pass[i] = pass[i];
-  }
-
-  return (true);
-}
-
-/**
- *  CoolWifi::printConf():
- *  This method is provided to print the
- *  configuration to the Serial Monitor
- */
-void CoolWifi::printConf() {
-
-#if DEBUG == 1
-
-  Serial.println(F("Entering CoolWifi.printConf()"));
-  Serial.println();
-
-#endif
-
-  Serial.println(F("Wifi configuration "));
-
-  Serial.println(F("wifiCount : "));
-  Serial.println(this->wifiCount);
-
-  for (int i = 0; i < this->wifiCount; i++) {
-    Serial.print(F("SSID"));
-    Serial.print(i);
-    Serial.println(F(" : "));
-    Serial.println(this->ssid[i]);
-
-    // Serial.print("PASS");
-    // Serial.print(i);
-    // Serial.println(" : ");
-
-    // Serial.print(F("PASS"));
-    // Serial.print(i);
-    // Serial.println(F(" : "));
-
-    // Serial.println(this->pass[i]);
-  }
-
-  Serial.println(F("timeOut : "));
-  Serial.println(this->timeOut);
-
-  Serial.println();
 }
 
 /**
@@ -443,144 +227,75 @@ void CoolWifi::printConf() {
  *  \return true if successfull , false otherwise
  */
 bool CoolWifi::addWifi(String ssid, String pass) {
-
-#if DEBUG == 1
-
-  Serial.println("Entering CoolWifi.addWifi() ");
-
-#endif
-
   this->wifiCount++;
+
   if (this->wifiCount >= 50) {
-
-#if DEBUG == 1
-
-    Serial.println("You have reached the limit of 50");
+    DEBUG_LOG("You have reached the limit of 50 networks");
     return (false);
-
-#endif
   }
-
   this->ssid[this->wifiCount - 1] = ssid;
   this->pass[this->wifiCount - 1] = pass;
-
-  // read config file
-  // update data
   File configFile = SPIFFS.open("/wifiConfig.json", "r");
 
   if (!configFile) {
-
-#if DEBUG == 1
-
-    Serial.println(F("failed to read /wifiConfig.json"));
-    Serial.println();
-
-#endif
+    ERROR_LOG("Failed to read /wifiConfig.json");
   } else {
     size_t size = configFile.size();
-    // Allocate a buffer to store contents of the file.
     std::unique_ptr<char[]> buf(new char[size]);
-
     configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
     JsonObject &json = jsonBuffer.parseObject(buf.get());
+
     if (!json.success()) {
-
-#if DEBUG == 1
-
-      Serial.println(F("failed to parse json "));
-      Serial.println();
-
-#endif
+      ERROR_LOG("failed to parse Wifi config from file");
     } else {
+      DEBUG_JSON("Wifi config JSON:", json);
 
-#if DEBUG == 1
-
-      Serial.println(F("configuration json is "));
-      json.printTo(Serial);
-      Serial.println();
-
-      Serial.print(F("jsonBuffer size: "));
-      Serial.println(jsonBuffer.size());
-      Serial.println();
-
-#endif
-      // wifiCount
       if (json["wifiCount"].success()) {
         json["wifiCount"] = this->wifiCount;
-      } else {
-        this->wifiCount = this->wifiCount;
       }
       json["wifiCount"] = this->wifiCount;
 
-      // AP timeOut
       if (json["timeOut"].success()) {
         this->timeOut = json["timeOut"];
-      } else {
-        this->timeOut = this->timeOut;
       }
       json["timeOut"] = this->timeOut;
-
-      // new Wifi SSID and PASS
       JsonObject &newWifi =
           json.createNestedObject("Wifi" + String(this->wifiCount - 1));
-
       newWifi["ssid"] = this->ssid[this->wifiCount - 1];
       newWifi["pass"] = this->pass[this->wifiCount - 1];
-
       configFile.close();
       configFile = SPIFFS.open("/wifiConfig.json", "w");
+
       if (!configFile) {
-
-#if DEBUG == 1
-
-        Serial.println(F("failed to write to /wifiConfig.json"));
-
-#endif
+        ERROR_LOG("failed to write to /wifiConfig.json");
       }
-
       json.printTo(configFile);
       configFile.close();
-
-#if DEBUG == 1
-
-      Serial.println(F("saved configuration is :"));
-      json.printTo(Serial);
-      Serial.println();
-
-#endif
-
+      DEBUG_LOG("Saved Wifi config to /wifiConfig.json");
       return (true);
     }
   }
-
   return (true);
 }
-
 
 /**
  *  CoolWifi::getExternalIP():
  *  This method is provided to print the
  *  public IP of a device to a String
  */
-String CoolWifi::getExternalIP()
-{
-#if DEBUG == 1
-
-  Serial.println("Entering CoolWifi.getExternalIP() ");
-
-#endif
-
+String CoolWifi::getExternalIP() {
   WiFiClient client;
   String IP;
+
   if (!client.connect("api.ipify.org", 80)) {
-    Serial.println(F ("Failed to connect with 'api.ipify.org' !"));
+    DEBUG_LOG("Failed to connect to http://api.ipify.org");
   } else {
     int timeout = millis() + 800;
     client.print("GET /?format=json HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n");
     while (client.available() == 0) {
       if (timeout - millis() < 0) {
-        Serial.println(">>> Client Timeout !");
+        ERROR_LOG("Failed to get public IP (client timeout");
       }
       yield();
     }
@@ -589,13 +304,24 @@ String CoolWifi::getExternalIP()
       IP += msg;
     }
     client.stop();
-
-#if DEBUG == 1
-    Serial.print("Received Message : ");
-    Serial.println(IP);
-#endif
-
+    DEBUG_VAR("Public IP address:", IP);
   }
-  //return only the IP in the string
-  return IP.substring(IP.indexOf("{")+6,IP.lastIndexOf("}"));
+  // return only the IP in the string
+  return IP.substring(IP.indexOf("{") + 6, IP.lastIndexOf("}"));
+}
+
+/**
+ *  CoolWifi::printConf():
+ *  This method is provided to print the
+ *  configuration to the Serial Monitor
+ */
+void CoolWifi::printConf() {
+  INFO_LOG("Wifi configuration");
+  INFO_VAR("  Wifi count = ", this->wifiCount);
+
+  for (int i = 0; i < this->wifiCount; i++) {
+    INFO_VAR(" Network #", i);
+    INFO_VAR("    SSID    = ", this->ssid[i]);
+  }
+  INFO_VAR("  Timeout =", this->timeOut);
 }

@@ -24,7 +24,7 @@
 #ifndef Jetpack_H
 #define Jetpack_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 /**
  *  \class Jetpack

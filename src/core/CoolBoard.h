@@ -24,18 +24,18 @@
 #ifndef CoolBoard_H
 #define CoolBoard_H
 
-#include "CoolBoardActor.h"   //CoolBoard Actor Manager
-#include "CoolBoardLed.h"     //CoolBoard Led Manager
-#include "CoolBoardSensors.h" //CoolBoard Sensor Board Manager
-#include "CoolFileSystem.h"   //CoolBoard File System Manager
-#include "CoolMQTT.h"         //CoolBoard MQTT Manager
-#include "CoolTime.h"         //CoolBoard Real Time Clock Manager
-#include "CoolWifi.h"         //CoolBoard Wifi Manager
-#include "ExternalSensors.h"  //CoolBoard External Sensors Manager
-#include "Irene3000.h"        //CoolBoard Irene3000 Manager
-#include "Jetpack.h"          //CoolBoard Jetpack Manager
+#include <Arduino.h>
 
-#include "Arduino.h" //Arduino Defs
+#include "CoolBoardActor.h"
+#include "CoolBoardLed.h"
+#include "CoolBoardSensors.h"
+#include "CoolFileSystem.h"
+#include "CoolMQTT.h"
+#include "CoolTime.h"
+#include "CoolWifi.h"
+#include "ExternalSensors.h"
+#include "Irene3000.h"
+#include "Jetpack.h"
 
 /**
  *  \class  CoolBoard
@@ -46,9 +46,6 @@
 class CoolBoard {
 
 public:
-  // Constructor
-  CoolBoard();
-
   void begin();
 
   bool config();
@@ -84,7 +81,7 @@ public:
   void mqttProblem();
 
   void spiffsProblem();
-  
+
   void messageSent();
 
 private:
@@ -225,7 +222,7 @@ private:
 
   /**
    *  Bootstrap pin,
-   *  double usage for flashing the Coolboard 
+   *  double usage for flashing the Coolboard
    *  and start up the AP for further configuration
    */
   const int bootstrap = 0;

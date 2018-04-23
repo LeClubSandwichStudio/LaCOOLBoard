@@ -24,10 +24,12 @@
 #ifndef CoolMQTT_H
 #define CoolMQTT_H
 
-#include "Arduino.h"
+#include <Arduino.h>
+
+#include <ESP8266WiFi.h>
+
 #include "CoolWifi.h"
 #include "CoolPubSubClient.h"
-#include <ESP8266WiFi.h>
 
 #define MQTT_RETRY 2
 
@@ -47,9 +49,6 @@ public:
   bool publish(const char *data, unsigned long logInterval);
 
   String read();
-
-  void config(const char mqttServer[], const char inTopic[],
-              const char outTopic[], int bufferSize);
 
   bool config();
 

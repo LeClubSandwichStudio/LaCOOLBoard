@@ -24,7 +24,7 @@
 #ifndef CoolBoardActor_H
 #define CoolBoardActor_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 /**
  *  \class CoolBoardActor
