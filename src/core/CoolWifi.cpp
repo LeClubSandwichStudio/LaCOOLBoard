@@ -153,9 +153,10 @@ wl_status_t CoolWifi::connectWifi() {
   WiFi.begin(this->ssid[0].c_str(), this->pass[0].c_str());
   while (WiFi.status() != WL_CONNECTED && i < 180) { // Wait for the Wi-Fi to connect
     delay(1000);
+    ++i;
 #if DEBUG == 1
     if (!(i % 5)) {
-      Serial.print(++i);
+      Serial.print(i);
       Serial.println(" seconds elapsed");
     }
 #endif
@@ -593,7 +594,7 @@ String CoolWifi::getExternalIP()
     Serial.print("Received Message : ");
     Serial.println(IP);
 #endif
-    
+
   }
   //return only the IP in the string
   return IP.substring(IP.indexOf("{")+6,IP.lastIndexOf("}"));
