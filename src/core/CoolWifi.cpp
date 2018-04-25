@@ -92,29 +92,33 @@ wl_status_t CoolWifi::disconnect() {
  */
 wl_status_t CoolWifi::connect() {
   DEBUG_LOG("Wifi connecting...");
-  this->connectWifi();
+  this->connectWifiMulti();
   DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
 /**
- *  CoolWifi::connectWifi()
+ *  CoolWifi::connectWifiMulti()
  *  This function is provided to
  *  run the WifiMulti part of the
  *  Wifi connection process
  *
  *  \return wifi state
  */
-wl_status_t CoolWifi::connectWifi() {
+wl_status_t CoolWifi::connectWifiMulti() {
   int i = 0;
 
-  WiFi.begin(this->ssid[0].c_str(), this->pass[0].c_str());
-  while (WiFi.status() != WL_CONNECTED && i < 180) {
-    delay(1000);
-    ++i;
-    if (!(i % 5)) {
-      DEBUG_VAR("Seconds spent connecting:", i);
-    }
+  DEBUG_VAR("entry time to multi:", millis());
+  while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 300)) {
+    i++;
+    delay(100);
+  }
+  DEBUG_VAR("exit point from multi:", millis());
+  if (WiFi.status() == WL_CONNECTED) {
+    DEBUG_LOG("Wifi Status : WL_CONNECTED");
+  }
+  else {
+    DEBUG_LOG("Wifi Status : WL_CONNECT_FAILED");
   }
   return (WiFi.status());
 }

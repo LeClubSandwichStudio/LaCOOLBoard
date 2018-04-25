@@ -43,7 +43,7 @@ public:
 
   wl_status_t connect();
 
-  wl_status_t connectWifi();
+  wl_status_t connectWifiMulti();
 
   wl_status_t connectAP();
 
