@@ -160,7 +160,7 @@ wl_status_t CoolWifi::connectWifiMulti() {
 #endif
 
   // Wifi MULTI
-  while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 500)) {
+  while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 300)) {
 
 #if DEBUG == 1
 
