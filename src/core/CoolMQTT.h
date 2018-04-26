@@ -62,6 +62,8 @@ public:
 
   String getUser();
 
+  static void printState(int state);
+
 private:
   /**
    *  MQTT Server name/ip

@@ -57,7 +57,6 @@ void CoolWifi::begin() {
  *    WL_DISCONNECTED = 6
  */
 wl_status_t CoolWifi::state() {
-  DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
@@ -91,10 +90,38 @@ wl_status_t CoolWifi::disconnect() {
  *  \return wifi state
  */
 wl_status_t CoolWifi::connect() {
-  DEBUG_LOG("Wifi connecting...");
+  INFO_LOG("Wifi connecting...");
   this->connectWifiMulti();
-  DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
+}
+
+void CoolWifi::printStatus(wl_status_t status) {
+  switch (status) {
+    case WL_NO_SHIELD:
+      ERROR_LOG("Wifi status: no shield");
+      break;
+    case WL_IDLE_STATUS:
+      WARN_LOG("Wifi status: idle");
+      break;
+    case WL_NO_SSID_AVAIL:
+      ERROR_LOG("Wifi status: no SSID available");
+      break;
+    case WL_SCAN_COMPLETED:
+      WARN_LOG("Wifi status: scan completed");
+      break;
+    case WL_CONNECTED:
+      INFO_LOG("Wifi status: connected");
+      break;
+    case WL_CONNECT_FAILED:
+      ERROR_LOG("Wifi status: connection failed");
+      break;
+    case WL_DISCONNECTED:
+      WARN_LOG("Wifi status: disconnected");
+      break;
+    default:
+      ERROR_LOG("Wifi status: unknown");
+      break;
+  }
 }
 
 /**
@@ -108,19 +135,16 @@ wl_status_t CoolWifi::connect() {
 wl_status_t CoolWifi::connectWifiMulti() {
   int i = 0;
 
-  DEBUG_VAR("entry time to multi:", millis());
+  DEBUG_VAR("Entry time to wifi connection attempt:", millis());
   while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 300)) {
     i++;
     delay(100);
   }
-  DEBUG_VAR("exit point from multi:", millis());
-  if (WiFi.status() == WL_CONNECTED) {
-    DEBUG_LOG("Wifi Status : WL_CONNECTED");
-  }
-  else {
-    DEBUG_LOG("Wifi Status : WL_CONNECT_FAILED");
-  }
-  return (WiFi.status());
+  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+
+  wl_status_t status = WiFi.status();
+  printStatus(status);
+  return (status);
 }
 
 /**
@@ -142,13 +166,16 @@ wl_status_t CoolWifi::connectAP() {
   String name = "CoolBoard-" + tempMAC;
 
   wifiManager.autoConnect(name.c_str());
-  if (WiFi.status() == WL_CONNECTED) {
-    DEBUG_VAR("Wifi network selected:", WiFi.SSID());
+  wl_status_t status = WiFi.status();
+
+  if (status == WL_CONNECTED) {
+    INFO_VAR("Wifi network selected:", WiFi.SSID());
     this->addWifi(WiFi.SSID(), WiFi.psk());
   } else {
     ERROR_LOG("No Wifi network was configured.");
   }
-  return (WiFi.status());
+  printStatus(status);
+  return (status);
 }
 
 /**

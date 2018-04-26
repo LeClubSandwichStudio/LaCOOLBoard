@@ -67,10 +67,45 @@ void CoolMQTT::begin() {
  *         to connect
  */
 int CoolMQTT::state() {
-  DEBUG_VAR("MQTT state:", this->client.state());
   return (this->client.state());
 }
 
+void CoolMQTT::printState(int state) {
+  switch (state) {
+    case MQTT_CONNECTION_TIMEOUT:
+      ERROR_LOG("MQTT state: connection timeout");
+      break;
+    case MQTT_CONNECTION_LOST:
+      ERROR_LOG("MQTT state: connection lost");
+      break;
+    case MQTT_CONNECT_FAILED:
+      ERROR_LOG("MQTT state: connection failed");
+      break;
+    case MQTT_DISCONNECTED:
+      ERROR_LOG("MQTT state: disconnected");
+      break;
+    case MQTT_CONNECTED:
+      INFO_LOG("MQTT state: connected");
+      break;
+    case MQTT_CONNECT_BAD_PROTOCOL:
+      ERROR_LOG("MQTT state: connection failed, bad protocol version");
+      break;
+    case MQTT_CONNECT_BAD_CLIENT_ID:
+      ERROR_LOG("MQTT state: connection failed, bad client ID");
+      break;
+    case MQTT_CONNECT_UNAVAILABLE:
+      ERROR_LOG("MQTT state: connection failed, server rejected client");
+      break;
+    case MQTT_CONNECT_BAD_CREDENTIALS:
+      ERROR_LOG("MQTT state: connection failed, bad credentials");
+      break;
+    case MQTT_CONNECT_UNAUTHORIZED:
+      ERROR_LOG("MQTT state: connection failed, client unauthorized");
+      break;
+    default:
+      ERROR_LOG("MQTT state: connection status unknown");
+  }
+}
 /**
  *  CoolMQTT::connect():
  *  This method is provided to connect the client to the server,
@@ -82,7 +117,7 @@ int CoolMQTT::connect() {
   int i = 0;
   char MAC[12];
 
-  DEBUG_LOG("MQTT connecting...");
+  INFO_LOG("MQTT connecting...");
   String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
   tempMAC.toCharArray(MAC, 12);
@@ -90,20 +125,16 @@ int CoolMQTT::connect() {
   while ((!this->client.connected()) && (i < MQTT_RETRY)) {
     if (this->client.connect(MAC)) {
       client.subscribe(this->inTopic);
-      DEBUG_LOG("Subscribed to MQTT input topic");
-      return (this->state());
+      INFO_LOG("Subscribed to MQTT input topic");
     } else {
       WARN_LOG("MQTT connection failed, retrying");
     }
     delay(5);
     i++;
   }
-  if (state() == 0) {
-    DEBUG_LOG("MQTT connected");
-  } else {
-    ERROR_LOG("MQTT connection failed after 5 retries");
-  }
-  return (this->state());
+  int state = this->state();
+  printState(state);
+  return (state);
 }
 
 /**
@@ -119,7 +150,7 @@ int CoolMQTT::connect() {
  */
 bool CoolMQTT::publish(const char *data) {
   DEBUG_VAR("Message to publish:", data);
-  DEBUG_VAR("Message size", strlen(data));
+  DEBUG_VAR("Message size:", strlen(data));
 
   byte retries = 0;
   bool published =
@@ -139,7 +170,7 @@ bool CoolMQTT::publish(const char *data) {
       }
       DEBUG_LOG("Reconnecting to MQTT server...");
       connect();
-      delay(100); // wait a little and treat network
+      delay(100);
     }
     retries++;
   }
@@ -167,7 +198,6 @@ bool CoolMQTT::mqttLoop() {
     yield();
   }
   bool connected = this->client.loop();
-  DEBUG_VAR("MQTT connection status after listen loop", connected);
   return (connected);
 }
 
@@ -188,9 +218,9 @@ void CoolMQTT::callback(char *topic, byte *payload, unsigned int length) {
     temp[length + 1] = '\0';
     this->msg = String(temp);
     this->msg.remove(length, 1);
-    DEBUG_VAR("Received new MQTT message:", this->msg);
+    INFO_VAR("Received new MQTT message:", this->msg);
   } else {
-    DEBUG_LOG("No MQTT message to read");
+    INFO_LOG("No MQTT message to read");
   }
 }
 
@@ -279,10 +309,6 @@ bool CoolMQTT::config() {
       }
       json["outTopic"] = this->outTopic;
 
-      if (json["bufferSize"].success()) {
-        int tempBufferSize = json["bufferSize"];
-        bufferSize = tempBufferSize;
-      }
       configFile.close();
       configFile = SPIFFS.open("/mqttConfig.json", "w");
 
@@ -308,5 +334,4 @@ void CoolMQTT::printConf() {
   INFO_VAR("  MQTT server:", this->mqttServer);
   INFO_VAR("  In topic   :", this->inTopic);
   INFO_VAR("  Out topic  :", this->outTopic);
-  INFO_VAR("  Buffer size:", this->bufferSize);
 }

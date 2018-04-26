@@ -39,9 +39,8 @@
  *  of the used parts.
  */
 void CoolBoard::begin() {
-  INFO_VAR("Heap size before begin:", ESP.getFreeHeap());
-  pinMode(enI2C, OUTPUT); // Declare I2C Enable pin
-  pinMode(bootstrap, INPUT);  //Declare Bootstrap pin
+  pinMode(enI2C, OUTPUT);    // Declare I2C Enable pin
+  pinMode(bootstrap, INPUT); // Declare Bootstrap pin
   this->initReadI2C();
   delay(100);
 
@@ -159,7 +158,6 @@ void CoolBoard::begin() {
     externalSensors.printConf();
   }
 
-  INFO_VAR("Heap size after begin:", ESP.getFreeHeap());
   this->connect();
   delay(100);
   rtc.begin();
@@ -216,19 +214,18 @@ int CoolBoard::isConnected() {
  *   \return mqtt client state
  */
 int CoolBoard::connect() {
-  DEBUG_LOG("Starting Wifi");
-  if (wifiManager.wifiCount > 0){   //we have a WiFi in Memory -> blue light and connect
+  if (wifiManager.wifiCount > 0) {
     coolBoardLed.write(0, 0, 50);
     if (wifiManager.connect() != 3) {
-      coolBoardLed.blink(255, 0, 0, 1);    //Light the led in RED to say that you are not happy
+      coolBoardLed.blink(255, 0, 0, 1);
     } else {
-      coolBoardLed.blink(0, 25, 25, 0.5);  //tuquoise to show that your connected
+      coolBoardLed.blink(0, 25, 25, 0.5);
     }
-  } else {    //we have no Memory -> violet light and start AP
-    INFO_LOG("No configured Wifi, launching configuration portal");
+  } else {
+    INFO_LOG("No configured Wifi access point, launching configuration portal");
     wifiManager.disconnect();
     delay(200);
-    coolBoardLed.write(255, 128, 255); // whiteish violet..
+    coolBoardLed.write(255, 128, 255);
     wifiManager.connectAP();
   }
   delay(100);
@@ -240,7 +237,6 @@ int CoolBoard::connect() {
     delay(100);
   }
   sendPublicIP();
-  DEBUG_VAR("MQTT state is:", mqtt.state());
   return (mqtt.state());
 }
 
@@ -268,7 +264,8 @@ void CoolBoard::onLineMode() {
   answer = "";
 
   // send saved data if any, check once again if the MQTT connection is OK!
-  if (fileSystem.isFileSaved() != 0 && isConnected() == 0 && mqtt.state() == 0) {
+  if (fileSystem.isFileSaved() != 0 && isConnected() == 0 &&
+      mqtt.state() == 0) {
     for (int i = 1; i <= SEND_MSG_BATCH; i++) {
       int lastLog = fileSystem.lastFileSaved();
       // only send a log if there is a log. 0 means zero files in the SPIFFS
@@ -295,7 +292,6 @@ void CoolBoard::onLineMode() {
     }
     DEBUG_LOG("Saved data sent");
   }
-
   if (isConnected() == 0) {
     INFO_LOG("Updating RTC...");
     rtc.update();
@@ -307,6 +303,7 @@ void CoolBoard::onLineMode() {
   data.remove(data.lastIndexOf('{'), 1);
 
   if (this->manual == 0) {
+    INFO_LOG("Actuators configuration: automatic");
     tmElements_t tm;
     tm = rtc.getTimeDate();
 
@@ -347,24 +344,11 @@ void CoolBoard::onLineMode() {
         mqttProblem();
       }
     }
-  } else if (this->manual == 1) {
-    INFO_LOG("We are in manual mode");
-    mqtt.mqttLoop();
-    answer = mqtt.read();
-    this->update(answer.c_str());
+  } else {
+    INFO_LOG("Actuators configuration: manual");
   }
 
   delay(50);
-
-  String jsonData = "{\"state\":{\"reported\":";
-  jsonData += data;
-  jsonData += " } }";
-
-  mqtt.mqttLoop();
-  answer = mqtt.read();
-
-  DEBUG_VAR("Data read on MQTT listening socket is:", answer);
-  this->update(answer.c_str());
 
   if (mqtt.state() != 0) {
     INFO_LOG("Reconnecting MQTT...");
@@ -374,13 +358,22 @@ void CoolBoard::onLineMode() {
     delay(200);
   }
 
+  mqtt.mqttLoop();
+  answer = mqtt.read();
+  if (answer.length() > 0) {
+    this->update(answer.c_str());
+  }
+
+  String jsonData = "{\"state\":{\"reported\":";
+  jsonData += data;
+  jsonData += " } }";
+
   unsigned long logIntervalMillis = logInterval * 1000;
   unsigned long millisSinceLastLog = millis() - this->previousLogTime;
 
   // publish if we hit logInterval.
   if (millisSinceLastLog >= logIntervalMillis || this->previousLogTime == 0) {
     if (this->sleepActive == 0) {
-      // logInterval in seconds
       if (!mqtt.publish(jsonData.c_str())) {
         fileSystem.saveMessageToFile(data.c_str());
         ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
@@ -451,7 +444,6 @@ void CoolBoard::offLineMode() {
   // now and when sleep is active
   if ((millis() - (this->previousLogTime)) >= (logInterval * 1000) ||
       (this->previousLogTime == 0)) {
-    // saving data in the file system as JSON
     if (this->saveAsJSON == 1) {
       fileSystem.saveMessageToFile(data.c_str());
       INFO_LOG("Saving data as JSON in memory: OK");
@@ -493,9 +485,8 @@ bool CoolBoard::config() {
   coolBoardLed.config();
   coolBoardLed.begin();
   delay(10);
-  coolBoardLed.write(30, 30, 0); // yellow
+  coolBoardLed.write(30, 30, 0);
 
-  // open configuration file
   File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
 
   if (!configFile) {
@@ -507,7 +498,6 @@ bool CoolBoard::config() {
   else {
     size_t size = configFile.size();
 
-    // Allocate a buffer to store contents of the file.
     std::unique_ptr<char[]> buf(new char[size]);
     configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
@@ -615,16 +605,17 @@ void CoolBoard::update(const char *answer) {
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
 
-  DEBUG_JSON("Root JSON:", root);
+  DEBUG_JSON("Update message JSON:", root);
   DEBUG_JSON("Desired state JSON:", stateDesired);
 
-  if (stateDesired["CoolBoard"]["manual"].success()) {
-    this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
-    DEBUG_VAR("Manual flag received:", this->manual);
-  }
   if (stateDesired.success()) {
     DEBUG_LOG("Update message parsing: success");
-    coolBoardLed.strobe(0, 63, 63, 0.5);  //strobe turquoise to show that you got a message
+    if (stateDesired["CoolBoard"]["manual"].success()) {
+      this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
+      DEBUG_VAR("Manual flag received:", this->manual);
+    }
+
+    coolBoardLed.strobe(0, 63, 63, 0.5);
     String answerDesired;
 
     stateDesired.printTo(answerDesired);
@@ -700,7 +691,7 @@ void CoolBoard::update(const char *answer) {
       ESP.restart();
     }
   } else {
-    DEBUG_LOG("Failed to parse update message (or no message received)");
+    ERROR_LOG("Failed to parse update message");
   }
 }
 
@@ -711,10 +702,7 @@ void CoolBoard::update(const char *answer) {
  *
  *  \return interval value in s
  */
-unsigned long CoolBoard::getLogInterval() {
-  DEBUG_VAR("Log interval value:", this->logInterval);
-  return (this->logInterval);
-}
+unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
 /**
  *  CoolBoard::readSensors():
@@ -774,7 +762,6 @@ String CoolBoard::boardData() {
   boardJson += "\",\"mac\":\"";
   boardJson += tempMAC;
   boardJson += "\"";
-  //only send signal strenght if you got a existing wifi connection, logic, isn't it...
   if (isConnected() == 0) {
     boardJson += ",\"wifiSignal\":";
     boardJson += WiFi.RSSI();
@@ -853,7 +840,7 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
  */
 bool CoolBoard::sendPublicIP() {
   if (isConnected() == 0) {
-  String tempStr = wifiManager.getExternalIP();
+    String tempStr = wifiManager.getExternalIP();
     if (tempStr.length() > 6) {
       String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
       publicIP += tempStr;
@@ -873,7 +860,8 @@ bool CoolBoard::sendPublicIP() {
  */
 void CoolBoard::startAP() {
   if (digitalRead(bootstrap) == LOW) {
-    INFO_LOG("Bootstrap is in LOAD position, starting AP for further configuration...");
+    INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
+             "configuration...");
     wifiManager.disconnect();
     delay(200);
     coolBoardLed.write(255, 128, 255); // whiteish violet..
@@ -905,7 +893,7 @@ void CoolBoard::mqttProblem() {
  */
 void CoolBoard::spiffsProblem() {
   coolBoardLed.write(255, 0, 0);
-  while(true) {
+  while (true) {
     yield();
   }
 }
