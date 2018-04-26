@@ -175,7 +175,7 @@ bool CoolMQTT::publish(const char *data) {
     retries++;
   }
   if (published) {
-    DEBUG_LOG("MQTT publish successful");
+    INFO_LOG("MQTT publish successful");
   } else {
     ERROR_LOG("MQTT publish failed, no more retries left!");
   }

@@ -74,7 +74,7 @@ public:
 
   bool sendConfig(const char *moduleName, const char *filePath);
 
-  bool sendPublicIP();
+  void sendPublicIP();
 
   void startAP();
 
@@ -83,6 +83,10 @@ public:
   void spiffsProblem();
 
   void messageSent();
+
+  unsigned long secondsToNextLog();
+
+  bool shouldLog();
 
 private:
   /**

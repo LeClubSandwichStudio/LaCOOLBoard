@@ -236,7 +236,7 @@ int CoolBoard::connect() {
     }
     delay(100);
   }
-  sendPublicIP();
+  this->sendPublicIP();
   return (mqtt.state());
 }
 
@@ -253,7 +253,7 @@ int CoolBoard::connect() {
  */
 void CoolBoard::onLineMode() {
   if (mqtt.state() != 0) {
-    INFO_LOG("Reconnecting MQTT...");
+    WARN_LOG("Reconnecting MQTT...");
     if (mqtt.connect() != 0) {
       mqttProblem();
     }
@@ -268,12 +268,13 @@ void CoolBoard::onLineMode() {
       mqtt.state() == 0) {
     for (int i = 1; i <= SEND_MSG_BATCH; i++) {
       int lastLog = fileSystem.lastFileSaved();
+      INFO_VAR("Sending saved log number:", lastLog);
       // only send a log if there is a log. 0 means zero files in the SPIFFS
       if (lastLog != 0) {
         mqtt.mqttLoop();
         String jsonData = "{\"state\":{\"reported\":";
         jsonData += fileSystem.getFileString(lastLog);
-        jsonData += " } }";
+        jsonData += " }}";
 
         DEBUG_VAR("Saved JSON data:", jsonData);
 
@@ -290,7 +291,7 @@ void CoolBoard::onLineMode() {
         break;
       }
     }
-    DEBUG_LOG("Saved data sent");
+    INFO_LOG("Saved data sent");
   }
   if (isConnected() == 0) {
     INFO_LOG("Updating RTC...");
@@ -298,7 +299,7 @@ void CoolBoard::onLineMode() {
   }
   data = this->boardData();
   data.setCharAt(data.lastIndexOf('}'), ',');
-  DEBUG_LOG("Collecting sensor data...");
+  INFO_LOG("Collecting sensor data...");
   data += this->readSensors();
   data.remove(data.lastIndexOf('{'), 1);
 
@@ -308,7 +309,7 @@ void CoolBoard::onLineMode() {
     tm = rtc.getTimeDate();
 
     if (jetpackActive) {
-      DEBUG_LOG("Jetpack is active");
+      DEBUG_LOG("Collecting Jetpack actuators data...");
       byte lastAction = jetPack.action;
       String jetpackStatus =
           jetPack.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
@@ -325,6 +326,7 @@ void CoolBoard::onLineMode() {
       }
     }
 
+    DEBUG_LOG("Collecting onboard actuator data...");
     bool lastActionB = digitalRead(onBoardActor.pin);
     String onBoardActorStatus =
         onBoardActor.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
@@ -351,7 +353,7 @@ void CoolBoard::onLineMode() {
   delay(50);
 
   if (mqtt.state() != 0) {
-    INFO_LOG("Reconnecting MQTT...");
+    WARN_LOG("Reconnecting MQTT...");
     if (mqtt.connect() != 0) {
       mqttProblem();
     }
@@ -368,40 +370,38 @@ void CoolBoard::onLineMode() {
   jsonData += data;
   jsonData += " } }";
 
-  unsigned long logIntervalMillis = logInterval * 1000;
-  unsigned long millisSinceLastLog = millis() - this->previousLogTime;
-
   // publish if we hit logInterval.
-  if (millisSinceLastLog >= logIntervalMillis || this->previousLogTime == 0) {
-    if (this->sleepActive == 0) {
-      if (!mqtt.publish(jsonData.c_str())) {
-        fileSystem.saveMessageToFile(data.c_str());
-        ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
-        mqttProblem();
-      } else {
-        messageSent();
-      }
-      mqtt.mqttLoop();
+  if (this->shouldLog()) {
+    INFO_LOG("Sending log over MQTT");
+    if (!mqtt.publish(jsonData.c_str())) {
+      fileSystem.saveMessageToFile(data.c_str());
+      ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
+      mqttProblem();
     } else {
-      if (!mqtt.publish(jsonData.c_str())) {
-        fileSystem.saveMessageToFile(data.c_str());
-        ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
-        mqttProblem();
-      } else {
-        messageSent();
-      }
-      mqtt.mqttLoop();
-      answer = mqtt.read();
-      this->update(answer.c_str());
-      startAP();
-      this->sleep(this->getLogInterval());
+      messageSent();
     }
     this->previousLogTime = millis();
   }
-  startAP();
-  mqtt.mqttLoop();
-  answer = mqtt.read();
-  this->update(answer.c_str());
+
+  this->startAP();
+  if (this->sleepActive) {
+    this->sleep(this->secondsToNextLog());
+  }
+}
+
+bool CoolBoard::shouldLog() {
+  unsigned long logIntervalMillis = this->logInterval * 1000;
+  unsigned long millisSinceLastLog = millis() - this->previousLogTime;
+
+  return (millisSinceLastLog >= logIntervalMillis ||
+          this->previousLogTime == 0);
+}
+
+unsigned long CoolBoard::secondsToNextLog() {
+  unsigned long seconds;
+
+  seconds = this->logInterval - ((millis() - this->previousLogTime) / 1000);
+  return (seconds > this->logInterval ? this->logInterval : seconds);
 }
 
 /**
@@ -439,18 +439,14 @@ void CoolBoard::offLineMode() {
     data.setCharAt(data.indexOf('}'), ',');
   }
 
-  // log interval is in seconds, so logInterval * 1000 = logInterval in ms,
-  // previousLogTime is 0 on startup so it works when no log was sent until
-  // now and when sleep is active
-  if ((millis() - (this->previousLogTime)) >= (logInterval * 1000) ||
-      (this->previousLogTime == 0)) {
+  if (this->shouldLog()) {
     if (this->saveAsJSON == 1) {
       fileSystem.saveMessageToFile(data.c_str());
-      INFO_LOG("Saving data as JSON in memory: OK");
+      INFO_LOG("Saved data as JSON on SPIFFS");
     }
     if (this->saveAsCSV == 1) {
       fileSystem.saveSensorDataCSV(data.c_str());
-      INFO_LOG("Saving data as CSV in memory: OK");
+      INFO_LOG("Saved data as CSV on SPIFFS");
     }
     this->previousLogTime = millis();
   }
@@ -460,9 +456,9 @@ void CoolBoard::offLineMode() {
     this->connect();
   }
 
-  startAP();
-  if (this->sleepActive == 1) {
-    this->sleep(this->getLogInterval());
+  this->startAP();
+  if (this->sleepActive) {
+    this->sleep(this->secondsToNextLog());
   }
 }
 
@@ -612,7 +608,7 @@ void CoolBoard::update(const char *answer) {
     DEBUG_LOG("Update message parsing: success");
     if (stateDesired["CoolBoard"]["manual"].success()) {
       this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
-      DEBUG_VAR("Manual flag received:", this->manual);
+      INFO_VAR("Manual flag received:", this->manual);
     }
 
     coolBoardLed.strobe(0, 63, 63, 0.5);
@@ -620,10 +616,9 @@ void CoolBoard::update(const char *answer) {
 
     stateDesired.printTo(answerDesired);
     DEBUG_VAR("Desired state is:", answerDesired);
-    DEBUG_VAR("Manual flag value:", this->manual);
 
     // manual mode check
-    if (this->manual == 1) {
+    if (this->manual) {
       INFO_LOG("Entering actuators manual mode");
       for (auto kv : stateDesired) {
         DEBUG_VAR("Writing to:", kv.key);
@@ -649,6 +644,9 @@ void CoolBoard::update(const char *answer) {
           onBoardActor.write(kv.value.as<bool>());
         }
       }
+    } else {
+      // restart La COOL Board to apply the new configuration
+      ESP.restart();
     }
 
     // Irene calibration through update message
@@ -671,7 +669,6 @@ void CoolBoard::update(const char *answer) {
       INFO_LOG("pH 4 calibration OK");
       irene3000.saveParams();
     }
-
     fileSystem.updateConfigFiles(answerDesired);
 
     String updateAnswer;
@@ -685,11 +682,6 @@ void CoolBoard::update(const char *answer) {
     mqtt.publish(updateAnswer.c_str());
     mqtt.mqttLoop();
     delay(10);
-
-    if (manual == 0) {
-      // restart La COOL Board to apply the new configuration
-      ESP.restart();
-    }
   } else {
     ERROR_LOG("Failed to parse update message");
   }
@@ -778,10 +770,10 @@ String CoolBoard::boardData() {
  *  a period of time equal to interval in s
  */
 void CoolBoard::sleep(unsigned long interval) {
-  INFO_VAR("Going to sleep for", interval);
-
-  // interval is in seconds, interval*1000*1000 in µS
-  ESP.deepSleep((interval * 1000 * 1000), WAKE_RF_DEFAULT);
+  if (interval > 0) {
+    INFO_VAR("Going to sleep for seconds:", interval);
+    ESP.deepSleep((interval * 1000 * 1000), WAKE_RF_DEFAULT);
+  }
 }
 
 /**
@@ -838,14 +830,14 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
  *
  *  \return true if successful, false if not
  */
-bool CoolBoard::sendPublicIP() {
+void CoolBoard::sendPublicIP() {
   if (isConnected() == 0) {
     String tempStr = wifiManager.getExternalIP();
     if (tempStr.length() > 6) {
       String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
       publicIP += tempStr;
       publicIP += "}}}";
-      DEBUG_VAR("Sending public IP address:", publicIP);
+      INFO_VAR("Sending public IP address:", tempStr);
       mqtt.publish(publicIP.c_str());
     }
   }
