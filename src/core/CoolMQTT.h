@@ -24,10 +24,12 @@
 #ifndef CoolMQTT_H
 #define CoolMQTT_H
 
-#include "Arduino.h"
+#include <Arduino.h>
+
+#include <ESP8266WiFi.h>
+
 #include "CoolWifi.h"
 #include "CoolPubSubClient.h"
-#include <ESP8266WiFi.h>
 
 #define MQTT_RETRY 2
 
@@ -48,9 +50,6 @@ public:
 
   String read();
 
-  void config(const char mqttServer[], const char inTopic[],
-              const char outTopic[], int bufferSize);
-
   bool config();
 
   void callback(char *topic, byte *payload, unsigned int length);
@@ -62,6 +61,8 @@ public:
   bool mqttLoop();
 
   String getUser();
+
+  static void printState(int state);
 
 private:
   /**

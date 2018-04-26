@@ -24,9 +24,10 @@
 #ifndef CoolBoardSensors_H
 #define CoolBoardSensors_H
 
-#include "Arduino.h"
-#include "CoolSI114X.h" // light sensor
-#include "SparkFunBME280.h"       // atmosperic sensor
+#include <Arduino.h>
+#include <SparkFunBME280.h>
+
+#include "CoolSI114X.h"
 
 /**
  *
@@ -41,7 +42,6 @@ public:
 
   void begin();
 
-  // data is in JSON
   String read();
 
   void allActive();
@@ -59,20 +59,11 @@ public:
                             uint8_t pressOverSample = 1,
                             uint8_t humidOverSample = 1);
 
-  // battery level
   float readVBat();
 
-  // moisture
   float readMoisture();
 
-  /**
-   *  SI114X light sensor instance
-   */
   CoolSI114X lightSensor;
-
-  /**
-   *  BME280 environment sensor instance
-   */
   BME280 envSensor;
 
 private:

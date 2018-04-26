@@ -24,8 +24,6 @@
 #ifndef ExternalSensors_H
 #define ExternalSensors_H
 
-#include "Arduino.h"
-
 #include "ExternalSensor.h"
 
 /**

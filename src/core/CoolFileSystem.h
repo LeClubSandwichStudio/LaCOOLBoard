@@ -24,7 +24,9 @@
 #ifndef CoolFileSystem_H
 #define CoolFileSystem_H
 
-#include "Arduino.h"
+#include <Arduino.h>
+
+#include <ArduinoJson.h>
 
 /**
  *  \class CoolFileSystem
@@ -39,7 +41,7 @@ public:
 
   bool updateConfigFiles(String answer);
 
-  bool fileUpdate(String update, const char *path);
+  bool fileUpdate(JsonObject &updateJson, const char *path);
 
   bool saveSensorDataCSV(const char *data);
 

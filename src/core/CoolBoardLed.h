@@ -24,7 +24,7 @@
 #ifndef CoolOnBoardLed_H
 #define CoolOnBoardLed_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include <NeoPixelBus.h>
 

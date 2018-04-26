@@ -24,24 +24,18 @@
 #ifndef CoolTime_H
 #define CoolTime_H
 
+#include <Arduino.h>
+
 #include <ESP8266WiFi.h>
-
-#include "Arduino.h"
-
-#include "TimeLib.h"
-
 #include <WiFiUdp.h>
-
-#include <DS1337RTC.h>
-
 #include <time.h>
 
-#define NTP_PACKET_SIZE 48 // NTP time is in the first 48 bytes of message
+#include <TimeLib.h>
+#include <DS1337RTC.h>
 
+#define NTP_PACKET_SIZE 48
 #define SERVERCOUNT 6
-
 #define NTP_OVERSAMPLE 3
-
 #define TIMEOUT 2000
 
 /**

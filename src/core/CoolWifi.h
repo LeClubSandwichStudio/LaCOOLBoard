@@ -24,9 +24,7 @@
 #ifndef CoolWifi_H
 #define CoolWifi_H
 
-#include "Arduino.h"
-#include <ESP8266WebServer.h>
-#include <ESP8266WiFi.h>
+#include <Arduino.h>
 #include <ESP8266WiFiMulti.h>
 
 /**
@@ -43,17 +41,17 @@ public:
 
   bool config();
 
-  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut);
-
   wl_status_t connect();
 
-  wl_status_t connectWifi();
+  wl_status_t connectWifiMulti();
 
   wl_status_t connectAP();
 
   wl_status_t state();
 
   wl_status_t disconnect();
+
+  static void printStatus(wl_status_t status);
 
   String getExternalIP();
 
