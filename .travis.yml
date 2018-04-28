@@ -1,25 +1,21 @@
-language: c
+language: python
+python:
+  - "2.7"
+
 sudo: false
-before_install:
-- source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+cache:
+  directories:
+    - "~/.platformio"
+
 install:
-- arduino --install-library "ArduinoJson":5.13.1
-- arduino --install-library "NeoPixelBus by Makuna":2.2.9
-- arduino --install-library "SparkFun BME280":1.2.0
-- arduino --install-library "DallasTemperature":3.7.9
-- arduino --install-library "PubSubClient":2.6.0
-- arduino --install-library "OneWire":2.3.4
-- git clone --branch v1.5 https://github.com/PaulStoffregen/Time
-- mv Time /home/travis/arduino_ide/libraries
-- git clone https://github.com/LaCoolCo/DS1337RTC
-- mv DS1337RTC /home/travis/arduino_ide/libraries/
+  - pip install -U platformio
+  - platformio update
+
 script:
-- arduino --verify --verbose --pref build.path=/home/travis/dist --board esp8266:esp8266:generic:CpuFrequency=80,FlashFreq=40,FlashMode=dio,UploadSpeed=115200,FlashSize=4M3M,ResetMethod=ck,Debug=Disabled,DebugLevel=None____
-  $PWD/examples/WeatherStation/WeatherStation.ino
-- mkdir -p /home/travis/dist
-- export RELEASE_VERSION=$(git describe --tags --always)
-- export FIRMWARE=/home/travis/dist/LaCOOLBoard-${RELEASE_VERSION}.bin
-- mv /home/travis/dist/WeatherStation.ino.bin ${FIRMWARE}
+  - export RELEASE_VERSION=$(git describe --tags --always)
+  - platformio run
+  - export FIRMWARE=.pioenvs/coolboard/LaCOOLBoard-${RELEASE_VERSION}.bin
+  - mv .pioenvs/coolboard/firmware.bin ${FIRMWARE}
 notifications:
   email:
     on_success: build@lacool.co

@@ -25,7 +25,7 @@
 #define CoolBoard_H
 
 #include "CoolBoardActor.h"   //CoolBoard Actor Manager
-#include "CoolBoardLed.h"     //CoolBoard Led Manager
+// #include "CoolBoardLed.h"     //CoolBoard Led Manager
 #include "CoolBoardSensors.h" //CoolBoard Sensor Board Manager
 #include "CoolFileSystem.h"   //CoolBoard File System Manager
 #include "CoolMQTT.h"         //CoolBoard MQTT Manager
@@ -36,6 +36,12 @@
 #include "Jetpack.h"          //CoolBoard Jetpack Manager
 
 #include "Arduino.h" //Arduino Defs
+
+
+
+
+
+
 
 /**
  *  \class  CoolBoard
@@ -87,6 +93,8 @@ public:
   
   void messageSent();
 
+  void OTA_Update();
+  
 private:
   /**
    *  fileSystem handler instance
@@ -101,7 +109,7 @@ private:
   /**
    *  Led handler instance
    */
-  CoolBoardLed coolBoardLed;
+  // CoolBoardLed coolBoardLed;
 
   /**
    *  RTC handler instance
@@ -113,30 +121,30 @@ private:
    */
   CoolWifi wifiManager;
 
-  /**
-   *  MQTT handler instance
-   */
-  CoolMQTT mqtt;
+  // /**
+  //  *  MQTT handler instance
+  //  */
+   CoolMQTT mqtt;
 
-  /**
-   *  Jetpack handler instance
-   */
-  Jetpack jetPack;
+  // /**
+  //  *  Jetpack handler instance
+  //  */
+  // Jetpack jetPack;
 
-  /**
-   *  Irene3000 handler instance
-   */
-  Irene3000 irene3000;
+  // /**
+  //  *  Irene3000 handler instance
+  //  */
+  // Irene3000 irene3000;
 
-  /**
-   *  External Sensors handler instance
-   */
-  ExternalSensors externalSensors;
+  // /**
+  //  *  External Sensors handler instance
+  //  */
+  // ExternalSensors externalSensors;
 
-  /**
-   *  On Board Actor handler instance
-   */
-  CoolBoardActor onBoardActor;
+  // /**
+  //  *  On Board Actor handler instance
+  //  */
+  // CoolBoardActor onBoardActor;
 
   /**
    *  ireneActive flag,
@@ -196,7 +204,7 @@ private:
   *  the period of time between logs
   -  in Seconds
   */
-  unsigned long logInterval = 3600;
+  unsigned long  logInterval = 3600;
 
   /**
    *  last time the Client sent a Message over MQTT
@@ -204,45 +212,27 @@ private:
    */
   unsigned long previousLogTime = 0;
 
-  /**
-   *  data string,
-   *  string that contains sensors data
-   */
-  String data = "";
-
-  /**
-   *  answer string,
-   *  string that contains received MQTT messages
-   */
-  String answer = "";
-
+ 
   /**
    *  Enable I2C pin,
    *  double usage for I2C and shift register latch , HIGH=I2C , LOW=shift
    *register latch All I2C is over pins (2,14)
    */
-  const int enI2C = 5;
+  const uint8_t enI2C  = 5;
 
   /**
    *  Bootstrap pin,
    *  double usage for flashing the Coolboard 
    *  and start up the AP for further configuration
    */
-  const int bootstrap = 0;
+  const uint8_t bootstrap  = 0;
 
-  /**
-   *  Firmware Update URL,
-   *  URL link contain firmware binary
-   *  
-   */
-  String fwURL = "";
+  String  FW_VERSION =  "";
+  String  FW_URL  = "";
+  String  URL_Fingerprint = "";
 
-  /**
-   *  Server URL Firmware Host Address,
-   *  URL Server host firmware binary
-   *  
-   */
-  String fwServer = "http://kababekhalil.com";
+  bool do_OTA = false;
+  
 };
 
 #endif

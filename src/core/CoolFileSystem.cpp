@@ -641,17 +641,16 @@ bool CoolFileSystem::fileUpdate(String update, const char *path) {
   }
 
   // copy file to a json
-  size_t size = configFile.size();
+  // size_t size = configFile.size();
 
-  // Allocate a buffer to store contents of the file.
-  std::unique_ptr<char[]> buf(new char[size]);
+  // // Allocate a buffer to store contents of the file.
+  // std::unique_ptr<char[]> buf(new char[size]);
 
-  configFile.readBytes(buf.get(), size);
-
+  // configFile.readBytes(buf.get(), size);
+  String data = configFile.readString();
   DynamicJsonBuffer fileBuffer;
-
-  JsonObject &fileJson = fileBuffer.parseObject(buf.get());
-
+  JsonObject &fileJson = fileBuffer.parseObject(data);
+  
   if (!fileJson.success()) {
 
 #if DEBUG == 1

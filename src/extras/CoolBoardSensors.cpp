@@ -160,11 +160,11 @@ String CoolBoardSensors::read() {
 
 #endif
 
-#if DEBUG == 0
+// #if DEBUG == 0
 
   Serial.println(F("Reading Sensors..."));
 
-#endif
+// #endif
 
   String data;
   DynamicJsonBuffer jsonBuffer;
@@ -296,13 +296,14 @@ bool CoolBoardSensors::config() {
 
     return (false);
   } else {
-    size_t size = coolBoardSensorsConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardSensorsConfig.readBytes(buf.get(), size);
+    // size_t size = coolBoardSensorsConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
+    // coolBoardSensorsConfig.readBytes(buf.get(), size);
+    
+    String data = coolBoardSensorsConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
     if (!json.success()) {
 
       Serial.println(F("failed to parse coolBoardSensorsConfig json"));
@@ -406,6 +407,7 @@ bool CoolBoardSensors::config() {
 #endif
 
       return (true);
+     
     }
   }
 }

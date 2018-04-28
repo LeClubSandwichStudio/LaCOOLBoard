@@ -105,12 +105,12 @@ private:
   /**
    *   Moisture enable pin
    */
-  const int EnMoisture = 13;
+  uint8_t EnMoisture = 13;
 
   /**
    *  Analog multiplexer: LOW=Vbat, HIGH=Moisture
    */
-  const int AnMplex = 12;
+  uint8_t AnMplex = 12;
 
   /**
    *  set vbatActive to 1 to have battery voltage readings

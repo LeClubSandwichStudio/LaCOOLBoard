@@ -27,7 +27,8 @@
 #include "CoolWifi.h"
 #include "FS.h"
 #include <ESP8266WiFi.h>
-
+#include <memory>
+ 
 #define DEBUG 0
 
 /**
@@ -107,7 +108,8 @@ int CoolMQTT::connect() {
 
   tempMAC.replace(":", "");
 
-  char MAC[12];
+   char MAC[12];
+
   tempMAC.toCharArray(MAC, 12);
 
   while ((!this->client.connected()) && (i < MQTT_RETRY)) {
@@ -182,7 +184,7 @@ bool CoolMQTT::publish(const char *data) {
 #if DEBUG == 1
 
   Serial.print(F("success : "));
- // Serial.println(data);
+  // Serial.println(pub);
 
 #endif
   byte retries = 0;
@@ -393,13 +395,15 @@ bool CoolMQTT::config() {
 
     return (false);
   } else {
-    size_t size = configFile.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = configFile.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
+    // // configFile.readBytes(buf.get(), size);
 
-    configFile.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+    
     if (!json.success()) {
 
 #if DEBUG == 1
@@ -425,12 +429,12 @@ bool CoolMQTT::config() {
 #endif
 
       if (json["mqttServer"].success()) {
-        const char *tempmqttServer = json["mqttServer"];
-        for (int i = 0; i < 50; i++) {
+         const char *tempmqttServer    =  json["mqttServer"];
+        for (uint8_t i = 0; i < 50; i++) {
           mqttServer[i] = tempmqttServer[i];
         }
       } else {
-        for (int i = 0; i < 50; i++) {
+        for (uint8_t i = 0; i < 50; i++) {
           this->mqttServer[i] = this->mqttServer[i];
         }
       }
@@ -438,7 +442,7 @@ bool CoolMQTT::config() {
 
       if (json["inTopic"].success()) {
         const char *tempInTopic = json["inTopic"];
-        for (int i = 0; i < 50; i++) {
+        for (uint8_t i = 0; i < 50; i++) {
           inTopic[i] = tempInTopic[i];
         }
       } else {
@@ -458,7 +462,7 @@ bool CoolMQTT::config() {
 
       if (json["outTopic"].success()) {
         const char *tempOutTopic = json["outTopic"];
-        for (int i = 0; i < 50; i++) {
+        for (uint8_t i = 0; i < 50; i++) {
           outTopic[i] = tempOutTopic[i];
         }
       } else {
@@ -527,7 +531,7 @@ void CoolMQTT::config(const char mqttServer[], const char inTopic[],
 
 #endif
 
-  for (int i = 0; i < 50; i++) {
+  for (uint8_t i = 0; i < 50; i++) {
     this->mqttServer[i] = mqttServer[i];
     this->inTopic[i] = inTopic[i];
     this->outTopic[i] = outTopic[i];
@@ -564,4 +568,8 @@ void CoolMQTT::printConf() {
   Serial.println(this->bufferSize);
 
   Serial.println();
+}
+
+void CoolMQTT::disconnect(){
+client.disconnect();
 }

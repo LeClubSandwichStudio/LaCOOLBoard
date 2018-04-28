@@ -35,7 +35,7 @@
  *  fade animation:  Fade In over T(seconds)
  *      Fade Out over T(seconds)
  */
-void CoolBoardLed::fade(int R, int G, int B, float T) {
+void CoolBoardLed::fade(uint8_t R, uint8_t G, uint8_t B, float T) {
 
 #if DEBUG == 1
 
@@ -74,7 +74,7 @@ void CoolBoardLed::fade(int R, int G, int B, float T) {
 *  Blink animation:  Led On for T seconds
                                 Led off
 */
-void CoolBoardLed::blink(int R, int G, int B, float T) {
+void CoolBoardLed::blink(uint8_t R, uint8_t G, uint8_t B, float T) {
 
 #if DEBUG == 1
 
@@ -105,7 +105,7 @@ void CoolBoardLed::blink(int R, int G, int B, float T) {
  *  CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
  *  Fade In animation:  gradual increase over T(seconds)
  */
-void CoolBoardLed::fadeIn(int R, int G, int B, float T) {
+void CoolBoardLed::fadeIn(uint8_t R, uint8_t G, uint8_t B, float T) {
 
 #if DEBUG == 1
 
@@ -137,7 +137,7 @@ void CoolBoardLed::fadeIn(int R, int G, int B, float T) {
  *  CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
  *  Fade Out animation:  gradual decrease over T(seconds)
  */
-void CoolBoardLed::fadeOut(int R, int G, int B, float T) {
+void CoolBoardLed::fadeOut(uint8_t R, uint8_t G, uint8_t B, float T) {
 
 #if DEBUG == 1
 
@@ -169,7 +169,7 @@ void CoolBoardLed::fadeOut(int R, int G, int B, float T) {
  *  CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
  *  Strobe animation:  blinks over T(seconds)
  */
-void CoolBoardLed::strobe(int R, int G, int B, float T) {
+void CoolBoardLed::strobe(uint8_t R, uint8_t G, uint8_t B, float T) {
 
 #if DEBUG == 1
 
@@ -242,7 +242,7 @@ void CoolBoardLed::begin() {
  *  This method is provided to set the
  *  Color of the Led
  */
-void CoolBoardLed::write(int R, int G, int B) {
+void CoolBoardLed::write(uint8_t R, uint8_t G, uint8_t B) {
 
 #if DEBUG == 1
 
@@ -294,13 +294,17 @@ bool CoolBoardLed::config() {
 
     return (false);
   } else {
-    size_t size = coolBoardLedConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = coolBoardLedConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
 
-    coolBoardLedConfig.readBytes(buf.get(), size);
+    // coolBoardLedConfig.readBytes(buf.get(), size);
+
+    String data = coolBoardLedConfig.readString();
+
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+    
     if (!json.success()) {
 
 #if DEBUG == 1
@@ -349,7 +353,6 @@ bool CoolBoardLed::config() {
 
       json.printTo(coolBoardLedConfig);
       coolBoardLedConfig.close();
-
 #if DEBUG == 1
 
       Serial.println(F("saved Led Config is : "));

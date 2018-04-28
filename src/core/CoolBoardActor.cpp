@@ -81,7 +81,7 @@ void CoolBoardActor::write(bool action) {
  *  \return a string of the actor's state
  *
  */
-String CoolBoardActor::doAction(const char *data, int hour, int minute) {
+String CoolBoardActor::doAction(const char *data, uint8_t hour, uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -261,13 +261,14 @@ bool CoolBoardActor::config() {
 
     return (false);
   } else {
-    size_t size = coolBoardActorConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardActorConfig.readBytes(buf.get(), size);
+    // size_t size = coolBoardActorConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
+    // coolBoardActorConfig.readBytes(buf.get(), size);
+    String data = coolBoardActorConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+  
     if (!json.success()) {
 
 #if DEBUG == 1
@@ -815,7 +816,7 @@ void CoolBoardActor::mixedTemporalActionOn(float measurment) {
  *  hour >= hourHigh : activate the actor
  *
  */
-void CoolBoardActor::hourAction(int hour) {
+void CoolBoardActor::hourAction(uint8_t hour) {
 
 #if DEBUG == 1
 
@@ -917,7 +918,7 @@ void CoolBoardActor::hourAction(int hour) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void CoolBoardActor::mixedHourAction(int hour, float measurment)
+void CoolBoardActor::mixedHourAction(uint8_t hour, float measurment)
 
 {
 
@@ -1035,7 +1036,7 @@ void CoolBoardActor::mixedHourAction(int hour, float measurment)
  *  minute >= minuteHigh : activate the actor
  *
  */
-void CoolBoardActor::minuteAction(int minute) {
+void CoolBoardActor::minuteAction(uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -1090,7 +1091,7 @@ void CoolBoardActor::minuteAction(int minute) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void CoolBoardActor::mixedMinuteAction(int minute, float measurment) {
+void CoolBoardActor::mixedMinuteAction(uint8_t minute, float measurment) {
 
 #if DEBUG == 1
 
@@ -1192,7 +1193,7 @@ void CoolBoardActor::mixedMinuteAction(int minute, float measurment) {
  *
  *  hour >  hourHigh : activate the actor
  */
-void CoolBoardActor::hourMinuteAction(int hour, int minute) {
+void CoolBoardActor::hourMinuteAction(uint8_t hour, uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -1284,7 +1285,7 @@ void CoolBoardActor::hourMinuteAction(int hour, int minute) {
  *    measuredValue < rangeLow : activate actor
  *
  */
-void CoolBoardActor::mixedHourMinuteAction(int hour, int minute,
+void CoolBoardActor::mixedHourMinuteAction(uint8_t hour, uint8_t minute,
                                            float measurment) {
 
 #if DEBUG == 1

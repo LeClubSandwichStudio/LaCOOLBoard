@@ -41,15 +41,15 @@ class CoolWifi {
 public:
   void begin();
 
-  bool config();
+  void config(bool printConf);
 
-  bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut);
+  //bool config(String ssid[], String pass[], int wifiNumber, int APTimeOut);
 
   wl_status_t connect();
 
-  wl_status_t connectWifi();
+  wl_status_t connectWifiMulti();
 
-  wl_status_t connectAP();
+  wl_status_t connectAP(String ssid_a[], String pass_a[]);
 
   wl_status_t state();
 
@@ -57,14 +57,15 @@ public:
 
   String getExternalIP();
 
-  void printConf();
+  void printConf(String ssid[], uint8_t wifiNumber, uint8_t timeOut_v);
 
-  bool addWifi(String ssid, String pass = "");
+  bool addWifi(String ssid, String pass, String ssid_a[], String pass_a[]);
 
+  bool start_to_connect = false;
   /**
    *  number of saved WiFi's
    */
-  int wifiCount = 0;
+  uint8_t wifiCount = 0;
 
 private:
   /**
@@ -75,17 +76,17 @@ private:
   /**
    *  WiFi SSID Array
    */
-  String ssid[50] = {"0"};
+ // String ssid[50] = {"0"};
 
   /**
    *  WiFi PASS Array
    */
-  String pass[50] = {"0"};
+ // String pass[50] = {"0"};
 
   /**
    *  WiFi Access Point TimeOut Value in Seconds
    */
-  int timeOut = 180;
+  uint8_t timeOut = 180;
 };
 
 #endif

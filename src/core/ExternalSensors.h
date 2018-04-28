@@ -43,7 +43,7 @@ public:
   bool config();
 
   bool config(String reference[], String type[], uint8_t address[],
-              int sensorsNumber);
+              uint8_t sensorsNumber);
 
   void printConf();
 
@@ -70,13 +70,13 @@ private:
     String kind1 = "0";
     String kind2 = "0";
     String kind3 = "0";
-  } sensors[50];
+  }; //sensors[10];
 
   /**
    *  External Sensors Number
    *  Maximum is 50
    */
-  int sensorsNumber = 0;
+  uint8_t sensorsNumber = 0;
 };
 
 #endif

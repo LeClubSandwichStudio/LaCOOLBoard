@@ -39,32 +39,32 @@ public:
 
   void writeBit(byte pin, bool state); // writes to a single pin of the Jetpack
 
-  String doAction(const char *data, int hour, int minute);
+  String doAction(const char *data, uint8_t hour, uint8_t minute);
 
-  void normalAction(int actorNumber, float measurment);
+  void normalAction(uint8_t actorNumber, float measurment);
 
-  void invertedAction(int actorNumber, float measurment);
+  void invertedAction(uint8_t actorNumber, float measurment);
 
-  void temporalActionOff(int actorNumber);
+  void temporalActionOff(uint8_t actorNumber);
 
-  void temporalActionOn(int actorNumber);
+  void temporalActionOn(uint8_t actorNumber);
 
-  void mixedTemporalActionOff(int actorNumber, float measurment);
+  void mixedTemporalActionOff(uint8_t actorNumber, float measurment);
 
-  void mixedTemporalActionOn(int actorNumber, float measurment);
+  void mixedTemporalActionOn(uint8_t actorNumber, float measurment);
 
-  void hourAction(int actorNumber, int hour);
+  void hourAction(uint8_t actorNumber, uint8_t hour);
 
-  void mixedHourAction(int actorNumber, int hour, float measurment);
+  void mixedHourAction(uint8_t actorNumber, uint8_t hour, float measurment);
 
-  void minuteAction(int actorNumber, int minute);
+  void minuteAction(uint8_t actorNumber, uint8_t minute);
 
-  void mixedMinuteAction(int actorNumber, int minute, float measurment);
+  void mixedMinuteAction(uint8_t actorNumber, uint8_t minute, float measurment);
 
-  void hourMinuteAction(int actorNumber, int hour, int minute);
+  void hourMinuteAction(uint8_t actorNumber, uint8_t hour, uint8_t minute);
 
-  void mixedHourMinuteAction(int actorNumber, int hour, int minute,
-                             float measurment);
+  void mixedHourMinuteAction(uint8_t actorNumber, uint8_t hour, uint8_t minute,
+                                    float measurment);
 
   bool config();
 

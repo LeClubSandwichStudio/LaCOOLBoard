@@ -29,6 +29,8 @@
 #include "CoolPubSubClient.h"
 #include <ESP8266WiFi.h>
 
+
+
 #define MQTT_RETRY 2
 
 /**
@@ -60,6 +62,8 @@ public:
   int state();
 
   bool mqttLoop();
+
+  void disconnect();
 
   String getUser();
 

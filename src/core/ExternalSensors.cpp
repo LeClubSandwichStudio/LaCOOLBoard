@@ -1,25 +1,25 @@
 /**
- *  Copyright (c) 2018 La Cool Co SAS
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a
- *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
- *  and/or sell copies of the Software, and to permit persons to whom the
- *  Software is furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included
- *  in all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- *  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- *  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- *  IN THE SOFTWARE.
- *
- */
+    Copyright (c) 2018 La Cool Co SAS
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+    IN THE SOFTWARE.
+
+*/
 
 #include "FS.h"
 
@@ -35,26 +35,50 @@
 
 #define DEBUG 0
 
+#define CHECKRAM 0
+
 OneWire oneWire(0);
 
 /**
- *  ExternalSensors::begin():
- *  This method is provided to initialise
- *  the external sensors.
- */
+    ExternalSensors::begin():
+    This method is provided to initialise
+    the external sensors.
+*/
 void ExternalSensors::begin() {
 
 #if DEBUG == 1
 
   Serial.println(F("Enter ExternalSensors.begin()"));
   Serial.println();
-
+  #if CHECKRAM == 1
+  Serial.println("FREE RAM: ");
+  Serial.println(ESP.getFreeHeap());
 #endif
 
-  for (int i = 0; i < this->sensorsNumber; i++) {
+#endif
+  #if DEBUG == 1
+  Serial.println(F("Start creating External Sensors struct = "));
+  Serial.println(this->sensorsNumber);
+#endif
+  sensor* sensors = new sensor[this->sensorsNumber];
+  for (uint8_t i = 0; i < this->sensorsNumber; i++) {
+    sensors[i].reference = sensors[i].reference;
+    sensors[i].type = sensors[i].type;
+    sensors[i].address = sensors[i].address;
+    #if DEBUG == 1
+  Serial.print(F("."));
+   #endif
+   #if CHECKRAM == 1
+  Serial.println("FREE RAM: ");
+  Serial.println(ESP.getFreeHeap());
+  #endif
+
+  }
+  
+  for (uint8_t i = 0; i < this->sensorsNumber; i++) {
     if ((sensors[i].reference) == "NDIR_I2C") {
       std::unique_ptr<ExternalSensor<NDIR_I2C>> sensorCO2(
-          new ExternalSensor<NDIR_I2C>(this->sensors[i].address));
+          new ExternalSensor<NDIR_I2C>(sensors[i].address));
 
       sensors[i].exSensor = sensorCO2.release();
       sensors[i].exSensor->begin();
@@ -63,7 +87,7 @@ void ExternalSensors::begin() {
     } else if ((sensors[i].reference) == "DallasTemperature") {
 
       std::unique_ptr<ExternalSensor<DallasTemperature>> dallasTemp(
-          new ExternalSensor<DallasTemperature>(&oneWire));
+            new ExternalSensor<DallasTemperature>(&oneWire));
 
       sensors[i].exSensor = dallasTemp.release();
       sensors[i].exSensor->begin();
@@ -72,7 +96,7 @@ void ExternalSensors::begin() {
       int16_t r, g, b, c, colorTemp, lux;
 
       std::unique_ptr<ExternalSensor<Adafruit_TCS34725>> rgbSensor(
-          new ExternalSensor<Adafruit_TCS34725>());
+            new ExternalSensor<Adafruit_TCS34725>());
 
       sensors[i].exSensor = rgbSensor.release();
       sensors[i].exSensor->begin();
@@ -84,7 +108,7 @@ void ExternalSensors::begin() {
       float Temp;
 
       std::unique_ptr<ExternalSensor<Adafruit_CCS811>> aqSensor(
-          new ExternalSensor<Adafruit_CCS811>(this->sensors[i].address));
+            new ExternalSensor<Adafruit_CCS811>(sensors[i].address));
       sensors[i].exSensor = aqSensor.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&C02, &VOT, &Temp);
@@ -95,7 +119,7 @@ void ExternalSensors::begin() {
       int16_t gain0, gain1, gain2, gain3;
 
       std::unique_ptr<ExternalSensor<Adafruit_ADS1015>> analogI2C(
-          new ExternalSensor<Adafruit_ADS1015>(this->sensors[i].address));
+            new ExternalSensor<Adafruit_ADS1015>(sensors[i].address));
 
       sensors[i].exSensor = analogI2C.release();
       sensors[i].exSensor->begin();
@@ -111,7 +135,7 @@ void ExternalSensors::begin() {
       int16_t gain0, gain1, gain2, gain3;
 
       std::unique_ptr<ExternalSensor<Adafruit_ADS1115>> analogI2C(
-          new ExternalSensor<Adafruit_ADS1115>(this->sensors[i].address));
+            new ExternalSensor<Adafruit_ADS1115>(sensors[i].address));
 
       sensors[i].exSensor = analogI2C.release();
       // sensors[i].exSensor->begin();
@@ -123,23 +147,33 @@ void ExternalSensors::begin() {
       uint32_t A, B, C;
 
       std::unique_ptr<ExternalSensor<Gauges>> gauge(
-          new ExternalSensor<Gauges>());
+                                             new ExternalSensor<Gauges>());
 
       sensors[i].exSensor = gauge.release();
       // sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&A, &B, &C);
     }
   }
+  #if CHECKRAM == 1
+
+  #endif
+
+  delete[] sensors;
+
+    #if CHECKRAM == 1
+
+  #endif
+
 }
 
 /**
- *  ExternalSensors::read():
- *  This method is provided to
- *  read the data from the external sensors
- *
- *  \return json string that contains the
- *  sensors data
- */
+    ExternalSensors::read():
+    This method is provided to
+    read the data from the external sensors
+
+    \return json string that contains the
+    sensors data
+*/
 String ExternalSensors::read() {
 
 #if DEBUG == 1
@@ -148,7 +182,10 @@ String ExternalSensors::read() {
   Serial.println();
 
 #endif
-
+      #if CHECKRAM == 1
+  Serial.println("FREE RAM: ");
+  Serial.println(ESP.getFreeHeap());
+  #endif
   String data;
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
@@ -163,8 +200,21 @@ String ExternalSensors::read() {
 
     return ("00");
   } else {
+
+    sensor* sensors = new sensor[this->sensorsNumber];
+    for (uint8_t i = 0; i < this->sensorsNumber; i++) {
+      sensors[i].reference = sensors[i].reference;
+      sensors[i].type = sensors[i].type;
+      sensors[i].address = sensors[i].address;
+          #if CHECKRAM == 1
+          Serial.println("Before to read Sensors an create elements: FREE RAM: ");
+          Serial.println(ESP.getFreeHeap());
+          #endif
+    }
+
+
     if (sensorsNumber > 0) {
-      for (int i = 0; i < sensorsNumber; i++) {
+      for (uint8_t i = 0; i < sensorsNumber; i++) {
         if (sensors[i].exSensor != NULL) {
           if (sensors[i].reference == "Adafruit_TCS34725") {
             int16_t r, g, b, c, colorTemp, lux;
@@ -237,18 +287,27 @@ String ExternalSensors::read() {
     Serial.println();
 
 #endif
+    
+    delete[] sensors;
+  #if CHECKRAM == 1
+  Serial.println("AFTER REMOVING SENSORS, FREE RAM: ");
+  Serial.println(ESP.getFreeHeap());
+  #endif
     return (data);
   }
+
+
+
 }
 
 /**
- *  ExternalSensors::config():
- *  This method is provided to configure
- *  the externalSensors through a configuration
- *  file
- *
- *  \return true if successful,false otherwise
- */
+    ExternalSensors::config():
+    This method is provided to configure
+    the externalSensors through a configuration
+    file
+
+    \return true if successful,false otherwise
+*/
 bool ExternalSensors::config() {
   // read config file
   // update data
@@ -265,108 +324,111 @@ bool ExternalSensors::config() {
 
     return (false);
   } else {
-    size_t size = externalSensorsConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = externalSensorsConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
 
-    externalSensorsConfig.readBytes(buf.get(), size);
+    // externalSensorsConfig.readBytes(buf.get(), size);
+
+    String data = externalSensorsConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+
 
     if (!json.success()) {
 
 #if DEBUG == 1
-
       Serial.println(F("failed to parse json"));
       Serial.println();
-
 #endif
-
       return (false);
     } else {
-
 #if DEBUG == 1
-
       Serial.println(F("configuration json is : "));
       json.printTo(Serial);
       Serial.println();
-
       Serial.print(F("jsonBuffer size: "));
       Serial.println(jsonBuffer.size());
       Serial.println();
-
 #endif
       if (json["sensorsNumber"] != NULL) {
         this->sensorsNumber = json["sensorsNumber"];
 
-        for (int i = 0; i < sensorsNumber; i++) {
+        sensor* sensors = new sensor[sensorsNumber];
+        for (uint8_t i = 0; i < sensorsNumber; i++) {
+          sensors[i].reference = sensors[i].reference;
+          sensors[i].type = sensors[i].type;
+          sensors[i].address = sensors[i].address;
+        }
+
+        for (uint8_t i = 0; i < sensorsNumber; i++) {
           String name = "sensor" + String(i);
 
           if (json[name].success()) {
             JsonObject &sensorJson = json[name];
 
             if (sensorJson["reference"].success()) {
-              this->sensors[i].reference = sensorJson["reference"].as<String>();
+              sensors[i].reference = sensorJson["reference"].as<String>();
             } else {
-              this->sensors[i].reference = this->sensors[i].reference;
+              sensors[i].reference = sensors[i].reference;
             }
-            sensorJson["reference"] = this->sensors[i].reference;
+            sensorJson["reference"] = sensors[i].reference;
 
             if (sensorJson["type"].success()) {
-              this->sensors[i].type = sensorJson["type"].as<String>();
+              sensors[i].type = sensorJson["type"].as<String>();
             } else {
-              this->sensors[i].type = this->sensors[i].type;
+              sensors[i].type = sensors[i].type;
             }
-            sensorJson["type"] = this->sensors[i].type;
+            sensorJson["type"] = sensors[i].type;
 
             if (sensorJson["address"].success()) {
-              this->sensors[i].address = sensorJson["address"];
+              sensors[i].address = sensorJson["address"];
             } else {
-              this->sensors[i].address = this->sensors[i].address;
+              sensors[i].address = sensors[i].address;
             }
-            sensorJson["address"] = this->sensors[i].address;
+            sensorJson["address"] = sensors[i].address;
 
             if (sensorJson["kind0"].success()) {
-              this->sensors[i].kind0 = sensorJson["kind0"].as<String>();
+              sensors[i].kind0 = sensorJson["kind0"].as<String>();
             } else {
-              this->sensors[i].kind0 = this->sensors[i].kind0;
+              sensors[i].kind0 = sensors[i].kind0;
             }
-            sensorJson["kind0"] = this->sensors[i].kind0;
+            sensorJson["kind0"] = sensors[i].kind0;
 
             if (sensorJson["kind1"].success()) {
-              this->sensors[i].kind1 = sensorJson["kind1"].as<String>();
+              sensors[i].kind1 = sensorJson["kind1"].as<String>();
             } else {
-              this->sensors[i].kind1 = this->sensors[i].kind1;
+              sensors[i].kind1 = sensors[i].kind1;
             }
-            sensorJson["kind1"] = this->sensors[i].kind1;
+            sensorJson["kind1"] = sensors[i].kind1;
 
             if (sensorJson["kind2"].success()) {
-              this->sensors[i].kind2 = sensorJson["kind2"].as<String>();
+              sensors[i].kind2 = sensorJson["kind2"].as<String>();
             } else {
-              this->sensors[i].kind2 = this->sensors[i].kind2;
+              sensors[i].kind2 = sensors[i].kind2;
             }
-            sensorJson["kind2"] = this->sensors[i].kind2;
+            sensorJson["kind2"] = sensors[i].kind2;
 
             if (sensorJson["kind3"].success()) {
-              this->sensors[i].kind3 = sensorJson["kind3"].as<String>();
+              sensors[i].kind3 = sensorJson["kind3"].as<String>();
             } else {
-              this->sensors[i].kind3 = this->sensors[i].kind3;
+              sensors[i].kind3 = sensors[i].kind3;
             }
-            sensorJson["sensor3"] = this->sensors[i].kind3;
+            sensorJson["sensor3"] = sensors[i].kind3;
 
           } else {
-            this->sensors[i] = this->sensors[i];
+            sensors[i] = sensors[i];
           }
 
-          json[name]["reference"] = this->sensors[i].reference;
-          json[name]["type"] = this->sensors[i].type;
-          json[name]["address"] = this->sensors[i].address;
-          json[name]["kind0"] = this->sensors[i].kind0;
-          json[name]["kind1"] = this->sensors[i].kind1;
-          json[name]["kind2"] = this->sensors[i].kind2;
-          json[name]["kind3"] = this->sensors[i].kind3;
+          json[name]["reference"] = sensors[i].reference;
+          json[name]["type"] =      sensors[i].type;
+          json[name]["address"] = sensors[i].address;
+          json[name]["kind0"] = sensors[i].kind0;
+          json[name]["kind1"] = sensors[i].kind1;
+          json[name]["kind2"] = sensors[i].kind2;
+          json[name]["kind3"] = sensors[i].kind3;
         }
-
+        delete[] sensors;
       } else {
         this->sensorsNumber = this->sensorsNumber;
       }
@@ -383,7 +445,7 @@ bool ExternalSensors::config() {
         Serial.println();
 
 #endif
-
+        
         return (false);
       }
 
@@ -397,21 +459,23 @@ bool ExternalSensors::config() {
       Serial.println();
 
 #endif
-
+      
       return (true);
     }
+  
   }
+ 
 }
 
+
 /**
- *  ExternalSensors::config(String reference[],String type[],uint8_t
- *address[],int sensorsNumber): This method is provided to configure the
- *externalSensors without a configuration file
- *
- *  \return true if successful,false otherwise
- */
+    ExternalSensors::config(String reference[],String type[],uint8_t
+  address[],int sensorsNumber): This method is provided to configure the
+  externalSensors without a configuration file
+    \return true if successful,false otherwise
+*/
 bool ExternalSensors::config(String reference[], String type[],
-                             uint8_t address[], int sensorsNumber) {
+                             uint8_t address[], uint8_t sensorsNumber) {
 
 #if DEBUG == 1
 
@@ -431,25 +495,21 @@ bool ExternalSensors::config(String reference[], String type[],
     return (false);
   }
 
-  this->sensorsNumber = sensorsNumber;
-
-  for (int i = 0; i < sensorsNumber; i++) {
-
-    this->sensors[i].reference = reference[i];
-
-    this->sensors[i].type = type[i];
-
-    this->sensors[i].address = address[i];
-  }
+  // sensor* sensors = new sensor[sensorsNumber];
+  // for (uint8_t i = 0; i < sensorsNumber; i++) {
+  //   sensors[i].reference = sensors[i].reference;
+  //   sensors[i].type = sensors[i].type;
+  //   sensors[i].address = sensors[i].address;
+  // }
 
   return (true);
 }
 
 /**
- *  ExternalSensors::printConf():
- *  This method is provided to print the
- *  configuration to the Serial Monitor
- */
+    ExternalSensors::printConf():
+    This method is provided to print the
+    configuration to the Serial Monitor
+*/
 void ExternalSensors::printConf() {
 
 #if DEBUG == 1
@@ -459,25 +519,36 @@ void ExternalSensors::printConf() {
 
 #endif
 
-  Serial.println("External Sensors configuration ");
+  // Serial.println("External Sensors configuration ");
 
-  Serial.print("sensorsNumber : ");
-  Serial.println(sensorsNumber);
+  // Serial.print("sensorsNumber : ");
+  // Serial.println(sensorsNumber);
 
-  for (int i = 0; i < sensorsNumber; i++) {
-    Serial.print("sensor ");
-    Serial.print(i);
-    Serial.print(" reference : ");
-    Serial.println(this->sensors[i].reference);
+  // sensor* sensors = new sensor[sensorsNumber];
+  // for (uint8_t i = 0; i < sensorsNumber; i++) {
+  //   sensors[i].reference = sensors[i].reference;
+  //   sensors[i].type = sensors[i].type;
+  //   sensors[i].address = sensors[i].address;
+  // }
 
-    Serial.print("sensor ");
-    Serial.print(i);
-    Serial.print(" type : ");
-    Serial.println(this->sensors[i].type);
+  // for (uint8_t i = 0; i < sensorsNumber; i++) {
+  //   Serial.print("sensor ");
+  //   Serial.print(i);
+  //   Serial.print(" reference : ");
+  //   Serial.println(sensors[i].reference);
 
-    Serial.print("sensor ");
-    Serial.print(i);
-    Serial.print(" address : ");
-    Serial.println(this->sensors[i].address);
-  }
+  //   Serial.print("sensor ");
+  //   Serial.print(i);
+  //   Serial.print(" type : ");
+  //   Serial.println(sensors[i].type);
+
+  //   Serial.print("sensor ");
+  //   Serial.print(i);
+  //   Serial.print(" address : ");
+  //   Serial.println(sensors[i].address);
+  // }
+
+
+// TO DO : PRINT CONF AND USE AFTER     delete[] sensors;
+
 }

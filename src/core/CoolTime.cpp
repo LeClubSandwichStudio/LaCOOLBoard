@@ -83,25 +83,25 @@ void CoolTime::offGrid() {
                          0};
 
     char tempDay[3] = {__TIMESTAMP__[8], __TIMESTAMP__[9], 0};
-    int Day = atoi(&tempDay[0]);
+    uint8_t Day = atoi(&tempDay[0]);
 
     char tempHour[3] = {__TIMESTAMP__[posMarker - 2],
                         __TIMESTAMP__[posMarker - 1], '\0'};
-    int Hour = atoi(&tempHour[0]);
+    uint8_t Hour = atoi(&tempHour[0]);
 
     char tempMinute[3] = {__TIMESTAMP__[posMarker + 1],
                           __TIMESTAMP__[posMarker + 2], '\0'};
-    int Minute = atoi(&tempMinute[0]);
+    uint8_t Minute = atoi(&tempMinute[0]);
 
     char tempSecond[3] = {__TIMESTAMP__[posMarker + 4],
                           __TIMESTAMP__[posMarker + 5], '\0'};
-    int Second = atoi(&tempSecond[0]);
+    uint8_t Second = atoi(&tempSecond[0]);
 
     char tempYear[3] = {
         __TIMESTAMP__[posMarker + 9], __TIMESTAMP__[posMarker + 10],
         '\0'}; //__TIMESTAMP__[posMarker + 7],__TIMESTAMP__[posMarker + 8],
     int Year = atoi(&tempYear[0]);
-    int Month;
+    uint8_t Month;
 
     if (strstr(monthAbbr, "Jan")) {
       // Serial.println(F("Month January"));
@@ -235,8 +235,8 @@ void CoolTime::update() {
  *  This method is provided to manually set the RTc Time
  *
  */
-void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes,
-                           int seconds) {
+void CoolTime::setDateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minutes,
+                           uint8_t seconds) {
 
 #if DEBUG == 1
 
@@ -563,13 +563,16 @@ bool CoolTime::config() {
 
     return (false);
   } else {
-    size_t size = rtcConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = rtcConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
 
-    rtcConfig.readBytes(buf.get(), size);
+    // rtcConfig.readBytes(buf.get(), size);
+
+    String data = rtcConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+    
     if (!json.success()) {
 
       Serial.println(F("failed to parse rtcConfig json"));
@@ -676,13 +679,14 @@ bool CoolTime::saveTimeSync() {
 
     return (false);
   } else {
-    size_t size = rtcConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = rtcConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
 
-    rtcConfig.readBytes(buf.get(), size);
+    // rtcConfig.readBytes(buf.get(), size);
+    String data = rtcConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
     if (!json.success()) {
 
       Serial.println(F("failed to parse json"));

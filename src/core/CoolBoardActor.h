@@ -37,7 +37,7 @@ public:
 
   void write(bool action); // CoolBoardActor
 
-  String doAction(const char *data, int hour, int minute);
+  String doAction(const char *data, uint8_t hour, uint8_t minute);
 
   void normalAction(float measurment);
 
@@ -51,17 +51,17 @@ public:
 
   void mixedTemporalActionOn(float measurment);
 
-  void hourAction(int hour);
+  void hourAction(uint8_t hour);
 
-  void mixedHourAction(int hour, float measurment);
+  void mixedHourAction(uint8_t hour, float measurment);
 
-  void minuteAction(int minute);
+  void minuteAction(uint8_t minute);
 
-  void mixedMinuteAction(int minute, float measurment);
+  void mixedMinuteAction(uint8_t minute, float measurment);
 
-  void hourMinuteAction(int hour, int minute);
+  void hourMinuteAction(uint8_t hour, uint8_t minute);
 
-  void mixedHourMinuteAction(int hour, int minute, float measurment);
+  void mixedHourMinuteAction(uint8_t hour, uint8_t minute, float measurment);
 
   bool config();
 
@@ -72,7 +72,7 @@ public:
    *  the only available pin that can be used
    *  to run a small actor is pin 15
    */
-  const int pin = 15; // pin for the actor
+  const uint8_t pin = 15; // pin for the actor
 
   // private:
 

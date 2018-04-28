@@ -517,6 +517,8 @@ void CoolPubSubClient::disconnect() {
     _state = MQTT_DISCONNECTED;
     _client->stop();
     lastInActivity = lastOutActivity = millis();
+
+ 
 }
 
 uint16_t CoolPubSubClient::writeString(const char* string, uint8_t* buf, uint16_t pos) {

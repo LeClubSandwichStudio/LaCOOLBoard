@@ -64,8 +64,8 @@ public:
 
   void printConf();
 
-  void setDateTime(int year, int month, int day, int hour, int minutes,
-                   int seconds);
+  void setDateTime(int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minutes,
+                   uint8_t seconds);
 
   tmElements_t getTimeDate();
 

@@ -197,15 +197,21 @@ bool Irene3000::config() {
 
     return (false);
   } else {
-    size_t size = irene3000Config.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    uint16_t tempGain;
-    irene3000Config.readBytes(buf.get(), size);
+    // // read file into json
+    // size_t size = irene3000Config.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
+    // irene3000Config.readBytes(buf.get(), size);
+    String data = irene3000Config.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+
+     uint16_t tempGain;
+       
+
     if (!json.success()) {
 
+      
 #if DEBUG == 1
 
       Serial.println(F("failed to parse json "));
@@ -227,6 +233,9 @@ bool Irene3000::config() {
       Serial.println();
 
 #endif
+
+
+
       if (json["waterTemp"]["active"].success()) {
         this->waterTemp.active = json["waterTemp"]["active"];
       } else {
@@ -681,13 +690,15 @@ bool Irene3000::saveParams() {
 
     return (false);
   } else {
-    // read file into json
-    size_t size = irene3000Config.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    irene3000Config.readBytes(buf.get(), size);
+    // // read file into json
+    // size_t size = irene3000Config.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
+    // irene3000Config.readBytes(buf.get(), size);
+    String data = irene3000Config.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+  
     if (!json.success()) {
 
 #if DEBUG == 1

@@ -121,7 +121,7 @@ void Jetpack::writeBit(byte pin, bool state) {
  *  \return a string of the current Jetpack state
  *
  */
-String Jetpack::doAction(const char *data, int hour, int minute) {
+String Jetpack::doAction(const char *data, uint8_t hour, uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -315,13 +315,16 @@ bool Jetpack::config() {
 
     return (false);
   } else {
-    size_t size = jetPackConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
+    // size_t size = jetPackConfig.size();
+    // // Allocate a buffer to store contents of the file.
+    // std::unique_ptr<char[]> buf(new char[size]);
 
-    jetPackConfig.readBytes(buf.get(), size);
+    // jetPackConfig.readBytes(buf.get(), size);
+
+    String data = jetPackConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+  
     if (!json.success()) {
 
 #if DEBUG == 1
@@ -594,7 +597,7 @@ void Jetpack::printConf() {
  *  measured value is: > rangeHigh ( deactivate actor)
  *  or < rangeLow (activate actor )
  */
-void Jetpack::normalAction(int actorNumber, float measurment) {
+void Jetpack::normalAction(uint8_t actorNumber, float measurment) {
 
 #if DEBUG == 1
 
@@ -644,7 +647,7 @@ void Jetpack::normalAction(int actorNumber, float measurment) {
  *  > rangeHigh (activate actor)
  *  < rangeLow ( deactivate actor )
  */
-void Jetpack::invertedAction(int actorNumber, float measurment) {
+void Jetpack::invertedAction(uint8_t actorNumber, float measurment) {
 #if DEBUG == 1
 
   Serial.print(F("inverted Actor N° : "));
@@ -693,7 +696,7 @@ void Jetpack::invertedAction(int actorNumber, float measurment) {
  *  currentTime - startTime > timeHigh : deactivate actor
  *
  */
-void Jetpack::temporalActionOff(int actorNumber) {
+void Jetpack::temporalActionOff(uint8_t actorNumber) {
 
 #if DEBUG == 1
   Serial.println(F("temporalActionOff"));
@@ -741,7 +744,7 @@ void Jetpack::temporalActionOff(int actorNumber) {
  *    measured value >= rangeHigh : deactivate actor
  *    measured value < rangeHigh : activate actor
  */
-void Jetpack::mixedTemporalActionOff(int actorNumber, float measurment) {
+void Jetpack::mixedTemporalActionOff(uint8_t actorNumber, float measurment) {
 
 #if DEBUG == 1
 
@@ -819,7 +822,7 @@ void Jetpack::mixedTemporalActionOff(int actorNumber, float measurment) {
  *  currentTime - stopTime > timeLow : activate actor
  *
  */
-void Jetpack::temporalActionOn(int actorNumber) {
+void Jetpack::temporalActionOn(uint8_t actorNumber) {
 
 #if DEBUG == 1
   Serial.println(F("temporalActionOn"));
@@ -867,7 +870,7 @@ void Jetpack::temporalActionOn(int actorNumber) {
  *    measured value < rangeLow : activate actor
  *
  */
-void Jetpack::mixedTemporalActionOn(int actorNumber, float measurment) {
+void Jetpack::mixedTemporalActionOn(uint8_t actorNumber, float measurment) {
 
 #if DEBUG == 1
 
@@ -947,7 +950,7 @@ void Jetpack::mixedTemporalActionOn(int actorNumber, float measurment) {
  *  hour >= hourHigh : activate the actor
  *
  */
-void Jetpack::hourAction(int actorNumber, int hour) {
+void Jetpack::hourAction(uint8_t actorNumber, uint8_t hour) {
 
 #if DEBUG == 1
 
@@ -1051,7 +1054,7 @@ void Jetpack::hourAction(int actorNumber, int hour) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void Jetpack::mixedHourAction(int actorNumber, int hour, float measurment) {
+void Jetpack::mixedHourAction(uint8_t actorNumber, uint8_t hour, float measurment) {
 
 #if DEBUG == 1
 
@@ -1173,7 +1176,7 @@ void Jetpack::mixedHourAction(int actorNumber, int hour, float measurment) {
  *  minute >= minuteHigh : activate the actor
  *
  */
-void Jetpack::minuteAction(int actorNumber, int minute) {
+void Jetpack::minuteAction(uint8_t actorNumber, uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -1227,7 +1230,7 @@ void Jetpack::minuteAction(int actorNumber, int minute) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void Jetpack::mixedMinuteAction(int actorNumber, int minute, float measurment) {
+void Jetpack::mixedMinuteAction(uint8_t actorNumber, uint8_t minute, float measurment) {
 
 #if DEBUG == 1
 
@@ -1329,7 +1332,7 @@ void Jetpack::mixedMinuteAction(int actorNumber, int minute, float measurment) {
  *
  *  hour >  hourHigh : activate the actor
  */
-void Jetpack::hourMinuteAction(int actorNumber, int hour, int minute) {
+void Jetpack::hourMinuteAction(uint8_t actorNumber, uint8_t hour, uint8_t minute) {
 
 #if DEBUG == 1
 
@@ -1421,7 +1424,7 @@ void Jetpack::hourMinuteAction(int actorNumber, int hour, int minute) {
  *    measuredValue < rangeLow : activate actor
  *
  */
-void Jetpack::mixedHourMinuteAction(int actorNumber, int hour, int minute,
+void Jetpack::mixedHourMinuteAction(uint8_t actorNumber, uint8_t hour, uint8_t minute,
                                     float measurment) {
 
 #if DEBUG == 1

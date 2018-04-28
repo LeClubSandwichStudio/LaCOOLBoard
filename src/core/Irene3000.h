@@ -90,7 +90,7 @@ private:
   /**
    *  Led handler instance
    */
-  CoolBoardLed coolBoardLed;
+  // CoolBoardLed coolBoardLed;
 
   /**
    *  PH Sensor Calibration parameters

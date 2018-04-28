@@ -37,7 +37,7 @@ class CoolBoardLed {
 public:
   void begin();
 
-  void write(int R, int G, int B);
+  void write(uint8_t R, uint8_t G, uint8_t B);
 
   void end(); // delete the dynamic led;
 
@@ -48,15 +48,15 @@ public:
   void printConf();
 
   // Neo Pixel Led methods :
-  void fade(int R, int G, int B, float T);
+  void fade(uint8_t R, uint8_t G, uint8_t B, float T);
 
-  void blink(int R, int G, int B, float T);
+  void blink(uint8_t R, uint8_t G, uint8_t B, float T);
 
-  void fadeIn(int R, int G, int B, float T);
+  void fadeIn(uint8_t R, uint8_t G, uint8_t B, float T);
 
-  void fadeOut(int R, int G, int B, float T);
+  void fadeOut(uint8_t R, uint8_t G, uint8_t B, float T);
 
-  void strobe(int R, int G, int B, float T);
+  void strobe(uint8_t R, uint8_t G, uint8_t B, float T);
 
 private:
   /**
