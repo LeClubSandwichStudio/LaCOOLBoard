@@ -30,73 +30,57 @@
 
 #include "Irene3000.h"
 #include "CoolLog.h"
+#include "CoolBoardLed.h"
 
-/**
- *  Irene3000::begin():
- *  This method is provided to start the
- *  Irene3000
- */
-void Irene3000::startADC() {
-  this->ads.begin();
-  delay(2000);
-}
-
-/**
- *  Irene3000::begin():
- *  This method is provided to start the
- *  Irene3000
- */
 void Irene3000::begin() {
   this->ads.begin();
   delay(2000);
+}
 
-  INFO_LOG("Press the button to calibrate the Ph probe");
-  delay(2000);
-
-  int bValue = this->readButton();
-
-  if (bValue >= 65000)
-    bValue = 0;
-
-  while (bValue < 500) {
-    bValue = this->readButton();
-    delay(10);
-  }
-
-  if (bValue > 20000) {
-    INFO_LOG("Calibrating the Ph probe");
-    INFO_LOG("pH 7 calibration for 25 seconds");
-    delay(10000);
-
-    this->calibratepH7();
-    delay(15000);
-
-    this->calibratepH7();
+void Irene3000::waitForButtonPress() {
+  while (!this->isButtonPressed()) {
     delay(1000);
-
-    DEBUG_LOG("pH 7 calibration OK");
-    DEBUG_LOG("pH 4 calibration for 25 seconds");
-    delay(10000);
-
-    this->calibratepH4();
-    delay(15000);
-
-    this->calibratepH4();
-    delay(1000);
-
-    DEBUG_LOG("pH 4 calibration OK");
-    this->saveParams();
   }
 }
 
-/**
- *  Irene3000:read():
- *  This method is provided to read
- *  the Irene3000 sensors data
- *
- *  \return json string of the sensors
- *  data
- */
+bool Irene3000::isButtonPressed() {
+  int bValue = this->readButton();
+
+  if (bValue < 2000) {
+    return true;
+  }
+  return false;
+}
+
+void Irene3000::calibrate(CoolBoardLed &led) {
+  led.write(WHITE);
+  INFO_LOG("IRN3000 starting, hold button to calibrate the pH probe");
+  delay(2000);
+
+  if (this->isButtonPressed()) {
+    led.write(BRIGHT_WHITE);
+    delay(5000);
+    led.write(GREEN);
+    INFO_LOG("Ready to calibrate, hold button to start pH7 calibration");
+    this->waitForButtonPress();
+    led.write(BRIGHT_GREEN);
+    INFO_LOG("Starting pH 7 calibration for 30 seconds");
+    delay(30000);
+    this->calibratepH7();
+    led.write(RED);
+    INFO_LOG("ph7 calibration finished, hold button to start pH4 calibration");
+    this->waitForButtonPress();
+    led.write(FUCHSIA);
+    INFO_LOG("Starting pH 4 calibration for 25 seconds");
+    delay(30000);
+    this->calibratepH4();
+    this->saveParams();
+    led.write(WHITE);
+    INFO_LOG("Calibration finished, hold button to exit calibration");
+    this->waitForButtonPress();
+  }
+}
+
 String Irene3000::read() {
   String data;
   DynamicJsonBuffer jsonBuffer;
@@ -123,13 +107,6 @@ String Irene3000::read() {
   return (data);
 }
 
-/**
- *  Irene3000::config():
- *  This method is provided to configure the
- *  Irene3000 shield through a configuration file
- *
- *  \return true if successful,false otherwise
- */
 bool Irene3000::config() {
   File configFile = SPIFFS.open("/irene3000Config.json", "r");
 
@@ -204,11 +181,6 @@ bool Irene3000::config() {
   }
 }
 
-/**
- *  Irene3000::printConf():
- *  This method is provided to print the configuration
- *  to the Serial Monitor
- */
 void Irene3000::printConf() {
   DEBUG_LOG("IRN3000 configuration");
   DEBUG_VAR("  Temperature enabled:", waterTemp.active);
@@ -220,13 +192,6 @@ void Irene3000::printConf() {
   DEBUG_VAR("  ADC2 type          :", adc2.type);
 }
 
-/**
- *  Irene3000::readButton():
- *  This method is provided to read the
- *  Irene3000 button
- *
- *  \return the button value
- */
 int Irene3000::readButton() {
   this->setGain(GAIN_TWOTHIRDS);
   int result = this->ads.readADC_SingleEnded(BUTTON_CHANNEL);
@@ -234,24 +199,10 @@ int Irene3000::readButton() {
   return (result);
 }
 
-/**
- *  Irene3000::setGain(gain):
- *  This method is provided to set the
- *  ADS chip gain
- */
 void Irene3000::setGain(adsGain_t gain) {
   this->ads.setGain(gain);
 }
 
-/**
- *  Irene3000::readADSChannel2(gain):
- *  This method is provided to read from
- *  the ADS channel 2 .
- *  ADS Channel 2 is free and the user can connect
- *  another analog sensor to it.
- *
- *  \return the ADS Channel 2 value
- */
 int Irene3000::readADSChannel2(adsGain_t gain) {
   this->setGain(gain);
   int result = this->ads.readADC_SingleEnded(FREE_ADC_CHANNEL);
@@ -259,14 +210,6 @@ int Irene3000::readADSChannel2(adsGain_t gain) {
   return (result);
 }
 
-/**
- *  Irene3000::readPh(double t):
- *  This method is provided to read the PH probe
- *  note that for the best results, PH must be
- *  correlated to Temperature.
- *
- *  \return the PH probe value
- */
 float Irene3000::readPh(double t) {
   // FIXME: Magic numbers
   this->setGain(GAIN_FOUR);
@@ -287,13 +230,6 @@ float Irene3000::readPh(double t) {
   return (phT);
 }
 
-/**
- *  Irene3000::readTemp(gain):
- *  This method is provided to read
- *  the Temeperature probe
- *
- *  \return the Temperature probe value
- */
 double Irene3000::readTemp() {
   // FIXME: Magic numbers
   const double A = 3.9083E-3;
@@ -329,11 +265,6 @@ double Irene3000::readTemp() {
   }
 }
 
-/**
- *  Irene3000::calibratepH7():
- *  This method is provided to calibrate the
- *  PH probe to 7
- */
 void Irene3000::calibratepH7() {
   delay(1000);
 
@@ -342,11 +273,6 @@ void Irene3000::calibratepH7() {
   this->calcpHSlope();
 }
 
-/**
- *  Irene3000::calibratepH4():
- *  This method is provided to calibrate the
- *  PH probe to 4
- */
 void Irene3000::calibratepH4() {
   delay(1000);
 
@@ -355,11 +281,6 @@ void Irene3000::calibratepH4() {
   this->calcpHSlope();
 }
 
-/**
- *  Irene3000::calcpHSlop():
- *  This method is provided to calculate
- *  th PH slope
- */
 void Irene3000::calcpHSlope() {
   params.pHStep =
       ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) /
@@ -367,12 +288,6 @@ void Irene3000::calcpHSlope() {
       3;
 }
 
-/**
- *  Irene3000::resetParams():
- *  This method is provided to reset
- *  the PH configuration,
- *  assuming Ideal configuration
- */
 void Irene3000::resetParams(void) {
   params.pH7Cal = 16384; // assume ideal probe and amp conditions 1/2 of 4096
   params.pH4Cal = 8192;  // using ideal probe slope we end up this many 12bit
@@ -380,13 +295,6 @@ void Irene3000::resetParams(void) {
   params.pHStep = 59.16; // ideal probe slope
 }
 
-/**
- *  Irene3000::gainConvert( gain : { 0.67 ,1,2,4,8,16 } )
- *  This method is provided to convert the gain to
- *  Internal Constants
- *
- *  \return internal representation of the ADS gain
- */
 adsGain_t Irene3000::gainConvert(uint16_t tempGain) {
   switch (tempGain) {
   case (1):

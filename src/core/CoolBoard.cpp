@@ -80,73 +80,8 @@ void CoolBoard::begin() {
 
   if (ireneActive) {
     irene3000.config();
-    irene3000.startADC();
-    coolBoardLed.write(60, 60, 60);
-    delay(2000);
-
-    int bValue = irene3000.readButton();
-
-    if (bValue >= 65000) {
-      bValue = 8800;
-    }
-    bValue = irene3000.readButton();
-    if (bValue >= 65000) {
-      bValue = 8800;
-    }
-    if (bValue < 2000) {
-      this->coolBoardLed.write(WHITE);
-      delay(5000);
-      this->coolBoardLed.write(GREEN);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 0;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-      this->coolBoardLed.write(GREEN);
-      INFO_LOG("Calibrating the pH probe");
-      INFO_LOG("pH 7 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH7();
-      delay(15000);
-      irene3000.calibratepH7();
-      this->coolBoardLed.write(RED);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 8800;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-      this->coolBoardLed.write(RED);
-      INFO_LOG("pH 4 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH4();
-      delay(15000);
-      irene3000.calibratepH4();
-      irene3000.saveParams();
-      this->coolBoardLed.write(FUCHSIA);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 8800;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-    }
+    irene3000.begin();
+    irene3000.calibrate(this->coolBoardLed);
     irene3000.printConf();
     delay(100);
   }
@@ -639,26 +574,6 @@ void CoolBoard::update(const char *answer) {
       }
     }
 
-    // Irene calibration through update message
-    if (stateDesired["calibration"].success()) {
-      INFO_LOG("Starting Irene calibration from MQTT update");
-      delay(2000);
-      INFO_LOG("pH 7 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH7();
-      delay(15000);
-      irene3000.calibratepH7();
-      delay(1000);
-      INFO_LOG("pH 7 calibration OK");
-      INFO_LOG("pH 4 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH4();
-      delay(15000);
-      irene3000.calibratepH4();
-      delay(1000);
-      INFO_LOG("pH 4 calibration OK");
-      irene3000.saveParams();
-    }
     fileSystem.updateConfigFiles(answerDesired);
 
     String updateAnswer;

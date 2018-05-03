@@ -45,91 +45,40 @@
 #define PH_CHANNEL 3
 #define FREE_ADC_CHANNEL 2
 
-/**
- *  \class Irene3000
- *  \brief This class is provided to manage
- *  the Irene3000 Ph/Temperature Shield
- *
- */
 class Irene3000 {
+
 public:
-  void startADC();
-
   void begin();
-
   bool config();
-
-  bool ireneButton();
-
   void printConf();
-
-  String read();
-
-  int readButton();
-
   void setGain(adsGain_t gain);
-
+  String read();
+  int readButton();
   int readADSChannel2(adsGain_t gain);
-
   float readPh(double t);
-
   double readTemp();
-
   void resetParams();
-
   void calibratepH7();
-
   void calibratepH4();
-
   void calcpHSlope();
-
   adsGain_t gainConvert(uint16_t tempGain);
-
   bool saveParams();
+  void waitForButtonPress();
+  bool isButtonPressed();
+  void calibrate(CoolBoardLed &led);
 
 private:
-  /**
-   *  ADS1115 instance
-   */
   Adafruit_ADS1115 ads;
-
-  /**
-   *  Led handler instance
-   */
-  CoolBoardLed coolBoardLed;
-
-  /**
-   *  PH Sensor Calibration parameters
-   *
-   *  pH7Cal : PH 7 Calibration value
-   *
-   *  pH4Cal : PH 4 Calibration value
-   *
-   *  pHStep : PH Slope Step value
-   *
-   */
   struct {
-    int pH7Cal, pH4Cal = 0;
+    int pH7Cal = 0;
+    int pH4Cal = 0;
     float pHStep = 1;
   } params;
-
-  /**
-   *  Irene sensors state struct
-   *
-   *  active : if the related sensor is active or not
-   *
-   *  gain : what is the used gain for the related sensor (used only for the
-   *free channel)
-   *
-   *  type : the type of the used sensor(used only for the free channel )
-   *
-   */
   struct {
     bool active = 0;
     adsGain_t gain = GAIN_TWOTHIRDS;
     String type = "";
   } waterTemp, phProbe, adc2;
-
 };
 
 #endif
