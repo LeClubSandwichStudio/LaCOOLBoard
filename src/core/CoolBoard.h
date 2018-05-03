@@ -205,18 +205,6 @@ private:
    */
   unsigned long previousLogTime = 0;
 
-  /**
-   *  data string,
-   *  string that contains sensors data
-   */
-  String data = "";
-
-  /**
-   *  answer string,
-   *  string that contains received MQTT messages
-   */
-  String answer = "";
-
 };
 
 #endif

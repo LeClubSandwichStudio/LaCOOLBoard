@@ -260,9 +260,6 @@ void CoolBoard::onLineMode() {
     delay(200);
   }
 
-  data = "";
-  answer = "";
-
   // send saved data if any, check once again if the MQTT connection is OK!
   if (fileSystem.isFileSaved() != 0 && isConnected() == 0 &&
       mqtt.state() == 0) {
@@ -297,7 +294,7 @@ void CoolBoard::onLineMode() {
     INFO_LOG("Updating RTC...");
     rtc.update();
   }
-  data = this->boardData();
+  String data = this->boardData();
   data.setCharAt(data.lastIndexOf('}'), ',');
   INFO_LOG("Collecting sensor data...");
   data += this->readSensors();
@@ -361,7 +358,7 @@ void CoolBoard::onLineMode() {
   }
 
   mqtt.mqttLoop();
-  answer = mqtt.read();
+  String answer = mqtt.read();
   if (answer.length() > 0) {
     this->update(answer.c_str());
   }
@@ -416,7 +413,7 @@ unsigned long CoolBoard::secondsToNextLog() {
  */
 void CoolBoard::offLineMode() {
   INFO_LOG("COOL Board is in offline mode");
-  data = this->boardData();
+  String data = this->boardData();
   data.setCharAt(data.lastIndexOf('}'), ',');
 
   INFO_LOG("Collecting sensors data");
