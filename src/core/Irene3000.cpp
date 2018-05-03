@@ -131,18 +131,17 @@ String Irene3000::read() {
  *  \return true if successful,false otherwise
  */
 bool Irene3000::config() {
-  File irene3000Config = SPIFFS.open("/irene3000Config.json", "r");
+  File configFile = SPIFFS.open("/irene3000Config.json", "r");
 
-  if (!irene3000Config) {
+  if (!configFile) {
     ERROR_LOG("Failed to read /irene3000Config.json");
     return (false);
   } else {
-    size_t size = irene3000Config.size();
-    std::unique_ptr<char[]> buf(new char[size]);
     uint16_t tempGain;
-    irene3000Config.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+
+    String data = configFile.readString();
+    DynamicJsonBuffer fileBuffer;
+    JsonObject &json = fileBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse IRN3000 config from file");
@@ -190,15 +189,15 @@ bool Irene3000::config() {
         this->params.pHStep = json["pHStep"];
       }
       json["pHStep"] = this->params.pHStep;
-      irene3000Config.close();
-      irene3000Config = SPIFFS.open("/irene3000Config.json", "w");
+      configFile.close();
+      configFile = SPIFFS.open("/irene3000Config.json", "w");
 
-      if (!irene3000Config) {
+      if (!configFile) {
         ERROR_LOG("Failed to write to /irene3000Config.json");
         return (false);
       }
-      json.printTo(irene3000Config);
-      irene3000Config.close();
+      json.printTo(configFile);
+      configFile.close();
       DEBUG_LOG("Saved IRN3000 config to /irene3000Config.json");
       return (true);
     }

@@ -256,12 +256,9 @@ bool CoolMQTT::config() {
     ERROR_LOG("Failed to read /mqttConfig.json");
     return (false);
   } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    configFile.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse MQTT configuration JSON");

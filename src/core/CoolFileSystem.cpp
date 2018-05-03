@@ -216,12 +216,9 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
     return (false);
   }
 
-  size_t size = configFile.size();
-
-  std::unique_ptr<char[]> buf(new char[size]);
-  configFile.readBytes(buf.get(), size);
+  String data = configFile.readString();
   DynamicJsonBuffer fileBuffer;
-  JsonObject &fileJson = fileBuffer.parseObject(buf.get());
+  JsonObject &fileJson = fileBuffer.parseObject(data);
 
   if (!fileJson.success()) {
     ERROR_VAR("Failed to parse update JSON for config file:", path);

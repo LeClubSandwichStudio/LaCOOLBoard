@@ -189,19 +189,15 @@ void CoolBoardLed::write(int R, int G, int B) {
  *  false otherwise
  */
 bool CoolBoardLed::config() {
-  File coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "r");
+  File configFile = SPIFFS.open("/coolBoardLedConfig.json", "r");
 
-  if (!coolBoardLedConfig) {
+  if (!configFile) {
     ERROR_LOG("Failed to read /coolBoardLedConfig.json");
     return (false);
   } else {
-    size_t size = coolBoardLedConfig.size();
-    // Allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardLedConfig.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
     if (!json.success()) {
       ERROR_LOG("Failed to parse JSON LED config from file");
       return (false);
@@ -212,14 +208,14 @@ bool CoolBoardLed::config() {
         this->ledActive = json["ledActive"];
       }
       json["ledActive"] = this->ledActive;
-      coolBoardLedConfig.close();
-      coolBoardLedConfig = SPIFFS.open("/coolBoardLedConfig.json", "w");
-      if (!coolBoardLedConfig) {
+      configFile.close();
+      configFile = SPIFFS.open("/coolBoardLedConfig.json", "w");
+      if (!configFile) {
         ERROR_LOG("Failed to write to /coolBoardLedConfig.json");
         return (false);
       }
-      json.printTo(coolBoardLedConfig);
-      coolBoardLedConfig.close();
+      json.printTo(configFile);
+      configFile.close();
       INFO_LOG("Saved LED config to /coolBoardLedConfig.json");
       return (true);
     }

@@ -188,18 +188,15 @@ String ExternalSensors::read() {
  *  \return true if successful,false otherwise
  */
 bool ExternalSensors::config() {
-  File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "r");
+  File configFile = SPIFFS.open("/externalSensorsConfig.json", "r");
 
-  if (!externalSensorsConfig) {
+  if (!configFile) {
     ERROR_LOG("Failed to read /externalSensorsConfig.json");
     return (false);
   } else {
-    size_t size = externalSensorsConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    externalSensorsConfig.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse external sensors config from file");
@@ -266,15 +263,15 @@ bool ExternalSensors::config() {
         this->sensorsNumber = this->sensorsNumber;
       }
       json["sensorsNumber"] = this->sensorsNumber;
-      externalSensorsConfig.close();
-      externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");
+      configFile.close();
+      configFile = SPIFFS.open("/externalSensorsConfig.json", "w");
 
-      if (!externalSensorsConfig) {
+      if (!configFile) {
         ERROR_LOG("Failed to write to /externalSensorsConfig.json");
         return (false);
       }
-      json.printTo(externalSensorsConfig);
-      externalSensorsConfig.close();
+      json.printTo(configFile);
+      configFile.close();
       DEBUG_LOG("Saved external sensors config to /externalSensorsConfig.json");
       return (true);
     }

@@ -164,19 +164,14 @@ String CoolBoardActor::doAction(const char *data, int hour, int minute) {
  *  \return true if successful,false otherwise
  */
 bool CoolBoardActor::config() {
-  File coolBoardActorConfig = SPIFFS.open("/coolBoardActorConfig.json", "r");
-
-  if (!coolBoardActorConfig) {
+  File configFile = SPIFFS.open("/coolBoardActorConfig.json", "r");
+  if (!configFile) {
     ERROR_LOG("Failed to read /coolBoardActorConfig.json");
     return (false);
   } else {
-    size_t size = coolBoardActorConfig.size();
-
-    // Allocate a buffer to store content of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    coolBoardActorConfig.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
     if (!json.success()) {
       ERROR_LOG("Failed to parse JSON actuator config from file");
       return (false);
@@ -229,15 +224,15 @@ bool CoolBoardActor::config() {
       }
       json["type"][0] = this->actor.primaryType;
       json["type"][1] = this->actor.secondaryType;
-      coolBoardActorConfig.close();
-      coolBoardActorConfig = SPIFFS.open("/coolBoardActorConfig.json", "w");
+      configFile.close();
+      configFile = SPIFFS.open("/coolBoardActorConfig.json", "w");
 
-      if (!coolBoardActorConfig) {
+      if (!configFile) {
         ERROR_LOG("Failed to write to /coolBoardActorConfig.json");
         return (false);
       }
-      json.printTo(coolBoardActorConfig);
-      coolBoardActorConfig.close();
+      json.printTo(configFile);
+      configFile.close();
       DEBUG_JSON("Saved actuator config to /coolBoardActorConfig.json", json);
       return (true);
     }
