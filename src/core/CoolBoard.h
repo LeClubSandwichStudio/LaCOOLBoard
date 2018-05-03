@@ -37,6 +37,8 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 
+#define ENABLE_I2C_PIN 5
+#define BOOTSTRAP_PIN 0
 /**
  *  \class  CoolBoard
  *
@@ -67,8 +69,6 @@ public:
   void sleep(unsigned long interval);
 
   String readSensors();
-
-  void initReadI2C();
 
   String boardData();
 
@@ -217,19 +217,6 @@ private:
    */
   String answer = "";
 
-  /**
-   *  Enable I2C pin,
-   *  double usage for I2C and shift register latch , HIGH=I2C , LOW=shift
-   *register latch All I2C is over pins (2,14)
-   */
-  const int enI2C = 5;
-
-  /**
-   *  Bootstrap pin,
-   *  double usage for flashing the Coolboard
-   *  and start up the AP for further configuration
-   */
-  const int bootstrap = 0;
 };
 
 #endif

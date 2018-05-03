@@ -39,9 +39,9 @@
  *  of the used parts.
  */
 void CoolBoard::begin() {
-  pinMode(enI2C, OUTPUT);    // Declare I2C Enable pin
-  pinMode(bootstrap, INPUT); // Declare Bootstrap pin
-  this->initReadI2C();
+  pinMode(ENABLE_I2C_PIN, OUTPUT);    // Declare I2C Enable pin
+  pinMode(BOOTSTRAP_PIN, INPUT); // Declare Bootstrap pin
+  digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
 
   rtc.config();
@@ -703,7 +703,7 @@ unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 String CoolBoard::readSensors() {
   String sensorsData;
 
-  this->initReadI2C();
+  digitalWrite(ENABLE_I2C_PIN, HIGH);
   sensorsData = coolBoardSensors.read();
 
   if (externalSensorsActive) {
@@ -724,15 +724,6 @@ String CoolBoard::readSensors() {
   DEBUG_VAR("Sensors data is:", sensorsData);
   this->coolBoardLed.blink(GREEN, 0.5);
   return (sensorsData);
-}
-
-/**
- *  CoolBoard::initReadI2C():
- *  This method is provided to enable the I2C
- *  Interface.
- */
-void CoolBoard::initReadI2C() {
-  digitalWrite(enI2C, HIGH); // HIGH = I2C enabled
 }
 
 /**
@@ -847,7 +838,7 @@ void CoolBoard::sendPublicIP() {
  *
  */
 void CoolBoard::startAP() {
-  if (digitalRead(bootstrap) == LOW) {
+  if (digitalRead(BOOTSTRAP_PIN) == LOW) {
     INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
              "configuration...");
     wifiManager.disconnect();
