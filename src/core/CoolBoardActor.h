@@ -37,7 +37,7 @@ public:
 
   void write(bool action); // CoolBoardActor
 
-  String doAction(const char *data, int hour, int minute);
+  String doAction(const char *data, uint8_t hour, uint8_t minute);
 
   void normalAction(float measurment);
 
@@ -51,17 +51,17 @@ public:
 
   void mixedTemporalActionOn(float measurment);
 
-  void hourAction(int hour);
+  void hourAction(uint8_t hour);
 
-  void mixedHourAction(int hour, float measurment);
+  void mixedHourAction(uint8_t hour, float measurment);
 
-  void minuteAction(int minute);
+  void minuteAction(uint8_t minute);
 
-  void mixedMinuteAction(int minute, float measurment);
+  void mixedMinuteAction(uint8_t minute, float measurment);
 
-  void hourMinuteAction(int hour, int minute);
+  void hourMinuteAction(uint8_t hour, uint8_t minute);
 
-  void mixedHourMinuteAction(int hour, int minute, float measurment);
+  void mixedHourMinuteAction(uint8_t hour, uint8_t minute, float measurment);
 
   bool config();
 
@@ -142,7 +142,7 @@ public:
      *  hour low :this is the hour when to turn off the actor in
      *temporal/hour(hourMinute) mode (low[2] )
      */
-    int hourLow = 0;
+    uint8_t hourLow = 0;
 
     /**
      *  "low":[20,5000,18,10]
@@ -150,7 +150,7 @@ public:
      *  minute low :this is the minute when to turn off the actor in
      *temporal/minute(hourMinute) mode (low[3])
      */
-    int minuteLow = 0;
+    uint8_t minuteLow = 0;
 
     /**
      *  "high":[30,2000,17,1]
@@ -174,7 +174,7 @@ public:
      *  hourHigh : this is the hour when to turn on the actor in
      *temporal/hour(hourMinute) mode(high[2])
      */
-    int hourHigh = 0;
+    uint8_t hourHigh = 0;
 
     /**
      *  "high":[30,2000,17,1]
@@ -182,7 +182,7 @@ public:
      *  minuteHigh : this is the minute when to turn on the actor in
      *temporal/minute(hourMinute) mode (high[3])
      */
-    int minuteHigh = 0;
+    uint8_t minuteHigh = 0;
 
     /**
      *  actifTime : period of Time spent actif , used in Temporal mode

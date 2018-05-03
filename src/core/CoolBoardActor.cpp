@@ -59,7 +59,7 @@ void CoolBoardActor::write(bool action) {
  *  \return a string of the actor's state
  *
  */
-String CoolBoardActor::doAction(const char *data, int hour, int minute) {
+String CoolBoardActor::doAction(const char *data, uint8_t hour, uint8_t minute) {
   DEBUG_VAR("input data is:", data);
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
@@ -442,7 +442,7 @@ void CoolBoardActor::mixedTemporalActionOn(float measurment) {
  *  hour >= hourHigh : activate the actor
  *
  */
-void CoolBoardActor::hourAction(int hour) {
+void CoolBoardActor::hourAction(uint8_t hour) {
   DEBUG_LOG("Hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
   DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
@@ -502,7 +502,7 @@ void CoolBoardActor::hourAction(int hour) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void CoolBoardActor::mixedHourAction(int hour, float measurment) {
+void CoolBoardActor::mixedHourAction(uint8_t hour, float measurment) {
   DEBUG_LOG("Mixed hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
   DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
@@ -572,7 +572,7 @@ void CoolBoardActor::mixedHourAction(int hour, float measurment) {
  *  minute >= minuteHigh : activate the actor
  *
  */
-void CoolBoardActor::minuteAction(int minute) {
+void CoolBoardActor::minuteAction(uint8_t minute) {
   DEBUG_LOG("Minute-wise triggered onboard actuator");
   DEBUG_VAR("Current minute:", minute);
   DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
@@ -606,7 +606,7 @@ void CoolBoardActor::minuteAction(int minute) {
  *    -measuredValue < rangeLow : activate actor
  *    -measuredValue >=rangeLow : activate actor
  */
-void CoolBoardActor::mixedMinuteAction(int minute, float measurment) {
+void CoolBoardActor::mixedMinuteAction(uint8_t minute, float measurment) {
   DEBUG_LOG("Mixed minute-wise triggered onboard actuator");
   DEBUG_VAR("Current minute:", minute);
   DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
@@ -652,7 +652,7 @@ void CoolBoardActor::mixedMinuteAction(int minute, float measurment) {
  *
  *  hour >  hourHigh : activate the actor
  */
-void CoolBoardActor::hourMinuteAction(int hour, int minute) {
+void CoolBoardActor::hourMinuteAction(uint8_t hour, uint8_t minute) {
   DEBUG_LOG("Hour:minute triggered onboard actuator");
   DEBUG_VAR("Current hour:", hour);
   DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
@@ -706,7 +706,7 @@ void CoolBoardActor::hourMinuteAction(int hour, int minute) {
  *    measuredValue < rangeLow : activate actor
  *
  */
-void CoolBoardActor::mixedHourMinuteAction(int hour, int minute,
+void CoolBoardActor::mixedHourMinuteAction(uint8_t hour, uint8_t minute,
                                            float measurment) {
   DEBUG_LOG("Mixed Hour:minute triggered onboard actuator");
   DEBUG_VAR("Current hour:", hour);
