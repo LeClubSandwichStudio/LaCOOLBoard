@@ -21,52 +21,24 @@
  *
  */
 
-#ifndef CoolFileSystem_H
-#define CoolFileSystem_H
+#ifndef COOLFILESYSTEM_H
+#define COOLFILESYSTEM_H
 
 #include <Arduino.h>
 
 #include <ArduinoJson.h>
 
-/**
- *  \class CoolFileSystem
- *
- *  \brief This class handles the file system
- *
- */
 class CoolFileSystem {
 
 public:
   bool begin();
-
   bool updateConfigFiles(String answer);
-
   bool fileUpdate(JsonObject &updateJson, const char *path);
-
-  bool saveSensorDataCSV(const char *data);
-
-  bool saveMessageToFile(const char *data);
-
-  bool isFileSaved();
-
-  int lastFileSaved();
-
-  String getFileString(int num);
-
-  bool deleteLogFile(int num);
-
-private:
-  /**
-   *  Number of lines to read when
-   *  retrieving saved Data
-   */
-  int savedData = 0;
-
-  /**
-   *  Number of lines to Skip
-   *  when retrieving saved Data
-   */
-  int linesToSkip = 0;
+  bool saveLogToFile(const char *data);
+  bool hasSavedLogs();
+  int lastSavedLogNumber();
+  String getSavedLogAsString(int num);
+  bool deleteSavedLog(int num);
 };
 
 #endif

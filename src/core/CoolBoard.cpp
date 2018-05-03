@@ -160,22 +160,22 @@ void CoolBoard::onLineMode() {
   }
 
   // send saved data if any, check once again if the MQTT connection is OK!
-  if (fileSystem.isFileSaved() != 0 && this->isConnected()) {
+  if (fileSystem.hasSavedLogs() != 0 && this->isConnected()) {
     for (int i = 1; i <= SEND_MSG_BATCH; i++) {
-      int lastLog = fileSystem.lastFileSaved();
+      int lastLog = fileSystem.lastSavedLogNumber();
       INFO_VAR("Sending saved log number:", lastLog);
       // only send a log if there is a log. 0 means zero files in the SPIFFS
       if (lastLog != 0) {
         mqtt.mqttLoop();
         String jsonData = "{\"state\":{\"reported\":";
-        jsonData += fileSystem.getFileString(lastLog);
+        jsonData += fileSystem.getSavedLogAsString(lastLog);
         jsonData += " }}";
 
         DEBUG_VAR("Saved JSON data:", jsonData);
 
         // delete file only if the message was published
         if (mqtt.publish(jsonData.c_str())) {
-          fileSystem.deleteLogFile(lastLog);
+          fileSystem.deleteSavedLog(lastLog);
           messageSent();
         } else {
           mqttProblem();
@@ -269,7 +269,7 @@ void CoolBoard::onLineMode() {
   if (this->shouldLog()) {
     INFO_LOG("Sending log over MQTT");
     if (!mqtt.publish(jsonData.c_str())) {
-      fileSystem.saveMessageToFile(data.c_str());
+      fileSystem.saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
       mqttProblem();
     } else {
@@ -325,13 +325,9 @@ void CoolBoard::offLineMode() {
   }
 
   if (this->shouldLog()) {
-    if (this->saveAsJSON == 1) {
-      fileSystem.saveMessageToFile(data.c_str());
+    if (this->saveAsJSON) {
+      fileSystem.saveLogToFile(data.c_str());
       INFO_LOG("Saved data as JSON on SPIFFS");
-    }
-    if (this->saveAsCSV == 1) {
-      fileSystem.saveSensorDataCSV(data.c_str());
-      INFO_LOG("Saved data as CSV on SPIFFS");
     }
     this->previousLogTime = millis();
   }

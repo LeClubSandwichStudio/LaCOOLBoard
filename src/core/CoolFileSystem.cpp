@@ -28,92 +28,12 @@
 
 #define JSON_FILE_EXT_SIZE 5
 
-/**
- *  CoolFileSystem::begin():
- *  This method is provided to start the
- *  SPIFFS object.
- *
- *  \return true if SPIFFS was initialized correctly,
- *  false otherwise
- */
 bool CoolFileSystem::begin() {
   bool status = SPIFFS.begin();
   INFO_VAR("SPIFFS starting, status:", status);
   return status;
 }
 
-/**
- *  CoolFileSystem::saveSensorDataCSV( data ):
- *  This method is provided to save the data on the local
- *  memory in CSV format.
- *
- *  \return true if the data was saved,
- *  false otherwise
- */
-bool CoolFileSystem::saveSensorDataCSV(const char *data) {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.parseObject(data);
-  String header = "";
-  String values = "";
-
-  if (!root.success()) {
-    ERROR_LOG("Failed to parse sensor data as json");
-    return (false);
-  }
-  for (auto kv : root) {
-  DEBUG_VAR("Sensor data JSON key:", kv.key);
-  DEBUG_VAR("Sensor data JSON value:", kv.value.as<char *>());
-    header += kv.key;
-    header += ',';
-    values += (kv.value.as<char *>());
-    values += ',';
-  }
-
-  header.remove(header.lastIndexOf(','), 1);
-  values.remove(values.lastIndexOf(','), 1);
-
-  DEBUG_JSON("Sensors data JSON:", root);
-  DEBUG_VAR("CSV header:", header);
-  DEBUG_VAR("CSV values:", values);
-
-  File sensorsData = SPIFFS.open("/sensorsData.csv", "r");
-
-  // FIXME: ouch! this is probably leaking a file handler.
-  if ((!sensorsData) || (sensorsData.size() == 0)) {
-    DEBUG_LOG("/sensorsData.csv not found, creating file");
-    sensorsData = SPIFFS.open("/sensorsData.csv", "w");
-
-    if (!sensorsData) {
-      ERROR_LOG("Failed to create /sensorsData.csv");
-      return (false);
-    }
-    sensorsData.println(header);
-    sensorsData.println(values);
-    sensorsData.close();
-    return (true);
-  } else {
-    DEBUG_LOG("/sensorsData.csv found");
-    DEBUG_LOG("Appending to /sensorsData.csv");
-    sensorsData = SPIFFS.open("/sensorsData.csv", "a");
-
-    if (!sensorsData) {
-      ERROR_LOG("Failed to open /sensorsData.csv for appending");
-      return (false);
-    }
-    sensorsData.println(values);
-    sensorsData.close();
-    return (true);
-  }
-}
-
-/**
- *  CoolFileSystem::updateConfigFiles( mqtt answer ):
- *  This method is provided to update the configuration files when
- *  the appropriate mqtt answer is received
- *
- *  \return true if the files are updated correctly,
- *  false otherwise
- */
 bool CoolFileSystem::updateConfigFiles(String answer) {
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer.c_str());
@@ -197,15 +117,6 @@ bool CoolFileSystem::updateConfigFiles(String answer) {
   return true;
 }
 
-/**
- *  CoolFileSystem::fileUpdate( update msg, file path):
- *  This method is provided to ensure the
- *  correct update for each configuration file in the
- *  File system
- *
- *  \return true if successful , false otherwise
- *
- */
 bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   DEBUG_VAR("Updating config file:", path);
 
@@ -247,13 +158,7 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   return (true);
 }
 
-/**
- *  CoolFileSystem::saveMessageToFile(():
- *  This method is provided to get the
- *  savedData flag from the file system
- *
- */
-bool CoolFileSystem::saveMessageToFile(const char *data) {
+bool CoolFileSystem::saveLogToFile(const char *data) {
   String lastName = "0";
   FSInfo fs_info;
 
@@ -263,10 +168,10 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
     DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
   }
 
-  int nextLog = lastFileSaved();
+  int nextLog = lastSavedLogNumber();
   nextLog++;
   char nextName[32];
-  snprintf(nextName, 32, "/log/%ld.json", nextLog);
+  snprintf(nextName, 32, "/log/%d.json", nextLog);
 
   DEBUG_VAR("Next saved data file name:", nextName);
   if (!SPIFFS.exists(nextName)) {
@@ -286,13 +191,7 @@ bool CoolFileSystem::saveMessageToFile(const char *data) {
   return true;
 }
 
-/**
- *  CoolFileSystem::getsavedData():
- *  This method is provided to get the
- *  savedData flag from the file system
- *
- */
-bool CoolFileSystem::isFileSaved() {
+bool CoolFileSystem::hasSavedLogs() {
   Dir dir = SPIFFS.openDir("/log");
   if (dir.next()) {
     return true;
@@ -301,13 +200,7 @@ bool CoolFileSystem::isFileSaved() {
   }
 }
 
-/**
- *  CoolFileSystem::getsavedData():
- *  This method is provided to get the
- *  savedData flag from the file system
- *
- */
-int CoolFileSystem::lastFileSaved() {
+int CoolFileSystem::lastSavedLogNumber() {
   int next = 0;
   int temp = 0;
   Dir dir = SPIFFS.openDir("/log");
@@ -321,16 +214,10 @@ int CoolFileSystem::lastFileSaved() {
   return next;
 }
 
-/**
- *  CoolFileSystem::getFileString(int):
- *  This method is provided to get the
- *  content of a saved log from SPIFFS
- *
- */
-String CoolFileSystem::getFileString(int num) {
+String CoolFileSystem::getSavedLogAsString(int num) {
   char path[32];
   String data;
-  snprintf(path, 32, "/log/%ld.json", num);
+  snprintf(path, 32, "/log/%d.json", num);
   File f = SPIFFS.open(path, "r");
 
   if (!f) {
@@ -345,17 +232,9 @@ String CoolFileSystem::getFileString(int num) {
   return data;
 }
 
-/**
- *  CoolFileSystem::deleteLogFile(int):
- *  This method is provided to erase a log
- *  from the memory. It returns true or false
- *  if ever there is a SPIFFS problem at this
- *  level
- *
- */
-bool CoolFileSystem::deleteLogFile(int num) {
+bool CoolFileSystem::deleteSavedLog(int num) {
   char logName[32];
-  snprintf(logName, 32, "/log/%ld.json", num);
+  snprintf(logName, 32, "/log/%d.json", num);
 
   if (SPIFFS.remove(logName)){
     INFO_VAR("Deleted log file:", logName);
