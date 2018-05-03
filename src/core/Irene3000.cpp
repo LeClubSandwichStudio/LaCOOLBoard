@@ -229,7 +229,7 @@ void Irene3000::printConf() {
  */
 int Irene3000::readButton() {
   this->setGain(GAIN_TWOTHIRDS);
-  int result = this->ads.readADC_SingleEnded(button);
+  int result = this->ads.readADC_SingleEnded(BUTTON_CHANNEL);
   DEBUG_VAR("Button value:", result);
   return (result);
 }
@@ -254,7 +254,7 @@ void Irene3000::setGain(adsGain_t gain) {
  */
 int Irene3000::readADSChannel2(adsGain_t gain) {
   this->setGain(gain);
-  int result = this->ads.readADC_SingleEnded(freeAdc);
+  int result = this->ads.readADC_SingleEnded(FREE_ADC_CHANNEL);
   DEBUG_VAR("ADC2 value:", result);
   return (result);
 }
@@ -271,12 +271,12 @@ float Irene3000::readPh(double t) {
   // FIXME: Magic numbers
   this->setGain(GAIN_FOUR);
 
-  int adcR = ads.readADC_SingleEnded(ph);
+  int adcR = ads.readADC_SingleEnded(PH_CHANNEL);
   double Voltage = REFERENCE_VOLTAGE_GAIN_4 * (adcR) / ADC_MAXIMUM_VALUE;
   float miliVolts = Voltage * 1000;
   float temporary =
-      ((((vRef * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) /
-      opampGain;
+      ((((REF_VOLTAGE * (float)params.pH7Cal) / 32767) * 1000) - miliVolts) /
+      OPAMP_GAIN;
   float phT = 7 - (temporary / params.pHStep);
 
   DEBUG_VAR("pH value:", phT);
@@ -302,7 +302,7 @@ double Irene3000::readTemp() {
 
   this->setGain(GAIN_EIGHT);
 
-  double adc0 = ads.readADC_SingleEnded(temp);
+  double adc0 = ads.readADC_SingleEnded(TEMP_CHANNEL);
   double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
 
   T = 0.0 - A;
@@ -338,7 +338,7 @@ void Irene3000::calibratepH7() {
   delay(1000);
 
   this->setGain(GAIN_FOUR);
-  this->params.pH7Cal = ads.readADC_SingleEnded(ph);
+  this->params.pH7Cal = ads.readADC_SingleEnded(PH_CHANNEL);
   this->calcpHSlope();
 }
 
@@ -351,7 +351,7 @@ void Irene3000::calibratepH4() {
   delay(1000);
 
   this->setGain(GAIN_FOUR);
-  this->params.pH4Cal = ads.readADC_SingleEnded(ph);
+  this->params.pH4Cal = ads.readADC_SingleEnded(PH_CHANNEL);
   this->calcpHSlope();
 }
 
@@ -362,8 +362,8 @@ void Irene3000::calibratepH4() {
  */
 void Irene3000::calcpHSlope() {
   params.pHStep =
-      ((((vRef * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) /
-       opampGain) /
+      ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) /
+       OPAMP_GAIN) /
       3;
 }
 
@@ -374,7 +374,6 @@ void Irene3000::calcpHSlope() {
  *  assuming Ideal configuration
  */
 void Irene3000::resetParams(void) {
-  params.WriteCheck = Write_Check;
   params.pH7Cal = 16384; // assume ideal probe and amp conditions 1/2 of 4096
   params.pH4Cal = 8192;  // using ideal probe slope we end up this many 12bit
                          // units away on the 4 scale

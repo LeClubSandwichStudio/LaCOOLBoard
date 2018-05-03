@@ -35,12 +35,15 @@
 #define V_GAIN_2 0.0625
 #define V_GAIN_4 0.03125
 #define V_GAIN_8 0.015625
-#define Write_Check 0x1234
 
-#define button 0
-#define temp 1
-#define freeAdc 2
-#define ph 3
+#define REF_VOLTAGE 1.024
+
+#define OPAMP_GAIN 5.25
+
+#define BUTTON_CHANNEL 0
+#define TEMP_CHANNEL 1
+#define PH_CHANNEL 3
+#define FREE_ADC_CHANNEL 2
 
 /**
  *  \class Irene3000
@@ -105,8 +108,7 @@ private:
    *  pHStep : PH Slope Step value
    *
    */
-  struct parameters_T {
-    unsigned int WriteCheck = 0;
+  struct {
     int pH7Cal, pH4Cal = 0;
     float pHStep = 1;
   } params;
@@ -122,22 +124,12 @@ private:
    *  type : the type of the used sensor(used only for the free channel )
    *
    */
-  struct state {
+  struct {
     bool active = 0;
     adsGain_t gain = GAIN_TWOTHIRDS;
     String type = "";
-
   } waterTemp, phProbe, adc2;
 
-  /**
-   *  vRef constant used for ADC conversion
-   */
-  const float vRef = 1.024;
-
-  /**
-   *  opAmpGain constant used for ADC conversion
-   */
-  const float opampGain = 5.25;
 };
 
 #endif
