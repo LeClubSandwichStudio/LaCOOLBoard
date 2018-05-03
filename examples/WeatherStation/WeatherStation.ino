@@ -21,7 +21,7 @@ void setup() {
 }
 
 void loop() {
-  if (coolBoard.isConnected() == 0) {
+  if (coolBoard.isConnected()) {
     coolBoard.onLineMode();
   } else {
     coolBoard.offLineMode();

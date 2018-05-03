@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef CoolBoard_H
-#define CoolBoard_H
+#ifndef COOLBOARD_H
+#define COOLBOARD_H
 
 #include <Arduino.h>
 
@@ -39,172 +39,50 @@
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
-/**
- *  \class  CoolBoard
- *
- *  \brief This class manages the CoolBoard and all of
- *  Its functions
- */
 class CoolBoard {
 
 public:
   void begin();
-
   bool config();
-
   void update(const char *answer);
-
   void offLineMode();
-
   void onLineMode();
-
   int connect();
-
-  int isConnected();
-
+  bool isConnected();
   unsigned long getLogInterval();
-
   void printConf();
-
   void sleep(unsigned long interval);
-
   String readSensors();
-
   String boardData();
-
   bool sendConfig(const char *moduleName, const char *filePath);
-
   void sendPublicIP();
-
   void startAP();
-
   void mqttProblem();
-
   void spiffsProblem();
-
   void messageSent();
-
   unsigned long secondsToNextLog();
-
   bool shouldLog();
 
 private:
-  /**
-   *  fileSystem handler instance
-   */
   CoolFileSystem fileSystem;
-
-  /**
-   *  Sensor Board handler instance
-   */
   CoolBoardSensors coolBoardSensors;
-
-  /**
-   *  Led handler instance
-   */
   CoolBoardLed coolBoardLed;
-
-  /**
-   *  RTC handler instance
-   */
   CoolTime rtc;
-
-  /**
-   *  Wifi handler instance
-   */
   CoolWifi wifiManager;
-
-  /**
-   *  MQTT handler instance
-   */
   CoolMQTT mqtt;
-
-  /**
-   *  Jetpack handler instance
-   */
   Jetpack jetPack;
-
-  /**
-   *  Irene3000 handler instance
-   */
   Irene3000 irene3000;
-
-  /**
-   *  External Sensors handler instance
-   */
   ExternalSensors externalSensors;
-
-  /**
-   *  On Board Actor handler instance
-   */
   CoolBoardActor onBoardActor;
-
-  /**
-   *  ireneActive flag,
-   *  set to 1 when using an Irene module
-   */
-  bool ireneActive = 0;
-
-  /**
-   *  jetpackActive flag,
-   *  set to 1 when using a Jetpack module
-   */
-  bool jetpackActive = 0;
-
-  /**
-   *  externalSensors flag,
-   *  set to 1 when using 1/many external Sensor(s)
-   */
-  bool externalSensorsActive = 0;
-
-  /**
-   *  sleepActive flag,
-   *  set to 1 when using sleep Mode
-   *  in Sleep mode : the CoolBoard will do
-   *  a cycle (init, read sensors, do action,log)
-   *  and go to sleep for a LogInterval period of time
-   */
-  bool sleepActive = 1;
-
-  /**
-   *  manual flag,
-   *  set to 1 when using manual mode
-   *  in manual Mode , user can activate/deactivate
-   *  actors through a specific MQTT command
-   *
-   *  /!\ in manual Mode, receving an update will not reset the CoolBoard
-   *  /!\ resetting the CoolBoard in manual mode will deactivate all actors
-   */
-  bool manual = 0;
-
-  /**
-   *  saveAsJSON Flag,
-   *  save data as JSON String when in offLineMode
-   *  ATTENTION THIS CONSUMES MUCH MORE MEMORY
-   *  THEN SAVING DATA AS CSV
-   */
-  bool saveAsJSON = 1;
-
-  /**
-   *  saveAsCSV Flag,
-   *  save data in a CSV file when in offLineMode
-   *  BEST FOR OFF GRID SOLUTIONS!!!
-   */
-  bool saveAsCSV = 0;
-
-  /**
-  *  log Interval value,
-  *  the period of time between logs
-  -  in Seconds
-  */
+  bool ireneActive = false;
+  bool jetpackActive = false;
+  bool externalSensorsActive = false;
+  bool sleepActive = true;
+  bool manual = false;
+  bool saveAsJSON = true;
+  bool saveAsCSV = false;
   unsigned long logInterval = 3600;
-
-  /**
-   *  last time the Client sent a Message over MQTT
-   *  in ms
-   */
   unsigned long previousLogTime = 0;
-
 };
 
 #endif

@@ -30,17 +30,9 @@
 
 #define SEND_MSG_BATCH 10
 
-/**
- *  CoolBoard::begin():
- *  This method is provided to configure and
- *  start the used CoolKit Parts.
- *  It also starts the first connection try
- *  If Serial is enabled,it prints the configuration
- *  of the used parts.
- */
 void CoolBoard::begin() {
-  pinMode(ENABLE_I2C_PIN, OUTPUT);    // Declare I2C Enable pin
-  pinMode(BOOTSTRAP_PIN, INPUT); // Declare Bootstrap pin
+  pinMode(ENABLE_I2C_PIN, OUTPUT);
+  pinMode(BOOTSTRAP_PIN, INPUT);
   digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
 
@@ -118,36 +110,19 @@ void CoolBoard::begin() {
   delay(100);
 }
 
-/**
- *  CoolBoard::isConnected()
- *
- *  This method is provided to check
- *  if the card is connected to Wifi and MQTT
- *
- *  \return   0 : connected
- *    -1: Wifi Not Connected
- *    -2: MQTT Not Connected
- *
- */
-int CoolBoard::isConnected() {
+bool CoolBoard::isConnected() {
   if (wifiManager.state() != WL_CONNECTED) {
     WARN_LOG("Wifi disconnected");
-    return (-1);
+    return false;
   }
 
   if (mqtt.state() != 0) {
     WARN_LOG("MQTT disconnected");
+    return false;
   }
-  return (0);
+  return true;
 }
 
-/**
- *  CoolBoard::connect():
- *  This method is provided to manage the network
- *  connection and the mqtt connection.
- *
- *   \return mqtt client state
- */
 int CoolBoard::connect() {
   if (wifiManager.wifiCount > 0) {
     this->coolBoardLed.write(BLUE);
@@ -175,17 +150,6 @@ int CoolBoard::connect() {
   return (mqtt.state());
 }
 
-/**
- *  CoolBoard::onLineMode():
- *  This method is provided to manage the online
- *  mode:
- *    - update clock
- *    - read sensor
- *    - do actions
- *    - publish data
- *    - read answer
- *    - update config
- */
 void CoolBoard::onLineMode() {
   if (mqtt.state() != 0) {
     WARN_LOG("Reconnecting MQTT...");
@@ -196,8 +160,7 @@ void CoolBoard::onLineMode() {
   }
 
   // send saved data if any, check once again if the MQTT connection is OK!
-  if (fileSystem.isFileSaved() != 0 && isConnected() == 0 &&
-      mqtt.state() == 0) {
+  if (fileSystem.isFileSaved() != 0 && this->isConnected()) {
     for (int i = 1; i <= SEND_MSG_BATCH; i++) {
       int lastLog = fileSystem.lastFileSaved();
       INFO_VAR("Sending saved log number:", lastLog);
@@ -225,7 +188,7 @@ void CoolBoard::onLineMode() {
     }
     INFO_LOG("Saved data sent");
   }
-  if (isConnected() == 0) {
+  if (this->isConnected()) {
     INFO_LOG("Updating RTC...");
     rtc.update();
   }
@@ -336,16 +299,6 @@ unsigned long CoolBoard::secondsToNextLog() {
   return (seconds > this->logInterval ? this->logInterval : seconds);
 }
 
-/**
- *  CoolBoard::offlineMode():
- *  This method is provided to manage the offLine
- *  mode:
- *    - read sensors
- *    - do actions
- *    - save data in the file system
- *    - if there is WiFi but no Internet : make data available over AP
- *    - if there is no connection : retry to connect
- */
 void CoolBoard::offLineMode() {
   INFO_LOG("COOL Board is in offline mode");
   String data = this->boardData();
@@ -394,18 +347,6 @@ void CoolBoard::offLineMode() {
   }
 }
 
-/**
- *  CoolBoard::config():
- *  This method is provided to configure
- *  the CoolBoard :  -log interval
- *      -irene3000 activated/deactivated
- *      -jetpack activated/deactivated
- *      -external Sensors activated/deactivated
- *      -mqtt server timeout
- *
- *  \return true if configuration is done,
- *  false otherwise
- */
 bool CoolBoard::config() {
   INFO_VAR("MAC address is ", WiFi.macAddress());
 
@@ -499,12 +440,6 @@ bool CoolBoard::config() {
   }
 }
 
-/**
- *  CoolBoard::printConf():
- *  This method is provided to print
- *  the configuration to the Serial
- *  Monitor.
- */
 void CoolBoard::printConf() {
   INFO_LOG("COOL Board configuration");
   INFO_VAR("  Log interval            =", this->logInterval);
@@ -517,11 +452,6 @@ void CoolBoard::printConf() {
   INFO_VAR("  Save as CSV active      =", this->saveAsCSV);
 }
 
-/**
- *  CoolBoard::update(mqtt answer):
- *  This method is provided to handle the
- *  configuration update of the different parts
- */
 void CoolBoard::update(const char *answer) {
   DEBUG_VAR("Update message:", answer);
 
@@ -592,23 +522,8 @@ void CoolBoard::update(const char *answer) {
   }
 }
 
-/**
- *  CoolBoard::getLogInterval():
- *  This method is provided to get
- *  the log interval
- *
- *  \return interval value in s
- */
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
-/**
- *  CoolBoard::readSensors():
- *  This method is provided to read and
- *  format all the sensors data in a
- *  single json.
- *
- *  \return  json string of all the sensors read.
- */
 String CoolBoard::readSensors() {
   String sensorsData;
 
@@ -635,13 +550,6 @@ String CoolBoard::readSensors() {
   return (sensorsData);
 }
 
-/**
- *  CoolBoard::boardData():
- *  This method is provided to
- *  return the board's data.
- *
- *  \return json string of the data's data
- */
 String CoolBoard::boardData() {
   String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
@@ -650,7 +558,7 @@ String CoolBoard::boardData() {
   boardJson += "\",\"mac\":\"";
   boardJson += tempMAC;
   boardJson += "\"";
-  if (isConnected() == 0) {
+  if (this->isConnected()) {
     boardJson += ",\"wifiSignal\":";
     boardJson += WiFi.RSSI();
   }
@@ -659,12 +567,6 @@ String CoolBoard::boardData() {
   return (boardJson);
 }
 
-/**
- *  CoolBoard::sleep(int interval):
- *  This method is provided to allow the
- *  board to enter deepSleep mode for
- *  a period of time equal to interval in s
- */
 void CoolBoard::sleep(unsigned long interval) {
   if (interval > 0) {
     INFO_VAR("Going to sleep for seconds:", interval);
@@ -672,14 +574,6 @@ void CoolBoard::sleep(unsigned long interval) {
   }
 }
 
-/**
- *  CoolBoard::sendConfig( module Name,file path ):
- *  This method is provided to send
- *  all the configuration files
- *  over MQTT
- *
- *  \return true if successful, false if not
- */
 bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   String result;
 
@@ -718,16 +612,8 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   }
 }
 
-/**
- *  CoolBoard::sendPublicIP():
- *  This method is provided to send
- *  the public IP of a device to the
- *  CoolMenu over MQTT
- *
- *  \return true if successful, false if not
- */
 void CoolBoard::sendPublicIP() {
-  if (isConnected() == 0) {
+  if (this->isConnected()) {
     String tempStr = wifiManager.getExternalIP();
     if (tempStr.length() > 6) {
       String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
@@ -739,13 +625,6 @@ void CoolBoard::sendPublicIP() {
   }
 }
 
-/**
- *  CoolBoard::startAP():
- *  This method is provided to check if the user
- *  used the run/load switch to start the AP
- *  for further configuration/download
- *
- */
 void CoolBoard::startAP() {
   if (digitalRead(BOOTSTRAP_PIN) == LOW) {
     INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
@@ -760,12 +639,6 @@ void CoolBoard::startAP() {
   }
 }
 
-/**
- *  CoolBoard::mqttProblem():
- *  This method is provided to signal the user
- *  a problem with the mqtt connection.
- *
- */
 void CoolBoard::mqttProblem() {
   this->coolBoardLed.blink(RED, 0.2);
   delay(200);
@@ -773,12 +646,6 @@ void CoolBoard::mqttProblem() {
   delay(200);
 }
 
-/**
- *  CoolBoard::spiffsProblem():
- *  This method is provided to signal the user
- *  a problem with the mqtt connection.
- *
- */
 void CoolBoard::spiffsProblem() {
   this->coolBoardLed.write(RED);
   while (true) {
@@ -786,12 +653,6 @@ void CoolBoard::spiffsProblem() {
   }
 }
 
-/**
- *  CoolBoard::messageSent():
- *  This method is provided to signal the user
- *  that we just had sent a message.
- *
- */
 void CoolBoard::messageSent() {
   this->coolBoardLed.strobe(WHITE, 0.3);
 }
