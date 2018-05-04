@@ -344,18 +344,13 @@ float CoolBoardSensors::readMoisture() {
 float CoolBoardSensors::readWallMoisture() {
     float val = 0;
     digitalWrite(AnMplex, HIGH); // enable analog Switch to get the moisture
-  
     delay(200);
     for (int i = 0; i<=63; i++)
     {
       digitalWrite(EnMoisture, LOW); // enable moisture sensor and waith a bit
-  
       delay(2);
-  
       val = val + analogRead(A0); // read the value form the moisture sensor
-  
       delay(2);
-  
       digitalWrite(EnMoisture, HIGH); // disable moisture sensor for minimum wear
     }
     val = val / 64;
