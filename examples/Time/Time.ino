@@ -25,19 +25,12 @@ unsigned int localPort = 8888;
 
 void setup() {
   Wire.begin(2, 14);
-
   Serial.begin(115200);
-
   wifiManager.config(ssid, pass, 2, 180, 0);
-
   wifiManager.begin();
-
   wifiManager.printConf();
-
   wifiManager.connect();
-
   clock.config(timeServer, localPort);
-
   clock.begin();
 }
 

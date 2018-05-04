@@ -37,7 +37,6 @@
 #define V_GAIN_8 0.015625
 
 #define REF_VOLTAGE 1.024
-
 #define OPAMP_GAIN 5.25
 
 #define BUTTON_CHANNEL 0

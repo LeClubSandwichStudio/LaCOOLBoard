@@ -30,23 +30,25 @@
 #include "CoolBoardLed.h"
 #include "CoolBoardSensors.h"
 #include "CoolFileSystem.h"
-#include "CoolMQTT.h"
 #include "CoolTime.h"
 #include "CoolWifi.h"
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
+#include "CoolPubSubClient.h"
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
+
+#define MQTT_RETRIES 5
+
 class CoolBoard {
 
 public:
   void begin();
   bool config();
   void update(const char *answer);
-  void offLineMode();
-  void onLineMode();
+  void loop();
   int connect();
   bool isConnected();
   unsigned long getLogInterval();
@@ -62,27 +64,36 @@ public:
   void messageSent();
   unsigned long secondsToNextLog();
   bool shouldLog();
+  void printMqttState(int state);
+  int mqttConnect();
+  bool mqttPublish(String data);
+  bool mqttListen();
+  void mqttCallback(char *topic, byte *payload, unsigned int length);
+
 
 private:
   CoolFileSystem fileSystem;
   CoolBoardSensors coolBoardSensors;
-  CoolBoardLed coolBoardLed;
+  CoolBoardLed led;
   CoolTime rtc;
   CoolWifi wifiManager;
-  CoolMQTT mqtt;
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors externalSensors;
   CoolBoardActor onBoardActor;
+  CoolPubSubClient mqttClient;
+  WiFiClient wifiClient;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
-  bool saveAsJSON = true;
-  bool saveAsCSV = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
+  String mqttId;
+  String mqttServer;
+  String mqttInTopic;
+  String mqttOutTopic;
 };
 
 #endif

@@ -71,7 +71,7 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     INFO_LOG("ph7 calibration finished, hold button to start pH4 calibration");
     this->waitForButtonPress();
     led.write(FUCHSIA);
-    INFO_LOG("Starting pH 4 calibration for 25 seconds");
+    INFO_LOG("Starting pH 4 calibration for 30 seconds");
     delay(30000);
     this->calibratepH4();
     this->saveParams();
@@ -284,8 +284,7 @@ void Irene3000::calibratepH4() {
 void Irene3000::calcpHSlope() {
   params.pHStep =
       ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) /
-       OPAMP_GAIN) /
-      3;
+       OPAMP_GAIN) / 3;
 }
 
 void Irene3000::resetParams(void) {

@@ -16,14 +16,9 @@ CoolBoard coolBoard;
 
 void setup() {
   Serial.begin(115200);
-  coolBoard.config();
   coolBoard.begin();
 }
 
 void loop() {
-  if (coolBoard.isConnected()) {
-    coolBoard.onLineMode();
-  } else {
-    coolBoard.offLineMode();
-  }
+  coolBoard.loop();
 }
