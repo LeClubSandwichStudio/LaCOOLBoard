@@ -217,9 +217,9 @@ int CoolBoard::connect() {
   if (wifiManager.wifiCount > 0) {
     this->coolBoardLed.write(BLUE);
     if (wifiManager.connect() != 3) {
-      this->coolBoardLed.blink(RED, 1);
+      this->coolBoardLed.blink(RED, 10);
     } else {
-      this->coolBoardLed.blink(BLUE, 0.5);
+      this->coolBoardLed.blink(GREEN, 5);
     }
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
