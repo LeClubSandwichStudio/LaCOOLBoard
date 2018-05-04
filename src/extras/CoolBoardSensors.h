@@ -63,6 +63,8 @@ public:
 
   float readMoisture();
 
+  float readWallMoisture();
+
   CoolSI114X lightSensor;
   BME280 envSensor;
 
@@ -111,7 +113,12 @@ private:
   /**
    *  set soilMoistureActive to 1 to have soil Moisture readings
    */
-  bool soilMoistureActive = 1;
+  bool soilMoistureActive = 1; 
+  
+  /**
+  *  set wallMoistureActive to 1 to have soil Moisture readings
+  */
+  bool wallMoistureActive = 0;
 };
 
 #endif

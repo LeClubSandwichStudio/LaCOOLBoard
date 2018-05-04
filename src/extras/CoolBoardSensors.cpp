@@ -166,6 +166,9 @@ String CoolBoardSensors::read() {
   if (soilMoistureActive) {
     root["soilMoisture"] = this->readMoisture();
   }
+  if (wallMoistureActive) {
+    root["wallMoisture"] = this->readWallMoisture();
+  }
   root.printTo(data);
   DEBUG_JSON("Onboard sensors values JSON:", root);
   return (data);
@@ -232,6 +235,10 @@ bool CoolBoardSensors::config() {
         this->soilMoistureActive = json["soilMoisture"];
       }
       json["soilMoisture"] = this->soilMoistureActive;
+      if (json["wallMoisture"].success()) {
+        this->wallMoistureActive = json["wallMoisture"];
+      }
+      json["wallMoisture"] = this->wallMoistureActive;
       coolBoardSensorsConfig.close();
       coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");
       if (!coolBoardSensorsConfig) {
@@ -260,6 +267,7 @@ void CoolBoardSensors::printConf() {
   INFO_VAR("  Light UV             =", lightDataActive.uv);
   INFO_VAR("  Battery voltage      =", vbatActive);
   INFO_VAR("  Soil moisture        =", soilMoistureActive);
+  INFO_VAR("  Wall moisture        =", wallMoistureActive);
 }
 
 /**
@@ -332,3 +340,25 @@ float CoolBoardSensors::readMoisture() {
   DEBUG_VAR("Computed soil moisture:", result);
   return (result);
 }
+
+float CoolBoardSensors::readWallMoisture() {
+    float val = 0;
+    digitalWrite(AnMplex, HIGH); // enable analog Switch to get the moisture
+  
+    delay(200);
+    for (int i = 0; i<=63; i++)
+    {
+      digitalWrite(EnMoisture, LOW); // enable moisture sensor and waith a bit
+  
+      delay(2);
+  
+      val = val + analogRead(A0); // read the value form the moisture sensor
+  
+      delay(2);
+  
+      digitalWrite(EnMoisture, HIGH); // disable moisture sensor for minimum wear
+    }
+    val = val / 64;
+    DEBUG_VAR("Raw wall moisture sensor value:", val);
+    return (float(val));//result);
+  }
