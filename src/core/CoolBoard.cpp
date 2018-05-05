@@ -94,9 +94,9 @@ void CoolBoard::begin() {
       bValue = 8800;
     }
     if (bValue < 2000) {
-      coolBoardLed.write(255, 255, 255);
+      this->coolBoardLed.write(WHITE);
       delay(5000);
-      coolBoardLed.write(0, 30, 0);
+      this->coolBoardLed.write(GREEN);
       bValue = irene3000.readButton();
       if (bValue >= 65000) {
         bValue = 0;
@@ -108,14 +108,14 @@ void CoolBoard::begin() {
         }
         delay(1000);
       }
-      coolBoardLed.write(0, 255, 0);
+      this->coolBoardLed.write(GREEN);
       INFO_LOG("Calibrating the pH probe");
       INFO_LOG("pH 7 calibration for 25 seconds");
       delay(10000);
       irene3000.calibratepH7();
       delay(15000);
       irene3000.calibratepH7();
-      coolBoardLed.write(30, 0, 0);
+      this->coolBoardLed.write(RED);
       bValue = irene3000.readButton();
       if (bValue >= 65000) {
         bValue = 8800;
@@ -127,14 +127,14 @@ void CoolBoard::begin() {
         }
         delay(1000);
       }
-      coolBoardLed.write(255, 0, 0);
+      this->coolBoardLed.write(RED);
       INFO_LOG("pH 4 calibration for 25 seconds");
       delay(10000);
       irene3000.calibratepH4();
       delay(15000);
       irene3000.calibratepH4();
       irene3000.saveParams();
-      coolBoardLed.write(30, 0, 30);
+      this->coolBoardLed.write(FUCHSIA);
       bValue = irene3000.readButton();
       if (bValue >= 65000) {
         bValue = 8800;
@@ -215,17 +215,17 @@ int CoolBoard::isConnected() {
  */
 int CoolBoard::connect() {
   if (wifiManager.wifiCount > 0) {
-    coolBoardLed.write(0, 0, 50);
+    this->coolBoardLed.write(BLUE);
     if (wifiManager.connect() != 3) {
-      coolBoardLed.blink(255, 0, 0, 1);
+      this->coolBoardLed.blink(RED, 1);
     } else {
-      coolBoardLed.blink(0, 25, 25, 0.5);
+      this->coolBoardLed.blink(BLUE, 0.5);
     }
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
     wifiManager.disconnect();
     delay(200);
-    coolBoardLed.write(255, 128, 255);
+    this->coolBoardLed.write(FUCHSIA);
     wifiManager.connectAP();
   }
   delay(100);
@@ -481,8 +481,7 @@ bool CoolBoard::config() {
   coolBoardLed.config();
   coolBoardLed.begin();
   delay(10);
-  coolBoardLed.write(30, 30, 0);
-
+  this->coolBoardLed.write(YELLOW);
   File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
 
   if (!configFile) {
@@ -611,7 +610,7 @@ void CoolBoard::update(const char *answer) {
       INFO_VAR("Manual flag received:", this->manual);
     }
 
-    coolBoardLed.strobe(0, 63, 63, 0.5);
+    this->coolBoardLed.strobe(BLUE, 0.5);
     String answerDesired;
 
     stateDesired.printTo(answerDesired);
@@ -726,7 +725,7 @@ String CoolBoard::readSensors() {
   }
 
   DEBUG_VAR("Sensors data is:", sensorsData);
-  coolBoardLed.blink(0, 30, 0, 0.5); // blink green to say your finished
+  this->coolBoardLed.blink(GREEN, 0.5);
   return (sensorsData);
 }
 
@@ -856,7 +855,7 @@ void CoolBoard::startAP() {
              "configuration...");
     wifiManager.disconnect();
     delay(200);
-    coolBoardLed.write(255, 128, 255); // whiteish violet..
+    this->coolBoardLed.write(FUCHSIA); // whiteish violet..
     wifiManager.connectAP();
     yield();
     delay(500);
@@ -871,9 +870,9 @@ void CoolBoard::startAP() {
  *
  */
 void CoolBoard::mqttProblem() {
-  coolBoardLed.blink(255, 0, 0, 0.2);
+  this->coolBoardLed.blink(RED, 0.2);
   delay(200);
-  coolBoardLed.blink(255, 0, 0, 0.2);
+  this->coolBoardLed.blink(RED, 0.2);
   delay(200);
 }
 
@@ -884,7 +883,7 @@ void CoolBoard::mqttProblem() {
  *
  */
 void CoolBoard::spiffsProblem() {
-  coolBoardLed.write(255, 0, 0);
+  this->coolBoardLed.write(RED);
   while (true) {
     yield();
   }
@@ -897,5 +896,5 @@ void CoolBoard::spiffsProblem() {
  *
  */
 void CoolBoard::messageSent() {
-  coolBoardLed.strobe(20, 20, 20, 0.3); // flash white = message sent
+  this->coolBoardLed.strobe(WHITE, 0.3);
 }

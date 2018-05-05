@@ -28,6 +28,12 @@
 
 #include <NeoPixelBus.h>
 
+#define RED 50, 0, 0
+#define GREEN 0, 50, 0
+#define WHITE 20, 20, 20
+#define YELLOW 30, 30, 0
+#define BLUE 0, 0, 50
+#define FUCHSIA 30, 0, 30
 /**
  *  \class  CoolBoardLed
  *  \brief  This class handles the led in the Sensor Board
