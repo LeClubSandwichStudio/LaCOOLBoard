@@ -164,7 +164,10 @@ String CoolBoardSensors::read() {
     root["Vbat"] = this->readVBat();
   }
   if (soilMoistureActive) {
-    root["soilMoisture"] = this->readMoisture();
+    root["soilMoisture"] = this->readSoilMoisture();
+  }
+  if (wallMoistureActive) {
+    root["wallMoisture"] = this->readWallMoisture();
   }
   root.printTo(data);
   DEBUG_JSON("Onboard sensors values JSON:", root);
@@ -232,6 +235,10 @@ bool CoolBoardSensors::config() {
         this->soilMoistureActive = json["soilMoisture"];
       }
       json["soilMoisture"] = this->soilMoistureActive;
+      if (json["wallMoisture"].success()) {
+        this->wallMoistureActive = json["wallMoisture"];
+      }
+      json["wallMoisture"] = this->wallMoistureActive;
       coolBoardSensorsConfig.close();
       coolBoardSensorsConfig = SPIFFS.open("/coolBoardSensorsConfig.json", "w");
       if (!coolBoardSensorsConfig) {
@@ -260,6 +267,7 @@ void CoolBoardSensors::printConf() {
   INFO_VAR("  Light UV             =", lightDataActive.uv);
   INFO_VAR("  Battery voltage      =", vbatActive);
   INFO_VAR("  Soil moisture        =", soilMoistureActive);
+  INFO_VAR("  Wall moisture        =", wallMoistureActive);
 }
 
 /**
@@ -307,14 +315,14 @@ float CoolBoardSensors::readVBat() {
 }
 
 /**
- *  CoolBoardSensors::readMoisture():
+ *  CoolBoardSensors::readSoilMoisture():
  *  This method is provided to red the
  *  Soil Moisture
  *
  *  \return a float represnting the
  *  soil moisture
  */
-float CoolBoardSensors::readMoisture() {
+float CoolBoardSensors::readSoilMoisture() {
   digitalWrite(EnMoisture, LOW); // enable moisture sensor and wait a bit
   digitalWrite(AnMplex, HIGH);   // enable analog switch to read moisture value
   delay(2000);
@@ -332,3 +340,19 @@ float CoolBoardSensors::readMoisture() {
   DEBUG_VAR("Computed soil moisture:", result);
   return (result);
 }
+
+float CoolBoardSensors::readWallMoisture() {
+    float val = 0;
+    digitalWrite(AnMplex, HIGH); // enable analog Switch to get the moisture
+    delay(200);
+    for (int i = 1; i<=64; i++){     //oversample value 64 times for stable readings
+      digitalWrite(EnMoisture, LOW); // enable moisture sensor and waith a bit
+      delay(2);
+      val = val + analogRead(A0); // read the value form the moisture sensor
+      delay(2);
+      digitalWrite(EnMoisture, HIGH); // disable moisture sensor for minimum wear
+    }
+    val = val / 64; //divide by 64 to get the average
+    DEBUG_VAR("Raw wall moisture sensor value:", val);
+    return (float(val));
+  }

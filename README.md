@@ -126,6 +126,8 @@ The COOL Board embedded software makes heavy use of the SPIFFS for storing its c
 * `uv`: set this to `true` if you want to measure ultraviolet index using the SI114X Sensor
 * `vbat`: set this to `true` if you want to measure battery voltage 
 * `soilMoisture`: set this to `true` if you want to activate the soil moisture sensor	
+* `wallMoisture`: set this to `true` if you want to use the moisture sensor for wall/wood moisture sensing. `soilMoisture` MUST be `false` in this case	
+
 	
 #### `externalSensorsConfig.json`
 
