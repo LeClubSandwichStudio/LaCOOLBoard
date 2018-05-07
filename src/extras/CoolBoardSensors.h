@@ -61,7 +61,7 @@ public:
 
   float readVBat();
 
-  float readMoisture();
+  float readSoilMoisture();
 
   float readWallMoisture();
 

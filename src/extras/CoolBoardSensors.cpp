@@ -164,7 +164,7 @@ String CoolBoardSensors::read() {
     root["Vbat"] = this->readVBat();
   }
   if (soilMoistureActive) {
-    root["soilMoisture"] = this->readMoisture();
+    root["soilMoisture"] = this->readSoilMoisture();
   }
   if (wallMoistureActive) {
     root["wallMoisture"] = this->readWallMoisture();
@@ -315,14 +315,14 @@ float CoolBoardSensors::readVBat() {
 }
 
 /**
- *  CoolBoardSensors::readMoisture():
+ *  CoolBoardSensors::readSoilMoisture():
  *  This method is provided to red the
  *  Soil Moisture
  *
  *  \return a float represnting the
  *  soil moisture
  */
-float CoolBoardSensors::readMoisture() {
+float CoolBoardSensors::readSoilMoisture() {
   digitalWrite(EnMoisture, LOW); // enable moisture sensor and wait a bit
   digitalWrite(AnMplex, HIGH);   // enable analog switch to read moisture value
   delay(2000);
@@ -345,8 +345,7 @@ float CoolBoardSensors::readWallMoisture() {
     float val = 0;
     digitalWrite(AnMplex, HIGH); // enable analog Switch to get the moisture
     delay(200);
-    for (int i = 0; i<=63; i++)
-    {
+    for (int i = 0; i<=63; i++){
       digitalWrite(EnMoisture, LOW); // enable moisture sensor and waith a bit
       delay(2);
       val = val + analogRead(A0); // read the value form the moisture sensor
@@ -355,5 +354,5 @@ float CoolBoardSensors::readWallMoisture() {
     }
     val = val / 64;
     DEBUG_VAR("Raw wall moisture sensor value:", val);
-    return (float(val));//result);
+    return (float(val));
   }
