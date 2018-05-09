@@ -643,9 +643,6 @@ void CoolBoard::update(const char *answer) {
           onBoardActor.write(kv.value.as<bool>());
         }
       }
-    } else {
-      // restart La COOL Board to apply the new configuration
-      ESP.restart();
     }
 
     // Irene calibration through update message
