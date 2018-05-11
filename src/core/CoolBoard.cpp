@@ -188,11 +188,14 @@ void CoolBoard::loop() {
 
   this->mqttListen();
 
-  String data = this->boardData();
-  data.setCharAt(data.lastIndexOf('}'), ',');
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+
+  this->readBoardData(reported);
   INFO_LOG("Collecting sensor data...");
-  data += this->readSensors();
-  data.remove(data.lastIndexOf('{'), 1);
+  this->readSensors(reported);
 
   if (this->manual == 0) {
     INFO_LOG("Actuators configuration: automatic");
@@ -201,26 +204,11 @@ void CoolBoard::loop() {
 
     if (this->jetpackActive) {
       DEBUG_LOG("Collecting Jetpack actuators data...");
-      byte lastAction = jetPack.action;
-      String jetpackStatus =
-          this->jetPack.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-      if (lastAction != this->jetPack.action) {
-        data += jetpackStatus;
-        data.remove(data.lastIndexOf('{'), 1);
-        data.setCharAt(data.indexOf('}'), ',');
-      }
+      this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
     }
 
     DEBUG_LOG("Collecting onboard actuator data...");
-    bool lastActionB = digitalRead(this->onBoardActor.pin);
-    String onBoardActorStatus =
-        this->onBoardActor.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-
-    if (lastActionB != digitalRead(this->onBoardActor.pin)) {
-      data += onBoardActorStatus;
-      data.remove(data.lastIndexOf('{'), 1);
-      data.setCharAt(data.indexOf('}'), ',');
-    }
+    this->onBoardActor.doAction(reported, int(tm.Hour), int(tm.Minute));
   } else {
     INFO_LOG("Actuators configuration: manual");
   }
@@ -235,14 +223,12 @@ void CoolBoard::loop() {
     delay(200);
   }
 
-  String jsonData = "{\"state\":{\"reported\":";
-  jsonData += data;
-  jsonData += "}}";
-
   // publish if we hit logInterval.
   if (this->shouldLog()) {
     INFO_LOG("Sending log over MQTT");
-    if (!this->mqttPublish(jsonData.c_str())) {
+    String data;
+    root.printTo(data);
+    if (!this->mqttPublish(data.c_str())) {
       this->fileSystem.saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
       this->mqttProblem();
@@ -440,47 +426,26 @@ void CoolBoard::update(const char *answer) {
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
-String CoolBoard::readSensors() {
-  String sensorsData;
+void CoolBoard::readSensors(JsonObject &reported) {
 
   digitalWrite(ENABLE_I2C_PIN, HIGH);
-  sensorsData = this->coolBoardSensors.read();
+  this->coolBoardSensors.read(reported);
 
   if (this->externalSensorsActive) {
-    sensorsData += this->externalSensors.read();
-    sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ',');
-    sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ',');
-    sensorsData.remove(sensorsData.lastIndexOf('}'), 1);
-    sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}');
+    this->externalSensors.read(reported);
   }
-  if (ireneActive) {
-    sensorsData += irene3000.read();
-    sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ',');
-    sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ',');
-    sensorsData.remove(sensorsData.lastIndexOf('}'), 1);
-    sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}');
+  if (this->ireneActive) {
+    irene3000.read(reported);
   }
-
-  DEBUG_VAR("Sensors data is:", sensorsData);
   this->led.blink(GREEN, 0.5);
-  return (sensorsData);
 }
 
-String CoolBoard::boardData() {
-  String tempMAC = WiFi.macAddress();
-  tempMAC.replace(":", "");
-  String boardJson = "{\"timestamp\":\"";
-  boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
-  boardJson += "\",\"mac\":\"";
-  boardJson += tempMAC;
-  boardJson += "\"";
+void CoolBoard::readBoardData(JsonObject &reported) {
+  reported["timestamp"] = rtc.getESDate();
+  reported["mac"] = this->mqttId;
   if (this->isConnected()) {
-    boardJson += ",\"wifiSignal\":";
-    boardJson += WiFi.RSSI();
+    reported["wifiSignal"] = WiFi.RSSI();
   }
-  boardJson += "}";
-  DEBUG_VAR("Board data JSON:", boardJson);
-  return (boardJson);
 }
 
 void CoolBoard::sleep(unsigned long interval) {
@@ -498,13 +463,9 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     return (false);
   } else {
-    size_t size = configFile.size();
-
-    // allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    String data = configFile.readString();
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse JSON object");
@@ -566,9 +527,7 @@ void CoolBoard::spiffsProblem() {
   }
 }
 
-void CoolBoard::messageSent() {
-  this->led.strobe(WHITE, 0.3);
-}
+void CoolBoard::messageSent() { this->led.strobe(WHITE, 0.3); }
 
 void CoolBoard::printMqttState(int state) {
   switch (state) {

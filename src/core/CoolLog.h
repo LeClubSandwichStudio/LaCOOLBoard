@@ -13,7 +13,7 @@
                                     : __FILE__)
 
 #ifndef COOL_LEVEL
-# define COOL_LEVEL COOL_INFO
+#define COOL_LEVEL COOL_INFO
 #endif
 
 #ifdef COOL_FUNC_TRACE
@@ -34,15 +34,15 @@
 #endif
 
 #define LOG(level, m)                                                          \
-  do { \
-    ADD_TRACE;                                                                    \
+  do {                                                                         \
+    ADD_TRACE;                                                                 \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.println(F(m));                                                      \
   } while (0)
 #define VAR(level, m, v)                                                       \
-  do {                                                                       \
-    ADD_TRACE; \
+  do {                                                                         \
+    ADD_TRACE;                                                                 \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
@@ -51,7 +51,7 @@
   } while (0)
 #define NBR(level, m, n, f)                                                    \
   do {                                                                         \
-    ADD_TRACE; \
+    ADD_TRACE;                                                                 \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
@@ -60,7 +60,7 @@
   } while (0)
 #define JSON(level, m, j)                                                      \
   do {                                                                         \
-    ADD_TRACE; \
+    ADD_TRACE;                                                                 \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
@@ -74,16 +74,16 @@
 #define CRITICAL_NBR(m, v, f) NBR("ERROR: ", m, v, f)
 #define CRITICAL_JSON(m, j) LOG("ERROR:", m, j)
 #else
-#define CRITICAL_LOG(m)                                                           \
+#define CRITICAL_LOG(m)                                                        \
   do {                                                                         \
   } while (0)
-#define CRITICAL_VAR(m, v)                                                        \
+#define CRITICAL_VAR(m, v)                                                     \
   do {                                                                         \
   } while (0)
-#define CRITICAL_NBR(m, v, f)                                                     \
+#define CRITICAL_NBR(m, v, f)                                                  \
   do {                                                                         \
   } while (0)
-#define CRITICAL_JSON(m, j)                                                       \
+#define CRITICAL_JSON(m, j)                                                    \
   do {                                                                         \
   } while (0)
 #endif
@@ -114,16 +114,16 @@
 #define WARN_NBR(m, v, f) NBR("WARN: ", m, v, f)
 #define WARN_JSON(m, j) LOG("WARN: ", m, j)
 #else
-#define WARN_LOG(m)                                                           \
+#define WARN_LOG(m)                                                            \
   do {                                                                         \
   } while (0)
-#define WARN_VAR(m, v)                                                        \
+#define WARN_VAR(m, v)                                                         \
   do {                                                                         \
   } while (0)
-#define WARN_NBR(m, v, f)                                                     \
+#define WARN_NBR(m, v, f)                                                      \
   do {                                                                         \
   } while (0)
-#define WARN_JSON(m, j)                                                       \
+#define WARN_JSON(m, j)                                                        \
   do {                                                                         \
   } while (0)
 #endif
@@ -134,16 +134,16 @@
 #define INFO_NBR(m, v, f) NBR("INFO: ", m, v, f)
 #define INFO_JSON(m, j) LOG("INFO: ", m, j)
 #else
-#define INFO_LOG(m)                                                           \
+#define INFO_LOG(m)                                                            \
   do {                                                                         \
   } while (0)
-#define INFO_VAR(m, v)                                                        \
+#define INFO_VAR(m, v)                                                         \
   do {                                                                         \
   } while (0)
-#define INFO_NBR(m, v, f)                                                     \
+#define INFO_NBR(m, v, f)                                                      \
   do {                                                                         \
   } while (0)
-#define INFO_JSON(m, j)                                                       \
+#define INFO_JSON(m, j)                                                        \
   do {                                                                         \
   } while (0)
 #endif

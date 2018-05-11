@@ -81,30 +81,17 @@ void Irene3000::calibrate(CoolBoardLed &led) {
   }
 }
 
-String Irene3000::read() {
-  String data;
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-
-  if (!(root.success())) {
-    DEBUG_LOG("Failed to create JSON");
-    return ("");
-  }
-
+void Irene3000::read(JsonObject &root) {
   if (waterTemp.active) {
     root["waterTemp"] = this->readTemp();
-
     if (phProbe.active) {
       root["ph"] = this->readPh(root["waterTemp"].as<double>());
     }
   }
-
   if (adc2.active) {
     root[adc2.type] = this->readADSChannel2(adc2.gain);
   }
-  root.printTo(data);
   DEBUG_JSON("Irene data:", root);
-  return (data);
 }
 
 bool Irene3000::config() {

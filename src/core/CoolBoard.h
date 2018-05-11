@@ -54,8 +54,8 @@ public:
   unsigned long getLogInterval();
   void printConf();
   void sleep(unsigned long interval);
-  String readSensors();
-  String boardData();
+  void readSensors(JsonObject &reported);
+  void readBoardData(JsonObject &reported);
   bool sendConfig(const char *moduleName, const char *filePath);
   void sendPublicIP();
   void startAP();

@@ -23,146 +23,98 @@
 
 #include <FS.h>
 
-#include <ArduinoJson.h>
-
 #include "CoolBoardActor.h"
 #include "CoolLog.h"
 
-/**
- *  CoolBoardActor::begin():
- *  This method is provided to
- *  initialise the CoolBoardActor pin
- */
-void CoolBoardActor::begin() { pinMode(this->pin, OUTPUT); }
+void CoolBoardActor::begin() { pinMode(ONBOARD_ACTUATOR_PIN, OUTPUT); }
 
-/**
- *  CoolBoardActor::write(action):
- *  This method is provided to write
- *  the given action to the CoolBoardActor.
- *
- */
 void CoolBoardActor::write(bool action) {
   DEBUG_VAR("Setting onboard actuator pin to:", action);
-  digitalWrite(this->pin, action);
+  digitalWrite(ONBOARD_ACTUATOR_PIN, action);
 }
 
-/**
- *  CoolBoardActor::doAction(sensor data ):
- *  This method is provided to automate the CoolBoardActor.
- *
- *  The result action is the result of
- *  checking the different flags of the actor
- *  (actif , temporal ,inverted, primaryType
- *  and secondaryType ) and the corresponding
- *  call to the appropriate helping method
- *
- *  \return a string of the actor's state
- *
- */
-String CoolBoardActor::doAction(const char *data, uint8_t hour, uint8_t minute) {
-  DEBUG_VAR("input data is:", data);
+bool CoolBoardActor::getStatus() {
+  return digitalRead(ONBOARD_ACTUATOR_PIN);
+}
+
+void CoolBoardActor::doAction(JsonObject &root, uint8_t hour, uint8_t minute) {
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
 
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.parseObject(data);
-
-  String output;
-  DynamicJsonBuffer jsonBufferOutput;
-  JsonObject &rootOutput = jsonBuffer.createObject();
-
-  if (!root.success()) {
-    ERROR_LOG("Failed to parse actuator action JSON");
-  } else if (!rootOutput.success()) {
-    ERROR_LOG("Failed to create actuator action JSON");
-  } else {
-    DEBUG_JSON("Actuator action JSON:", root);
-
-    // invert the current action state for the actor
-    // if the value is outside the limits
-    if (this->actor.actif == 1) {
-      // check if actor is active
-      if (this->actor.temporal == 0) {
-        // normal actor
-        if (this->actor.inverted == 0) {
-          // not inverted actor
-          this->normalAction(root[this->actor.primaryType].as<float>());
-        } else if (this->actor.inverted == 1) {
-          // inverted actor
-          this->invertedAction(root[this->actor.primaryType].as<float>());
-        }
-      } else if (this->actor.temporal == 1) {
-        // temporal actor
-        if (this->actor.secondaryType == "hour") {
-          // hour actor
-          if (root[this->actor.primaryType].success()) {
-            // mixed hour actor
-            this->mixedHourAction(hour,
-                                  root[this->actor.primaryType].as<float>());
-          } else {
-            // normal hour actor
-            this->hourAction(hour);
-            // root[this->actor.secondaryType].as<int>());
-          }
-        } else if (this->actor.secondaryType == "minute") {
-          // minute actor
-          if (root[this->actor.primaryType].success()) {
-            // mixed minute actor
-            this->mixedMinuteAction(minute,
-                                    root[this->actor.primaryType].as<float>());
-          } else {
-            // normal minute actor
-            this->minuteAction(minute);
-          }
-        } else if (this->actor.secondaryType == "hourMinute") {
-          // hourMinute actor
-          if (root[this->actor.primaryType].success()) {
-            // mixed hourMinute actor
-            this->mixedHourMinuteAction(
-                hour, minute, root[this->actor.primaryType].as<float>());
-          } else {
-            // normal hourMinute actor
-            this->hourMinuteAction(hour, minute);
-          }
-        } else if (this->actor.secondaryType == "") {
-          // normal temporal actor
-          if (root[this->actor.primaryType].success()) {
-            // mixed temporal actor
-            this->mixedTemporalActionOn(
-                root[this->actor.primaryType].as<float>());
-          } else {
-            // normal temporal actor
-            this->temporalActionOn();
-          }
-        }
+  // invert the current action state for the actor
+  // if the value is outside the limits
+  if (this->actor.actif == 1) {
+    // check if actor is active
+    if (this->actor.temporal == 0) {
+      // normal actor
+      if (this->actor.inverted == 0) {
+        // not inverted actor
+        this->normalAction(root[this->actor.primaryType].as<float>());
+      } else if (this->actor.inverted == 1) {
+        // inverted actor
+        this->invertedAction(root[this->actor.primaryType].as<float>());
       }
-    } else if (this->actor.actif == 0) {
-      // disabled actor
-      if (this->actor.temporal == 1) {
-        // temporal actor
+    } else if (this->actor.temporal == 1) {
+      // temporal actor
+      if (this->actor.secondaryType == "hour") {
+        // hour actor
+        if (root[this->actor.primaryType].success()) {
+          // mixed hour actor
+          this->mixedHourAction(hour,
+                                root[this->actor.primaryType].as<float>());
+        } else {
+          // normal hour actor
+          this->hourAction(hour);
+          // root[this->actor.secondaryType].as<int>());
+        }
+      } else if (this->actor.secondaryType == "minute") {
+        // minute actor
+        if (root[this->actor.primaryType].success()) {
+          // mixed minute actor
+          this->mixedMinuteAction(minute,
+                                  root[this->actor.primaryType].as<float>());
+        } else {
+          // normal minute actor
+          this->minuteAction(minute);
+        }
+      } else if (this->actor.secondaryType == "hourMinute") {
+        // hourMinute actor
+        if (root[this->actor.primaryType].success()) {
+          // mixed hourMinute actor
+          this->mixedHourMinuteAction(
+              hour, minute, root[this->actor.primaryType].as<float>());
+        } else {
+          // normal hourMinute actor
+          this->hourMinuteAction(hour, minute);
+        }
+      } else if (this->actor.secondaryType == "") {
+        // normal temporal actor
         if (root[this->actor.primaryType].success()) {
           // mixed temporal actor
-          this->mixedTemporalActionOff(
+          this->mixedTemporalActionOn(
               root[this->actor.primaryType].as<float>());
         } else {
           // normal temporal actor
-          this->temporalActionOff();
+          this->temporalActionOn();
         }
       }
     }
+  } else if (this->actor.actif == 0) {
+    // disabled actor
+    if (this->actor.temporal == 1) {
+      // temporal actor
+      if (root[this->actor.primaryType].success()) {
+        // mixed temporal actor
+        this->mixedTemporalActionOff(root[this->actor.primaryType].as<float>());
+      } else {
+        // normal temporal actor
+        this->temporalActionOff();
+      }
+    }
   }
-  rootOutput["ActB"] = digitalRead(this->pin);
-  rootOutput.printTo(output);
-  return (output);
+  root["ActB"] = digitalRead(ONBOARD_ACTUATOR_PIN);
 }
 
-/**
- *  CoolBoardActor::config():
- *  This method is provided to configure the
- *  CoolBoardActor with a configuration file
- *
- *  \return true if successful,false otherwise
- */
 bool CoolBoardActor::config() {
   File configFile = SPIFFS.open("/coolBoardActorConfig.json", "r");
   if (!configFile) {
@@ -239,12 +191,6 @@ bool CoolBoardActor::config() {
   }
 }
 
-/**
- *  CoolBoardActor::printConf():
- *  This method is provided to
- *  print the configuration to the
- *  Serial Monitor
- */
 void CoolBoardActor::printConf() {
   INFO_LOG("Actuator configuration:");
   INFO_VAR("  Actif          = ", this->actor.actif);
@@ -262,14 +208,6 @@ void CoolBoardActor::printConf() {
   INFO_VAR("  Minute high    = ", this->actor.minuteHigh);
 }
 
-/**
- *  CoolBoardActor::normalAction( measured value):
- *  This method is provided to
- *  handle normal actors.
- *  it changes the action according to wether the
- *  measured value is: > rangeHigh ( deactivate actor)
- *  or < rangeLow (activate actor )
- */
 void CoolBoardActor::normalAction(float measurment) {
   DEBUG_VAR("Sensor value:", measurment);
   DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
@@ -286,15 +224,6 @@ void CoolBoardActor::normalAction(float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::invertedAction( measured value):
- *  This method is provided to
- *  handle inverted actors.
- *  it changes the action according to wether the
- *  measured value is:
- *  > rangeHigh (activate actor)
- *  < rangeLow ( deactivate actor )
- */
 void CoolBoardActor::invertedAction(float measurment) {
   DEBUG_VAR("Sensor value:", measurment);
   DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
@@ -311,15 +240,6 @@ void CoolBoardActor::invertedAction(float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::temporalActionOff( ):
- *  This method is provided to
- *  handle temporal actors.
- *  it changes the action according to:
- *
- *  currentTime - startTime > timeHigh : deactivate actor
- *
- */
 void CoolBoardActor::temporalActionOff() {
   DEBUG_LOG("Temporal actuator");
   DEBUG_VAR("Current millis:", millis());
@@ -337,16 +257,6 @@ void CoolBoardActor::temporalActionOff() {
   }
 }
 
-/**
- *  CoolBoardActor::mixedTemporalActionOff( measured value ):
- *  This method is provided to
- *  handle mixed temporal actors.
- *  it changes the action according to:
- *
- *  currentTime - startTime >= timeHigh :
- *    measured value >= rangeHigh : deactivate actor
- *    measured value < rangeHigh : activate actor
- */
 void CoolBoardActor::mixedTemporalActionOff(float measurment) {
   DEBUG_LOG("Mixed temporal actuator");
   DEBUG_VAR("Current millis:", millis());
@@ -371,15 +281,6 @@ void CoolBoardActor::mixedTemporalActionOff(float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::temporalActionOn( ):
- *  This method is provided to
- *  handle temporal actors.
- *  it changes the action according to :
- *
- *  currentTime - stopTime > timeLow : activate actor
- *
- */
 void CoolBoardActor::temporalActionOn() {
   DEBUG_LOG("Temporal actuator");
   DEBUG_VAR("Current millis:", millis());
@@ -397,17 +298,6 @@ void CoolBoardActor::temporalActionOn() {
   }
 }
 
-/**
- *  CoolBoardActor::mixedTemporalActionOn( measured value ):
- *  This method is provided to
- *  handle mixed temporal actors.
- *  it changes the action according to :
- *
- *  currentTime - stopTime > timeLow :
- *    measured value >= rangeLow : deactivate actor
- *    measured value < rangeLow : activate actor
- *
- */
 void CoolBoardActor::mixedTemporalActionOn(float measurment) {
   DEBUG_LOG("Mixed temporal actuator");
   DEBUG_VAR("Current millis:", millis());
@@ -432,16 +322,6 @@ void CoolBoardActor::mixedTemporalActionOn(float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::hourAction( current hour ):
- *  This method is provided to
- *  handle hour actors.
- *  it changes the action according to:
- *
- *  hour >= hourLow : deactivate the actor
- *  hour >= hourHigh : activate the actor
- *
- */
 void CoolBoardActor::hourAction(uint8_t hour) {
   DEBUG_LOG("Hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
@@ -488,20 +368,6 @@ void CoolBoardActor::hourAction(uint8_t hour) {
   }
 }
 
-/**
- *  CoolBoardActor::mixedHourAction( current hour, measured value ):
- *  This method is provided to
- *  handle mixed hour actors.
- *  it changes the action according to :
- *
- *  hour >= hourLow :
- *    -measuredValue >= rangeHigh : deactivate actor
- *    -measured < rangeHigh : activate actor
- *
- *  hour >= hourHigh :
- *    -measuredValue < rangeLow : activate actor
- *    -measuredValue >=rangeLow : activate actor
- */
 void CoolBoardActor::mixedHourAction(uint8_t hour, float measurment) {
   DEBUG_LOG("Mixed hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
@@ -562,16 +428,6 @@ void CoolBoardActor::mixedHourAction(uint8_t hour, float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::minteAction( current minute ):
- *  This method is provided to
- *  handle minute actors.
- *  it changes the action according to:
- *
- *  minute >= minuteLow : deactivate the actor
- *  minute >= minuteHigh : activate the actor
- *
- */
 void CoolBoardActor::minuteAction(uint8_t minute) {
   DEBUG_LOG("Minute-wise triggered onboard actuator");
   DEBUG_VAR("Current minute:", minute);
@@ -592,20 +448,6 @@ void CoolBoardActor::minuteAction(uint8_t minute) {
   }
 }
 
-/**
- *  CoolBoardActor::mixedMinuteAction( current minute, measured value ):
- *  This method is provided to
- *  handle mixed minute actors.
- *  it changes the action according to :
- *
- *  minute >= minuteLow :
- *    -measuredValue >= rangeHigh : deactivate actor
- *    -measured < rangeHigh : activate actor
- *
- *  minute >= minuteHigh :
- *    -measuredValue < rangeLow : activate actor
- *    -measuredValue >=rangeLow : activate actor
- */
 void CoolBoardActor::mixedMinuteAction(uint8_t minute, float measurment) {
   DEBUG_LOG("Mixed minute-wise triggered onboard actuator");
   DEBUG_VAR("Current minute:", minute);
@@ -636,22 +478,6 @@ void CoolBoardActor::mixedMinuteAction(uint8_t minute, float measurment) {
   }
 }
 
-/**
- *  CoolBoardActor::minteAction( current hour,current minute ):
- *  This method is provided to
- *  handle hour minute actors.
- *  it changes the action according to:
- *
- *  hour == hourLow :
- *    minute >= minuteLow : deactivate the actor
- *
- *  hour >  hourLow : deactivate the actor
- *
- *  hour == hourHigh :
- *    minute >= minteHigh : activate the actor
- *
- *  hour >  hourHigh : activate the actor
- */
 void CoolBoardActor::hourMinuteAction(uint8_t hour, uint8_t minute) {
   DEBUG_LOG("Hour:minute triggered onboard actuator");
   DEBUG_VAR("Current hour:", hour);
@@ -682,30 +508,6 @@ void CoolBoardActor::hourMinuteAction(uint8_t hour, uint8_t minute) {
   }
 }
 
-/**
- *  CoolBoardActor::minteAction( current hour,current minute , measured
- *Value ): This method is provided to handle hour minute actors. it changes
- *the action according to:
- *
- *  hour == hourLow :
- *    minute >= minuteLow :
- *      measuredValue >= rangeHigh : deactivate actor
- *      measuredValue < rangeHigh : activate actor
- *
- *  hour >  hourLow :
- *    measuredValue >= rangeHigh : deactivate actor
- *    measuredValue < rangeHigh : activate actor
- *
- *  hour == hourHigh :
- *    minute >= minteHigh :
- *      measuredValue >= rangeLow : deactivate actor
- *      measuredValue < rangeLow : activate actor
- *
- *  hour >  hourHigh :
- *    measuredValue >= rangeLow : deactivate actor
- *    measuredValue < rangeLow : activate actor
- *
- */
 void CoolBoardActor::mixedHourMinuteAction(uint8_t hour, uint8_t minute,
                                            float measurment) {
   DEBUG_LOG("Mixed Hour:minute triggered onboard actuator");

@@ -51,7 +51,7 @@ public:
   bool config();
   void printConf();
   void setGain(adsGain_t gain);
-  String read();
+  void read(JsonObject &root);
   int readButton();
   int readADSChannel2(adsGain_t gain);
   float readPh(double t);

@@ -23,179 +23,114 @@
 
 #include <FS.h>
 
-#include <ArduinoJson.h>
-
 #include "CoolLog.h"
 #include "Jetpack.h"
 
-// FIXME: Jepack and CoolBoardActor duplicate logic.
-/**
- *  Jetpack::begin():
- *  This method is provided to
- *  initialise the pin that control
- *  the Jetpack shield
- */
 void Jetpack::begin() {
-  pinMode(EnI2C, OUTPUT);
-  pinMode(dataPin, OUTPUT);
-  pinMode(clockPin, OUTPUT);
+  pinMode(JETPACK_I2C_ENABLE_PIN, OUTPUT);
+  pinMode(JETPACK_DATA_PIN, OUTPUT);
+  pinMode(JETPACK_CLOCK_PIN, OUTPUT);
 }
 
-/**
- *  Jetpack::write(action):
- *  This method is provided to write
- *  the given action to the entire Jetpack
- *  action is a Byte (8 bits ), each bit goes
- *  to an output.
- *  MSBFirst
- */
 void Jetpack::write(byte action) {
-  DEBUG_VAR("Setting actuator pin to:", action);
+  DEBUG_VAR("Setting Jetpack actuators to:", action);
   this->action = action;
-  digitalWrite(EnI2C, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-  digitalWrite(EnI2C, HIGH);
+  digitalWrite(JETPACK_I2C_ENABLE_PIN, LOW);
+  shiftOut(JETPACK_DATA_PIN, JETPACK_CLOCK_PIN, MSBFIRST, this->action);
+  digitalWrite(JETPACK_I2C_ENABLE_PIN, HIGH);
 }
 
-/**
- *  Jetpack::writeBit(pin,state):
- *  This method is provided to write
- *  the given state to the given pin
- */
 void Jetpack::writeBit(byte pin, bool state) {
-  DEBUG_VAR("Setting Jetpack actuator pin #:", pin);
+  DEBUG_VAR("Setting Jetpack actuator #:", pin);
   DEBUG_VAR("To state:", state);
   bitWrite(this->action, pin, state);
-  digitalWrite(EnI2C, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, this->action);
-  digitalWrite(EnI2C, HIGH);
+  digitalWrite(JETPACK_I2C_ENABLE_PIN, LOW);
+  shiftOut(JETPACK_DATA_PIN, JETPACK_CLOCK_PIN, MSBFIRST, this->action);
+  digitalWrite(JETPACK_I2C_ENABLE_PIN, HIGH);
 }
 
-/**
- *  Jetpack::doAction(sensor data ):
- *  This method is provided to automate the Jetpack.
- *
- *  The result action is the result of
- *  checking the different flags of an actor
- *  (actif , temporal ,inverted, primaryType
- *  and secondaryType ) and the corresponding
- *  call to the appropriate helping method
- *
- *  \return a string of the current Jetpack state
- *
- */
 // FIXME: merge with CoolBoardActor
-String Jetpack::doAction(const char *data, int hour, int minute) {
-  DEBUG_VAR("input data is:", data);
-  DEBUG_VAR("Hour value:", hour);
-  DEBUG_VAR("Minute value:", minute);
+void Jetpack::doAction(JsonObject &root, int hour, int minute) {
+  for (int i = 0; i < 8; i++) {
+    if (this->actors[i].actif == 1) {
+      // check if actor is enabled
+      if (this->actors[i].temporal == 0) {
+        // normal actor
+        if (this->actors[i].inverted == 0) {
+          // not inverted actor
+          this->normalAction(i, root[this->actors[i].primaryType].as<float>());
 
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.parseObject(data);
-
-  String jetpackState;
-  DynamicJsonBuffer jsonBufferOutput;
-  JsonObject &rootOutput = jsonBufferOutput.createObject();
-
-  if (!root.success()) {
-    ERROR_LOG("Failed to parse jetPack action JSON");
-  } else if (!rootOutput.success()) {
-    ERROR_LOG("Failed to create actuator action JSON");
-  } else {
-    // invert the current action state for each actor
-    // if the value is outside the limits
-    for (int i = 0; i < 8; i++) {
-      if (this->actors[i].actif == 1) {
-        // check if actor is enabled
-        if (this->actors[i].temporal == 0) {
-          // normal actor
-          if (this->actors[i].inverted == 0) {
-            // not inverted actor
-            this->normalAction(i,
+        } else if (this->actors[i].inverted == 1) {
+          // inverted actor
+          this->invertedAction(i,
                                root[this->actors[i].primaryType].as<float>());
-
-          } else if (this->actors[i].inverted == 1) {
-            // inverted actor
-            this->invertedAction(i,
-                                 root[this->actors[i].primaryType].as<float>());
-          }
-        } else if (this->actors[i].temporal == 1) {
-          // temporal actor
-          if (this->actors[i].secondaryType == "hour") {
-            // hour actor
-            if (root[this->actors[i].primaryType].success()) {
-              // mixed hour actor
-              this->mixedHourAction(
-                  i, hour, root[this->actors[i].primaryType].as<float>());
-            } else {
-              // normal hour actor
-              this->hourAction(i, hour);
-            }
-          } else if (this->actors[i].secondaryType == "minute") {
-            // minute actor
-            if (root[this->actors[i].primaryType].success()) {
-              // mixed minute actor
-              this->mixedMinuteAction(
-                  i, root[this->actors[i].secondaryType].as<int>(),
-                  root[this->actors[i].primaryType].as<float>());
-            } else {
-              // normal minute actor
-              this->minuteAction(i,
-                                 root[this->actors[i].secondaryType].as<int>());
-            }
-          } else if (this->actors[i].secondaryType == "hourMinute") {
-            // hourMinute actor
-            if (root[this->actors[i].primaryType].success()) {
-              // mixed hourMinute actor
-              this->mixedHourMinuteAction(
-                  i, hour, minute,
-                  root[this->actors[i].primaryType].as<float>());
-            } else {
-              // normal hourMinute actor
-              this->hourMinuteAction(i, hour, minute);
-            }
-          } else if (this->actors[i].secondaryType == "") {
-            // normal temporal actor
-            if (root[this->actors[i].primaryType].success()) {
-              // mixed temporal actor
-              this->mixedTemporalActionOn(
-                  i, root[this->actors[i].primaryType].as<float>());
-            } else {
-              // normal temporal actor
-              this->temporalActionOff(i);
-            }
-          }
         }
-      } else if (this->actors[i].actif == 0) {
-        // disabled actor
-        if (this->actors[i].temporal == 1) {
-          // temporal actor
+      } else if (this->actors[i].temporal == 1) {
+        // temporal actor
+        if (this->actors[i].secondaryType == "hour") {
+          // hour actor
+          if (root[this->actors[i].primaryType].success()) {
+            // mixed hour actor
+            this->mixedHourAction(
+                i, hour, root[this->actors[i].primaryType].as<float>());
+          } else {
+            // normal hour actor
+            this->hourAction(i, hour);
+          }
+        } else if (this->actors[i].secondaryType == "minute") {
+          // minute actor
+          if (root[this->actors[i].primaryType].success()) {
+            // mixed minute actor
+            this->mixedMinuteAction(
+                i, root[this->actors[i].secondaryType].as<int>(),
+                root[this->actors[i].primaryType].as<float>());
+          } else {
+            // normal minute actor
+            this->minuteAction(i,
+                               root[this->actors[i].secondaryType].as<int>());
+          }
+        } else if (this->actors[i].secondaryType == "hourMinute") {
+          // hourMinute actor
+          if (root[this->actors[i].primaryType].success()) {
+            // mixed hourMinute actor
+            this->mixedHourMinuteAction(
+                i, hour, minute, root[this->actors[i].primaryType].as<float>());
+          } else {
+            // normal hourMinute actor
+            this->hourMinuteAction(i, hour, minute);
+          }
+        } else if (this->actors[i].secondaryType == "") {
+          // normal temporal actor
           if (root[this->actors[i].primaryType].success()) {
             // mixed temporal actor
-            this->mixedTemporalActionOff(
+            this->mixedTemporalActionOn(
                 i, root[this->actors[i].primaryType].as<float>());
           } else {
             // normal temporal actor
-            this->temporalActionOn(i);
+            this->temporalActionOff(i);
           }
         }
       }
-      rootOutput[String("Act") + String(i)] = (bitRead(this->action, i) == 1);
+    } else if (this->actors[i].actif == 0) {
+      // disabled actor
+      if (this->actors[i].temporal == 1) {
+        // temporal actor
+        if (root[this->actors[i].primaryType].success()) {
+          // mixed temporal actor
+          this->mixedTemporalActionOff(
+              i, root[this->actors[i].primaryType].as<float>());
+        } else {
+          // normal temporal actor
+          this->temporalActionOn(i);
+        }
+      }
     }
-    // FIXME: unneeded ?
-    this->write(this->action);
+    root[String("Act") + String(i)] = (bitRead(this->action, i) == 1);
   }
-  rootOutput.printTo(jetpackState);
-  return (jetpackState);
+  // FIXME: unneeded ?
+  this->write(this->action);
 }
 
-/**
- *  Jetpack::config():
- *  This method is provided to configure the
- *  Jetpack with a configuration file
- *
- *  \return true if successful,false otherwise
- */
 bool Jetpack::config() {
   File jetPackConfig = SPIFFS.open("/jetPackConfig.json", "r");
 
@@ -322,12 +257,6 @@ bool Jetpack::config() {
   }
 }
 
-/**
- *  Jetpack::printConf():
- *  This method is provided to
- *  print the configuration to the
- *  Serial Monitor
- */
 void Jetpack::printConf() {
   INFO_LOG("Jetpack configuration");
 
@@ -349,14 +278,6 @@ void Jetpack::printConf() {
   }
 }
 
-/**
- *  Jetpack::normalAction(actorNumber , measured value):
- *  This method is provided to
- *  handle normal actors.
- *  it changes the action according to wether the
- *  measured value is: > rangeHigh ( deactivate actor)
- *  or < rangeLow (activate actor )
- */
 void Jetpack::normalAction(int actorNumber, float measurment) {
   DEBUG_VAR("Actuator #", actorNumber);
   DEBUG_VAR("Sensor value:", measurment);
@@ -374,15 +295,6 @@ void Jetpack::normalAction(int actorNumber, float measurment) {
   }
 }
 
-/**
- *  Jetpack::invertedAction(actorNumber , measured value):
- *  This method is provided to
- *  handle inverted actors.
- *  it changes the action according to wether the
- *  measured value is:
- *  > rangeHigh (activate actor)
- *  < rangeLow ( deactivate actor )
- */
 void Jetpack::invertedAction(int actorNumber, float measurment) {
   DEBUG_VAR("Actuator #", actorNumber);
   DEBUG_VAR("Sensor value:", measurment);
@@ -400,15 +312,6 @@ void Jetpack::invertedAction(int actorNumber, float measurment) {
   }
 }
 
-/**
- *  Jetpack::temporalActionOff(actorNumber ):
- *  This method is provided to
- *  handle temporal actors.
- *  it changes the action according to:
- *
- *  currentTime - startTime > timeHigh : deactivate actor
- *
- */
 void Jetpack::temporalActionOff(int actorNumber) {
   DEBUG_VAR("Temporal actuator #", actorNumber);
   DEBUG_VAR("Current millis:", millis());
@@ -429,16 +332,6 @@ void Jetpack::temporalActionOff(int actorNumber) {
   }
 }
 
-/**
- *  Jetpack::mixedTemporalActionOff(actorNumber, measured value ):
- *  This method is provided to
- *  handle mixed temporal actors.
- *  it changes the action according to:
- *
- *  currentTime - startTime >= timeHigh :
- *    measured value >= rangeHigh : deactivate actor
- *    measured value < rangeHigh : activate actor
- */
 void Jetpack::mixedTemporalActionOff(int actorNumber, float measurment) {
   DEBUG_VAR("Mixed temporal actuator #", actorNumber);
   DEBUG_VAR("Current millis:", millis());
@@ -466,15 +359,6 @@ void Jetpack::mixedTemporalActionOff(int actorNumber, float measurment) {
   }
 }
 
-/**
- *  Jetpack::temporalActionOn(actorNumber ):
- *  This method is provided to
- *  handle temporal actors.
- *  it changes the action according to :
- *
- *  currentTime - stopTime > timeLow : activate actor
- *
- */
 void Jetpack::temporalActionOn(int actorNumber) {
   DEBUG_VAR("Temporal actuator #", actorNumber);
   DEBUG_VAR("Current millis:", millis());
@@ -494,17 +378,6 @@ void Jetpack::temporalActionOn(int actorNumber) {
   // FIXME: missing else clause ?
 }
 
-/**
- *  Jetpack::mixedTemporalActionOn(actorNumber, measured value ):
- *  This method is provided to
- *  handle mixed temporal actors.
- *  it changes the action according to :
- *
- *  currentTime - stopTime > timeLow :
- *    measured value >= rangeLow : deactivate actor
- *    measured value < rangeLow : activate actor
- *
- */
 void Jetpack::mixedTemporalActionOn(int actorNumber, float measurment) {
   DEBUG_VAR("Mixed temporal actuator #", actorNumber);
   DEBUG_VAR("Current millis:", millis());
@@ -531,16 +404,6 @@ void Jetpack::mixedTemporalActionOn(int actorNumber, float measurment) {
   }
 }
 
-/**
- *  Jetpack::hourAction(actorNumber, current hour ):
- *  This method is provided to
- *  handle hour actors.
- *  it changes the action according to:
- *
- *  hour >= hourLow : deactivate the actor
- *  hour >= hourHigh : activate the actor
- *
- */
 void Jetpack::hourAction(int actorNumber, int hour) {
   DEBUG_VAR("Hourly triggered actuator #", actorNumber);
   DEBUG_VAR("Current hour:", hour);
@@ -589,20 +452,6 @@ void Jetpack::hourAction(int actorNumber, int hour) {
   }
 }
 
-/**
- *  Jetpack::mixedHourAction(actorNumber, current hour, measured value ):
- *  This method is provided to
- *  handle mixed hour actors.
- *  it changes the action according to :
- *
- *  hour >= hourLow :
- *    -measuredValue >= rangeHigh : deactivate actor
- *    -measured < rangeHigh : activate actor
- *
- *  hour >= hourHigh :
- *    -measuredValue < rangeLow : activate actor
- *    -measuredValue >=rangeLow : activate actor
- */
 void Jetpack::mixedHourAction(int actorNumber, int hour, float measurment) {
   DEBUG_VAR("Mixed hourly triggered actuator #", actorNumber);
   DEBUG_VAR("Current hour:", hour);
@@ -666,16 +515,6 @@ void Jetpack::mixedHourAction(int actorNumber, int hour, float measurment) {
   }
 }
 
-/**
- *  Jetpack::minteAction(actorNumber, current minute ):
- *  This method is provided to
- *  handle minute actors.
- *  it changes the action according to:
- *
- *  minute >= minuteLow : deactivate the actor
- *  minute >= minuteHigh : activate the actor
- *
- */
 void Jetpack::minuteAction(int actorNumber, int minute) {
   DEBUG_VAR("Minute-wise triggered actuator #", actorNumber);
   DEBUG_VAR("Current minute:", minute);
@@ -696,19 +535,6 @@ void Jetpack::minuteAction(int actorNumber, int minute) {
   }
 }
 
-/**
- *  Jetpack::mixedMinuteAction(actorNumber, current minute, measured value
- *): This method is provided to handle mixed minute actors. it changes the
- *action according to :
- *
- *  minute >= minuteLow :
- *    -measuredValue >= rangeHigh : deactivate actor
- *    -measured < rangeHigh : activate actor
- *
- *  minute >= minuteHigh :
- *    -measuredValue < rangeLow : activate actor
- *    -measuredValue >=rangeLow : activate actor
- */
 void Jetpack::mixedMinuteAction(int actorNumber, int minute, float measurment) {
   DEBUG_VAR("Mixed minute-wise triggered actuator #", actorNumber);
   DEBUG_VAR("Current minute:", minute);
@@ -737,22 +563,6 @@ void Jetpack::mixedMinuteAction(int actorNumber, int minute, float measurment) {
   }
 }
 
-/**
- *  Jetpack::minteAction(actorNumber, current hour,current minute ):
- *  This method is provided to
- *  handle hour minute actors.
- *  it changes the action according to:
- *
- *  hour == hourLow :
- *    minute >= minuteLow : deactivate the actor
- *
- *  hour >  hourLow : deactivate the actor
- *
- *  hour == hourHigh :
- *    minute >= minteHigh : activate the actor
- *
- *  hour >  hourHigh : activate the actor
- */
 void Jetpack::hourMinuteAction(int actorNumber, int hour, int minute) {
   DEBUG_VAR("Hour:minute triggered actuator #", actorNumber);
   DEBUG_VAR("Current hour:", hour);
@@ -785,30 +595,6 @@ void Jetpack::hourMinuteAction(int actorNumber, int hour, int minute) {
   }
 }
 
-/**
- *  Jetpack::minteAction(actorNumber, current hour,current minute , measured
- *Value ): This method is provided to handle hour minute actors. it changes the
- *action according to:
- *
- *  hour == hourLow :
- *    minute >= minuteLow :
- *      measuredValue >= rangeHigh : deactivate actor
- *      measuredValue < rangeHigh : activate actor
- *
- *  hour >  hourLow :
- *    measuredValue >= rangeHigh : deactivate actor
- *    measuredValue < rangeHigh : activate actor
- *
- *  hour == hourHigh :
- *    minute >= minteHigh :
- *      measuredValue >= rangeLow : deactivate actor
- *      measuredValue < rangeLow : activate actor
- *
- *  hour >  hourHigh :
- *    measuredValue >= rangeLow : deactivate actor
- *    measuredValue < rangeLow : activate actor
- *
- */
 void Jetpack::mixedHourMinuteAction(int actorNumber, int hour, int minute,
                                     float measurment) {
   DEBUG_VAR("Mixed hour:minute triggered actuator #", actorNumber);
@@ -842,9 +628,7 @@ void Jetpack::mixedHourMinuteAction(int actorNumber, int hour, int minute,
       bitWrite(this->action, actorNumber, 1);
       DEBUG_VAR("Turned ON actuator (value < range HIGH) for #", actorNumber);
     }
-  }
-  // start the actor
-  else if (hour == this->actors[actorNumber].hourHigh) {
+  } else if (hour == this->actors[actorNumber].hourHigh) {
     if (minute >= this->actors[actorNumber].minuteHigh) {
       if (measurment < this->actors[actorNumber].rangeLow) {
         bitWrite(this->action, actorNumber, 1);
