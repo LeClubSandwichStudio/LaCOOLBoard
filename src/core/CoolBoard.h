@@ -58,6 +58,7 @@ public:
   void readSensors(JsonObject &reported);
   void readBoardData(JsonObject &reported);
   void sendSavedMessages();
+  void sendAllConfig();
   bool sendConfig(const char *moduleName, const char *filePath);
   void sendPublicIP();
   void startAP();
@@ -71,7 +72,6 @@ public:
   bool mqttPublish(String data);
   bool mqttListen();
   void mqttCallback(char *topic, byte *payload, unsigned int length);
-
 
 private:
   CoolFileSystem fileSystem;

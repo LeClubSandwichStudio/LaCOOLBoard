@@ -88,20 +88,7 @@ void CoolBoard::begin() {
   this->rtc.begin();
 
   if (!this->sleepActive) {
-    this->sendConfig("CoolBoard", "/coolBoardConfig.json");
-    this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
-    this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
-    this->sendConfig("rtc", "/rtcConfig.json");
-    this->sendConfig("led", "/coolBoardLedConfig.json");
-    if (this->jetpackActive) {
-      this->sendConfig("jetPack", "/jetPackConfig.json");
-    }
-    if (this->ireneActive) {
-      this->sendConfig("irene3000", "/irene3000Config.json");
-    }
-    if (this->externalSensorsActive) {
-      this->sendConfig("externalSensors", "/externalSensorsConfig.json");
-    }
+    sendAllConfig();
   }
   delay(100);
 }
@@ -217,7 +204,8 @@ void CoolBoard::sendSavedMessages() {
       DynamicJsonBuffer jsonBuffer;
       JsonObject &root = jsonBuffer.createObject();
       JsonObject &state = root.createNestedObject("state");
-      state["reported"] = jsonBuffer.parseObject(fileSystem.getSavedLogAsString(lastLog));
+      state["reported"] =
+          jsonBuffer.parseObject(fileSystem.getSavedLogAsString(lastLog));
 
       String jsonData;
       root.printTo(jsonData);
@@ -250,7 +238,6 @@ void CoolBoard::handleActuators(JsonObject &reported) {
     INFO_LOG("Actuators configuration: manual");
   }
 }
-
 
 bool CoolBoard::shouldLog() {
   unsigned long logIntervalMillis = this->logInterval * 1000;
@@ -460,6 +447,23 @@ void CoolBoard::sleep(unsigned long interval) {
   if (interval > 0) {
     INFO_VAR("Going to sleep for seconds:", interval);
     ESP.deepSleep((interval * 1000 * 1000), WAKE_RF_DEFAULT);
+  }
+}
+
+void CoolBoard::sendAllConfig() {
+  this->sendConfig("CoolBoard", "/coolBoardConfig.json");
+  this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
+  this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
+  this->sendConfig("rtc", "/rtcConfig.json");
+  this->sendConfig("led", "/coolBoardLedConfig.json");
+  if (this->jetpackActive) {
+    this->sendConfig("jetPack", "/jetPackConfig.json");
+  }
+  if (this->ireneActive) {
+    this->sendConfig("irene3000", "/irene3000Config.json");
+  }
+  if (this->externalSensorsActive) {
+    this->sendConfig("externalSensors", "/externalSensorsConfig.json");
   }
 }
 
