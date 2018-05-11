@@ -34,87 +34,56 @@ bool CoolFileSystem::begin() {
   return status;
 }
 
-bool CoolFileSystem::updateConfigFiles(String answer) {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.parseObject(answer.c_str());
-
-  if (!(root.success())) {
-    ERROR_LOG("Failed to parse configuration update message");
-    return (false);
-  }
-  DEBUG_JSON("Configuration update JSON:", root);
-
+void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   JsonObject &jsonCoolBoard = root["CoolBoard"];
   if (jsonCoolBoard.success()) {
     this->fileUpdate(jsonCoolBoard, "/coolBoardConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse COOL Board configuration update");
   }
 
   JsonObject &jsonSensors = root["CoolSensorsBoard"];
   if (jsonSensors.success()) {
     this->fileUpdate(jsonSensors, "/coolBoardSensorsConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse onboard sensors configuration update");
   }
 
   JsonObject &jsonCoolBoardActor = root["CoolBoardActor"];
   if (jsonCoolBoardActor.success()) {
     this->fileUpdate(jsonCoolBoardActor, "/coolBoardActorConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse onboard actuator configuration update");
   }
 
   JsonObject &jsonRTC = root["rtc"];
   if (jsonRTC.success()) {
     this->fileUpdate(jsonRTC, "/rtcConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse clock configuration update");
   }
 
   JsonObject &jsonLedBoard = root["led"];
   if (jsonLedBoard.success()) {
     this->fileUpdate(jsonLedBoard, "/coolBoardLedConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse LED configuration update");
   }
 
   JsonObject &jsonJetpack = root["jetPack"];
   if (jsonJetpack.success()) {
     this->fileUpdate(jsonJetpack, "/jetPackConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse Jetpack configuration update");
   }
 
   JsonObject &jsonIrene = root["irene3000"];
   if (jsonIrene.success()) {
     this->fileUpdate(jsonIrene, "/irene3000Config.json");
-  } else {
-    ERROR_LOG("Failed to parse IRN3000 configuration update");
   }
 
   JsonObject &jsonExternalSensors = root["externalSensors"];
   if (jsonExternalSensors.success()) {
     this->fileUpdate(jsonExternalSensors, "/externalSensorsConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse external sensors configuration update");
   }
 
   JsonObject &jsonMQTT = root["mqtt"];
   if (jsonMQTT.success()) {
     this->fileUpdate(jsonMQTT, "/mqttConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse MQTT configuration update");
   }
 
   JsonObject &jsonWifi = root["wifi"];
   if (jsonWifi.success()) {
     this->fileUpdate(jsonWifi, "/wifiConfig.json");
-  } else {
-    ERROR_LOG("Failed to parse Wifi configuration update");
   }
-
-  return true;
 }
 
 bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {

@@ -32,7 +32,7 @@ class CoolFileSystem {
 
 public:
   bool begin();
-  bool updateConfigFiles(String answer);
+  void updateConfigFiles(JsonObject &root);
   bool fileUpdate(JsonObject &updateJson, const char *path);
   bool saveLogToFile(const char *data);
   bool hasSavedLogs();

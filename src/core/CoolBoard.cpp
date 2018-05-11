@@ -350,28 +350,21 @@ void CoolBoard::printConf() {
 }
 
 void CoolBoard::update(const char *answer) {
-  INFO_VAR("Received new MQTT message:", answer);
-  DEBUG_VAR("Update message:", answer);
+  INFO_LOG("Received new MQTT message");
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
 
-  DEBUG_JSON("Update message JSON:", root);
-  DEBUG_JSON("Desired state JSON:", stateDesired);
 
   if (stateDesired.success()) {
-    DEBUG_LOG("Update message parsing: success");
+    DEBUG_JSON("Desired state JSON:", stateDesired);
     if (stateDesired["CoolBoard"]["manual"].success()) {
       this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
     }
 
     this->led.strobe(BLUE, 0.5);
-    String answerDesired;
-
-    stateDesired.printTo(answerDesired);
-    DEBUG_VAR("Desired state is:", answerDesired);
 
     // manual mode check
     if (this->manual) {
@@ -402,15 +395,14 @@ void CoolBoard::update(const char *answer) {
       }
     }
 
-    this->fileSystem.updateConfigFiles(answerDesired);
+    this->fileSystem.updateConfigFiles(stateDesired);
 
+    JsonObject &newRoot = jsonBuffer.createObject();
+    JsonObject &state = newRoot.createNestedObject("state");
+    state["reported"] = stateDesired;
+    state["desired"] = RawJson("null");
     String updateAnswer;
-    String tempString;
-
-    stateDesired.printTo(tempString);
-    updateAnswer = "{\"state\":{\"reported\":";
-    updateAnswer += tempString;
-    updateAnswer += ",\"desired\":null}}";
+     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttPublish(updateAnswer.c_str());
     delay(10);
