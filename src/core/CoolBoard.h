@@ -56,6 +56,7 @@ public:
   void sleep(unsigned long interval);
   void readSensors(JsonObject &reported);
   void readBoardData(JsonObject &reported);
+  void sendSavedMessages();
   bool sendConfig(const char *moduleName, const char *filePath);
   void sendPublicIP();
   void startAP();

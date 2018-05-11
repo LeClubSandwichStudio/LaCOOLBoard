@@ -85,7 +85,7 @@ void CoolBoard::begin() {
   delay(100);
   this->rtc.begin();
 
-  if (this->sleepActive == 0) {
+  if (!this->sleepActive) {
     this->sendConfig("CoolBoard", "/coolBoardConfig.json");
     this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
     this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
@@ -142,51 +142,52 @@ int CoolBoard::connect() {
     }
     delay(100);
   }
-  this->sendPublicIP();
   return (this->mqttClient.state());
 }
 
-void CoolBoard::loop() {
-  if (!this->isConnected()) {
-    this->connect();
-  }
+void CoolBoard::sendSavedMessages() {
+  for (int i = 0; i < SEND_MSG_BATCH; i++) {
+    int lastLog = this->fileSystem.lastSavedLogNumber();
+    INFO_VAR("Sending saved log number:", lastLog);
+    // only send a log if there is a log. 0 means zero files in the SPIFFS
+    if (lastLog != 0) {
+      DynamicJsonBuffer jsonBuffer;
+      JsonObject &root = jsonBuffer.createObject();
+      JsonObject &state = root.createNestedObject("state");
+      state["reported"] = jsonBuffer.parseObject(fileSystem.getSavedLogAsString(lastLog));
 
-  this->mqttListen();
-
-  // send saved data if any, check once again if the MQTT connection is OK!
-  if (this->fileSystem.hasSavedLogs()) {
-    for (int i = 1; i <= SEND_MSG_BATCH; i++) {
-      int lastLog = this->fileSystem.lastSavedLogNumber();
-      INFO_VAR("Sending saved log number:", lastLog);
-      // only send a log if there is a log. 0 means zero files in the SPIFFS
-      if (lastLog != 0) {
-        String jsonData = "{\"state\":{\"reported\":";
-        jsonData += fileSystem.getSavedLogAsString(lastLog);
-        jsonData += "}}";
-
-        DEBUG_VAR("Saved JSON data:", jsonData);
-
-        // delete file only if the message was published
-        if (this->mqttPublish(jsonData.c_str())) {
-          this->fileSystem.deleteSavedLog(lastLog);
-          this->messageSent();
-        } else {
-          this->mqttProblem();
-          break;
-        }
+      String jsonData;
+      root.printTo(jsonData);
+      DEBUG_VAR("Saved JSON data to send:", jsonData);
+      if (this->mqttPublish(jsonData)) {
+        this->fileSystem.deleteSavedLog(lastLog);
+        this->messageSent();
       } else {
         this->mqttProblem();
         break;
       }
     }
-    INFO_LOG("Saved data sent");
   }
-  if (this->isConnected()) {
-    INFO_LOG("Updating RTC...");
-    this->rtc.update();
+}
+
+void CoolBoard::loop() {
+  INFO_LOG("Connecting...");
+  if (!this->isConnected()) {
+    this->connect();
+    INFO_LOG("Sending public IP...");
+    this->sendPublicIP();
   }
 
+  INFO_LOG("Updating RTC...");
+  this->rtc.update();
+
+  INFO_LOG("Listening to saved messages...");
   this->mqttListen();
+
+  if (this->fileSystem.hasSavedLogs()) {
+    INFO_LOG("Sending saved messages...");
+    this->sendSavedMessages();
+  }
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
