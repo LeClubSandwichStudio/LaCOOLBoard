@@ -58,6 +58,7 @@ void CoolBoard::begin() {
   this->coolBoardSensors.printConf();
   this->onBoardActor.printConf();
   this->wifiManager.printConf();
+  this->rtc.printConf();
 
   if (this->jetpackActive) {
     this->jetPack.config();
@@ -82,6 +83,7 @@ void CoolBoard::begin() {
   }
 
   this->connect();
+  this->sendPublicIP();
   delay(100);
   this->rtc.begin();
 
@@ -101,8 +103,69 @@ void CoolBoard::begin() {
       this->sendConfig("externalSensors", "/externalSensorsConfig.json");
     }
   }
-  this->rtc.printConf();
   delay(100);
+}
+
+void CoolBoard::loop() {
+  INFO_LOG("Connecting...");
+  if (!this->isConnected()) {
+    this->connect();
+    INFO_LOG("Sending public IP...");
+    this->sendPublicIP();
+  }
+
+  INFO_LOG("Updating RTC...");
+  this->rtc.update();
+
+  INFO_LOG("Listening to saved messages...");
+  this->mqttListen();
+
+  if (this->fileSystem.hasSavedLogs()) {
+    INFO_LOG("Sending saved messages...");
+    this->sendSavedMessages();
+  }
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+
+  INFO_LOG("Collecting board and sensor data...");
+  this->readBoardData(reported);
+  this->readSensors(reported);
+
+  INFO_LOG("Setting actuators and reporting their state...");
+  this->handleActuators(reported);
+
+  delay(50);
+
+  if (this->mqttClient.state() != 0) {
+    WARN_LOG("Reconnecting MQTT...");
+    if (this->mqttConnect() != 0) {
+      this->mqttProblem();
+    }
+    delay(200);
+  }
+
+  // publish if we hit logInterval.
+  if (this->shouldLog()) {
+    INFO_LOG("Sending log over MQTT...");
+    String data;
+    root.printTo(data);
+    if (!this->mqttPublish(data.c_str())) {
+      this->fileSystem.saveLogToFile(data.c_str());
+      ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
+      this->mqttProblem();
+    } else {
+      this->messageSent();
+    }
+    this->previousLogTime = millis();
+  }
+
+  this->startAP();
+  if (this->sleepActive) {
+    this->sleep(this->secondsToNextLog());
+  }
 }
 
 bool CoolBoard::isConnected() {
@@ -170,34 +233,7 @@ void CoolBoard::sendSavedMessages() {
   }
 }
 
-void CoolBoard::loop() {
-  INFO_LOG("Connecting...");
-  if (!this->isConnected()) {
-    this->connect();
-    INFO_LOG("Sending public IP...");
-    this->sendPublicIP();
-  }
-
-  INFO_LOG("Updating RTC...");
-  this->rtc.update();
-
-  INFO_LOG("Listening to saved messages...");
-  this->mqttListen();
-
-  if (this->fileSystem.hasSavedLogs()) {
-    INFO_LOG("Sending saved messages...");
-    this->sendSavedMessages();
-  }
-
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-  JsonObject &state = root.createNestedObject("state");
-  JsonObject &reported = state.createNestedObject("reported");
-
-  this->readBoardData(reported);
-  INFO_LOG("Collecting sensor data...");
-  this->readSensors(reported);
-
+void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
     INFO_LOG("Actuators configuration: automatic");
     tmElements_t tm;
@@ -213,37 +249,8 @@ void CoolBoard::loop() {
   } else {
     INFO_LOG("Actuators configuration: manual");
   }
-
-  delay(50);
-
-  if (this->mqttClient.state() != 0) {
-    WARN_LOG("Reconnecting MQTT...");
-    if (this->mqttConnect() != 0) {
-      this->mqttProblem();
-    }
-    delay(200);
-  }
-
-  // publish if we hit logInterval.
-  if (this->shouldLog()) {
-    INFO_LOG("Sending log over MQTT");
-    String data;
-    root.printTo(data);
-    if (!this->mqttPublish(data.c_str())) {
-      this->fileSystem.saveLogToFile(data.c_str());
-      ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
-      this->mqttProblem();
-    } else {
-      this->messageSent();
-    }
-    this->previousLogTime = millis();
-  }
-
-  this->startAP();
-  if (this->sleepActive) {
-    this->sleep(this->secondsToNextLog());
-  }
 }
+
 
 bool CoolBoard::shouldLog() {
   unsigned long logIntervalMillis = this->logInterval * 1000;

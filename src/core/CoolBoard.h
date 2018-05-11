@@ -54,6 +54,7 @@ public:
   unsigned long getLogInterval();
   void printConf();
   void sleep(unsigned long interval);
+  void handleActuators(JsonObject &reported);
   void readSensors(JsonObject &reported);
   void readBoardData(JsonObject &reported);
   void sendSavedMessages();
