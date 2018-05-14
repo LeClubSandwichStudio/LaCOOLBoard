@@ -438,7 +438,7 @@ void CoolBoard::readBoardData(JsonObject &reported) {
 void CoolBoard::sleep(unsigned long interval) {
   if (interval > 0) {
     INFO_VAR("Going to sleep for seconds:", interval);
-    ESP.deepSleep((interval * 1000 * 1000), WAKE_RF_DEFAULT);
+    ESP.deepSleep(uint64 (interval * 1000000), WAKE_RF_DEFAULT);
   }
 }
 
