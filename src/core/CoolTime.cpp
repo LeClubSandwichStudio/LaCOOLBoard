@@ -328,17 +328,15 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
  */
 
 bool CoolTime::config() {
-  File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+  File configFile = SPIFFS.open("/rtcConfig.json", "r");
 
-  if (!rtcConfig) {
+  if (!configFile) {
     ERROR_LOG("Failed to read /rtcConfig.json");
     return (false);
   } else {
-    size_t size = rtcConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    rtcConfig.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse RTC config from file");
@@ -365,15 +363,15 @@ bool CoolTime::config() {
         this->compileTime = json["compileTime"].as<bool>();
       }
       json["compileTime"] = this->compileTime;
-      rtcConfig.close();
-      rtcConfig = SPIFFS.open("/rtcConfig.json", "w");
+      configFile.close();
+      configFile = SPIFFS.open("/rtcConfig.json", "w");
 
-      if (!rtcConfig) {
+      if (!configFile) {
         ERROR_LOG("failed to write RTC config to /rtcConfig.json");
         return (false);
       }
-      json.printTo(rtcConfig);
-      rtcConfig.close();
+      json.printTo(configFile);
+      configFile.close();
       DEBUG_LOG("Saved RTC config to /rtcConfig.json");
       return (true);
     }

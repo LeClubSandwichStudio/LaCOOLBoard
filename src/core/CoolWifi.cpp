@@ -29,12 +29,6 @@
 #include "CoolWifi.h"
 #include "CoolLog.h"
 
-/**
- *  CoolWifi::begin():
- *  This method is provided to set the
- *  wifiMulti Access points and the
- *  wifiManager time out
- */
 void CoolWifi::begin() {
   for (int i = 0; i < this->wifiCount; i++) {
     INFO_VAR("Adding access point:", this->ssid[i]);
@@ -42,53 +36,16 @@ void CoolWifi::begin() {
   }
 }
 
-/**
- *  CoolWifi::state():
- *  This method is provided to return the
- *  Wifi client's state.
- *  \return wifi client state:
- *    WL_NO_SHIELD        = 255,
- *        WL_IDLE_STATUS      = 0,
- *        WL_NO_SSID_AVAIL    = 1,
- *        WL_SCAN_COMPLETED   = 2,
- *        WL_CONNECTED        = 3,
- *        WL_CONNECT_FAILED   = 4,
- *        WL_CONNECTION_LOST  = 5,
- *    WL_DISCONNECTED = 6
- */
 wl_status_t CoolWifi::state() {
   return (WiFi.status());
 }
 
-/**
- *  CoolWifi::disconnect():
- *  This method is provided to disconnect
- *   from current WiFi network and returns
- *  the Wifi client's state.
- *  \return wifi client state:
- *    WL_NO_SHIELD        = 255,
- *        WL_IDLE_STATUS      = 0,
- *        WL_NO_SSID_AVAIL    = 1,
- *        WL_SCAN_COMPLETED   = 2,
- *        WL_CONNECTED        = 3,
- *        WL_CONNECT_FAILED   = 4,
- *        WL_CONNECTION_LOST  = 5,
- *    WL_DISCONNECTED = 6
- */
 wl_status_t CoolWifi::disconnect() {
   WiFi.disconnect();
   DEBUG_VAR("Wifi status:", WiFi.status());
   return (WiFi.status());
 }
 
-/**
- *  CoolWifi::connect( ):
- *  This method is provided to connect to the strongest WiFi
- *  in the provided list of wiFis.
- *  If none are found , it starts the AP mode.
- *
- *  \return wifi state
- */
 wl_status_t CoolWifi::connect() {
   INFO_LOG("Wifi connecting...");
   this->connectWifiMulti();
@@ -124,14 +81,6 @@ void CoolWifi::printStatus(wl_status_t status) {
   }
 }
 
-/**
- *  CoolWifi::connectWifiMulti()
- *  This function is provided to
- *  run the WifiMulti part of the
- *  Wifi connection process
- *
- *  \return wifi state
- */
 wl_status_t CoolWifi::connectWifiMulti() {
   int i = 0;
 
@@ -147,14 +96,6 @@ wl_status_t CoolWifi::connectWifiMulti() {
   return (status);
 }
 
-/**
- *  CoolWifi::connectAP()
- *  This function is provided to
- *  run the WifiManager part of the
- *  Wifi connection process
- *
- *  \return wifi state
- */
 wl_status_t CoolWifi::connectAP() {
   WiFiManager wifiManager;
   String tempMAC = WiFi.macAddress();
@@ -178,16 +119,6 @@ wl_status_t CoolWifi::connectAP() {
   return (status);
 }
 
-/**
- *  CoolWifi::config():
- *  This method is provided to set
- *  the wifi parameters :  -ssid
- *        -pass
- *        -AP timeOut
- *        -wifiCount
- *
- *  \return true if successful,false otherwise
- */
 bool CoolWifi::config() {
   File configFile = SPIFFS.open("/wifiConfig.json", "r");
 
@@ -195,12 +126,10 @@ bool CoolWifi::config() {
     ERROR_LOG("Failed to read /wifiConfig.json");
     return (false);
   } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    configFile.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
+
     if (!json.success()) {
       ERROR_LOG("Failed to parse Wifi config from file");
       return (false);
@@ -249,14 +178,6 @@ bool CoolWifi::config() {
   }
 }
 
-/**
- *  CoolWifi::addWifi(ssid,pass)
- *  This method is provided to add new WiFi
- *  detected by the WiFiManager to
- *  the jsonConfig(if used )
- *
- *  \return true if successfull , false otherwise
- */
 bool CoolWifi::addWifi(String ssid, String pass) {
   this->wifiCount++;
 
@@ -271,11 +192,9 @@ bool CoolWifi::addWifi(String ssid, String pass) {
   if (!configFile) {
     ERROR_LOG("Failed to read /wifiConfig.json");
   } else {
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("failed to parse Wifi config from file");
@@ -310,11 +229,6 @@ bool CoolWifi::addWifi(String ssid, String pass) {
   return (true);
 }
 
-/**
- *  CoolWifi::getExternalIP():
- *  This method is provided to print the
- *  public IP of a device to a String
- */
 String CoolWifi::getExternalIP() {
   WiFiClient client;
   String IP;
@@ -341,11 +255,6 @@ String CoolWifi::getExternalIP() {
   return IP.substring(IP.indexOf("{") + 6, IP.lastIndexOf("}"));
 }
 
-/**
- *  CoolWifi::printConf():
- *  This method is provided to print the
- *  configuration to the Serial Monitor
- */
 void CoolWifi::printConf() {
   INFO_LOG("Wifi configuration");
   INFO_VAR("  Wifi count = ", this->wifiCount);

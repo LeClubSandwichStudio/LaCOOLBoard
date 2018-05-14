@@ -21,44 +21,22 @@
  *
  */
 
-#ifndef ExternalSensors_H
-#define ExternalSensors_H
+#ifndef EXTERNALSENSORS_H
+#define EXTERNALSENSORS_H
+
+#include <ArduinoJson.h>
 
 #include "ExternalSensor.h"
 
-/**
- *  \class ExternalSensors
- *  \brief This class handles the external sensors
- *  run time defintion , configuartion and actions
- *
- */
 class ExternalSensors {
+
 public:
   void begin();
-
-  String read();
-
+  void read(JsonObject &root);
   bool config();
-
-  bool config(String reference[], String type[], uint8_t address[],
-              int sensorsNumber);
-
   void printConf();
 
 private:
-  /**
-   *  Array of 50 External Sensors
-   *
-   *  An External Sensor is described by :
-   *
-   *  sensor.reference : the sensor's reference ( NDIR_I2C...)
-   *
-   *  sensor.type : the sensor's Type ( CO2 , Temperature , .... )
-   *
-   *  sensor.address : the sensor's Address if it has one
-   *
-   *  sensor.exSensor : pointer to the dynmacially instanciated sensor
-   */
   struct sensor {
     String reference = "";
     String type = "";
@@ -70,10 +48,6 @@ private:
     String kind3 = "0";
   } sensors[50];
 
-  /**
-   *  External Sensors Number
-   *  Maximum is 50
-   */
   int sensorsNumber = 0;
 };
 

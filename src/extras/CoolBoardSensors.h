@@ -25,100 +25,53 @@
 #define CoolBoardSensors_H
 
 #include <Arduino.h>
+
+#include <ArduinoJson.h>
 #include <SparkFunBME280.h>
 
 #include "CoolSI114X.h"
 
-/**
- *
- *  \class CoolBoardSensors
- *  \brief This class handles the on-board sensors.
- *
- */
+#define MOISTURE_SENSOR_PIN 13
+#define ANALOG_MULTIPLEXER_PIN 12
+
 class CoolBoardSensors {
 
 public:
   CoolBoardSensors();
-
   void begin();
-
-  String read();
-
+  void read(JsonObject &root);
   void allActive();
-
   void end();
-
   bool config();
-
   void printConf();
-
   void setEnvSensorSettings(uint8_t commInterface = I2C_MODE,
                             uint8_t I2CAddress = 0x76, uint8_t runMode = 3,
                             uint8_t tStandby = 0, uint8_t filter = 0,
                             uint8_t tempOverSample = 1,
                             uint8_t pressOverSample = 1,
                             uint8_t humidOverSample = 1);
-
   float readVBat();
-
   float readSoilMoisture();
-
   float readWallMoisture();
-
   CoolSI114X lightSensor;
   BME280 envSensor;
 
 private:
-  /**
-   *  lightActive structure
-   *
-   *  set visible to 1 to have visibleLight readings
-   *  set ir to 1 to have infraRed readings
-   *  set uv to 1 to have ultraViolet readings
-   */
-  struct lightActive {
-    bool visible = 1;
-    bool ir = 1;
-    bool uv = 1;
+  struct {
+    bool visible = true;
+    bool ir = true;
+    bool uv = true;
   } lightDataActive;
 
-  /**
-   *  airActive structure
-   *
-   *  set temperature to 1 to have temperature readings
-   *  set humidity to 1 to have humidity readings
-   *  set pressure to 1 to have pressure readings
-   */
-  struct airActive {
-    bool temperature = 1;
-    bool humidity = 1;
-    bool pressure = 1;
+  struct {
+    bool temperature = true;
+    bool humidity = true;
+    bool pressure = true;
   } airDataActive;
 
-  /**
-   *   Moisture enable pin
-   */
-  const int EnMoisture = 13;
-
-  /**
-   *  Analog multiplexer: LOW=Vbat, HIGH=Moisture
-   */
-  const int AnMplex = 12;
-
-  /**
-   *  set vbatActive to 1 to have battery voltage readings
-   */
-  bool vbatActive = 1;
-
-  /**
-   *  set soilMoistureActive to 1 to have soil Moisture readings
-   */
-  bool soilMoistureActive = 1; 
-  
-  /**
-  *  set wallMoistureActive to 1 to have soil Moisture readings
-  */
-  bool wallMoistureActive = 0;
+  bool vbatActive = true;
+  bool soilMoistureActive = true;
+  bool wallMoistureActive = false;
 };
 
 #endif

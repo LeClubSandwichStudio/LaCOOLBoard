@@ -30,355 +30,121 @@
 
 #define SEND_MSG_BATCH 10
 
-/**
- *  CoolBoard::begin():
- *  This method is provided to configure and
- *  start the used CoolKit Parts.
- *  It also starts the first connection try
- *  If Serial is enabled,it prints the configuration
- *  of the used parts.
- */
 void CoolBoard::begin() {
-  pinMode(enI2C, OUTPUT);    // Declare I2C Enable pin
-  pinMode(bootstrap, INPUT); // Declare Bootstrap pin
-  this->initReadI2C();
+  this->config();
+  pinMode(ENABLE_I2C_PIN, OUTPUT);
+  pinMode(BOOTSTRAP_PIN, INPUT);
+  digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
 
-  rtc.config();
-  rtc.offGrid();
+  this->rtc.config();
+  this->rtc.offGrid();
   delay(100);
 
-  coolBoardSensors.config();
-  coolBoardSensors.begin();
+  this->coolBoardSensors.config();
+  this->coolBoardSensors.begin();
   delay(100);
 
-  onBoardActor.config();
-  onBoardActor.begin();
+  this->onBoardActor.config();
+  this->onBoardActor.begin();
   delay(100);
 
-  wifiManager.config();
-  wifiManager.begin();
-  delay(100);
-
-  mqtt.config();
-  mqtt.begin();
+  this->wifiManager.config();
+  this->wifiManager.begin();
   delay(100);
 
   this->printConf();
-  coolBoardLed.printConf();
-  coolBoardSensors.printConf();
-  onBoardActor.printConf();
-  wifiManager.printConf();
-  mqtt.printConf();
+  this->led.printConf();
+  this->coolBoardSensors.printConf();
+  this->onBoardActor.printConf();
+  this->wifiManager.printConf();
+  this->rtc.printConf();
 
-  if (jetpackActive) {
-    jetPack.config();
-    jetPack.begin();
-    jetPack.printConf();
+  if (this->jetpackActive) {
+    this->jetPack.config();
+    this->jetPack.begin();
+    this->jetPack.printConf();
     delay(100);
   }
 
-  if (ireneActive) {
-    irene3000.config();
-    irene3000.startADC();
-    coolBoardLed.write(60, 60, 60);
-    delay(2000);
-
-    int bValue = irene3000.readButton();
-
-    if (bValue >= 65000) {
-      bValue = 8800;
-    }
-    bValue = irene3000.readButton();
-    if (bValue >= 65000) {
-      bValue = 8800;
-    }
-    if (bValue < 2000) {
-      this->coolBoardLed.write(WHITE);
-      delay(5000);
-      this->coolBoardLed.write(GREEN);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 0;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-      this->coolBoardLed.write(GREEN);
-      INFO_LOG("Calibrating the pH probe");
-      INFO_LOG("pH 7 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH7();
-      delay(15000);
-      irene3000.calibratepH7();
-      this->coolBoardLed.write(RED);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 8800;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-      this->coolBoardLed.write(RED);
-      INFO_LOG("pH 4 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH4();
-      delay(15000);
-      irene3000.calibratepH4();
-      irene3000.saveParams();
-      this->coolBoardLed.write(FUCHSIA);
-      bValue = irene3000.readButton();
-      if (bValue >= 65000) {
-        bValue = 8800;
-      }
-      while (bValue > 2000) {
-        bValue = irene3000.readButton();
-        if (bValue >= 65000) {
-          bValue = 8800;
-        }
-        delay(1000);
-      }
-    }
-    irene3000.printConf();
+  if (this->ireneActive) {
+    this->irene3000.config();
+    this->irene3000.begin();
+    this->irene3000.calibrate(this->led);
+    this->irene3000.printConf();
     delay(100);
   }
 
-  if (externalSensorsActive) {
-    externalSensors.config();
-    externalSensors.begin();
+  if (this->externalSensorsActive) {
+    this->externalSensors.config();
+    this->externalSensors.begin();
     delay(100);
-    externalSensors.printConf();
+    this->externalSensors.printConf();
   }
 
   this->connect();
-  delay(100);
-  rtc.begin();
-
-  if (this->sleepActive == 0) {
-    this->sendConfig("CoolBoard", "/coolBoardConfig.json");
-    this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
-    this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
-    this->sendConfig("rtc", "/rtcConfig.json");
-    this->sendConfig("led", "/coolBoardLedConfig.json");
-    if (jetpackActive) {
-      this->sendConfig("jetPack", "/jetPackConfig.json");
-    }
-    if (ireneActive) {
-      this->sendConfig("irene3000", "/irene3000Config.json");
-    }
-    if (externalSensorsActive) {
-      this->sendConfig("externalSensors", "/externalSensorsConfig.json");
-    }
-    this->sendConfig("mqtt", "/mqttConfig.json");
-  }
-  rtc.printConf();
-  delay(100);
-}
-
-/**
- *  CoolBoard::isConnected()
- *
- *  This method is provided to check
- *  if the card is connected to Wifi and MQTT
- *
- *  \return   0 : connected
- *    -1: Wifi Not Connected
- *    -2: MQTT Not Connected
- *
- */
-int CoolBoard::isConnected() {
-  if (wifiManager.state() != WL_CONNECTED) {
-    WARN_LOG("Wifi disconnected");
-    return (-1);
-  }
-
-  if (mqtt.state() != 0) {
-    WARN_LOG("MQTT disconnected");
-  }
-  return (0);
-}
-
-/**
- *  CoolBoard::connect():
- *  This method is provided to manage the network
- *  connection and the mqtt connection.
- *
- *   \return mqtt client state
- */
-int CoolBoard::connect() {
-  if (wifiManager.wifiCount > 0) {
-    this->coolBoardLed.write(BLUE);
-    if (wifiManager.connect() != 3) {
-      this->coolBoardLed.blink(RED, 10);
-    } else {
-      this->coolBoardLed.blink(GREEN, 5);
-    }
-  } else {
-    INFO_LOG("No configured Wifi access point, launching configuration portal");
-    wifiManager.disconnect();
-    delay(200);
-    this->coolBoardLed.write(FUCHSIA);
-    wifiManager.connectAP();
-  }
-  delay(100);
-
-  if (wifiManager.state() == WL_CONNECTED) {
-    if (mqtt.connect() != 0) {
-      mqttProblem();
-    }
-    delay(100);
-  }
   this->sendPublicIP();
-  return (mqtt.state());
+  delay(100);
+  this->rtc.begin();
+
+  if (!this->sleepActive) {
+    sendAllConfig();
+  }
+  delay(100);
 }
 
-/**
- *  CoolBoard::onLineMode():
- *  This method is provided to manage the online
- *  mode:
- *    - update clock
- *    - read sensor
- *    - do actions
- *    - publish data
- *    - read answer
- *    - update config
- */
-void CoolBoard::onLineMode() {
-  if (mqtt.state() != 0) {
-    WARN_LOG("Reconnecting MQTT...");
-    if (mqtt.connect() != 0) {
-      mqttProblem();
-    }
-    delay(200);
+void CoolBoard::loop() {
+  INFO_LOG("Connecting...");
+  if (!this->isConnected()) {
+    this->connect();
+    INFO_LOG("Sending public IP...");
+    this->sendPublicIP();
   }
 
-  data = "";
-  answer = "";
+  INFO_LOG("Updating RTC...");
+  this->rtc.update();
 
-  // send saved data if any, check once again if the MQTT connection is OK!
-  if (fileSystem.isFileSaved() != 0 && isConnected() == 0 &&
-      mqtt.state() == 0) {
-    for (int i = 1; i <= SEND_MSG_BATCH; i++) {
-      int lastLog = fileSystem.lastFileSaved();
-      INFO_VAR("Sending saved log number:", lastLog);
-      // only send a log if there is a log. 0 means zero files in the SPIFFS
-      if (lastLog != 0) {
-        mqtt.mqttLoop();
-        String jsonData = "{\"state\":{\"reported\":";
-        jsonData += fileSystem.getFileString(lastLog);
-        jsonData += " }}";
+  INFO_LOG("Listening to saved messages...");
+  this->mqttListen();
 
-        DEBUG_VAR("Saved JSON data:", jsonData);
-
-        // delete file only if the message was published
-        if (mqtt.publish(jsonData.c_str())) {
-          fileSystem.deleteLogFile(lastLog);
-          messageSent();
-        } else {
-          mqttProblem();
-          break;
-        }
-      } else {
-        mqttProblem();
-        break;
-      }
-    }
-    INFO_LOG("Saved data sent");
+  if (this->fileSystem.hasSavedLogs()) {
+    INFO_LOG("Sending saved messages...");
+    this->sendSavedMessages();
   }
-  if (isConnected() == 0) {
-    INFO_LOG("Updating RTC...");
-    rtc.update();
-  }
-  data = this->boardData();
-  data.setCharAt(data.lastIndexOf('}'), ',');
-  INFO_LOG("Collecting sensor data...");
-  data += this->readSensors();
-  data.remove(data.lastIndexOf('{'), 1);
 
-  if (this->manual == 0) {
-    INFO_LOG("Actuators configuration: automatic");
-    tmElements_t tm;
-    tm = rtc.getTimeDate();
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
 
-    if (jetpackActive) {
-      DEBUG_LOG("Collecting Jetpack actuators data...");
-      byte lastAction = jetPack.action;
-      String jetpackStatus =
-          jetPack.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-      if (lastAction != jetPack.action) {
-        data += jetpackStatus;
-        data.remove(data.lastIndexOf('{'), 1);
-        data.setCharAt(data.indexOf('}'), ',');
+  INFO_LOG("Collecting board and sensor data...");
+  this->readBoardData(reported);
+  this->readSensors(reported);
 
-        String jsonJetpackStatus = "{\"state\":{\"reported\":";
-
-        jsonJetpackStatus += jetpackStatus;
-        jsonJetpackStatus += " } }";
-        mqtt.publish(jsonJetpackStatus.c_str());
-      }
-    }
-
-    DEBUG_LOG("Collecting onboard actuator data...");
-    bool lastActionB = digitalRead(onBoardActor.pin);
-    String onBoardActorStatus =
-        onBoardActor.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-
-    // send a message if actor has changed
-    if (lastActionB != digitalRead(onBoardActor.pin)) {
-      data += onBoardActorStatus;
-      data.remove(data.lastIndexOf('{'), 1);
-      data.setCharAt(data.indexOf('}'), ',');
-
-      // send onBoardActorStatus over MQTT
-      String jsonOnBoardActorStatus = "{\"state\":{\"reported\":";
-
-      jsonOnBoardActorStatus += onBoardActorStatus;
-      jsonOnBoardActorStatus += " } }";
-      if (!mqtt.publish(jsonOnBoardActorStatus.c_str())) {
-        mqttProblem();
-      }
-    }
-  } else {
-    INFO_LOG("Actuators configuration: manual");
-  }
+  INFO_LOG("Setting actuators and reporting their state...");
+  this->handleActuators(reported);
 
   delay(50);
 
-  if (mqtt.state() != 0) {
+  if (this->mqttClient.state() != 0) {
     WARN_LOG("Reconnecting MQTT...");
-    if (mqtt.connect() != 0) {
-      mqttProblem();
+    if (this->mqttConnect() != 0) {
+      this->mqttProblem();
     }
     delay(200);
   }
 
-  mqtt.mqttLoop();
-  answer = mqtt.read();
-  if (answer.length() > 0) {
-    this->update(answer.c_str());
-  }
-
-  String jsonData = "{\"state\":{\"reported\":";
-  jsonData += data;
-  jsonData += " } }";
-
   // publish if we hit logInterval.
   if (this->shouldLog()) {
-    INFO_LOG("Sending log over MQTT");
-    if (!mqtt.publish(jsonData.c_str())) {
-      fileSystem.saveMessageToFile(data.c_str());
+    INFO_LOG("Sending log over MQTT...");
+    String data;
+    root.printTo(data);
+    if (!this->mqttPublish(data.c_str())) {
+      this->fileSystem.saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
-      mqttProblem();
+      this->mqttProblem();
     } else {
-      messageSent();
+      this->messageSent();
     }
     this->previousLogTime = millis();
   }
@@ -386,6 +152,90 @@ void CoolBoard::onLineMode() {
   this->startAP();
   if (this->sleepActive) {
     this->sleep(this->secondsToNextLog());
+  }
+}
+
+bool CoolBoard::isConnected() {
+  if (this->wifiManager.state() != WL_CONNECTED) {
+    WARN_LOG("Wifi disconnected");
+    return false;
+  }
+
+  if (this->mqttClient.state() != 0) {
+    WARN_LOG("MQTT disconnected");
+    return false;
+  }
+  return true;
+}
+
+int CoolBoard::connect() {
+  if (this->wifiManager.wifiCount > 0) {
+    this->led.write(BLUE);
+    if (this->wifiManager.connect() != 3) {
+      this->led.blink(RED, 10);
+    } else {
+      this->led.blink(GREEN, 5);
+    }
+  } else {
+    INFO_LOG("No configured Wifi access point, launching configuration portal");
+    this->wifiManager.disconnect();
+    delay(200);
+    this->led.write(FUCHSIA);
+    this->wifiManager.connectAP();
+  }
+  delay(100);
+
+  if (this->wifiManager.state() == WL_CONNECTED) {
+    delay(100);
+    if (this->mqttConnect() != 0) {
+      this->mqttProblem();
+    }
+    delay(100);
+  }
+  return (this->mqttClient.state());
+}
+
+void CoolBoard::sendSavedMessages() {
+  for (int i = 0; i < SEND_MSG_BATCH; i++) {
+    int lastLog = this->fileSystem.lastSavedLogNumber();
+    INFO_VAR("Sending saved log number:", lastLog);
+    // only send a log if there is a log. 0 means zero files in the SPIFFS
+    if (lastLog != 0) {
+      DynamicJsonBuffer jsonBuffer;
+      JsonObject &root = jsonBuffer.createObject();
+      JsonObject &state = root.createNestedObject("state");
+      state["reported"] =
+          jsonBuffer.parseObject(fileSystem.getSavedLogAsString(lastLog));
+
+      String jsonData;
+      root.printTo(jsonData);
+      DEBUG_VAR("Saved JSON data to send:", jsonData);
+      if (this->mqttPublish(jsonData)) {
+        this->fileSystem.deleteSavedLog(lastLog);
+        this->messageSent();
+      } else {
+        this->mqttProblem();
+        break;
+      }
+    }
+  }
+}
+
+void CoolBoard::handleActuators(JsonObject &reported) {
+  if (this->manual == 0) {
+    INFO_LOG("Actuators configuration: automatic");
+    tmElements_t tm;
+    tm = this->rtc.getTimeDate();
+
+    if (this->jetpackActive) {
+      DEBUG_LOG("Collecting Jetpack actuators data...");
+      this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
+    }
+
+    DEBUG_LOG("Collecting onboard actuator data...");
+    this->onBoardActor.doAction(reported, int(tm.Hour), int(tm.Minute));
+  } else {
+    INFO_LOG("Actuators configuration: manual");
   }
 }
 
@@ -404,161 +254,79 @@ unsigned long CoolBoard::secondsToNextLog() {
   return (seconds > this->logInterval ? this->logInterval : seconds);
 }
 
-/**
- *  CoolBoard::offlineMode():
- *  This method is provided to manage the offLine
- *  mode:
- *    - read sensors
- *    - do actions
- *    - save data in the file system
- *    - if there is WiFi but no Internet : make data available over AP
- *    - if there is no connection : retry to connect
- */
-void CoolBoard::offLineMode() {
-  INFO_LOG("COOL Board is in offline mode");
-  data = this->boardData();
-  data.setCharAt(data.lastIndexOf('}'), ',');
-
-  INFO_LOG("Collecting sensors data");
-  data += this->readSensors();
-  data.remove(data.lastIndexOf('{'), 1);
-
-  tmElements_t tm;
-  tm = rtc.getTimeDate();
-  if (jetpackActive) {
-    DEBUG_LOG("Jetpack is active, checking actuators rules");
-    data += jetPack.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-    data.remove(data.lastIndexOf('{'), 1);
-    data.setCharAt(data.indexOf('}'), ',');
-    delay(50);
-  }
-
-  if (onBoardActor.actor.actif == true) {
-    data += onBoardActor.doAction(data.c_str(), int(tm.Hour), int(tm.Minute));
-    data.remove(data.lastIndexOf('{'), 1);
-    data.setCharAt(data.indexOf('}'), ',');
-  }
-
-  if (this->shouldLog()) {
-    if (this->saveAsJSON == 1) {
-      fileSystem.saveMessageToFile(data.c_str());
-      INFO_LOG("Saved data as JSON on SPIFFS");
-    }
-    if (this->saveAsCSV == 1) {
-      fileSystem.saveSensorDataCSV(data.c_str());
-      INFO_LOG("Saved data as CSV on SPIFFS");
-    }
-    this->previousLogTime = millis();
-  }
-
-  if (wifiManager.state() != WL_CONNECTED) {
-    WARN_LOG("Wifi disconnected, retrying...");
-    this->connect();
-  }
-
-  this->startAP();
-  if (this->sleepActive) {
-    this->sleep(this->secondsToNextLog());
-  }
-}
-
-/**
- *  CoolBoard::config():
- *  This method is provided to configure
- *  the CoolBoard :  -log interval
- *      -irene3000 activated/deactivated
- *      -jetpack activated/deactivated
- *      -external Sensors activated/deactivated
- *      -mqtt server timeout
- *
- *  \return true if configuration is done,
- *  false otherwise
- */
 bool CoolBoard::config() {
   INFO_VAR("MAC address is ", WiFi.macAddress());
 
-  fileSystem.begin();
-  coolBoardLed.config();
-  coolBoardLed.begin();
+  this->fileSystem.begin();
+  this->led.config();
+  this->led.begin();
   delay(10);
-  this->coolBoardLed.write(YELLOW);
+  this->led.write(YELLOW);
   File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
 
   if (!configFile) {
     ERROR_LOG("Failed to read /coolBoardConfig.json");
-    spiffsProblem();
+    this->spiffsProblem();
     return (false);
   }
 
   else {
-    size_t size = configFile.size();
-
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse COOL Board configuration as JSON");
-      spiffsProblem();
+      this->spiffsProblem();
       return (false);
-    }
-
-    else {
+    } else {
       if (json["logInterval"].success()) {
         this->logInterval = json["logInterval"].as<unsigned long>();
-      } else {
-        this->logInterval = this->logInterval;
       }
       json["logInterval"] = this->logInterval;
       if (json["ireneActive"].success()) {
         this->ireneActive = json["ireneActive"];
-      } else {
-        this->ireneActive = this->ireneActive;
       }
       json["ireneActive"] = this->ireneActive;
       if (json["jetpackActive"].success()) {
         this->jetpackActive = json["jetpackActive"];
-      } else {
-        this->jetpackActive = this->jetpackActive;
       }
       json["jetpackActive"] = this->jetpackActive;
       if (json["externalSensorsActive"].success()) {
         this->externalSensorsActive = json["externalSensorsActive"];
-      } else {
-        this->externalSensorsActive = this->externalSensorsActive;
       }
       json["externalSensorsActive"] = this->externalSensorsActive;
       if (json["sleepActive"].success()) {
         this->sleepActive = json["sleepActive"];
-      } else {
-        this->sleepActive = this->sleepActive;
       }
       json["sleepActive"] = this->sleepActive;
       if (json["manual"].success()) {
         this->manual = json["manual"].as<bool>();
-      } else {
-        this->manual = this->manual;
       }
       json["manual"] = this->manual;
-      if (json["saveAsJSON"].success()) {
-        this->saveAsJSON = json["saveAsJSON"].as<bool>();
-      } else {
-        this->saveAsJSON = this->saveAsJSON;
+      if (json["mqttServer"].success()) {
+        this->mqttServer = json["mqttServer"].as<String>();
       }
-      json["saveAsJSON"] = this->saveAsJSON;
-      if (json["saveAsCSV"].success()) {
-        this->saveAsCSV = json["saveAsCSV"].as<bool>();
-      } else {
-        this->saveAsCSV = this->saveAsCSV;
-      }
-      json["saveAsCSV"] = this->saveAsCSV;
+      json["mqttServer"] = this->mqttServer;
+
+      this->mqttClient.setClient(this->wifiClient);
+      this->mqttClient.setServer(this->mqttServer.c_str(), 1883);
+      this->mqttClient.setCallback(
+          [this](char *topic, byte *payload, unsigned int length) {
+            this->mqttCallback(topic, payload, length);
+          });
+      this->mqttId = WiFi.macAddress();
+      this->mqttId.replace(F(":"), F(""));
+      this->mqttOutTopic = String(F("$aws/things/")) + this->mqttId +
+                           String(F("/shadow/update"));
+      this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
+                          String(F("/shadow/update/delta"));
       configFile.close();
       configFile = SPIFFS.open("/coolBoardConfig.json", "w");
 
       if (!configFile) {
         ERROR_LOG("failed to write to /coolBoardConfig.json");
-        spiffsProblem();
+        this->spiffsProblem();
         return (false);
       }
 
@@ -570,12 +338,6 @@ bool CoolBoard::config() {
   }
 }
 
-/**
- *  CoolBoard::printConf():
- *  This method is provided to print
- *  the configuration to the Serial
- *  Monitor.
- */
 void CoolBoard::printConf() {
   INFO_LOG("COOL Board configuration");
   INFO_VAR("  Log interval            =", this->logInterval);
@@ -584,37 +346,25 @@ void CoolBoard::printConf() {
   INFO_VAR("  External sensors active =", this->externalSensorsActive);
   INFO_VAR("  Sleep active            =", this->sleepActive);
   INFO_VAR("  Manual active           =", this->manual);
-  INFO_VAR("  Save as JSON active     =", this->saveAsJSON);
-  INFO_VAR("  Save as CSV active      =", this->saveAsCSV);
+  INFO_VAR("  MQTT server:            =", this->mqttServer);
 }
 
-/**
- *  CoolBoard::update(mqtt answer):
- *  This method is provided to handle the
- *  configuration update of the different parts
- */
 void CoolBoard::update(const char *answer) {
-  DEBUG_VAR("Update message:", answer);
+  INFO_LOG("Received new MQTT message");
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
 
-  DEBUG_JSON("Update message JSON:", root);
-  DEBUG_JSON("Desired state JSON:", stateDesired);
 
   if (stateDesired.success()) {
-    DEBUG_LOG("Update message parsing: success");
+    DEBUG_JSON("Desired state JSON:", stateDesired);
     if (stateDesired["CoolBoard"]["manual"].success()) {
       this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
     }
 
-    this->coolBoardLed.strobe(BLUE, 0.5);
-    String answerDesired;
-
-    stateDesired.printTo(answerDesired);
-    DEBUG_VAR("Desired state is:", answerDesired);
+    this->led.strobe(BLUE, 0.5);
 
     // manual mode check
     if (this->manual) {
@@ -624,147 +374,67 @@ void CoolBoard::update(const char *answer) {
         DEBUG_VAR("State:", kv.value.as<bool>());
 
         if (strcmp(kv.key, "Act0") == 0) {
-          jetPack.writeBit(0, kv.value.as<bool>());
+          this->jetPack.writeBit(0, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act1") == 0) {
-          jetPack.writeBit(1, kv.value.as<bool>());
+          this->jetPack.writeBit(1, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act2") == 0) {
-          jetPack.writeBit(2, kv.value.as<bool>());
+          this->jetPack.writeBit(2, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act3") == 0) {
-          jetPack.writeBit(3, kv.value.as<bool>());
+          this->jetPack.writeBit(3, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act4") == 0) {
-          jetPack.writeBit(4, kv.value.as<bool>());
+          this->jetPack.writeBit(4, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act5") == 0) {
-          jetPack.writeBit(5, kv.value.as<bool>());
+          this->jetPack.writeBit(5, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act6") == 0) {
-          jetPack.writeBit(6, kv.value.as<bool>());
+          this->jetPack.writeBit(6, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act7") == 0) {
-          jetPack.writeBit(7, kv.value.as<bool>());
+          this->jetPack.writeBit(7, kv.value.as<bool>());
         } else if (strcmp(kv.key, "ActB") == 0) {
-          onBoardActor.write(kv.value.as<bool>());
+          this->onBoardActor.write(kv.value.as<bool>());
         }
       }
     }
 
-    // Irene calibration through update message
-    if (stateDesired["calibration"].success()) {
-      INFO_LOG("Starting Irene calibration from MQTT update");
-      delay(2000);
-      INFO_LOG("pH 7 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH7();
-      delay(15000);
-      irene3000.calibratepH7();
-      delay(1000);
-      INFO_LOG("pH 7 calibration OK");
-      INFO_LOG("pH 4 calibration for 25 seconds");
-      delay(10000);
-      irene3000.calibratepH4();
-      delay(15000);
-      irene3000.calibratepH4();
-      delay(1000);
-      INFO_LOG("pH 4 calibration OK");
-      irene3000.saveParams();
-    }
-    fileSystem.updateConfigFiles(answerDesired);
+    this->fileSystem.updateConfigFiles(stateDesired);
 
+    JsonObject &newRoot = jsonBuffer.createObject();
+    JsonObject &state = newRoot.createNestedObject("state");
+    state["reported"] = stateDesired;
+    state["desired"] = RawJson("null");
     String updateAnswer;
-    String tempString;
-
-    stateDesired.printTo(tempString);
-    updateAnswer = "{\"state\":{\"reported\":";
-    updateAnswer += tempString;
-    updateAnswer += ",\"desired\":null}}";
+     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
-    mqtt.publish(updateAnswer.c_str());
-    mqtt.mqttLoop();
+    this->mqttPublish(updateAnswer.c_str());
     delay(10);
   } else {
     ERROR_LOG("Failed to parse update message");
   }
 }
 
-/**
- *  CoolBoard::getLogInterval():
- *  This method is provided to get
- *  the log interval
- *
- *  \return interval value in s
- */
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
-/**
- *  CoolBoard::readSensors():
- *  This method is provided to read and
- *  format all the sensors data in a
- *  single json.
- *
- *  \return  json string of all the sensors read.
- */
-String CoolBoard::readSensors() {
-  String sensorsData;
+void CoolBoard::readSensors(JsonObject &reported) {
 
-  this->initReadI2C();
-  sensorsData = coolBoardSensors.read();
+  digitalWrite(ENABLE_I2C_PIN, HIGH);
+  this->coolBoardSensors.read(reported);
 
-  if (externalSensorsActive) {
-    sensorsData += externalSensors.read();
-    sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ',');
-    sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ',');
-    sensorsData.remove(sensorsData.lastIndexOf('}'), 1);
-    sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}');
+  if (this->externalSensorsActive) {
+    this->externalSensors.read(reported);
   }
-  if (ireneActive) {
-    sensorsData += irene3000.read();
-    sensorsData.setCharAt(sensorsData.lastIndexOf('}'), ',');
-    sensorsData.setCharAt(sensorsData.lastIndexOf('{'), ',');
-    sensorsData.remove(sensorsData.lastIndexOf('}'), 1);
-    sensorsData.setCharAt(sensorsData.lastIndexOf(','), '}');
+  if (this->ireneActive) {
+    irene3000.read(reported);
   }
-
-  DEBUG_VAR("Sensors data is:", sensorsData);
-  this->coolBoardLed.blink(GREEN, 0.5);
-  return (sensorsData);
+  this->led.blink(GREEN, 0.5);
 }
 
-/**
- *  CoolBoard::initReadI2C():
- *  This method is provided to enable the I2C
- *  Interface.
- */
-void CoolBoard::initReadI2C() {
-  digitalWrite(enI2C, HIGH); // HIGH = I2C enabled
-}
-
-/**
- *  CoolBoard::boardData():
- *  This method is provided to
- *  return the board's data.
- *
- *  \return json string of the data's data
- */
-String CoolBoard::boardData() {
-  String tempMAC = WiFi.macAddress();
-  tempMAC.replace(":", "");
-  String boardJson = "{\"timestamp\":\"";
-  boardJson += rtc.getESDate(); // "timestamp":"20yy-mm-ddThh:mm:ssZ"
-  boardJson += "\",\"mac\":\"";
-  boardJson += tempMAC;
-  boardJson += "\"";
-  if (isConnected() == 0) {
-    boardJson += ",\"wifiSignal\":";
-    boardJson += WiFi.RSSI();
+void CoolBoard::readBoardData(JsonObject &reported) {
+  reported["timestamp"] = rtc.getESDate();
+  reported["mac"] = this->mqttId;
+  if (this->isConnected()) {
+    reported["wifiSignal"] = WiFi.RSSI();
   }
-  boardJson += "}";
-  DEBUG_VAR("Board data JSON:", boardJson);
-  return (boardJson);
 }
 
-/**
- *  CoolBoard::sleep(int interval):
- *  This method is provided to allow the
- *  board to enter deepSleep mode for
- *  a period of time equal to interval in s
- */
 void CoolBoard::sleep(unsigned long interval) {
   if (interval > 0) {
     INFO_VAR("Going to sleep for seconds:", interval);
@@ -772,30 +442,34 @@ void CoolBoard::sleep(unsigned long interval) {
   }
 }
 
-/**
- *  CoolBoard::sendConfig( module Name,file path ):
- *  This method is provided to send
- *  all the configuration files
- *  over MQTT
- *
- *  \return true if successful, false if not
- */
+void CoolBoard::sendAllConfig() {
+  this->sendConfig("CoolBoard", "/coolBoardConfig.json");
+  this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
+  this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
+  this->sendConfig("rtc", "/rtcConfig.json");
+  this->sendConfig("led", "/coolBoardLedConfig.json");
+  if (this->jetpackActive) {
+    this->sendConfig("jetPack", "/jetPackConfig.json");
+  }
+  if (this->ireneActive) {
+    this->sendConfig("irene3000", "/irene3000Config.json");
+  }
+  if (this->externalSensorsActive) {
+    this->sendConfig("externalSensors", "/externalSensorsConfig.json");
+  }
+}
+
 bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   String result;
 
-  // open file
   File configFile = SPIFFS.open(filePath, "r");
   if (!configFile) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     return (false);
   } else {
-    size_t size = configFile.size();
-
-    // allocate a buffer to store contents of the file.
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    String data = configFile.readString();
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse JSON object");
@@ -811,87 +485,158 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
       result += "\":";
       result += temporary;
       result += "} } }";
-      mqtt.publish(result.c_str());
-      mqtt.mqttLoop();
-      return (true);
+      return (this->mqttPublish(result.c_str()));
     }
   }
 }
 
-/**
- *  CoolBoard::sendPublicIP():
- *  This method is provided to send
- *  the public IP of a device to the
- *  CoolMenu over MQTT
- *
- *  \return true if successful, false if not
- */
 void CoolBoard::sendPublicIP() {
-  if (isConnected() == 0) {
-    String tempStr = wifiManager.getExternalIP();
+  if (this->isConnected()) {
+    String tempStr = this->wifiManager.getExternalIP();
     if (tempStr.length() > 6) {
       String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
       publicIP += tempStr;
       publicIP += "}}}";
       INFO_VAR("Sending public IP address:", tempStr);
-      mqtt.publish(publicIP.c_str());
+      this->mqttPublish(publicIP.c_str());
     }
   }
 }
 
-/**
- *  CoolBoard::startAP():
- *  This method is provided to check if the user
- *  used the run/load switch to start the AP
- *  for further configuration/download
- *
- */
 void CoolBoard::startAP() {
-  if (digitalRead(bootstrap) == LOW) {
+  if (digitalRead(BOOTSTRAP_PIN) == LOW) {
     INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
              "configuration...");
-    wifiManager.disconnect();
+    this->wifiManager.disconnect();
     delay(200);
-    this->coolBoardLed.write(FUCHSIA); // whiteish violet..
-    wifiManager.connectAP();
+    this->led.write(FUCHSIA);
+    this->wifiManager.connectAP();
     yield();
     delay(500);
     ESP.restart();
   }
 }
 
-/**
- *  CoolBoard::mqttProblem():
- *  This method is provided to signal the user
- *  a problem with the mqtt connection.
- *
- */
 void CoolBoard::mqttProblem() {
-  this->coolBoardLed.blink(RED, 0.2);
+  this->led.blink(RED, 0.2);
   delay(200);
-  this->coolBoardLed.blink(RED, 0.2);
+  this->led.blink(RED, 0.2);
   delay(200);
 }
 
-/**
- *  CoolBoard::spiffsProblem():
- *  This method is provided to signal the user
- *  a problem with the mqtt connection.
- *
- */
 void CoolBoard::spiffsProblem() {
-  this->coolBoardLed.write(RED);
+  this->led.write(RED);
   while (true) {
     yield();
   }
 }
 
-/**
- *  CoolBoard::messageSent():
- *  This method is provided to signal the user
- *  that we just had sent a message.
- *
- */
-void CoolBoard::messageSent() {
-  this->coolBoardLed.strobe(WHITE, 0.3);
+void CoolBoard::messageSent() { this->led.strobe(WHITE, 0.3); }
+
+void CoolBoard::printMqttState(int state) {
+  switch (state) {
+  case MQTT_CONNECTION_TIMEOUT:
+    ERROR_LOG("MQTT state: connection timeout");
+    break;
+  case MQTT_CONNECTION_LOST:
+    ERROR_LOG("MQTT state: connection lost");
+    break;
+  case MQTT_CONNECT_FAILED:
+    ERROR_LOG("MQTT state: connection failed");
+    break;
+  case MQTT_DISCONNECTED:
+    ERROR_LOG("MQTT state: disconnected");
+    break;
+  case MQTT_CONNECTED:
+    INFO_LOG("MQTT state: connected");
+    break;
+  case MQTT_CONNECT_BAD_PROTOCOL:
+    ERROR_LOG("MQTT state: connection failed, bad protocol version");
+    break;
+  case MQTT_CONNECT_BAD_CLIENT_ID:
+    ERROR_LOG("MQTT state: connection failed, bad client ID");
+    break;
+  case MQTT_CONNECT_UNAVAILABLE:
+    ERROR_LOG("MQTT state: connection failed, server rejected client");
+    break;
+  case MQTT_CONNECT_BAD_CREDENTIALS:
+    ERROR_LOG("MQTT state: connection failed, bad credentials");
+    break;
+  case MQTT_CONNECT_UNAUTHORIZED:
+    ERROR_LOG("MQTT state: connection failed, client unauthorized");
+    break;
+  default:
+    ERROR_LOG("MQTT state: connection status unknown");
+  }
+}
+
+int CoolBoard::mqttConnect() {
+  int i = 0;
+
+  INFO_LOG("MQTT connecting...");
+  DEBUG_VAR("MQTT client id:", this->mqttId);
+  while (!this->mqttClient.connected() && i < MQTT_RETRIES) {
+    if (this->mqttClient.connect(this->mqttId.c_str())) {
+      this->mqttClient.subscribe(this->mqttInTopic.c_str());
+      INFO_LOG("Subscribed to MQTT input topic");
+    } else {
+      WARN_LOG("MQTT connection failed, retrying");
+    }
+    delay(5);
+    i++;
+  }
+  int state = this->mqttClient.state();
+  this->printMqttState(state);
+  return (state);
+}
+
+bool CoolBoard::mqttPublish(String data) {
+  DEBUG_VAR("Message to publish:", data);
+  DEBUG_VAR("Message size:", data.length());
+
+  uint8_t retries = 0;
+  bool published = false;
+
+  do {
+    published =
+        this->mqttClient.publish(this->mqttOutTopic.c_str(),
+                                 (byte *)(data.c_str()), data.length(), false);
+    if (!published) {
+      WARN_LOG("MQTT publish failed, retrying...");
+      if (!this->isConnected()) {
+        WARN_LOG("Wifi offline, reconnecting...");
+        this->connect();
+      }
+    }
+    retries++;
+  } while (!published && retries < MQTT_RETRIES);
+  if (published) {
+    INFO_LOG("MQTT publish successful");
+  } else {
+    ERROR_LOG("MQTT publish failed, no more retries left!");
+  }
+  return (published);
+}
+
+bool CoolBoard::mqttListen() {
+  bool success = false;
+  unsigned long lastTime = millis();
+
+  while ((millis() - lastTime) < 2000) {
+    success = this->mqttClient.loop();
+    if (!success) {
+      this->connect();
+    }
+    yield();
+  }
+  return (success);
+}
+
+void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
+  char temp[length + 1];
+  for (unsigned int i = 0; i < length; i++) {
+    temp[i] = (char)payload[i];
+  }
+  temp[length] = '\0';
+  this->update(temp);
 }

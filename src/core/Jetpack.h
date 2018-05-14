@@ -21,203 +21,61 @@
  *
  */
 
-#ifndef Jetpack_H
-#define Jetpack_H
+#ifndef JETPACK_H
+#define JETPACK_H
 
 #include <Arduino.h>
 
-/**
- *  \class Jetpack
- *  \brief This class manages the Jetpack shield
- *
- */
+#include <ArduinoJson.h>
+
+#define JETPACK_CLOCK_PIN 4
+#define JETPACK_DATA_PIN 15
+#define JETPACK_I2C_ENABLE_PIN 5
+
 class Jetpack {
+
 public:
-  void begin(); // starts the Jetpack
-
-  void write(byte action); // writes to the Jetpack
-
-  void writeBit(byte pin, bool state); // writes to a single pin of the Jetpack
-
-  String doAction(const char *data, int hour, int minute);
-
+  void begin();
+  void write(byte action);
+  void writeBit(byte pin, bool state);
+  void doAction(JsonObject &root, int hour, int minute);
   void normalAction(int actorNumber, float measurment);
-
   void invertedAction(int actorNumber, float measurment);
-
   void temporalActionOff(int actorNumber);
-
   void temporalActionOn(int actorNumber);
-
   void mixedTemporalActionOff(int actorNumber, float measurment);
-
   void mixedTemporalActionOn(int actorNumber, float measurment);
-
   void hourAction(int actorNumber, int hour);
-
   void mixedHourAction(int actorNumber, int hour, float measurment);
-
   void minuteAction(int actorNumber, int minute);
-
   void mixedMinuteAction(int actorNumber, int minute, float measurment);
-
   void hourMinuteAction(int actorNumber, int hour, int minute);
-
   void mixedHourMinuteAction(int actorNumber, int hour, int minute,
                              float measurment);
-
   bool config();
-
   void printConf();
-
-  /**
-   *  the Jetpack's Action
-   */
   byte action = B00000000;
 
 private:
-  /**
-   *  the Actor's state
-   */
-  struct state {
-
-    /**
-     *  actif flag
-     *  set to 1 when using an actor
-     *  set to 0 otherwise
-     */
-    bool actif = 0;
-
-    /**
-     *  temporal flag
-     *  set to 1 to declare a temporal actor
-     *  set to 0 otherwise
-     */
-    bool temporal = 0;
-
-    /**
-     *  inverted flag
-     *  set to 1 to declare an inverted actor
-     *  set to 0 to declare a normal actor
-     */
-    bool inverted = 0;
-
-    /**
-     *  "type":["temperature","hour"]
-     *
-     *  the primary type is related to the sensor's type (type[0])
-     *
-     *  if both types are present and valid, the actor is a mixedActor
-     */
+  struct {
+    bool actif = false;
+    bool temporal = false;
+    bool inverted = false;
     String primaryType = "";
-
-    /**
-     *  "type":["temperature","hour"]
-     *
-     *  the secondary type if present is hour or minute or hourMinute (type[1])
-     *
-     *  if both types are present and valid, the actor is a mixedActor
-     */
     String secondaryType = "";
-
-    /**
-     *  "low":[20,5000,18,10]
-     *
-     *  rangeLow : this is the minimum at which the actor becomes actif (low[0])
-     *
-     */
     int rangeLow = 0;
-
-    /**
-     *  "low":[20,5000,18,10]
-     *
-     *  timeLow : this is the time the actor is off in temporal mode (low[1])
-     *(ms)
-     */
     unsigned long timeLow = 0;
-
-    /**
-     *  "low":[20,5000,18,10]
-     *
-     *  hour low :this is the hour when to turn off the actor in
-     *temporal/hour(hourMinute) mode (low[2] )
-     */
     int hourLow = 0;
-
-    /**
-     *  "low":[20,5000,18,10]
-     *
-     *  minute low :this is the minute when to turn off the actor in
-     *temporal/minute(hourMinute) mode (low[3])
-     */
     int minuteLow = 0;
-
-    /**
-     *  "high":[30,2000,17,1]
-     *
-     *  rangeHigh : this is the maximum at which the actor becomes
-     *inactif(high[0])
-     */
     int rangeHigh = 0;
-
-    /**
-     *  "high":[30,2000,17,1]
-     *
-     *  timeHigh : this is the time the actor is on in temporal mode(high[1])
-     *(ms)
-     */
     unsigned long timeHigh = 0;
-
-    /**
-     *  "high":[30,2000,17,1]
-     *
-     *  hourHigh : this is the hour when to turn on the actor in
-     *temporal/hour(hourMinute) mode(high[2])
-     */
     int hourHigh = 0;
-
-    /**
-     *  "high":[30,2000,17,1]
-     *
-     *  minuteHigh : this is the minute when to turn on the actor in
-     *temporal/minute(hourMinute) mode (high[3])
-     */
     int minuteHigh = 0;
-
-    /**
-     *  actifTime : period of Time spent actif , used in Temporal mode
-     *  in ms
-     */
     unsigned long actifTime = 0;
-
-    /**
-     *  inactifTime : period of Time spent inactif , used in Temporal mode
-     *  in ms
-     */
     unsigned long inactifTime = 0;
-
-    /**
-     *  failsave : Switches of the actor if a metric rises above high treshold
-     *in mixed mode
-     */
     bool failsave = false;
-
   } actors[8];
 
-  /**
-   *  clock pin for the shift register
-   */
-  const int clockPin = 4;
-
-  /**
-   *  data pin for the shift register
-   */
-  const int dataPin = 15;
-
-  /**
-   *  I2C Enable pin
-   */
-  const int EnI2C = 5;
 };
 
 #endif

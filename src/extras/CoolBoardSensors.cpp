@@ -22,31 +22,19 @@
  */
 
 #include <FS.h>
-#include <stdint.h>
 #include <Wire.h>
-
-#include <ArduinoJson.h>
+#include <stdint.h>
 
 #include "CoolBoardSensors.h"
 #include "CoolLog.h"
 
-/**
- *  CoolBoardSensors::CoolBoardSensors():
- *  This Constructor is provided to
- *  init the different used pins
- */
 CoolBoardSensors::CoolBoardSensors() {
-  pinMode(AnMplex, OUTPUT);       // Declare Analog Multiplexer OUTPUT
-  pinMode(EnMoisture, OUTPUT);    // Declare Moisture enable Pin
-  digitalWrite(EnMoisture, HIGH); // Prevent Wearing on the soil moisture fork
+  pinMode(ANALOG_MULTIPLEXER_PIN, OUTPUT);
+  pinMode(MOISTURE_SENSOR_PIN, OUTPUT);
+  // prevents wear on the soil moisture fork
+  digitalWrite(MOISTURE_SENSOR_PIN, HIGH);
 }
 
-/**
- *  CoolBoardSensors::allActive():
- *  This method is provided to allow
- *  activation of all the sensor board sensors
- *  without passing by the configuration file/method
- */
 void CoolBoardSensors::allActive() {
   this->lightDataActive.visible = 1;
   this->lightDataActive.ir = 1;
@@ -60,129 +48,91 @@ void CoolBoardSensors::allActive() {
   this->soilMoistureActive = 1;
 }
 
-/**
- *  CoolBoardSensors::begin():
- *  This method is provided to start the
- *  sensors that are on the sensor board
- */
 void CoolBoardSensors::begin() {
   Wire.begin(2, 14);
-  while (!lightSensor.Begin()) {
+  while (!this->lightSensor.Begin()) {
     DEBUG_LOG("SI1145 light sensor is not ready, waiting for 1 second...");
     delay(1000);
   }
   this->setEnvSensorSettings();
-  delay(100); // Make sure sensor had enough time to turn on. BME280 requires
-              // 2ms to start up.
+  delay(100);
   uint8_t envSensorStatus = this->envSensor.begin();
-  delay(1000); // Make sure sensor had enough time to turn on. BME280 requires
-               // 2ms to start up.
+  // Make sure sensors had enough time to turn on.
+  // BME280 requires 2ms to start up.
+  delay(1000);
   DEBUG_VAR("BME280 status after begin is:", envSensorStatus);
   DEBUG_LOG("Onboard sensors started");
 }
 
-/**
- *  CoolBoardSensors::end():
- *  This method is provided to end
- *  the sensors on the sensor board
- */
-void CoolBoardSensors::end() {
-  lightSensor.DeInit();
-}
+void CoolBoardSensors::end() { this->lightSensor.DeInit(); }
 
-/**
- *  CoolBoardSensors::read():
- *  This method is provided to return the
- *  data read by the sensor board
- *
- *  \return a json string containing the
- *  sensors data
- **/
-String CoolBoardSensors::read() {
-  String data;
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
+void CoolBoardSensors::read(JsonObject &root) {
   delay(100);
 
-  if (lightDataActive.visible) {
-    // check for overflow in SI1145 response register
-    if (lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
+  if (this->lightDataActive.visible) {
+    if (this->lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
       root["visibleLight"] = "overflow";
-      // send noop command to SI1145 to clear overflow value
-      lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
+      // send NOOP command to SI1145 to clear overflow value
+      this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      root["visibleLight"] = lightSensor.ReadVisible();
+      root["visibleLight"] = this->lightSensor.ReadVisible();
     }
   }
-  if (lightDataActive.ir) {
-    // check for overflow in SI1145 response register
-    if (lightSensor.ReadResponseReg() == CoolSI114X_IR_OVERFLOW) {
+  if (this->lightDataActive.ir) {
+    if (this->lightSensor.ReadResponseReg() == CoolSI114X_IR_OVERFLOW) {
       root["infraRed"] = "overflow";
-      // send noop command to SI1145 to clear overflow value
-      lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
+      // send NOOP command to SI1145 to clear overflow value
+      this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      root["infraRed"] = lightSensor.ReadIR();
+      root["infraRed"] = this->lightSensor.ReadIR();
     }
   }
 
-  if (lightDataActive.uv) {
-    // check for overflow in SI1145 response register
-    if (lightSensor.ReadResponseReg() == CoolSI114X_UV_OVERFLOW) {
+  if (this->lightDataActive.uv) {
+    if (this->lightSensor.ReadResponseReg() == CoolSI114X_UV_OVERFLOW) {
       root["ultraViolet"] = "overflow";
-      // send noop command to SI1145 to clear overflow value
-      lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
+      // send NOOP command to SI1145 to clear overflow value
+      this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      float tempUV = (float)lightSensor.ReadUV() / 100;
-      root["ultraViolet"] = tempUV;
+      root["ultraViolet"] = (float)this->lightSensor.ReadUV() / 100;
     }
   }
 
-  if (airDataActive.temperature) {
+  if (this->airDataActive.temperature) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
-    while ((envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
+    while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    root["Temperature"] = envSensor.readTempC();
+    root["Temperature"] = this->envSensor.readTempC();
   }
 
-  if (airDataActive.pressure) {
+  if (this->airDataActive.pressure) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
-    while ((envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
+    while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    root["Pressure"] = envSensor.readFloatPressure();
+    root["Pressure"] = this->envSensor.readFloatPressure();
   }
 
-  if (airDataActive.humidity) {
+  if (this->airDataActive.humidity) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
-    while ((envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
+    while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    root["Humidity"] = envSensor.readFloatHumidity();
+    root["Humidity"] = this->envSensor.readFloatHumidity();
   }
-  if (vbatActive) {
+  if (this->vbatActive) {
     root["Vbat"] = this->readVBat();
   }
-  if (soilMoistureActive) {
+  if (this->soilMoistureActive) {
     root["soilMoisture"] = this->readSoilMoisture();
   }
-  if (wallMoistureActive) {
+  if (this->wallMoistureActive) {
     root["wallMoisture"] = this->readWallMoisture();
   }
-  root.printTo(data);
-  DEBUG_JSON("Onboard sensors values JSON:", root);
-  return (data);
+  DEBUG_JSON("Onboard sensors data:", root);
 }
 
-/**
- *  CoolBoardSensors::config():
- *  This method is provided to configure the
- *  sensor board :  -activate   1
- *      -deactivate 0
- *
- *  \return true if configuration is successful,
- *  false otherwise
- */
 bool CoolBoardSensors::config() {
   File coolBoardSensorsConfig =
       SPIFFS.open("/coolBoardSensorsConfig.json", "r");
@@ -191,12 +141,9 @@ bool CoolBoardSensors::config() {
     ERROR_LOG("Failed to read /coolBoardSensorsConfig.json");
     return (false);
   } else {
-    size_t size = coolBoardSensorsConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    coolBoardSensorsConfig.readBytes(buf.get(), size);
+    String data = coolBoardSensorsConfig.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
     if (!json.success()) {
       ERROR_LOG("Failed to parse onboard sensors configuration JSON");
       return (false);
@@ -253,11 +200,6 @@ bool CoolBoardSensors::config() {
   }
 }
 
-/**
- *  CoolBoardSensors::printConf():
- *  This method is provided to print the
- *  configuration to the Serial Monitor
- */
 void CoolBoardSensors::printConf() {
   INFO_LOG("Onboard sensors configuration:");
   INFO_VAR("  Air humidity         =", airDataActive.humidity);
@@ -270,13 +212,6 @@ void CoolBoardSensors::printConf() {
   INFO_VAR("  Wall moisture        =", wallMoistureActive);
 }
 
-/**
- *  CoolBoardSensors::setEnvSensorSetting():
- *  This method is provided to set the enviornment
- *  sensor settings , if argument is ommitted , default value will be
- *assigned
- *
- */
 void CoolBoardSensors::setEnvSensorSettings(uint8_t commInterface,
                                             uint8_t I2CAddress, uint8_t runMode,
                                             uint8_t tStandby, uint8_t filter,
@@ -293,20 +228,12 @@ void CoolBoardSensors::setEnvSensorSettings(uint8_t commInterface,
   this->envSensor.settings.humidOverSample = humidOverSample;
 }
 
-/**
- *  CoolBoardSensors::readVBat():
- *  This method is provided to read the
- *  Battery Voltage.
- *
- *  \return a float representing the battery
- *  voltage
- */
 float CoolBoardSensors::readVBat() {
-  // Enable analog switch to get the batterie voltage
-  digitalWrite(this->AnMplex, LOW);
+  digitalWrite(ANALOG_MULTIPLEXER_PIN, LOW);
   delay(200);
 
-  int raw = analogRead(A0); // read battery voltage
+  // read battery voltage
+  int raw = analogRead(A0);
   // convert it to approx. correct tension in volts
   float val = 6.04 / 1024 * raw;
 
@@ -314,45 +241,42 @@ float CoolBoardSensors::readVBat() {
   return (val);
 }
 
-/**
- *  CoolBoardSensors::readSoilMoisture():
- *  This method is provided to red the
- *  Soil Moisture
- *
- *  \return a float represnting the
- *  soil moisture
- */
 float CoolBoardSensors::readSoilMoisture() {
-  digitalWrite(EnMoisture, LOW); // enable moisture sensor and wait a bit
-  digitalWrite(AnMplex, HIGH);   // enable analog switch to read moisture value
+  digitalWrite(MOISTURE_SENSOR_PIN, LOW);
+  digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
   delay(2000);
 
-  int val = analogRead(A0); // read moisture sensor value
+  // read moisture sensor value
+  int val = analogRead(A0);
 
   if (val >= 891) {
     val = 890;
   }
 
   float result = (float)map(val, 0, 890, 0, 100);
-
-  digitalWrite(EnMoisture, HIGH); // disable moisture sensor for minimum wear
-  DEBUG_VAR("Raw moisture sensor value:", val);
+  // disable moisture sensor for minimum wear
+  digitalWrite(MOISTURE_SENSOR_PIN, HIGH);
+  DEBUG_VAR("Raw soil moisture sensor value:", val);
   DEBUG_VAR("Computed soil moisture:", result);
   return (result);
 }
 
 float CoolBoardSensors::readWallMoisture() {
-    float val = 0;
-    digitalWrite(AnMplex, HIGH); // enable analog Switch to get the moisture
-    delay(200);
-    for (int i = 1; i<=64; i++){     //oversample value 64 times for stable readings
-      digitalWrite(EnMoisture, LOW); // enable moisture sensor and waith a bit
-      delay(2);
-      val = val + analogRead(A0); // read the value form the moisture sensor
-      delay(2);
-      digitalWrite(EnMoisture, HIGH); // disable moisture sensor for minimum wear
-    }
-    val = val / 64; //divide by 64 to get the average
-    DEBUG_VAR("Raw wall moisture sensor value:", val);
-    return (float(val));
+  float val = 0;
+  digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
+  delay(200);
+  // oversample value 64 times for stable readings
+  for (int i = 1; i <= 64; i++) {
+    digitalWrite(MOISTURE_SENSOR_PIN, LOW);
+    delay(2);
+    // read moisture sensor value
+    val = val + analogRead(A0);
+    delay(2);
+    // disable moisture sensor for minimum wear
+    digitalWrite(MOISTURE_SENSOR_PIN, HIGH);
   }
+  // divide by 64 to get the average
+  val = val / 64;
+  DEBUG_VAR("Raw wall moisture sensor value:", val);
+  return (float(val));
+}

@@ -23,18 +23,12 @@
 
 #include <FS.h>
 
-#include <ArduinoJson.h>
 #include <OneWire.h>
 
 #include "ExternalSensors.h"
 
 OneWire oneWire(0);
 
-/**
- *  ExternalSensors::begin():
- *  This method is provided to initialise
- *  the external sensors.
- */
 void ExternalSensors::begin() {
   for (int i = 0; i < this->sensorsNumber; i++) {
     if ((sensors[i].reference) == "NDIR_I2C") {
@@ -86,7 +80,6 @@ void ExternalSensors::begin() {
       std::unique_ptr<ExternalSensor<Adafruit_ADS1115>> analogI2C(
           new ExternalSensor<Adafruit_ADS1115>(this->sensors[i].address));
       sensors[i].exSensor = analogI2C.release();
-      // sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1, &channel2,
                                 &gain2, &channel3, &gain3);
     } else if ((sensors[i].reference) == "CoolGauge") {
@@ -95,111 +88,79 @@ void ExternalSensors::begin() {
           new ExternalSensor<Gauges>());
 
       sensors[i].exSensor = gauge.release();
-      // sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&A, &B, &C);
     }
   }
 }
 
-/**
- *  ExternalSensors::read():
- *  This method is provided to
- *  read the data from the external sensors
- *
- *  \return json string that contains the
- *  sensors data
- */
-String ExternalSensors::read() {
-  String data;
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
+void ExternalSensors::read(JsonObject &root) {
 
-  if (!root.success()) {
-    ERROR_LOG("failed to create JSON object for external sensors value");
-    // FIXME: return NULL or error code, not some half-assed string
-    return ("00");
-  } else {
-    if (sensorsNumber > 0) {
-      for (int i = 0; i < sensorsNumber; i++) {
-        if (sensors[i].exSensor != NULL) {
-          if (sensors[i].reference == "Adafruit_TCS34725") {
-            int16_t r, g, b, c, colorTemp, lux;
+  if (sensorsNumber > 0) {
+    for (int i = 0; i < sensorsNumber; i++) {
+      if (sensors[i].exSensor != NULL) {
+        if (sensors[i].reference == "Adafruit_TCS34725") {
+          int16_t r, g, b, c, colorTemp, lux;
 
-            sensors[i].exSensor->read(&r, &g, &b, &c, &colorTemp, &lux);
-            root[sensors[i].kind0] = r;
-            root[sensors[i].kind1] = g;
-            root[sensors[i].kind2] = b;
-            root[sensors[i].kind3] = c;
-          } else if (sensors[i].reference == "Adafruit_CCS811") {
-            int16_t C, V;
-            float T;
+          sensors[i].exSensor->read(&r, &g, &b, &c, &colorTemp, &lux);
+          root[sensors[i].kind0] = r;
+          root[sensors[i].kind1] = g;
+          root[sensors[i].kind2] = b;
+          root[sensors[i].kind3] = c;
+        } else if (sensors[i].reference == "Adafruit_CCS811") {
+          int16_t C, V;
+          float T;
 
-            sensors[i].exSensor->read(&C, &V, &T);
-            root[sensors[i].kind0] = C;
-            root[sensors[i].kind1] = V;
-            root[sensors[i].kind2] = T;
-          } else if ((sensors[i].reference == "Adafruit_ADS1015") ||
-                     (sensors[i].reference == "Adafruit_ADS1115")) {
-            int16_t channel0, channel1, channel2, channel3, diff01, diff23;
-            int16_t gain0, gain1, gain2, gain3;
+          sensors[i].exSensor->read(&C, &V, &T);
+          root[sensors[i].kind0] = C;
+          root[sensors[i].kind1] = V;
+          root[sensors[i].kind2] = T;
+        } else if ((sensors[i].reference == "Adafruit_ADS1015") ||
+                   (sensors[i].reference == "Adafruit_ADS1115")) {
+          int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+          int16_t gain0, gain1, gain2, gain3;
 
-            sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1,
-                                      &channel2, &gain2, &channel3, &gain3);
-            gain0 = gain0 / 512;
-            gain1 = gain1 / 512;
-            gain2 = gain2 / 512;
-            gain3 = gain3 / 512;
-            root["0_" + sensors[i].kind0] = channel0;
-            root["G0_" + sensors[i].kind0] = gain0;
-            root["1_" + sensors[i].kind1] = channel1;
-            root["G1_" + sensors[i].kind1] = gain1;
-            root["2_" + sensors[i].kind2] = channel2;
-            root["G2_" + sensors[i].kind2] = gain2;
-            root["3_" + sensors[i].kind3] = channel3;
-            root["G3_" + sensors[i].kind3] = gain3;
-          } else if (sensors[i].reference == "CoolGauge") {
-            uint32_t A, B, C;
+          sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1,
+                                    &channel2, &gain2, &channel3, &gain3);
+          gain0 = gain0 / 512;
+          gain1 = gain1 / 512;
+          gain2 = gain2 / 512;
+          gain3 = gain3 / 512;
+          root["0_" + sensors[i].kind0] = channel0;
+          root["G0_" + sensors[i].kind0] = gain0;
+          root["1_" + sensors[i].kind1] = channel1;
+          root["G1_" + sensors[i].kind1] = gain1;
+          root["2_" + sensors[i].kind2] = channel2;
+          root["G2_" + sensors[i].kind2] = gain2;
+          root["3_" + sensors[i].kind3] = channel3;
+          root["G3_" + sensors[i].kind3] = gain3;
+        } else if (sensors[i].reference == "CoolGauge") {
+          uint32_t A, B, C;
 
-            sensors[i].exSensor->read(&A, &B, &C);
-            root[sensors[i].kind0] = A;
-            root[sensors[i].kind1] = B;
-            root[sensors[i].kind2] = C;
-          } else {
-            root[sensors[i].type] = sensors[i].exSensor->read();
-          }
+          sensors[i].exSensor->read(&A, &B, &C);
+          root[sensors[i].kind0] = A;
+          root[sensors[i].kind1] = B;
+          root[sensors[i].kind2] = C;
         } else {
-          ERROR_VAR("Undefined (NULL) external sensor at index #", i);
+          root[sensors[i].type] = sensors[i].exSensor->read();
         }
+      } else {
+        ERROR_VAR("Undefined (NULL) external sensor at index #", i);
       }
     }
-    root.printTo(data);
-    DEBUG_JSON("External sensors data:", root);
-    DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-    return (data);
   }
+  DEBUG_JSON("External sensors data:", root);
 }
 
-/**
- *  ExternalSensors::config():
- *  This method is provided to configure
- *  the externalSensors through a configuration
- *  file
- *
- *  \return true if successful,false otherwise
- */
 bool ExternalSensors::config() {
-  File externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "r");
+  File configFile = SPIFFS.open("/externalSensorsConfig.json", "r");
 
-  if (!externalSensorsConfig) {
+  if (!configFile) {
     ERROR_LOG("Failed to read /externalSensorsConfig.json");
     return (false);
   } else {
-    size_t size = externalSensorsConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    externalSensorsConfig.readBytes(buf.get(), size);
+    String data = configFile.readString();
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
+    JsonObject &json = jsonBuffer.parseObject(data);
 
     if (!json.success()) {
       ERROR_LOG("Failed to parse external sensors config from file");
@@ -251,8 +212,6 @@ bool ExternalSensors::config() {
               this->sensors[i].kind3 = sensorJson["kind3"].as<String>();
             }
             sensorJson["sensor3"] = this->sensors[i].kind3;
-          } else {
-            this->sensors[i] = this->sensors[i];
           }
           json[name]["reference"] = this->sensors[i].reference;
           json[name]["type"] = this->sensors[i].type;
@@ -262,54 +221,23 @@ bool ExternalSensors::config() {
           json[name]["kind2"] = this->sensors[i].kind2;
           json[name]["kind3"] = this->sensors[i].kind3;
         }
-      } else {
-        this->sensorsNumber = this->sensorsNumber;
       }
       json["sensorsNumber"] = this->sensorsNumber;
-      externalSensorsConfig.close();
-      externalSensorsConfig = SPIFFS.open("/externalSensorsConfig.json", "w");
+      configFile.close();
+      configFile = SPIFFS.open("/externalSensorsConfig.json", "w");
 
-      if (!externalSensorsConfig) {
+      if (!configFile) {
         ERROR_LOG("Failed to write to /externalSensorsConfig.json");
         return (false);
       }
-      json.printTo(externalSensorsConfig);
-      externalSensorsConfig.close();
+      json.printTo(configFile);
+      configFile.close();
       DEBUG_LOG("Saved external sensors config to /externalSensorsConfig.json");
       return (true);
     }
   }
 }
 
-/**
- *  ExternalSensors::config(String reference[],String type[],uint8_t
- *address[],int sensorsNumber): This method is provided to configure the
- *externalSensors without a configuration file
- *
- *  \return true if successful,false otherwise
- */
-bool ExternalSensors::config(String reference[], String type[],
-                             uint8_t address[], int sensorsNumber) {
-  // FIXME: magic number
-  if (sensorsNumber > 50) {
-    ERROR_LOG("You can't add more than 50 sensors");
-    return (false);
-  }
-  this->sensorsNumber = sensorsNumber;
-
-  for (int i = 0; i < sensorsNumber; i++) {
-    this->sensors[i].reference = reference[i];
-    this->sensors[i].type = type[i];
-    this->sensors[i].address = address[i];
-  }
-  return (true);
-}
-
-/**
- *  ExternalSensors::printConf():
- *  This method is provided to print the
- *  configuration to the Serial Monitor
- */
 void ExternalSensors::printConf() {
   INFO_LOG("External sensors configuration");
   INFO_VAR("Number of external sensors:", sensorsNumber);
