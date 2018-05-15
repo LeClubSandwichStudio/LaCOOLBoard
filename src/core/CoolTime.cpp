@@ -25,26 +25,15 @@
 
 #include <ArduinoJson.h>
 
+#include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolTime.h"
 
-/**
- *  CoolTime::begin():
- *  This method is provided to init
- *  the udp connection
- *
- */
 void CoolTime::begin() {
   Udp.begin(localPort);
   this->update();
 }
 
-/**
- *  CoolTime::offGrid:
- *  This method is provided to init
- *  the udp connection
- *
- */
 void CoolTime::offGrid() {
   if (compileTime == 1 && NTP == 0) {
     char posMarker = 0;
@@ -118,11 +107,6 @@ void CoolTime::offGrid() {
   }
 }
 
-/**
- *  CoolTime::update():
- *  This method is provided to correct the
- *  rtc Time when it drifts,once every week.
- */
 void CoolTime::update() {
   if (this->NTP == 1 && WiFi.status() == WL_CONNECTED) {
     if (this->timePool == -1) {
@@ -152,11 +136,6 @@ void CoolTime::update() {
   }
 }
 
-/**
- *  CoolTime::setDateTime(year,month,dat,hour,minutes,seconds):
- *  This method is provided to manually set the RTc Time
- *
- */
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes,
                            int seconds) {
   tmElements_t tm;
@@ -171,13 +150,6 @@ void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes,
   DEBUG_VAR("Time set to:", this->getESDate());
 }
 
-/**
- *  CoolTime::getTimeDate():
- *  This method is provided to get the RTC Time
- *
- *  \returns a tmElements_t structre that has
- *  the time in it
- */
 tmElements_t CoolTime::getTimeDate() {
   tmElements_t tm;
 
@@ -189,14 +161,6 @@ tmElements_t CoolTime::getTimeDate() {
   return (tm);
 }
 
-/**
- *  CoolTime::getESD():
- *  This method is provided to return an
- *  Elastic Search compatible date Format
- *
- *  \return date String in Elastic Search
- *  format
- */
 String CoolTime::getESDate() {
   tmElements_t tm = this->getTimeDate();
 
@@ -210,28 +174,11 @@ String CoolTime::getESDate() {
   return (elasticSearchString);
 }
 
-/**
- *  CoolTime::getLastSyncTime():
- *  This method is provided to get the last time
- *  we syncronised the time
- *
- *  \return unsigned long representation of
- *  last syncronisation time in seconds
- */
 unsigned long CoolTime::getLastSyncTime() {
   DEBUG_VAR("Last RTC sync time:", this->timeSync);
   return (this->timeSync);
 }
 
-/**
- *  CoolTime::isTimeSync( time in seconds):
- *  This method is provided to test if the
- *  time is syncronised or not.
- *  By default we test once per week.
- *
- *  \return true if time is syncronised,false
- *  otherwise
- */
 bool CoolTime::isTimeSync(unsigned long seconds) {
   // FIXME: experimental: dummy call to prevent slow RTC
   RTC.get(CLOCK_ADDRESS);
@@ -248,14 +195,6 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
   return (true);
 }
 
-/**
- *  CoolTime::getNtpTime():
- *  This method is provided to get the
- *  Time through an NTP request to
- *  a Time Server
- *
- *  \return a time_t (unsigned long ) timestamp in seconds
- */
 time_t CoolTime::getNtpTime() {
   WiFi.hostByName(timeServer[timePool], timeServerIP);
   if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 &&
@@ -293,11 +232,6 @@ time_t CoolTime::getNtpTime() {
   return 0;
 }
 
-/**
- *  CoolTime::sendNTPpacket( Time Server IP address):
- *  This method is provided to send an NTP request to
- *  the time server at the given address
- */
 void CoolTime::sendNTPpacket(IPAddress &address) {
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
   // Initialize values needed to form NTP request
@@ -318,146 +252,60 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
   Udp.endPacket();
 }
 
-/**
- *  CoolTime::config():
- *  This method is provided to configure
- *  the CoolTime object through a configuration
- *  file.
- *
- *  \return true if successful,false otherwise
- */
-
 bool CoolTime::config() {
-  File configFile = SPIFFS.open("/rtcConfig.json", "r");
+  CoolConfig config("/rtcConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /rtcConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to parse RTC configuration");
     return (false);
-  } else {
-    String data = configFile.readString();
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse RTC config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("RTC config JSON", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["timePool"].success()) {
-        this->timePool = json["timePool"];
-      }
-      json["timePool"] = this->timePool;
-
-      if (json["timeSync"].success()) {
-        this->timeSync = json["timeSync"];
-      }
-      json["timeSync"] = this->timeSync;
-
-      if (json["NTP"].success()) {
-        this->NTP = json["NTP"].as<bool>();
-      }
-      json["NTP"] = this->NTP;
-
-      if (json["compileTime"].success()) {
-        this->compileTime = json["compileTime"].as<bool>();
-      }
-      json["compileTime"] = this->compileTime;
-      configFile.close();
-      configFile = SPIFFS.open("/rtcConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("failed to write RTC config to /rtcConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved RTC config to /rtcConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  DEBUG_JSON("RTC configuration JSON:", json);
+  if (json["timePool"].success()) {
+    this->timePool = json["timePool"];
+  }
+  json["timePool"] = this->timePool;
+  if (json["timeSync"].success()) {
+    this->timeSync = json["timeSync"];
+  }
+  json["timeSync"] = this->timeSync;
+  if (json["NTP"].success()) {
+    this->NTP = json["NTP"].as<bool>();
+  }
+  json["NTP"] = this->NTP;
+  if (json["compileTime"].success()) {
+    this->compileTime = json["compileTime"].as<bool>();
+  }
+  json["compileTime"] = this->compileTime;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save RTC configuration");
+    return (false);
+  }
+  INFO_LOG("RTC configuration loaded");
+  return (true);
 }
 
-/**
- *  CoolTime::saveTimeSync()
- *  This method is provided to save
- *  the last sync time in the
- *  SPIFFS.
- *
- *  \return true if successful,false
- *  otherwise
- */
 bool CoolTime::saveTimeSync() {
-  File rtcConfig = SPIFFS.open("/rtcConfig.json", "r");
+  CoolConfig config("/rtcConfig.json");
 
-  if (!rtcConfig) {
-    ERROR_LOG("Failed to read /rtcConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to parse RTC configuration");
     return (false);
-  } else {
-    size_t size = rtcConfig.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    rtcConfig.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse RTC config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("RTC config JSON", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      if (json["timePool"].success()) {
-        json["timePool"] = this->timePool;
-      } else {
-        this->timePool = this->timePool;
-      }
-      json["timePool"] = this->timePool;
-
-      if (json["timeSync"].success()) {
-        json["timeSync"] = this->timeSync;
-      } else {
-        this->timeSync = this->timeSync;
-      }
-      json["timeSync"] = this->timeSync;
-
-      if (json["NTP"].success()) {
-        json["NTP"] = this->NTP;
-      } else {
-        this->NTP = this->NTP;
-      }
-      json["NTP"] = this->NTP;
-
-      if (json["compileTime"].success()) {
-
-        json["compileTime"] = this->compileTime;
-      } else {
-        this->compileTime = this->compileTime;
-      }
-      json["compileTime"] = this->compileTime;
-
-      rtcConfig.close();
-      rtcConfig = SPIFFS.open("/rtcConfig.json", "w");
-
-      if (!rtcConfig) {
-        ERROR_LOG("failed to write RTC config to /rtcConfig.json");
-        return (false);
-      }
-
-      json.printTo(rtcConfig);
-      rtcConfig.close();
-      DEBUG_LOG("Saved RTC config to /rtcConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  DEBUG_JSON("RTC configuration JSON:", json);
+  json["timePool"] = this->timePool;
+  json["timeSync"] = this->timeSync;
+  json["NTP"] = this->NTP;
+  json["compileTime"] = this->compileTime;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save RTC configuration");
+    return (false);
+  }
+  INFO_LOG("RTC configuration updated");
+  return (true);
 }
 
-/**
- *  CoolTime::printConf():
- *  This method is provided to print
- *  the CoolTime configuration to the
- *  Serial Monitor
- */
 void CoolTime::printConf() {
   INFO_LOG("RTC configuration");
   INFO_LOG("  NTP servers         :");
@@ -469,14 +317,6 @@ void CoolTime::printConf() {
   INFO_VAR("  Use compilation date:", compileTime);
 }
 
-/**
- *  CoolTime::printDigits(digit)
- *
- *  utility method for digital clock display
- *  adds leading 0
- *
- *  \return formatted string of the input digit
- */
 String CoolTime::formatDigits(int digits) {
   if (digits < 10) {
     return (String("0") + String(digits));
@@ -484,14 +324,6 @@ String CoolTime::formatDigits(int digits) {
   return (String(digits));
 }
 
-/**
- *  CoolTime::timePoolConfigl()
- *
- *  utility method for chosing the server with the best ping
- *  returns 0 if it fails or returns the number of the const char* timeServer[]
- *
- *  \return formatted string of the input digit
- */
 int CoolTime::timePoolConfig() {
   INFO_LOG("Performing NTP server benchmark...");
 

@@ -24,6 +24,7 @@
 #include <FS.h>
 
 #include "CoolFileSystem.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
 #define JSON_FILE_EXT_SIZE 5
@@ -39,47 +40,38 @@ void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   if (jsonCoolBoard.success()) {
     this->fileUpdate(jsonCoolBoard, "/coolBoardConfig.json");
   }
-
   JsonObject &jsonSensors = root["CoolSensorsBoard"];
   if (jsonSensors.success()) {
     this->fileUpdate(jsonSensors, "/coolBoardSensorsConfig.json");
   }
-
   JsonObject &jsonCoolBoardActor = root["CoolBoardActor"];
   if (jsonCoolBoardActor.success()) {
     this->fileUpdate(jsonCoolBoardActor, "/coolBoardActorConfig.json");
   }
-
   JsonObject &jsonRTC = root["rtc"];
   if (jsonRTC.success()) {
     this->fileUpdate(jsonRTC, "/rtcConfig.json");
   }
-
   JsonObject &jsonLedBoard = root["led"];
   if (jsonLedBoard.success()) {
     this->fileUpdate(jsonLedBoard, "/coolBoardLedConfig.json");
   }
-
   JsonObject &jsonJetpack = root["jetPack"];
   if (jsonJetpack.success()) {
     this->fileUpdate(jsonJetpack, "/jetPackConfig.json");
   }
-
   JsonObject &jsonIrene = root["irene3000"];
   if (jsonIrene.success()) {
     this->fileUpdate(jsonIrene, "/irene3000Config.json");
   }
-
   JsonObject &jsonExternalSensors = root["externalSensors"];
   if (jsonExternalSensors.success()) {
     this->fileUpdate(jsonExternalSensors, "/externalSensorsConfig.json");
   }
-
   JsonObject &jsonMQTT = root["mqtt"];
   if (jsonMQTT.success()) {
     this->fileUpdate(jsonMQTT, "/mqttConfig.json");
   }
-
   JsonObject &jsonWifi = root["wifi"];
   if (jsonWifi.success()) {
     this->fileUpdate(jsonWifi, "/wifiConfig.json");
@@ -87,43 +79,25 @@ void CoolFileSystem::updateConfigFiles(JsonObject &root) {
 }
 
 bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
+  CoolConfig config(path);
+
   DEBUG_VAR("Updating config file:", path);
-
-  File configFile = SPIFFS.open(path, "r");
-
-  if (!configFile) {
-    ERROR_VAR("Failed to open file for reading:", path);
+  if (!config.readFileAsJson()) {
+    ERROR_VAR("Failed to read configuration file:", path);
     return (false);
   }
-
-  String data = configFile.readString();
-  DynamicJsonBuffer fileBuffer;
-  JsonObject &fileJson = fileBuffer.parseObject(data);
-
-  if (!fileJson.success()) {
-    ERROR_VAR("Failed to parse update JSON for config file:", path);
-    return (false);
-  }
-
+  JsonObject &fileJson = config.get();
   for (auto kv : fileJson) {
     if (updateJson[kv.key].success()) {
       fileJson[kv.key] = updateJson[kv.key];
-    } else {
-      fileJson[kv.key] = fileJson[kv.key];
     }
   }
-
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
-  configFile.close();
-  configFile = SPIFFS.open(path, "w");
-
-  if (!configFile) {
-    ERROR_VAR("Failed to open file for writing:", path);
+  if (!config.writeJsonToFile()) {
+    ERROR_VAR("Failed to update configuration file:", path);
     return (false);
   }
-  fileJson.printTo(configFile);
-  configFile.close();
   return (true);
 }
 

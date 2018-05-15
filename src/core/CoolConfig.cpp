@@ -21,29 +21,48 @@
  *
  */
 
-#ifndef CoolWifi_H
-#define CoolWifi_H
+#include <FS.h>
 
-#include <Arduino.h>
-#include <ESP8266WiFiMulti.h>
+#include "CoolConfig.h"
+#include "CoolLog.h"
 
-class CoolWifi {
+bool CoolConfig::readFileAsJson() {
+  File file = SPIFFS.open(this->path, "r");
 
-public:
-  bool config();
-  static void printStatus(wl_status_t status);
-  wl_status_t connect();
-  wl_status_t connectWifiMulti();
-  wl_status_t connectAP();
-  wl_status_t state();
-  wl_status_t disconnect();
-  String getExternalIP();
-  bool addWifi(String ssid, String pass);
-  uint8_t wifiCount = 0;
-private:
-  void printConf(String ssid[]);
-  ESP8266WiFiMulti wifiMulti;
-  uint8_t timeOut = 180;
-};
+  if (!file) {
+    ERROR_VAR("Failed to open file for reading:", path);
+    return (false);
+  }
+  String data = file.readString();
+  this->json = this->buffer.parse(data);
 
-#endif
+  if (!this->json.success()) {
+    file.close();
+    ERROR_VAR("Failed to parse file as JSON:", this->path);
+    return (false);
+  }
+  DEBUG_VAR("Reading configuration file as JSON:", this->path);
+  DEBUG_JSON("Configuration JSON:", this->json);
+  file.close();
+  return (true);
+}
+
+JsonObject &CoolConfig::get() {
+  return this->json;
+}
+
+void CoolConfig::setConfig(JsonVariant json) {
+  this->json = json;
+}
+
+bool CoolConfig::writeJsonToFile() {
+  File file = SPIFFS.open(this->path, "w");
+  if (!file) {
+    ERROR_VAR("Failed to open file for writing:", this->path);
+    return (false);
+  }
+  json.printTo(file);
+  file.close();
+  DEBUG_VAR("Saved JSON config to:", this->path);
+  return (true);
+}

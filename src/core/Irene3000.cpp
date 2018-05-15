@@ -21,16 +21,16 @@
  *
  */
 
-
-#include <FS.h>
 #include <Arduino.h>
+#include <FS.h>
 #include <math.h>
 
 #include "ArduinoJson.h"
 
-#include "Irene3000.h"
-#include "CoolLog.h"
 #include "CoolBoardLed.h"
+#include "CoolConfig.h"
+#include "CoolLog.h"
+#include "Irene3000.h"
 
 void Irene3000::begin() {
   this->ads.begin();
@@ -95,77 +95,54 @@ void Irene3000::read(JsonObject &root) {
 }
 
 bool Irene3000::config() {
-  File configFile = SPIFFS.open("/irene3000Config.json", "r");
+  CoolConfig config("/irene3000Config.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /irene3000Config.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read IRN3000 configuration");
     return (false);
-  } else {
-    uint16_t tempGain;
-
-    String data = configFile.readString();
-    DynamicJsonBuffer fileBuffer;
-    JsonObject &json = fileBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse IRN3000 config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("IRN3000 config JSON:", json);
-
-      if (json["waterTemp"]["active"].success()) {
-        this->waterTemp.active = json["waterTemp"]["active"];
-      }
-      json["waterTemp"]["active"] = this->waterTemp.active;
-
-      if (json["phProbe"]["active"].success()) {
-        this->phProbe.active = json["phProbe"]["active"];
-      }
-      json["phProbe"]["active"] = this->phProbe.active;
-
-      if (json["adc2"]["active"].success()) {
-        this->adc2.active = json["adc2"]["active"];
-      }
-      json["adc2"]["active"] = this->adc2.active;
-
-      if (json["adc2"]["gain"].success()) {
-        tempGain = json["adc2"]["gain"];
-        this->adc2.gain = this->gainConvert(tempGain);
-      }
-      json["adc2"]["gain"] = this->adc2.gain;
-
-      if (json["adc2"]["type"].success()) {
-        this->adc2.type = json["adc2"]["type"].as<String>();
-      }
-      json["adc2"]["type"] = this->adc2.type;
-
-      if (json["pH7Cal"].success()) {
-        this->params.pH7Cal = json["pH7Cal"];
-      }
-      json["pH7Cal"] = this->params.pH7Cal;
-
-      if (json["pH4Cal"].success()) {
-        this->params.pH4Cal = json["pH4Cal"];
-      }
-      json["pH4Cal"] = this->params.pH4Cal;
-
-      if (json["pHStep"].success()) {
-        this->params.pHStep = json["pHStep"];
-      }
-      json["pHStep"] = this->params.pHStep;
-      configFile.close();
-      configFile = SPIFFS.open("/irene3000Config.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /irene3000Config.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved IRN3000 config to /irene3000Config.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  uint16_t tempGain;
+
+  if (json["waterTemp"]["active"].success()) {
+    this->waterTemp.active = json["waterTemp"]["active"];
+  }
+  json["waterTemp"]["active"] = this->waterTemp.active;
+  if (json["phProbe"]["active"].success()) {
+    this->phProbe.active = json["phProbe"]["active"];
+  }
+  json["phProbe"]["active"] = this->phProbe.active;
+  if (json["adc2"]["active"].success()) {
+    this->adc2.active = json["adc2"]["active"];
+  }
+  json["adc2"]["active"] = this->adc2.active;
+  if (json["adc2"]["gain"].success()) {
+    tempGain = json["adc2"]["gain"];
+    this->adc2.gain = this->gainConvert(tempGain);
+  }
+  json["adc2"]["gain"] = this->adc2.gain;
+  if (json["adc2"]["type"].success()) {
+    this->adc2.type = json["adc2"]["type"].as<String>();
+  }
+  json["adc2"]["type"] = this->adc2.type;
+  if (json["pH7Cal"].success()) {
+    this->params.pH7Cal = json["pH7Cal"];
+  }
+  json["pH7Cal"] = this->params.pH7Cal;
+  if (json["pH4Cal"].success()) {
+    this->params.pH4Cal = json["pH4Cal"];
+  }
+  json["pH4Cal"] = this->params.pH4Cal;
+  if (json["pHStep"].success()) {
+    this->params.pHStep = json["pHStep"];
+  }
+  json["pHStep"] = this->params.pHStep;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save IRN3000 configuration");
+    return (false);
+  }
+  DEBUG_LOG("IRN3000 configuration loaded");
+  return (true);
 }
 
 void Irene3000::printConf() {
@@ -186,9 +163,7 @@ int Irene3000::readButton() {
   return (result);
 }
 
-void Irene3000::setGain(adsGain_t gain) {
-  this->ads.setGain(gain);
-}
+void Irene3000::setGain(adsGain_t gain) { this->ads.setGain(gain); }
 
 int Irene3000::readADSChannel2(adsGain_t gain) {
   this->setGain(gain);
@@ -270,8 +245,10 @@ void Irene3000::calibratepH4() {
 
 void Irene3000::calcpHSlope() {
   params.pHStep =
-      ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) * 1000) /
-       OPAMP_GAIN) / 3;
+      ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) *
+        1000) /
+       OPAMP_GAIN) /
+      3;
 }
 
 void Irene3000::resetParams(void) {
@@ -300,36 +277,21 @@ adsGain_t Irene3000::gainConvert(uint16_t tempGain) {
 }
 
 bool Irene3000::saveParams() {
-  File irene3000Config = SPIFFS.open("/irene3000Config.json", "r");
+  CoolConfig config("/irene3000Config.json");
 
-  if (!irene3000Config) {
-    ERROR_LOG("Failed to read /irene3000Config.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read IRN3000 configuration");
     return (false);
-  } else {
-    size_t size = irene3000Config.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-
-    irene3000Config.readBytes(buf.get(), size);
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(buf.get());
-    if (!json.success()) {
-      DEBUG_LOG("Failed to parse JSON IRN3000 config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("IRN3000 config JSON:", json);
-      json["pH7Cal"] = this->params.pH7Cal;
-      json["pH4Cal"] = this->params.pH4Cal;
-      json["pHStep"] = this->params.pHStep;
-      irene3000Config.close();
-      irene3000Config = SPIFFS.open("/irene3000Config.json", "w");
-      if (!irene3000Config) {
-        ERROR_LOG("Failed to write to /irene3000Config.json");
-        return (false);
-      }
-      json.printTo(irene3000Config);
-      irene3000Config.close();
-      DEBUG_LOG("Saved config to /irene3000Config.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+
+  json["pH7Cal"] = this->params.pH7Cal;
+  json["pH4Cal"] = this->params.pH4Cal;
+  json["pHStep"] = this->params.pHStep;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save IRN3000 configuration");
+    return (false);
+  }
+  DEBUG_LOG("Saved IRN3000 configuration");
+  return (true);
 }

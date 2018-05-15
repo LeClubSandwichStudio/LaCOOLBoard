@@ -21,29 +21,25 @@
  *
  */
 
-#ifndef CoolWifi_H
-#define CoolWifi_H
+#ifndef COOLCONFIG_H
+#define COOLCONFIG_H
 
+#include "ArduinoJson.h"
 #include <Arduino.h>
-#include <ESP8266WiFiMulti.h>
 
-class CoolWifi {
+class CoolConfig {
+
+private:
+  const char *path;
+  JsonVariant json;
+  DynamicJsonBuffer buffer;
 
 public:
-  bool config();
-  static void printStatus(wl_status_t status);
-  wl_status_t connect();
-  wl_status_t connectWifiMulti();
-  wl_status_t connectAP();
-  wl_status_t state();
-  wl_status_t disconnect();
-  String getExternalIP();
-  bool addWifi(String ssid, String pass);
-  uint8_t wifiCount = 0;
-private:
-  void printConf(String ssid[]);
-  ESP8266WiFiMulti wifiMulti;
-  uint8_t timeOut = 180;
+  CoolConfig(const char *path) { this->path = path; };
+  bool readFileAsJson();
+  void setConfig(JsonVariant json);
+  JsonObject &get();
+  bool writeJsonToFile();
 };
 
 #endif
