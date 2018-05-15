@@ -228,7 +228,7 @@ time_t CoolTime::getNtpTime() {
       }
     }
   }
-  ERROR_LOG("No response form NTP server");
+  ERROR_LOG("No response from NTP server");
   return 0;
 }
 
