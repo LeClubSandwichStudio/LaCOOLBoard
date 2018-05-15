@@ -28,8 +28,12 @@
 
 #include <ArduinoJson.h>
 
-class CoolFileSystem {
+typedef struct {
+  const char *code;
+  const char *path;
+} ConfigFile;
 
+class CoolFileSystem {
 public:
   bool begin();
   void updateConfigFiles(JsonObject &root);

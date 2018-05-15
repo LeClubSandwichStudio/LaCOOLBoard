@@ -446,34 +446,21 @@ void CoolBoard::sendAllConfig() {
 }
 
 bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
-  String result;
+  CoolConfig config(filePath);
 
-  File configFile = SPIFFS.open(filePath, "r");
-  if (!configFile) {
+  if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     return (false);
-  } else {
-    DynamicJsonBuffer jsonBuffer;
-    String data = configFile.readString();
-    JsonObject &json = jsonBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON object");
-      return (false);
-    } else {
-      String temporary;
-      DEBUG_JSON("Configuration JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      json.printTo(temporary);
-      result = "{\"state\":{\"reported\":{\"";
-      result += moduleName;
-      result += "\":";
-      result += temporary;
-      result += "} } }";
-      return (this->mqttPublish(result.c_str()));
-    }
   }
+  String message;
+  DynamicJsonBuffer buffer;
+  JsonObject &root = buffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = root.createNestedObject("reported");
+  reported[moduleName] = config.get();
+  root.printTo(message);
+  DEBUG_VAR("JSON configuration message:", message);
+  return (this->mqttPublish(message.c_str()));
 }
 
 void CoolBoard::sendPublicIP() {
