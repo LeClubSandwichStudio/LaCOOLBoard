@@ -79,7 +79,6 @@ void CoolBoard::begin() {
     this->externalSensors.config();
     this->externalSensors.begin();
     delay(100);
-    this->externalSensors.printConf();
   }
 
   this->connect();
@@ -100,7 +99,6 @@ void CoolBoard::loop() {
     INFO_LOG("Sending public IP...");
     this->sendPublicIP();
   }
-
   INFO_LOG("Updating RTC...");
   this->rtc.update();
 
@@ -356,7 +354,6 @@ void CoolBoard::update(const char *answer) {
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
 
-
   if (stateDesired.success()) {
     DEBUG_JSON("Desired state JSON:", stateDesired);
     if (stateDesired["CoolBoard"]["manual"].success()) {
@@ -402,7 +399,7 @@ void CoolBoard::update(const char *answer) {
     state["reported"] = stateDesired;
     state["desired"] = RawJson("null");
     String updateAnswer;
-     newRoot.printTo(updateAnswer);
+    newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttPublish(updateAnswer.c_str());
     delay(10);
