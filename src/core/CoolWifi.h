@@ -37,53 +37,20 @@
 class CoolWifi {
 
 public:
-  void begin();
-
   bool config();
-
-  wl_status_t connect();
-
-  wl_status_t connectWifiMulti();
-
-  wl_status_t connectAP();
-
-  wl_status_t state();
-
-  wl_status_t disconnect();
-
   static void printStatus(wl_status_t status);
-
+  wl_status_t connect();
+  wl_status_t connectWifiMulti();
+  wl_status_t connectAP();
+  wl_status_t state();
+  wl_status_t disconnect();
   String getExternalIP();
-
-  void printConf();
-
-  bool addWifi(String ssid, String pass = "");
-
-  /**
-   *  number of saved WiFi's
-   */
-  int wifiCount = 0;
-
+  bool addWifi(String ssid, String pass);
+  uint8_t wifiCount = 0;
 private:
-  /**
-   *  ESP8266WiFiMulti instance
-   */
+  void printConf(String ssid[]);
   ESP8266WiFiMulti wifiMulti;
-
-  /**
-   *  WiFi SSID Array
-   */
-  String ssid[50] = {"0"};
-
-  /**
-   *  WiFi PASS Array
-   */
-  String pass[50] = {"0"};
-
-  /**
-   *  WiFi Access Point TimeOut Value in Seconds
-   */
-  int timeOut = 180;
+  uint8_t timeOut = 180;
 };
 
 #endif

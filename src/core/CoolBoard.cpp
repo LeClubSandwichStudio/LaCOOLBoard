@@ -50,14 +50,13 @@ void CoolBoard::begin() {
   delay(100);
 
   this->wifiManager.config();
-  this->wifiManager.begin();
+
   delay(100);
 
   this->printConf();
   this->led.printConf();
   this->coolBoardSensors.printConf();
   this->onBoardActor.printConf();
-  this->wifiManager.printConf();
   this->rtc.printConf();
 
   if (this->jetpackActive) {
@@ -168,6 +167,7 @@ bool CoolBoard::isConnected() {
 
 int CoolBoard::connect() {
   if (this->wifiManager.wifiCount > 0) {
+    this->wifiManager.config();
     this->led.write(BLUE);
     if (this->wifiManager.connect() != 3) {
       this->led.blink(RED, 10);
