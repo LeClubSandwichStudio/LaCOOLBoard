@@ -26,6 +26,8 @@
     Serial.print(F(":"));                                                      \
     Serial.print(__LINE__);                                                    \
     Serial.println(F("]"));                                                    \
+    Serial.println("HEAP: ");                                                  \
+    Serial.println(ESP.getFreeHeap());                                         \
   } while (0)
 #else
 #define ADD_TRACE                                                              \
