@@ -168,7 +168,6 @@ bool CoolBoard::isConnected() {
 
 int CoolBoard::connect() {
   if (this->wifiManager.wifiCount > 0) {
-    this->wifiManager.config();
     this->led.write(BLUE);
     if (this->wifiManager.connect() != 3) {
       this->led.blink(RED, 10);
@@ -274,36 +273,13 @@ bool CoolBoard::config() {
     return (false);
   }
   JsonObject &json = config.get();
-
-  if (json["logInterval"].success()) {
-    this->logInterval = json["logInterval"].as<unsigned long>();
-  }
-  json["logInterval"] = this->logInterval;
-  if (json["ireneActive"].success()) {
-    this->ireneActive = json["ireneActive"];
-  }
-  json["ireneActive"] = this->ireneActive;
-  if (json["jetpackActive"].success()) {
-    this->jetpackActive = json["jetpackActive"];
-  }
-  json["jetpackActive"] = this->jetpackActive;
-  if (json["externalSensorsActive"].success()) {
-    this->externalSensorsActive = json["externalSensorsActive"];
-  }
-  json["externalSensorsActive"] = this->externalSensorsActive;
-  if (json["sleepActive"].success()) {
-    this->sleepActive = json["sleepActive"];
-  }
-  json["sleepActive"] = this->sleepActive;
-  if (json["manual"].success()) {
-    this->manual = json["manual"].as<bool>();
-  }
-  json["manual"] = this->manual;
-  if (json["mqttServer"].success()) {
-    this->mqttServer = json["mqttServer"].as<String>();
-  }
-  json["mqttServer"] = this->mqttServer;
-
+  config.set<unsigned long>(json, "logInterval", this->logInterval);
+  config.set<bool>(json, "ireneActive", this->ireneActive);
+  config.set<bool>(json, "jetpackActive", this->jetpackActive);
+  config.set<bool>(json, "externalSensorsActive", this->externalSensorsActive);
+  config.set<bool>(json, "sleepActive", this->sleepActive);
+  config.set<bool>(json, "manual", this->manual);
+  config.set<String>(json, "mqttServer", this->mqttServer);
   this->mqttClient.setClient(this->wifiClient);
   this->mqttClient.setServer(this->mqttServer.c_str(), 1883);
   this->mqttClient.setCallback(
@@ -326,7 +302,7 @@ bool CoolBoard::config() {
 }
 
 void CoolBoard::printConf() {
-  INFO_LOG("COOL Board configuration");
+  INFO_LOG("General configuration");
   INFO_VAR("  Log interval            =", this->logInterval);
   INFO_VAR("  Irene active            =", this->ireneActive);
   INFO_VAR("  Jetpack active          =", this->jetpackActive);
@@ -456,7 +432,7 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   DynamicJsonBuffer buffer;
   JsonObject &root = buffer.createObject();
   JsonObject &state = root.createNestedObject("state");
-  JsonObject &reported = root.createNestedObject("reported");
+  JsonObject &reported = state.createNestedObject("reported");
   reported[moduleName] = config.get();
   root.printTo(message);
   DEBUG_VAR("JSON configuration message:", message);

@@ -121,66 +121,54 @@ bool CoolWifi::config() {
     return (false);
   }
   JsonObject &json = config.get();
-  if (json["wifiCount"].success()) {
-    this->wifiCount = json["wifiCount"];
-  }
-  json["wifiCount"] = this->wifiCount;
+  config.set<uint8_t>(json, "wifiCount", this->wifiCount);
+  config.set<uint8_t>(json, "timeOut", this->timeOut);
+
   String ssidList[this->wifiCount];
   String passList[this->wifiCount];
-  if (json["timeOut"].success()) {
-    this->timeOut = json["timeOut"];
-  }
-  json["timeOut"] = this->timeOut;
-  for (uint8_t i = 0; i < this->wifiCount; i++) {
-    if (json["Wifi" + String(i)].success()) {
-      if (json["Wifi" + String(i)]["ssid"].success()) {
-        const char *tempSsid = json["Wifi" + String(i)]["ssid"];
-        ssidList[i] = tempSsid;
-      }
-      json["Wifi" + String(i)]["ssid"] = ssidList[i].c_str();
-
-      if (json["Wifi" + String(i)]["pass"].success()) {
-        const char *tempPass = json["Wifi" + String(i)]["pass"];
-        passList[i] = tempPass;
-      }
-      json["Wifi" + String(i)]["pass"] = passList[i].c_str();
+  for (int i = 0; i < this->wifiCount; i++) {
+    String key = "Wifi" + String(i);
+    if (!json[key].success()) {
+      json.createNestedObject(key);
     }
-    json["Wifi" + String(i)]["ssid"] = ssidList[i].c_str();
-    json["Wifi" + String(i)]["pass"] = passList[i].c_str();
+    config.set<String>(json[key], "ssid", ssidList[i]);
+    config.set<String>(json[key], "pass", passList[i]);
     this->wifiMulti.addAP(ssidList[i].c_str(), passList[i].c_str());
   }
   if (!config.writeJsonToFile()) {
     ERROR_LOG("Failed to save Wifi configuration");
     return (false);
   }
-  DEBUG_LOG("Wifi configuraton loaded");
+  INFO_LOG("Wifi configuration loaded");
   this->printConf(ssidList);
   return (true);
 }
 
 bool CoolWifi::addWifi(String ssid, String pass) {
+  INFO_VAR("Adding new Wifi network:", ssid + String(F("/")) + pass);
   CoolConfig config("/wifiConfig.json");
 
   if (this->wifiCount >= MAX_WIFI_NETWORKS) {
-    ERROR_LOG("Cannot add new network, you have reached the limit of 50 saved "
+    ERROR_LOG("Cannot add new network, you have reached the limit of saved "
               "networks");
     return (false);
   }
   if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read Wifi configuration");
+    ERROR_LOG("Cannot add new network, failed to read Wifi configuration");
     return (false);
   }
   JsonObject &json = config.get();
 
-  json["wifiCount"] = ++this->wifiCount;
+  json["wifiCount"] = this->wifiCount + 1;
   JsonObject &newWifi =
-      json.createNestedObject("Wifi" + String(this->wifiCount - 1));
+      json.createNestedObject("Wifi" + String(this->wifiCount));
   newWifi["ssid"] = ssid;
   newWifi["pass"] = pass;
   if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save Wifi configuration");
+    ERROR_LOG("Cannot add new network, failed to save Wifi configuration");
     return (false);
   }
+  ++this->wifiCount;
   INFO_VAR("Added new network to Wifi configuration:",
            String(F("SSID:")) + ssid + String(F("PSK:")) + pass);
   return (true);
@@ -214,11 +202,11 @@ String CoolWifi::getExternalIP() {
 
 void CoolWifi::printConf(String ssidList[]) {
   INFO_LOG("Wifi configuration");
-  INFO_VAR("  Wifi count = ", this->wifiCount);
+  INFO_VAR("  Wifi count  =", this->wifiCount);
+  INFO_VAR("  Timeout     =", this->timeOut);
 
   for (int i = 0; i < this->wifiCount; i++) {
     INFO_VAR(" Network #", i);
-    INFO_VAR("    SSID    = ", ssidList[i]);
+    INFO_VAR("    SSID    =", ssidList[i]);
   }
-  INFO_VAR("  Timeout =", this->timeOut);
 }

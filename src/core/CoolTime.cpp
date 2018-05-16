@@ -29,12 +29,10 @@
 #include "CoolLog.h"
 #include "CoolTime.h"
 
-void CoolTime::begin() {
-  Udp.begin(localPort);
-}
+void CoolTime::begin() { Udp.begin(localPort); }
 
 void CoolTime::offGrid() {
-  if (compileTime == 1 && NTP == 0) {
+  if (compileTime && !NTP) {
     char posMarker = 0;
     for (int i = 0; i <= sizeof(__TIMESTAMP__); i++) {
       if (__TIMESTAMP__[i] == ':') {
@@ -99,17 +97,18 @@ void CoolTime::offGrid() {
     setDateTime(y2kYearToTm(Year), Month, Day, Hour, Minute, Second);
     unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
     this->timeSync = instantTime;
-    this->compileTime = 0;
-    this->saveTimeSync();
+    this->compileTime = false;
+    this->config(false);
     DEBUG_VAR("RTC set from:", __TIMESTAMP__);
     DEBUG_VAR("Seconds since UNIX Epoch:", instantTime);
   }
 }
 
 void CoolTime::update() {
-  if (this->NTP == 1 && WiFi.status() == WL_CONNECTED) {
-    if (this->timePool == -1) {
-      this->timePool = timePoolConfig();
+  if (this->NTP && WiFi.status() == WL_CONNECTED) {
+    if (!this->isServerSelected()) {
+      this->selectTimeServer();
+      this->printConf();
     }
     if (!(this->isTimeSync())) {
       int repeats = 0;
@@ -121,7 +120,7 @@ void CoolTime::update() {
         this->timeSync = this->getNtpTime();
 
         if (repeats >= 4) {
-          timePoolConfig();
+          selectTimeServer();
           delay(500);
           this->timeSync = this->getNtpTime();
           break;
@@ -129,9 +128,9 @@ void CoolTime::update() {
         repeats++;
       }
       breakTime(this->timeSync, this->tmSet);
-      this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS); // set the clock
-      this->saveTimeSync();
+      this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS);
     }
+    this->config(true);
   }
 }
 
@@ -195,18 +194,22 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
 }
 
 time_t CoolTime::getNtpTime() {
-  WiFi.hostByName(timeServer[timePool], timeServerIP);
-  if (timeServerIP[0] == 0 && timeServerIP[1] == 0 && timeServerIP[2] == 0 &&
-      timeServerIP[3] == 0) {
-    WARN_VAR("No IP address for timeserver", this->timeServer[this->timePool]);
+  IPAddress timeServerIp;
+
+  WiFi.hostByName(this->TIME_SERVER_LIST[this->timeServerIdx],
+                  timeServerIp);
+  if (timeServerIp[0] == 0 && timeServerIp[1] == 0 && timeServerIp[2] == 0 &&
+      timeServerIp[3] == 0) {
+    WARN_VAR("No IP address for timeserver",
+             this->TIME_SERVER_LIST[this->timeServerIdx]);
     WARN_LOG("Will run NTP benchmark later on");
     return 0;
   } else {
-    DEBUG_VAR("Sending NTP request to:", this->timeServerIP);
+    DEBUG_VAR("Sending NTP request to:", timeServerIp);
 
     while (Udp.parsePacket() > 0)
       ; // discard any previously received packets
-    sendNTPpacket(timeServerIP);
+    sendNTPpacket(timeServerIp);
     uint32_t beginWait = millis();
 
     while (millis() - beginWait < TIMEOUT) {
@@ -251,7 +254,7 @@ void CoolTime::sendNTPpacket(IPAddress &address) {
   Udp.endPacket();
 }
 
-bool CoolTime::config() {
+bool CoolTime::config(bool overwrite) {
   CoolConfig config("/rtcConfig.json");
 
   if (!config.readFileAsJson()) {
@@ -260,22 +263,10 @@ bool CoolTime::config() {
   }
   JsonObject &json = config.get();
   DEBUG_JSON("RTC configuration JSON:", json);
-  if (json["timePool"].success()) {
-    this->timePool = json["timePool"];
-  }
-  json["timePool"] = this->timePool;
-  if (json["timeSync"].success()) {
-    this->timeSync = json["timeSync"];
-  }
-  json["timeSync"] = this->timeSync;
-  if (json["NTP"].success()) {
-    this->NTP = json["NTP"].as<bool>();
-  }
-  json["NTP"] = this->NTP;
-  if (json["compileTime"].success()) {
-    this->compileTime = json["compileTime"].as<bool>();
-  }
-  json["compileTime"] = this->compileTime;
+  config.set<int8_t>(json, "timePool", this->timeServerIdx, overwrite);
+  config.set<unsigned long>(json, "timeSync", this->timeSync, overwrite);
+  config.set<bool>(json, "NTP", this->NTP, overwrite);
+  config.set<bool>(json, "compileTime", this->compileTime, overwrite);
   if (!config.writeJsonToFile()) {
     ERROR_LOG("Failed to save RTC configuration");
     return (false);
@@ -284,36 +275,23 @@ bool CoolTime::config() {
   return (true);
 }
 
-bool CoolTime::saveTimeSync() {
-  CoolConfig config("/rtcConfig.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to parse RTC configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-  DEBUG_JSON("RTC configuration JSON:", json);
-  json["timePool"] = this->timePool;
-  json["timeSync"] = this->timeSync;
-  json["NTP"] = this->NTP;
-  json["compileTime"] = this->compileTime;
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save RTC configuration");
-    return (false);
-  }
-  INFO_LOG("RTC configuration updated");
-  return (true);
+bool CoolTime::isServerSelected() const {
+  return (this->timeServerIdx >= 0 && this->timeServerIdx < SERVERCOUNT);
 }
 
 void CoolTime::printConf() {
   INFO_LOG("RTC configuration");
-  INFO_LOG("  NTP servers         :");
-  for (int i = 0; i < SERVERCOUNT; i++) {
-    INFO_VAR("    ", timeServer[i]);
+  String timeServer;
+  if (this->isServerSelected()) {
+    timeServer = this->TIME_SERVER_LIST[this->timeServerIdx];
+  } else {
+    timeServer = "NONE";
   }
-  INFO_VAR("  Local port          :", localPort);
-  INFO_VAR("  NTP enabled         :", NTP);
-  INFO_VAR("  Use compilation date:", compileTime);
+  INFO_VAR("  Local port            =", this->localPort);
+  INFO_VAR("  NTP enabled           =", this->NTP);
+  INFO_VAR("  Use compilation date  =", this->compileTime);
+  INFO_VAR("  Selected time server  =", timeServer);
+  INFO_VAR("  RTC timestamp         =", this->timeSync);
 }
 
 String CoolTime::formatDigits(int digits) {
@@ -323,14 +301,14 @@ String CoolTime::formatDigits(int digits) {
   return (String(digits));
 }
 
-int CoolTime::timePoolConfig() {
+bool CoolTime::selectTimeServer() {
   INFO_LOG("Performing NTP server benchmark...");
 
-  unsigned long latency[SERVERCOUNT];
+  uint32_t latency[SERVERCOUNT];
   bool timeout[SERVERCOUNT];
 
   for (int i = 0; i < SERVERCOUNT; i++) {
-    latency[i] = 0;
+    latency[i] = UINT32_MAX;
     timeout[i] = false;
   }
 
@@ -339,14 +317,16 @@ int CoolTime::timePoolConfig() {
       while (Udp.parsePacket() > 0) {
         ; // discard any previously received packets
       }
-      WiFi.hostByName(timeServer[i], timeServerIP);
-      if (timeServerIP[0] == 0 && timeServerIP[1] == 0 &&
-          timeServerIP[2] == 0 && timeServerIP[3] == 0) {
-        WARN_VAR("Could not get IP of NTP server:", timeServer[i]);
+      IPAddress timeServerIp;
+      const char *timeServer = TIME_SERVER_LIST[i];
+      WiFi.hostByName(timeServer, timeServerIp);
+      if (timeServerIp[0] == 0 && timeServerIp[1] == 0 &&
+          timeServerIp[2] == 0 && timeServerIp[3] == 0) {
+        WARN_VAR("Could not get IP of NTP server:", timeServer);
         timeout[i] = true;
       } else {
-        DEBUG_VAR("Sending NTP request to:", timeServer[i]);
-        sendNTPpacket(timeServerIP);
+        DEBUG_VAR("Sending NTP request to:", timeServer);
+        sendNTPpacket(timeServerIp);
 
         uint32_t beginWait = millis();
 
@@ -354,12 +334,12 @@ int CoolTime::timePoolConfig() {
           int size = Udp.parsePacket();
           if (size >= NTP_PACKET_SIZE) {
             latency[i] += (millis() - beginWait);
-            DEBUG_VAR("Received response from NTP server:", timeServer[i]);
+            DEBUG_VAR("Received response from NTP server:", timeServer);
             break;
           }
           if ((millis() - beginWait) >= TIMEOUT) {
             timeout[i] = true;
-            WARN_VAR("Hit timeout for NTP server:", timeServer[i]);
+            WARN_VAR("Hit timeout for NTP server:", timeServer);
             break;
           }
         }
@@ -367,22 +347,19 @@ int CoolTime::timePoolConfig() {
     }
   }
 
-  unsigned long temp = 0;
-  int result = -1;
-
-  if (latency[0] != 0 && !timeout[0]) {
-    temp = latency[0];
-    result = 0;
-  }
-
+  unsigned long minLatency = UINT32_MAX;
   for (int i = 0; i < SERVERCOUNT; i++) {
-    if ((latency[i] != 0) && !timeout[i] && (latency[i] < temp)) {
-      temp = latency[i];
-      result = i;
+    if (!timeout[i] && (latency[i] < minLatency)) {
+      minLatency = latency[i];
+      this->timeServerIdx = i;
     }
   }
-
-  INFO_VAR("NTP latency test finished, fastest is:", timeServer[result]);
-  INFO_VAR("NTP minimum latency:", latency[result] / NTP_OVERSAMPLE);
-  return result;
+  INFO_VAR("NTP minimum latency:", minLatency / NTP_OVERSAMPLE);
+  if (this->isServerSelected()) {
+    INFO_VAR("NTP latency test finished, fastest is:", TIME_SERVER_LIST[this->timeServerIdx]);
+    return true;
+  } else {
+    ERROR_LOG("NTP latency test finished, no suitable server found!");
+    return false;
+  }
 }

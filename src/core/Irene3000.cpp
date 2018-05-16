@@ -74,7 +74,7 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     INFO_LOG("Starting pH 4 calibration for 30 seconds");
     delay(30000);
     this->calibratepH4();
-    this->saveParams();
+    this->config(false);
     led.write(WHITE);
     INFO_LOG("Calibration finished, hold button to exit calibration");
     this->waitForButtonPress();
@@ -89,54 +89,28 @@ void Irene3000::read(JsonObject &root) {
     }
   }
   if (adc2.active) {
-    root[adc2.type] = this->readADSChannel2(adc2.gain);
+    root[adc2.type] = this->readADSChannel2();
   }
   DEBUG_JSON("Irene data:", root);
 }
 
-bool Irene3000::config() {
+bool Irene3000::config(bool overwrite) {
   CoolConfig config("/irene3000Config.json");
 
   if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read IRN3000 configuration");
+    ERROR_LOG("Failed to overwrite IRN3000 configuration");
     return (false);
   }
   JsonObject &json = config.get();
-  uint16_t tempGain;
 
-  if (json["waterTemp"]["active"].success()) {
-    this->waterTemp.active = json["waterTemp"]["active"];
-  }
-  json["waterTemp"]["active"] = this->waterTemp.active;
-  if (json["phProbe"]["active"].success()) {
-    this->phProbe.active = json["phProbe"]["active"];
-  }
-  json["phProbe"]["active"] = this->phProbe.active;
-  if (json["adc2"]["active"].success()) {
-    this->adc2.active = json["adc2"]["active"];
-  }
-  json["adc2"]["active"] = this->adc2.active;
-  if (json["adc2"]["gain"].success()) {
-    tempGain = json["adc2"]["gain"];
-    this->adc2.gain = this->gainConvert(tempGain);
-  }
-  json["adc2"]["gain"] = this->adc2.gain;
-  if (json["adc2"]["type"].success()) {
-    this->adc2.type = json["adc2"]["type"].as<String>();
-  }
-  json["adc2"]["type"] = this->adc2.type;
-  if (json["pH7Cal"].success()) {
-    this->params.pH7Cal = json["pH7Cal"];
-  }
-  json["pH7Cal"] = this->params.pH7Cal;
-  if (json["pH4Cal"].success()) {
-    this->params.pH4Cal = json["pH4Cal"];
-  }
-  json["pH4Cal"] = this->params.pH4Cal;
-  if (json["pHStep"].success()) {
-    this->params.pHStep = json["pHStep"];
-  }
-  json["pHStep"] = this->params.pHStep;
+  config.set<bool>(json["waterTemp"], "active", this->waterTemp.active, overwrite);
+  config.set<bool>(json["phProbe"], "active", this->phProbe.active, overwrite);
+  config.set<bool>(json["adc2"], "active", this->adc2.active, overwrite);
+  config.set<int>(json["adc2"], "gain", this->adc2.gain, overwrite);
+  config.set<String>(json["adc2"], "type", this->adc2.type, overwrite);
+  config.set<int>(json, "ph4Cal", this->params.pH4Cal, overwrite);
+  config.set<int>(json, "ph7Cal", this->params.pH7Cal, overwrite);
+  config.set<float>(json, "phStep", this->params.pHStep, overwrite);
   if (!config.writeJsonToFile()) {
     ERROR_LOG("Failed to save IRN3000 configuration");
     return (false);
@@ -157,16 +131,14 @@ void Irene3000::printConf() {
 }
 
 int Irene3000::readButton() {
-  this->setGain(GAIN_TWOTHIRDS);
+  this->ads.setGain(GAIN_TWOTHIRDS);
   int result = this->ads.readADC_SingleEnded(BUTTON_CHANNEL);
   DEBUG_VAR("Button value:", result);
   return (result);
 }
 
-void Irene3000::setGain(adsGain_t gain) { this->ads.setGain(gain); }
-
-int Irene3000::readADSChannel2(adsGain_t gain) {
-  this->setGain(gain);
+int Irene3000::readADSChannel2() {
+  this->ads.setGain(this->gainConvert(this->adc2.gain));
   int result = this->ads.readADC_SingleEnded(FREE_ADC_CHANNEL);
   DEBUG_VAR("ADC2 value:", result);
   return (result);
@@ -174,7 +146,7 @@ int Irene3000::readADSChannel2(adsGain_t gain) {
 
 float Irene3000::readPh(double t) {
   // FIXME: Magic numbers
-  this->setGain(GAIN_FOUR);
+  this->ads.setGain(GAIN_FOUR);
 
   int adcR = ads.readADC_SingleEnded(PH_CHANNEL);
   double Voltage = REFERENCE_VOLTAGE_GAIN_4 * (adcR) / ADC_MAXIMUM_VALUE;
@@ -198,7 +170,7 @@ double Irene3000::readTemp() {
   const double B = -5.775E-7;
   double T;
 
-  this->setGain(GAIN_EIGHT);
+  this->ads.setGain(GAIN_EIGHT);
 
   double adc0 = ads.readADC_SingleEnded(TEMP_CHANNEL);
   double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
@@ -229,16 +201,14 @@ double Irene3000::readTemp() {
 
 void Irene3000::calibratepH7() {
   delay(1000);
-
-  this->setGain(GAIN_FOUR);
+  this->ads.setGain(GAIN_FOUR);
   this->params.pH7Cal = ads.readADC_SingleEnded(PH_CHANNEL);
   this->calcpHSlope();
 }
 
 void Irene3000::calibratepH4() {
   delay(1000);
-
-  this->setGain(GAIN_FOUR);
+  this->ads.setGain(GAIN_FOUR);
   this->params.pH4Cal = ads.readADC_SingleEnded(PH_CHANNEL);
   this->calcpHSlope();
 }
@@ -273,25 +243,4 @@ adsGain_t Irene3000::gainConvert(uint16_t tempGain) {
   default:
     return (GAIN_TWOTHIRDS);
   }
-  return (GAIN_ONE);
-}
-
-bool Irene3000::saveParams() {
-  CoolConfig config("/irene3000Config.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read IRN3000 configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-
-  json["pH7Cal"] = this->params.pH7Cal;
-  json["pH4Cal"] = this->params.pH4Cal;
-  json["pHStep"] = this->params.pHStep;
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save IRN3000 configuration");
-    return (false);
-  }
-  DEBUG_LOG("Saved IRN3000 configuration");
-  return (true);
 }

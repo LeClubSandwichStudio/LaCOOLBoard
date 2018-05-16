@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef CoolTime_H
-#define CoolTime_H
+#ifndef COOLTIME_H
+#define COOLTIME_H
 
 #include <Arduino.h>
 
@@ -30,124 +30,48 @@
 #include <WiFiUdp.h>
 #include <time.h>
 
-#include <TimeLib.h>
 #include <DS1337RTC.h>
+#include <TimeLib.h>
 
 #define NTP_PACKET_SIZE 48
 #define SERVERCOUNT 6
 #define NTP_OVERSAMPLE 3
 #define TIMEOUT 2000
-
-/**
- *  \class CoolTime
- *
- *  \brief This class manages the DS1337 RTC .
- *
- */
+#define SECONDS_IN_WEEK 604800
 
 class CoolTime {
 
 public:
   void begin();
-
   void offGrid();
-
   void update();
-
-  bool config();
-
+  bool config(bool overwrite = false);
   void printConf();
-
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);
-
   tmElements_t getTimeDate();
-
   String getESDate();
-
   unsigned long getLastSyncTime();
-
-  bool isTimeSync(unsigned long seconds = 604800); // one week = 604800 ; one year = 63113904);
-
+  bool isTimeSync(unsigned long seconds = SECONDS_IN_WEEK);
   time_t getNtpTime();
-
   void sendNTPpacket(IPAddress &address);
-
   String formatDigits(int digits);
-
-  bool saveTimeSync();
-
-  int timePoolConfig();
+  bool selectTimeServer();
+  bool isServerSelected() const;
 
 private:
-  /**
-   *  last Time the RTC syncronised with the NTP server
-   *  unix Time
-   */
   unsigned long timeSync = 0;
-
-  /**
-   *  NTP Server IP Address
-   */
-  IPAddress timeServerIP;
-
-  /**
-   *  Index of the fastest NTP server in timeServer array
-   */
-  int timePool = -1;
-
-  /**
-   *  NTP Server DNS Addresses
-   */
-  const char* timeServer[SERVERCOUNT] = {
-    "africa.pool.ntp.org",
-    "asia.pool.ntp.org",
-    "europe.pool.ntp.org",
-    "north-america.pool.ntp.org",
-    "oceania.pool.ntp.org",
-    "south-america.pool.ntp.org"
-  };
-
-  /**
-   *  NTP flag,
-   *  only set to zero if your coolBoard is in a place
-   *   where NTP synchronisation is impossible (Off Grid)
-   */
-  bool NTP = 1;
-
-  /**
-   *  compileTime flag,
-   *  only set to One if your coolBoard is in a place
-   *   where NTP synchronisation is impossible (Off Grid).
-   *   this flag set's the RTC and timeSync from __TIMESTAMP__
-   *   then reset's the flag
-   */
-  bool compileTime = 0;
-
-  /**
-   *  UDP Client instance
-   */
+  int8_t timeServerIdx = -1;
+  const char *TIME_SERVER_LIST[SERVERCOUNT] = {
+      "africa.pool.ntp.org",  "asia.pool.ntp.org",
+      "europe.pool.ntp.org",  "north-america.pool.ntp.org",
+      "oceania.pool.ntp.org", "south-america.pool.ntp.org"};
+  bool NTP = true;
+  bool compileTime = false;
   WiFiUDP Udp;
-
-  /**
-   *  port number for UDP packets
-   */
   unsigned int localPort = 0;
-
-  /**
-   *  UDP buffer
-   *  to hold incoming & outgoing packets
-   */
   byte packetBuffer[NTP_PACKET_SIZE];
-
-  /**
-   *  Time Elements Instance to hold various Time Values
-   */
   tmElements_t tmSet;
-
-  /**
-   *  RTC instance
-   */
   DS1337RTC rtc;
 };
 

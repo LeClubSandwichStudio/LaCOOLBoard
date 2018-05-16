@@ -47,13 +47,9 @@ bool CoolConfig::readFileAsJson() {
   return (true);
 }
 
-JsonObject &CoolConfig::get() {
-  return this->json;
-}
+JsonObject &CoolConfig::get() { return this->json; }
 
-void CoolConfig::setConfig(JsonVariant json) {
-  this->json = json;
-}
+void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
 
 bool CoolConfig::writeJsonToFile() {
   File file = SPIFFS.open(this->path, "w");
@@ -61,6 +57,7 @@ bool CoolConfig::writeJsonToFile() {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
+  DEBUG_JSON("Configuration JSON:", this->json);
   json.printTo(file);
   file.close();
   DEBUG_VAR("Saved JSON config to:", this->path);

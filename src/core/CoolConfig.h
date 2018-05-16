@@ -40,6 +40,13 @@ public:
   void setConfig(JsonVariant json);
   JsonObject &get();
   bool writeJsonToFile();
+  template <typename T>
+  static void set(JsonObject &json, const char *key, T &val, bool overwrite = false) {
+    if (!overwrite && json[key].success()) {
+      val = json[key].as<T>();
+    }
+    json[key] = val;
+  };
 };
 
 #endif

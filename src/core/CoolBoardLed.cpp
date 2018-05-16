@@ -147,10 +147,7 @@ bool CoolBoardLed::config() {
     return (false);
   }
   JsonObject &json = config.get();
-  if (json["ledActive"].success()) {
-    this->ledActive = json["ledActive"];
-  }
-  json["ledActive"] = this->ledActive;
+  config.set(json, "ledActive", this->ledActive);
   if (!config.writeJsonToFile()) {
     ERROR_LOG("Failed to save LED configuration");
     return (false);

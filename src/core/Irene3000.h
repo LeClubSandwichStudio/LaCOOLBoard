@@ -48,12 +48,11 @@ class Irene3000 {
 
 public:
   void begin();
-  bool config();
+  bool config(bool overWrite = false);
   void printConf();
-  void setGain(adsGain_t gain);
   void read(JsonObject &root);
   int readButton();
-  int readADSChannel2(adsGain_t gain);
+  int readADSChannel2();
   float readPh(double t);
   double readTemp();
   void resetParams();
@@ -61,7 +60,6 @@ public:
   void calibratepH4();
   void calcpHSlope();
   adsGain_t gainConvert(uint16_t tempGain);
-  bool saveParams();
   void waitForButtonPress();
   bool isButtonPressed();
   void calibrate(CoolBoardLed &led);
@@ -75,8 +73,8 @@ private:
   } params;
   struct {
     bool active = 0;
-    adsGain_t gain = GAIN_TWOTHIRDS;
-    String type = "";
+    int gain = GAIN_TWOTHIRDS;
+    String type = "unknown";
   } waterTemp, phProbe, adc2;
 };
 
