@@ -34,7 +34,7 @@
  *  fade animation:  Fade In over T(seconds)
  *      Fade Out over T(seconds)
  */
-void CoolBoardLed::fade(int R, int G, int B, float T) {
+void CoolBoardLed::fade(uint8_t R, uint8_t G, uint8_t B, float T) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
@@ -42,16 +42,16 @@ void CoolBoardLed::fade(int R, int G, int B, float T) {
 
   if (this->ledActive == 1) {
     for (int k = 0; k < 1000; k++) {
-      neoPixelLed->SetPixelColor(
+      this->neoPixelLed.SetPixelColor(
           0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-      neoPixelLed->Show();
+      this->neoPixelLed.Show();
       delay(T);
     }
 
     for (int k = 1000; k >= 0; k--) {
-      neoPixelLed->SetPixelColor(
+      this->neoPixelLed.SetPixelColor(
           0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-      neoPixelLed->Show();
+      this->neoPixelLed.Show();
       delay(T);
     }
   }
@@ -62,18 +62,18 @@ void CoolBoardLed::fade(int R, int G, int B, float T) {
 *  Blink animation:  Led On for T seconds
                                 Led off
 */
-void CoolBoardLed::blink(int R, int G, int B, float T) {
+void CoolBoardLed::blink(uint8_t R, uint8_t G, uint8_t B, float T) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
   TRACE_VAR("Duration", T);
 
   if (this->ledActive == 1) {
-    neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-    neoPixelLed->Show();
+    this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+    this->neoPixelLed.Show();
     delay(T * 1000);
-    neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-    neoPixelLed->Show();
+    this->neoPixelLed.SetPixelColor(0, RgbColor(0, 0, 0));
+    this->neoPixelLed.Show();
   }
 }
 
@@ -81,7 +81,7 @@ void CoolBoardLed::blink(int R, int G, int B, float T) {
  *  CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
  *  Fade In animation:  gradual increase over T(seconds)
  */
-void CoolBoardLed::fadeIn(int R, int G, int B, float T) {
+void CoolBoardLed::fadeIn(uint8_t R, uint8_t G, uint8_t B, float T) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
@@ -89,9 +89,9 @@ void CoolBoardLed::fadeIn(int R, int G, int B, float T) {
 
   if (this->ledActive == 1) {
     for (int k = 0; k < 1000; k++) {
-      neoPixelLed->SetPixelColor(
+      this->neoPixelLed.SetPixelColor(
           0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-      neoPixelLed->Show();
+      this->neoPixelLed.Show();
       delay(T);
     }
   }
@@ -101,7 +101,7 @@ void CoolBoardLed::fadeIn(int R, int G, int B, float T) {
  *  CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
  *  Fade Out animation:  gradual decrease over T(seconds)
  */
-void CoolBoardLed::fadeOut(int R, int G, int B, float T) {
+void CoolBoardLed::fadeOut(uint8_t R, uint8_t G, uint8_t B, float T) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
@@ -109,9 +109,9 @@ void CoolBoardLed::fadeOut(int R, int G, int B, float T) {
 
   if (this->ledActive == 1) {
     for (int k = 1000; k >= 0; k--) {
-      neoPixelLed->SetPixelColor(
+      this->neoPixelLed.SetPixelColor(
           0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
-      neoPixelLed->Show();
+      this->neoPixelLed.Show();
       delay(T);
     }
   }
@@ -121,7 +121,7 @@ void CoolBoardLed::fadeOut(int R, int G, int B, float T) {
  *  CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
  *  Strobe animation:  blinks over T(seconds)
  */
-void CoolBoardLed::strobe(int R, int G, int B, float T) {
+void CoolBoardLed::strobe(uint8_t R, uint8_t G, uint8_t B, float T) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
@@ -129,23 +129,16 @@ void CoolBoardLed::strobe(int R, int G, int B, float T) {
 
   if (this->ledActive == 1) {
     for (int k = 1000; k >= 0; k--) {
-      neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-      neoPixelLed->Show();
+      this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+      this->neoPixelLed.Show();
       delay(T);
-      neoPixelLed->SetPixelColor(0, RgbColor(0, 0, 0));
-      neoPixelLed->Show();
+      this->neoPixelLed.SetPixelColor(0, RgbColor(0, 0, 0));
+      this->neoPixelLed.Show();
       delay(T);
     }
   }
 }
 
-/**
- *   CoolBoardLed::end() :
- *  this method is provided to delete the dynamically created neoPixelLed
- */
-void CoolBoardLed::end() {
-  delete neoPixelLed;
-}
 
 /**
  *  CoolBoardLed::begin():
@@ -158,9 +151,8 @@ void CoolBoardLed::begin() {
   if (this->ledActive == 1) {
     pinMode(5, OUTPUT);
     digitalWrite(5, HIGH);
-    neoPixelLed = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(1, 2);
-    neoPixelLed->Begin();
-    neoPixelLed->Show();
+    this->neoPixelLed.Begin();
+    this->neoPixelLed.Show();
   }
 }
 
@@ -169,14 +161,14 @@ void CoolBoardLed::begin() {
  *  This method is provided to set the
  *  Color of the Led
  */
-void CoolBoardLed::write(int R, int G, int B) {
+void CoolBoardLed::write(uint8_t R, uint8_t G, uint8_t B) {
   TRACE_VAR("Red value:", R);
   TRACE_VAR("Green value:", G);
   TRACE_VAR("Blue value:", B);
 
   if (this->ledActive == 1) {
-    neoPixelLed->SetPixelColor(0, RgbColor(R, G, B));
-    neoPixelLed->Show();
+    this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+    this->neoPixelLed.Show();
   }
 }
 
