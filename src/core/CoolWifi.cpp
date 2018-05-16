@@ -29,16 +29,7 @@
 #include "CoolWifi.h"
 #include "CoolLog.h"
 
-void CoolWifi::begin() {
-  for (int i = 0; i < this->wifiCount; i++) {
-    INFO_VAR("Adding access point:", this->ssid[i]);
-    this->wifiMulti.addAP(this->ssid[i].c_str(), this->pass[i].c_str());
-  }
-}
-
-wl_status_t CoolWifi::state() {
-  return (WiFi.status());
-}
+wl_status_t CoolWifi::state() { return (WiFi.status()); }
 
 wl_status_t CoolWifi::disconnect() {
   WiFi.disconnect();
@@ -54,30 +45,30 @@ wl_status_t CoolWifi::connect() {
 
 void CoolWifi::printStatus(wl_status_t status) {
   switch (status) {
-    case WL_NO_SHIELD:
-      ERROR_LOG("Wifi status: no shield");
-      break;
-    case WL_IDLE_STATUS:
-      WARN_LOG("Wifi status: idle");
-      break;
-    case WL_NO_SSID_AVAIL:
-      ERROR_LOG("Wifi status: no SSID available");
-      break;
-    case WL_SCAN_COMPLETED:
-      WARN_LOG("Wifi status: scan completed");
-      break;
-    case WL_CONNECTED:
-      INFO_LOG("Wifi status: connected");
-      break;
-    case WL_CONNECT_FAILED:
-      ERROR_LOG("Wifi status: connection failed");
-      break;
-    case WL_DISCONNECTED:
-      WARN_LOG("Wifi status: disconnected");
-      break;
-    default:
-      ERROR_LOG("Wifi status: unknown");
-      break;
+  case WL_NO_SHIELD:
+    ERROR_LOG("Wifi status: no shield");
+    break;
+  case WL_IDLE_STATUS:
+    WARN_LOG("Wifi status: idle");
+    break;
+  case WL_NO_SSID_AVAIL:
+    ERROR_LOG("Wifi status: no SSID available");
+    break;
+  case WL_SCAN_COMPLETED:
+    WARN_LOG("Wifi status: scan completed");
+    break;
+  case WL_CONNECTED:
+    INFO_LOG("Wifi status: connected");
+    break;
+  case WL_CONNECT_FAILED:
+    ERROR_LOG("Wifi status: connection failed");
+    break;
+  case WL_DISCONNECTED:
+    WARN_LOG("Wifi status: disconnected");
+    break;
+  default:
+    ERROR_LOG("Wifi status: unknown");
+    break;
   }
 }
 
@@ -140,28 +131,30 @@ bool CoolWifi::config() {
         this->wifiCount = json["wifiCount"];
       }
       json["wifiCount"] = this->wifiCount;
-
+      String ssidList[this->wifiCount];
+      String passList[this->wifiCount];
       if (json["timeOut"].success()) {
         this->timeOut = json["timeOut"];
       }
       json["timeOut"] = this->timeOut;
 
-      for (int i = 0; i < this->wifiCount; i++) {
+      for (uint8_t i = 0; i < this->wifiCount; i++) {
         if (json["Wifi" + String(i)].success()) {
           if (json["Wifi" + String(i)]["ssid"].success()) {
             const char *tempSsid = json["Wifi" + String(i)]["ssid"];
-            this->ssid[i] = tempSsid;
+            ssidList[i] = tempSsid;
           }
-          json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
+          json["Wifi" + String(i)]["ssid"] = ssidList[i].c_str();
 
           if (json["Wifi" + String(i)]["pass"].success()) {
             const char *tempPass = json["Wifi" + String(i)]["pass"];
-            this->pass[i] = tempPass;
+            passList[i] = tempPass;
           }
-          json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
+          json["Wifi" + String(i)]["pass"] = passList[i].c_str();
         }
-        json["Wifi" + String(i)]["ssid"] = this->ssid[i].c_str();
-        json["Wifi" + String(i)]["pass"] = this->pass[i].c_str();
+        json["Wifi" + String(i)]["ssid"] = ssidList[i].c_str();
+        json["Wifi" + String(i)]["pass"] = passList[i].c_str();
+        this->wifiMulti.addAP(ssidList[i].c_str(), passList[i].c_str());
       }
 
       configFile.close();
@@ -185,8 +178,6 @@ bool CoolWifi::addWifi(String ssid, String pass) {
     DEBUG_LOG("You have reached the limit of 50 networks");
     return (false);
   }
-  this->ssid[this->wifiCount - 1] = ssid;
-  this->pass[this->wifiCount - 1] = pass;
   File configFile = SPIFFS.open("/wifiConfig.json", "r");
 
   if (!configFile) {
@@ -212,8 +203,8 @@ bool CoolWifi::addWifi(String ssid, String pass) {
       json["timeOut"] = this->timeOut;
       JsonObject &newWifi =
           json.createNestedObject("Wifi" + String(this->wifiCount - 1));
-      newWifi["ssid"] = this->ssid[this->wifiCount - 1];
-      newWifi["pass"] = this->pass[this->wifiCount - 1];
+      newWifi["ssid"] = ssid;
+      newWifi["pass"] = pass;
       configFile.close();
       configFile = SPIFFS.open("/wifiConfig.json", "w");
 
@@ -255,13 +246,13 @@ String CoolWifi::getExternalIP() {
   return IP.substring(IP.indexOf("{") + 6, IP.lastIndexOf("}"));
 }
 
-void CoolWifi::printConf() {
+void CoolWifi::printConf(String ssid[]) {
   INFO_LOG("Wifi configuration");
   INFO_VAR("  Wifi count = ", this->wifiCount);
 
   for (int i = 0; i < this->wifiCount; i++) {
     INFO_VAR(" Network #", i);
-    INFO_VAR("    SSID    = ", this->ssid[i]);
+    INFO_VAR("    SSID    = ", ssid[i]);
   }
   INFO_VAR("  Timeout =", this->timeOut);
 }

@@ -34,10 +34,9 @@ public:
   void begin();
   void read(JsonObject &root);
   bool config();
-  void printConf();
 
 private:
-  struct sensor {
+  struct Sensor {
     String reference = "";
     String type = "";
     uint8_t address = 0;
@@ -46,9 +45,9 @@ private:
     String kind1 = "0";
     String kind2 = "0";
     String kind3 = "0";
-  } sensors[50];
-
-  int sensorsNumber = 0;
+  };
+  void printConf(Sensor sensors[]);
+  uint8_t sensorsNumber = 0;
 };
 
 #endif

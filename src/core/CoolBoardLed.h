@@ -36,47 +36,24 @@
 #define YELLOW 30, 30, 0
 #define BLUE 0, 0, 50
 #define FUCHSIA 30, 0, 30
-/**
- *  \class  CoolBoardLed
- *  \brief  This class handles the led in the Sensor Board
- */
+
 class CoolBoardLed {
 
 public:
+  CoolBoardLed() : neoPixelLed(1, 2) {}
   void begin();
-
-  void write(int R, int G, int B);
-
-  void end(); // delete the dynamic led;
-
+  void write(uint8_t R, uint8_t G, uint8_t B);
   bool config();
-
   void activate();
-
   void printConf();
-
-  // Neo Pixel Led methods :
-  void fade(int R, int G, int B, float T);
-
-  void blink(int R, int G, int B, float T);
-
-  void fadeIn(int R, int G, int B, float T);
-
-  void fadeOut(int R, int G, int B, float T);
-
-  void strobe(int R, int G, int B, float T);
+  void fade(uint8_t R, uint8_t G, uint8_t B, float T);
+  void blink(uint8_t R, uint8_t G, uint8_t B, float T);
+  void fadeIn(uint8_t R, uint8_t G, uint8_t B, float T);
+  void fadeOut(uint8_t R, uint8_t G, uint8_t B, float T);
+  void strobe(uint8_t R, uint8_t G, uint8_t B, float T);
 
 private:
-  /**
-   *  NeoPixel Led Instance
-   */
-  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> *neoPixelLed =
-      NULL; // template instance must be dynamic
-
-  /**
-   *  ledActive flag
-   *  set to 1 if you want LED animation
-   */
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> neoPixelLed;
   bool ledActive = 1;
 };
 
