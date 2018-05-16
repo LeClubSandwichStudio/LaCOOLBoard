@@ -31,7 +31,6 @@
 
 void CoolTime::begin() {
   Udp.begin(localPort);
-  this->update();
 }
 
 void CoolTime::offGrid() {
@@ -101,7 +100,7 @@ void CoolTime::offGrid() {
     unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
     this->timeSync = instantTime;
     this->compileTime = 0;
-    saveTimeSync();
+    this->saveTimeSync();
     DEBUG_VAR("RTC set from:", __TIMESTAMP__);
     DEBUG_VAR("Seconds since UNIX Epoch:", instantTime);
   }
@@ -117,7 +116,7 @@ void CoolTime::update() {
 
       DEBUG_LOG("Waiting for sync");
       this->timeSync = this->getNtpTime();
-      while (this->timeSync == 0) {
+      while (!this->timeSync) {
         delay(1000);
         this->timeSync = this->getNtpTime();
 
