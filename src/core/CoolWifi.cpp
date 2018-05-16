@@ -78,7 +78,7 @@ void CoolWifi::printStatus(wl_status_t status) {
 wl_status_t CoolWifi::connectWifiMulti() {
   int i = 0;
 
-  DEBUG_VAR("Entry time to wifi connection attempt:", millis());
+  DEBUG_VAR("Entry time to Wifi connection attempt:", millis());
   while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 300)) {
     i++;
     delay(100);
