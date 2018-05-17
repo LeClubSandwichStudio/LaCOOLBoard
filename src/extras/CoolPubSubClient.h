@@ -15,6 +15,7 @@
 #define MQTT_VERSION_3_1      3
 #define MQTT_VERSION_3_1_1    4
 
+
 // MQTT_VERSION : Pick the version
 //#define MQTT_VERSION MQTT_VERSION_3_1
 #ifndef MQTT_VERSION
@@ -97,7 +98,7 @@ private:
    IPAddress ip;
    const char* domain;
    uint16_t port;
-   Stream* stream;
+   Stream *stream;
    int _state;
 public:
    CoolPubSubClient();

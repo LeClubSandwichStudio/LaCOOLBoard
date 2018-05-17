@@ -36,6 +36,8 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 #include "CoolPubSubClient.h"
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
@@ -47,6 +49,7 @@ class CoolBoard {
 public:
   void begin();
   bool config();
+  void otaUpdateConfig();
   void update(const char *answer);
   void loop();
   int connect();
@@ -72,30 +75,36 @@ public:
   bool mqttPublish(String data);
   bool mqttListen();
   void mqttCallback(char *topic, byte *payload, unsigned int length);
+  void otaUpdate();
 
 private:
-  CoolFileSystem fileSystem;
-  CoolBoardSensors coolBoardSensors;
-  CoolBoardLed led;
-  CoolTime rtc;
-  CoolWifi wifiManager;
-  Jetpack jetPack;
-  Irene3000 irene3000;
-  ExternalSensors externalSensors;
-  CoolBoardActuator onBoardActuator;
-  CoolPubSubClient mqttClient;
-  WiFiClient wifiClient;
+  CoolFileSystem *fileSystem = new CoolFileSystem;
+  CoolBoardSensors *coolBoardSensors = new CoolBoardSensors;
+  CoolBoardLed *led = new CoolBoardLed;
+  CoolTime *rtc = new CoolTime;
+  CoolWifi *wifiManager = new CoolWifi;
+  Jetpack *jetPack = new Jetpack;
+  Irene3000 *irene3000 = new Irene3000;
+  ExternalSensors *externalSensors = new ExternalSensors;
+  CoolBoardActuator *onBoardActuator = new CoolBoardActuator;
+  CoolPubSubClient *mqttClient = new CoolPubSubClient;
+  WiFiClient *wifiClient = new WiFiClient;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool doOta = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;
   String mqttServer;
   String mqttInTopic;
   String mqttOutTopic;
+  String fwVersion = "";
+  String fwURL = "";
+  String fingerPrintURL = "";
+  uint8_t failCount;
 };
 
 #endif
