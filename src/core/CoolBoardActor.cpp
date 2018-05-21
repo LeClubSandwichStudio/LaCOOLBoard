@@ -37,82 +37,82 @@ bool CoolBoardActor::getStatus() {
   return digitalRead(ONBOARD_ACTUATOR_PIN);
 }
 
-void CoolBoardActor::doAction(JsonObject &root, uint8_t hour, uint8_t minute) {
+bool CoolBoardActor::doAction(JsonObject &root, uint8_t hour, uint8_t minute) {
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
 
   // invert the current action state for the actor
   // if the value is outside the limits
-  if (this->actor.actif == 1) {
+  if (this->actif == 1) {
     // check if actor is active
-    if (this->actor.temporal == 0) {
+    if (this->temporal == 0) {
       // normal actor
-      if (this->actor.inverted == 0) {
+      if (this->inverted == 0) {
         // not inverted actor
-        this->normalAction(root[this->actor.primaryType].as<float>());
-      } else if (this->actor.inverted == 1) {
+        this->normalAction(root[this->primaryType].as<float>());
+      } else if (this->inverted == 1) {
         // inverted actor
-        this->invertedAction(root[this->actor.primaryType].as<float>());
+        this->invertedAction(root[this->primaryType].as<float>());
       }
-    } else if (this->actor.temporal == 1) {
+    } else if (this->temporal == 1) {
       // temporal actor
-      if (this->actor.secondaryType == "hour") {
+      if (this->secondaryType == "hour") {
         // hour actor
-        if (root[this->actor.primaryType].success()) {
+        if (root[this->primaryType].success()) {
           // mixed hour actor
           this->mixedHourAction(hour,
-                                root[this->actor.primaryType].as<float>());
+                                root[this->primaryType].as<float>());
         } else {
           // normal hour actor
           this->hourAction(hour);
-          // root[this->actor.secondaryType].as<int>());
+          // root[this->secondaryType].as<int>());
         }
-      } else if (this->actor.secondaryType == "minute") {
+      } else if (this->secondaryType == "minute") {
         // minute actor
-        if (root[this->actor.primaryType].success()) {
+        if (root[this->primaryType].success()) {
           // mixed minute actor
           this->mixedMinuteAction(minute,
-                                  root[this->actor.primaryType].as<float>());
+                                  root[this->primaryType].as<float>());
         } else {
           // normal minute actor
           this->minuteAction(minute);
         }
-      } else if (this->actor.secondaryType == "hourMinute") {
+      } else if (this->secondaryType == "hourMinute") {
         // hourMinute actor
-        if (root[this->actor.primaryType].success()) {
+        if (root[this->primaryType].success()) {
           // mixed hourMinute actor
           this->mixedHourMinuteAction(
-              hour, minute, root[this->actor.primaryType].as<float>());
+              hour, minute, root[this->primaryType].as<float>());
         } else {
           // normal hourMinute actor
           this->hourMinuteAction(hour, minute);
         }
-      } else if (this->actor.secondaryType == "") {
+      } else if (this->secondaryType == "") {
         // normal temporal actor
-        if (root[this->actor.primaryType].success()) {
+        if (root[this->primaryType].success()) {
           // mixed temporal actor
           this->mixedTemporalActionOn(
-              root[this->actor.primaryType].as<float>());
+              root[this->primaryType].as<float>());
         } else {
           // normal temporal actor
           this->temporalActionOn();
         }
       }
     }
-  } else if (this->actor.actif == 0) {
+  } else if (this->actif == 0) {
     // disabled actor
-    if (this->actor.temporal == 1) {
+    if (this->temporal == 1) {
       // temporal actor
-      if (root[this->actor.primaryType].success()) {
+      if (root[this->primaryType].success()) {
         // mixed temporal actor
-        this->mixedTemporalActionOff(root[this->actor.primaryType].as<float>());
+        this->mixedTemporalActionOff(root[this->primaryType].as<float>());
       } else {
         // normal temporal actor
         this->temporalActionOff();
       }
     }
   }
-  root["ActB"] = digitalRead(ONBOARD_ACTUATOR_PIN);
+  return (this->state);
 }
 
 bool CoolBoardActor::config() {
@@ -131,51 +131,51 @@ bool CoolBoardActor::config() {
       DEBUG_JSON("Actuator config JSON:", json);
       DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
       if (json["actif"].success()) {
-        this->actor.actif = json["actif"];
+        this->actif = json["actif"];
       }
-      json["actif"] = this->actor.actif;
+      json["actif"] = this->actif;
       // parsing temporal key
       if (json["temporal"].success()) {
-        this->actor.temporal = json["temporal"];
+        this->temporal = json["temporal"];
       }
-      json["temporal"] = this->actor.temporal;
+      json["temporal"] = this->temporal;
       // parsing inverted key
       if (json["inverted"].success()) {
-        this->actor.inverted = json["inverted"];
+        this->inverted = json["inverted"];
       }
-      json["inverted"] = this->actor.inverted;
+      json["inverted"] = this->inverted;
 
       // parsing low key
       if (json["low"].success()) {
-        this->actor.rangeLow = json["low"][0];
-        this->actor.timeLow = json["low"][1];
-        this->actor.hourLow = json["low"][2];
-        this->actor.minuteLow = json["low"][3];
+        this->rangeLow = json["low"][0];
+        this->timeLow = json["low"][1];
+        this->hourLow = json["low"][2];
+        this->minuteLow = json["low"][3];
       }
-      json["low"][0] = this->actor.rangeLow;
-      json["low"][1] = this->actor.timeLow;
-      json["low"][2] = this->actor.hourLow;
-      json["low"][3] = this->actor.minuteLow;
+      json["low"][0] = this->rangeLow;
+      json["low"][1] = this->timeLow;
+      json["low"][2] = this->hourLow;
+      json["low"][3] = this->minuteLow;
 
       // parsing high key
       if (json["high"].success()) {
-        this->actor.rangeHigh = json["high"][0];
-        this->actor.timeHigh = json["high"][1];
-        this->actor.hourHigh = json["high"][2];
-        this->actor.minuteHigh = json["high"][3];
+        this->rangeHigh = json["high"][0];
+        this->timeHigh = json["high"][1];
+        this->hourHigh = json["high"][2];
+        this->minuteHigh = json["high"][3];
       }
-      json["high"][0] = this->actor.rangeHigh;
-      json["high"][1] = this->actor.timeHigh;
-      json["high"][2] = this->actor.hourHigh;
-      json["high"][3] = this->actor.minuteHigh;
+      json["high"][0] = this->rangeHigh;
+      json["high"][1] = this->timeHigh;
+      json["high"][2] = this->hourHigh;
+      json["high"][3] = this->minuteHigh;
 
       // parsing type key
       if (json["type"].success()) {
-        this->actor.primaryType = json["type"][0].as<String>();
-        this->actor.secondaryType = json["type"][1].as<String>();
+        this->primaryType = json["type"][0].as<String>();
+        this->secondaryType = json["type"][1].as<String>();
       }
-      json["type"][0] = this->actor.primaryType;
-      json["type"][1] = this->actor.secondaryType;
+      json["type"][0] = this->primaryType;
+      json["type"][1] = this->secondaryType;
       configFile.close();
       configFile = SPIFFS.open("/coolBoardActorConfig.json", "w");
 
@@ -192,373 +192,428 @@ bool CoolBoardActor::config() {
 }
 
 void CoolBoardActor::printConf() {
-  INFO_LOG("Actuator configuration:");
-  INFO_VAR("  Actif          = ", this->actor.actif);
-  INFO_VAR("  Temporal       = ", this->actor.temporal);
-  INFO_VAR("  Inverted       = ", this->actor.inverted);
-  INFO_VAR("  Primary type   = ", this->actor.primaryType);
-  INFO_VAR("  Secondary type = ", this->actor.secondaryType);
-  INFO_VAR("  Range low      = ", this->actor.rangeLow);
-  INFO_VAR("  Time low       = ", this->actor.timeLow);
-  INFO_VAR("  Hour low       = ", this->actor.hourLow);
-  INFO_VAR("  Minute low     = ", this->actor.minuteLow);
-  INFO_VAR("  Range high     = ", this->actor.rangeHigh);
-  INFO_VAR("  Time high      = ", this->actor.timeHigh);
-  INFO_VAR("  Hour high      = ", this->actor.hourHigh);
-  INFO_VAR("  Minute high    = ", this->actor.minuteHigh);
+  INFO_VAR("  Actif          = ", this->actif);
+  INFO_VAR("  Temporal       = ", this->temporal);
+  INFO_VAR("  Inverted       = ", this->inverted);
+  INFO_VAR("  Primary type   = ", this->primaryType);
+  INFO_VAR("  Secondary type = ", this->secondaryType);
+  INFO_VAR("  Range low      = ", this->rangeLow);
+  INFO_VAR("  Time low       = ", this->timeLow);
+  INFO_VAR("  Hour low       = ", this->hourLow);
+  INFO_VAR("  Minute low     = ", this->minuteLow);
+  INFO_VAR("  Range high     = ", this->rangeHigh);
+  INFO_VAR("  Time high      = ", this->timeHigh);
+  INFO_VAR("  Hour high      = ", this->hourHigh);
+  INFO_VAR("  Minute high    = ", this->minuteHigh);
 }
 
 void CoolBoardActor::normalAction(float measurment) {
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-
-  if (measurment < this->actor.rangeLow) {
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+Serial.print("normalAction(");
+  if (measurment < this->rangeLow) {
     // measured value lower than minimum range : activate actor
-    this->write(1);
+    this->state = 1;
     DEBUG_LOG("Actuator ON (sample < rangeLow)");
-  } else if (measurment > this->actor.rangeHigh) {
+    Serial.print("1");
+  } else if (measurment > this->rangeHigh) {
     // measured value higher than maximum range : deactivate actor
     DEBUG_LOG("Actuator OFF (sample > rangeHigh)");
-    this->write(0);
+    this->state = 0;
+    Serial.print("0");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::invertedAction(float measurment) {
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-
-  if (measurment < this->actor.rangeLow) {
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+Serial.print("invertedAction(");
+  if (measurment < this->rangeLow) {
     // measured value lower than minimum range : deactivate actor
-    this->write(0);
+    this->state = 0;
+    Serial.print("0");
     DEBUG_LOG("Actuator OFF (sample < rangeLow)");
-  } else if (measurment > this->actor.rangeHigh) {
+  } else if (measurment > this->rangeHigh) {
     // measured value higher than maximum range : activate actor
-    this->write(1);
+    this->state = 1;
+    Serial.print("1");
     DEBUG_LOG("Actuator ON (sample < rangeHigh)");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::temporalActionOff() {
   DEBUG_LOG("Temporal actuator");
   DEBUG_VAR("Current millis:", millis());
-  DEBUG_VAR("Time active:", this->actor.actifTime);
-  DEBUG_VAR("Time HIGH:", this->actor.timeHigh);
-
-  if ((millis() - this->actor.actifTime) >= (this->actor.timeHigh)) {
+  DEBUG_VAR("Time active:", this->actifTime);
+  DEBUG_VAR("Time HIGH:", this->timeHigh);
+Serial.print("temporalActionOff(");
+  if ((millis() - this->actifTime) >= (this->timeHigh)) {
     // stop the actor
-    this->write(0);
+    this->state = 0;
+    Serial.print("0");
     // make the actor inactif:
-    this->actor.actif = 0;
+    this->actif = 0;
     // start the low timer
-    this->actor.inactifTime = millis();
+    this->inactifTime = millis();
     DEBUG_LOG("Actuator OFF (time active >= duration HIGH)");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::mixedTemporalActionOff(float measurment) {
   DEBUG_LOG("Mixed temporal actuator");
   DEBUG_VAR("Current millis:", millis());
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-  DEBUG_VAR("Active time:", this->actor.actifTime);
-  DEBUG_VAR("Time HIGH:", this->actor.timeHigh);
-
-  if ((millis() - this->actor.actifTime) >= (this->actor.timeHigh)) {
-    if (measurment >= this->actor.rangeHigh) {
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+  DEBUG_VAR("Active time:", this->actifTime);
+  DEBUG_VAR("Time HIGH:", this->timeHigh);
+Serial.print("mixedTemporalActionOff(");
+  if ((millis() - this->actifTime) >= (this->timeHigh)) {
+    if (measurment >= this->rangeHigh) {
       // stop the actor
-      this->write(0);
+      this->state = 0;
+      Serial.print("0");
       // make the actor inactif:
-      this->actor.actif = 0;
+      this->actif = 0;
       // start the low timer
-      this->actor.inactifTime = millis();
+      this->inactifTime = millis();
       DEBUG_LOG("Actuator OFF (value >= range HIGH)");
     } else {
-      this->write(1);
+      this->state = 1;
+      Serial.print("1");
       DEBUG_LOG("Actuator ON (value < range HIGH)");
     }
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::temporalActionOn() {
   DEBUG_LOG("Temporal actuator");
   DEBUG_VAR("Current millis:", millis());
-  DEBUG_VAR("Inactive time:", this->actor.inactifTime);
-  DEBUG_VAR("Time LOW:", this->actor.timeLow);
-
-  if ((millis() - this->actor.inactifTime) >= (this->actor.timeLow)) {
+  DEBUG_VAR("Inactive time:", this->inactifTime);
+  DEBUG_VAR("Time LOW:", this->timeLow);
+Serial.print("temporalActionOn(");
+  if ((millis() - this->inactifTime) >= (this->timeLow)) {
     // start the actor
-    this->write(1);
+    this->state = 1;
     // make the actor actif:
-    this->actor.actif = 1;
+    this->actif = 1;
     // start the low timer
-    this->actor.actifTime = millis();
+    this->actifTime = millis();
+    Serial.print("1");
     DEBUG_LOG("Actuator ON (time inactive >= duration LOW)");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::mixedTemporalActionOn(float measurment) {
   DEBUG_LOG("Mixed temporal actuator");
   DEBUG_VAR("Current millis:", millis());
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-  DEBUG_VAR("Inactive time:", this->actor.inactifTime);
-  DEBUG_VAR("Time LOW:", this->actor.timeLow);
-
-  if ((millis() - this->actor.inactifTime) >= (this->actor.timeLow)) {
-    if (measurment < this->actor.rangeLow) {
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+  DEBUG_VAR("Inactive time:", this->inactifTime);
+  DEBUG_VAR("Time LOW:", this->timeLow);
+Serial.print("mixedTemporalActionOn(");
+  if ((millis() - this->inactifTime) >= (this->timeLow)) {
+    if (measurment < this->rangeLow) {
       // start the actor
-      this->write(1);
+      this->state = 1;
       // make the actor actif:
-      this->actor.actif = 1;
+      this->actif = 1;
+      Serial.print("1");
       // start the low timer
-      this->actor.actifTime = millis();
+      this->actifTime = millis();
       DEBUG_LOG("Actuator ON (value < range LOW)");
     } else {
-      this->write(0);
+      this->state = 0;
+      Serial.print("0");
       DEBUG_LOG("Actuator OFF (value >= range LOW)");
     }
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::hourAction(uint8_t hour) {
   DEBUG_LOG("Hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
-  DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
-  DEBUG_VAR("Hour LOW:", this->actor.hourLow);
-  DEBUG_VAR("Inverted flag:", this->actor.inverted);
-
-  if (this->actor.hourHigh < this->actor.hourLow) {
-    if (hour >= this->actor.hourLow || hour < this->actor.hourHigh) {
+  DEBUG_VAR("Hour HIGH:", this->hourHigh);
+  DEBUG_VAR("Hour LOW:", this->hourLow);
+  DEBUG_VAR("Inverted flag:", this->inverted);
+Serial.print("hourAction(");
+  if (this->hourHigh < this->hourLow) {
+    if (hour >= this->hourLow || hour < this->hourHigh) {
       // stop the actor
-      if (this->actor.inverted) {
-        this->write(1);
+      if (this->inverted) {
+        this->state = 1;
+        Serial.print("1");
       } else {
-        this->write(0);
+        this->state = 0;
+        Serial.print("0");
       }
-      DEBUG_LOG("Daymode, onboard actuator OFF");
+      DEBUG_LOG("Daymode, actuator OFF");
     } else {
       // start the actor
-      if (this->actor.inverted) {
-        this->write(0);
+      if (this->inverted) {
+        this->state = 0;
+        Serial.print("0");
       } else {
-        this->write(1);
+        this->state = 1;
+        Serial.print("1");
       }
-      DEBUG_LOG("Daymode, onboard actuator ON");
+      DEBUG_LOG("Daymode, actuator ON");
     }
   } else {
-    if (hour >= this->actor.hourLow && hour < this->actor.hourHigh) {
+    if (hour >= this->hourLow && hour < this->hourHigh) {
       // stop the actor in "night mode", i.e. a light that is on at night
-      if (this->actor.inverted) {
-        this->write(1);
+      if (this->inverted) {
+        this->state = 1;
+        Serial.print("1");
       } else {
-        this->write(0);
+        this->state = 0;
+        Serial.print("0");
       }
-      DEBUG_LOG("Nightmode, onboard actuator OFF");
+      DEBUG_LOG("Nightmode, actuator OFF");
     } else {
       // starting the actor
-      if (this->actor.inverted) {
-        this->write(0);
+      if (this->inverted) {
+        this->state = 0;
+        Serial.print("0");
       } else {
-        this->write(1);
+        this->state = 1;
+        Serial.print("1");
       }
-      DEBUG_LOG("Nightmode, onboard actuator ON");
+      DEBUG_LOG("Nightmode, actuator ON");
     }
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::mixedHourAction(uint8_t hour, float measurment) {
   DEBUG_LOG("Mixed hourly triggered actuator");
   DEBUG_VAR("Current hour:", hour);
-  DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
-  DEBUG_VAR("Hour LOW:", this->actor.hourLow);
-  DEBUG_VAR("Inverted flag:", this->actor.inverted);
+  DEBUG_VAR("Hour HIGH:", this->hourHigh);
+  DEBUG_VAR("Hour LOW:", this->hourLow);
+  DEBUG_VAR("Inverted flag:", this->inverted);
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-
-  if (measurment <= this->actor.rangeLow && this->actor.failsave == true) {
-    this->actor.failsave = false;
-    WARN_LOG("Resetting failsave for onboard actuator");
-  } else if (measurment >= this->actor.rangeHigh &&
-             this->actor.failsave == false) {
-    this->actor.failsave = true;
-    WARN_LOG("Engaging failsave for onboard actuator");
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+Serial.print("mixedHourAction(");
+  if (measurment <= this->rangeLow && this->failsave == true) {
+    this->failsave = false;
+    WARN_LOG("Resetting failsave for actuator");
+  } else if (measurment >= this->rangeHigh &&
+             this->failsave == false) {
+    this->failsave = true;
+    WARN_LOG("Engaging failsave for actuator");
   }
 
-  if (this->actor.hourHigh < this->actor.hourLow) {
-    if ((hour >= this->actor.hourLow || hour < this->actor.hourHigh) ||
-        this->actor.failsave == true) {
+  if (this->hourHigh < this->hourLow) {
+    if ((hour >= this->hourLow || hour < this->hourHigh) ||
+        this->failsave == true) {
       // stop the actor
-      if (this->actor.inverted) {
-        this->write(1);
+      if (this->inverted) {
+        this->state = 1;
+        Serial.print("1");
       } else {
-        this->write(0);
+        this->state = 0;
+        Serial.print("0");
       }
-      DEBUG_LOG("Daymode, turned OFF onboard actuator");
-    } else if (this->actor.failsave == false) {
+      DEBUG_LOG("Daymode, turned OFF actuator");
+    } else if (this->failsave == false) {
       // starting the actor
-      if (this->actor.inverted) {
-        this->write(0);
+      if (this->inverted) {
+        this->state = 0;
+        Serial.print("0");
       } else {
-        this->write(1);
+        this->state = 1;
+        Serial.print("1");
       }
-      DEBUG_LOG("Daymode, turned ON onboard actuator");
+      DEBUG_LOG("Daymode, turned ON actuator");
     }
   } else {
-    if ((hour >= this->actor.hourLow && hour < this->actor.hourHigh) ||
-        this->actor.failsave == true) {
+    if ((hour >= this->hourLow && hour < this->hourHigh) ||
+        this->failsave == true) {
       // stop the actor in Nght mode ie a light that is on over night
-      if (this->actor.inverted) {
-        this->write(1);
+      if (this->inverted) {
+        this->state = 1;
+        Serial.print("1");
       } else {
-        this->write(0);
+        this->state = 0;
+        Serial.print("0");
       }
-      DEBUG_LOG("Nightmode, turned OFF onboard actuator");
-    } else if (this->actor.failsave == false) {
+      DEBUG_LOG("Nightmode, turned OFF actuator");
+    } else if (this->failsave == false) {
       // starting the actor
-      if (this->actor.inverted) {
-        this->write(0);
+      if (this->inverted) {
+        this->state = 0;
+        Serial.print("0");
       } else {
-        this->write(1);
+        this->state = 1;
+        Serial.print("1");
       }
-      DEBUG_LOG("Nightmode, turned ON onboard actuator");
+      DEBUG_LOG("Nightmode, turned ON actuator");
     }
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::minuteAction(uint8_t minute) {
-  DEBUG_LOG("Minute-wise triggered onboard actuator");
+  DEBUG_LOG("Minute-wise triggered actuator");
   DEBUG_VAR("Current minute:", minute);
-  DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
-  DEBUG_VAR("Minute LOW:", this->actor.minuteLow);
-
+  DEBUG_VAR("Minute HIGH:", this->minuteHigh);
+  DEBUG_VAR("Minute LOW:", this->minuteLow);
+Serial.print("minuteAction(");
   // FIXME: no inverted logic
   // FIXME: what if minuteHigh < minuteLow ?
-  if (minute <= this->actor.minuteLow) {
+  if (minute <= this->minuteLow) {
     // stop the actor
-    this->write(0);
-    DEBUG_LOG("Turned OFF onboard actuator (minute <= minute LOW)");
+    this->state = 0;
+    Serial.print("0");
+    DEBUG_LOG("Turned OFF actuator (minute <= minute LOW)");
 
-  } else if (minute >= this->actor.minuteHigh) {
+  } else if (minute >= this->minuteHigh) {
     // starting the actor
-    this->write(1);
-    DEBUG_LOG("Turned ON onboard actuator (minute >= minute HIGH)");
+    this->state = 1;
+    Serial.print("1");
+    DEBUG_LOG("Turned ON actuator (minute >= minute HIGH)");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::mixedMinuteAction(uint8_t minute, float measurment) {
-  DEBUG_LOG("Mixed minute-wise triggered onboard actuator");
+  DEBUG_LOG("Mixed minute-wise triggered actuator");
   DEBUG_VAR("Current minute:", minute);
-  DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
-  DEBUG_VAR("Minute LOW:", this->actor.minuteLow);
+  DEBUG_VAR("Minute HIGH:", this->minuteHigh);
+  DEBUG_VAR("Minute LOW:", this->minuteLow);
   DEBUG_VAR("Sensor value:", measurment);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+Serial.print("mixedMinuteAction(");
   // FIXME: no inverted logic
   // FIXME: what if minuteHigh < minuteLow ?
-  if (minute <= this->actor.minuteLow) {
-    if (measurment > this->actor.rangeHigh) {
-      this->write(0);
-      DEBUG_LOG("Turned OFF onboard actuator (value > range HIGH)");
+  if (minute <= this->minuteLow) {
+    if (measurment > this->rangeHigh) {
+      this->state = 0;
+      Serial.print("0");
+      DEBUG_LOG("Turned OFF actuator (value > range HIGH)");
     } else {
-      this->write(1);
-      DEBUG_LOG("Turned ON onboard actuator (value <= range HIGH)");
+      this->state = 1;
+      Serial.print("1");
+      DEBUG_LOG("Turned ON actuator (value <= range HIGH)");
     }
-  } else if (minute >= this->actor.minuteHigh) {
-    if (measurment < this->actor.rangeLow) {
-      this->write(1);
-      DEBUG_LOG("Turned ON onboard actuator (value < range LOW)");
+  } else if (minute >= this->minuteHigh) {
+    if (measurment < this->rangeLow) {
+      this->state = 1;
+      Serial.print("1");
+      DEBUG_LOG("Turned ON actuator (value < range LOW)");
     } else {
-      this->write(0);
-      DEBUG_LOG("Turned OFF onboard actuator (value >= range LOW)");
+      this->state = 0;
+      Serial.print("0");
+      DEBUG_LOG("Turned OFF actuator (value >= range LOW)");
     }
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::hourMinuteAction(uint8_t hour, uint8_t minute) {
-  DEBUG_LOG("Hour:minute triggered onboard actuator");
+  DEBUG_LOG("Hour:minute triggered actuator");
   DEBUG_VAR("Current hour:", hour);
-  DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
-  DEBUG_VAR("Hour LOW:", this->actor.hourLow);
+  DEBUG_VAR("Hour HIGH:", this->hourHigh);
+  DEBUG_VAR("Hour LOW:", this->hourLow);
   DEBUG_VAR("Current minute:", minute);
-  DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
-  DEBUG_VAR("Minute LOW:", this->actor.minuteLow);
-
+  DEBUG_VAR("Minute HIGH:", this->minuteHigh);
+  DEBUG_VAR("Minute LOW:", this->minuteLow);
+Serial.print("hourMinuteAction(");
   // FIXME: no inverted logic
   // FIXME: what if hourHigh/minuteHigh < hourLow/minuteLow ?
-  if (hour == this->actor.hourLow) {
-    if (minute >= this->actor.minuteLow) {
-      this->write(0);
-      DEBUG_LOG("Turned OFF onboard actuator (hour:minute > hour:minute LOW)");
+  if (hour == this->hourLow) {
+    if (minute >= this->minuteLow) {
+      this->state = 0;
+      Serial.print("0");
+      DEBUG_LOG("Turned OFF actuator (hour:minute > hour:minute LOW)");
     }
-  } else if (hour > this->actor.hourLow) {
-    this->write(0);
-    DEBUG_LOG("Turned OFF onboard actuator (hour > hour LOW)");
-  } else if (hour == this->actor.hourHigh) {
-    if (minute >= this->actor.minuteHigh) {
-      this->write(1);
-      DEBUG_LOG("Turned ON onboard actuator (hour:minute > hour:minute HIGH)");
+  } else if (hour > this->hourLow) {
+    this->state = 0;
+    Serial.print("0");
+    DEBUG_LOG("Turned OFF actuator (hour > hour LOW)");
+  } else if (hour == this->hourHigh) {
+    if (minute >= this->minuteHigh) {
+      this->state = 1;
+      Serial.print("1");
+      DEBUG_LOG("Turned ON actuator (hour:minute > hour:minute HIGH)");
     }
-  } else if (hour > this->actor.hourHigh) {
-    this->write(1);
-    DEBUG_LOG("Turned ON onboard actuator (hour > hour HIGH)");
+  } else if (hour > this->hourHigh) {
+    this->state = 1;
+    Serial.print("1");
+    DEBUG_LOG("Turned ON actuator (hour > hour HIGH)");
   }
+  Serial.println(")");
 }
 
 void CoolBoardActor::mixedHourMinuteAction(uint8_t hour, uint8_t minute,
                                            float measurment) {
-  DEBUG_LOG("Mixed Hour:minute triggered onboard actuator");
+  DEBUG_LOG("Mixed Hour:minute triggered actuator");
   DEBUG_VAR("Current hour:", hour);
-  DEBUG_VAR("Hour HIGH:", this->actor.hourHigh);
-  DEBUG_VAR("Hour LOW:", this->actor.hourLow);
+  DEBUG_VAR("Hour HIGH:", this->hourHigh);
+  DEBUG_VAR("Hour LOW:", this->hourLow);
   DEBUG_VAR("Current minute:", minute);
-  DEBUG_VAR("Minute HIGH:", this->actor.minuteHigh);
-  DEBUG_VAR("Minute LOW:", this->actor.minuteLow);
+  DEBUG_VAR("Minute HIGH:", this->minuteHigh);
+  DEBUG_VAR("Minute LOW:", this->minuteLow);
   DEBUG_VAR("Measured value:", measurment);
-  DEBUG_VAR("Range LOW:", this->actor.rangeLow);
-  DEBUG_VAR("Range HIGH:", this->actor.rangeHigh);
-
+  DEBUG_VAR("Range LOW:", this->rangeLow);
+  DEBUG_VAR("Range HIGH:", this->rangeHigh);
+Serial.print("mixedHourMinuteAction(");
   // stop the actor
-  if (hour == this->actor.hourLow) {
-    if (minute >= this->actor.minuteLow) {
-      if (measurment >= this->actor.rangeHigh) {
-        this->write(0);
-        DEBUG_LOG("Turned OFF onboard actuator (value >= range HIGH)");
+  if (hour == this->hourLow) {
+    if (minute >= this->minuteLow) {
+      if (measurment >= this->rangeHigh) {
+        this->state = 0;
+        Serial.print("0");
+        DEBUG_LOG("Turned OFF actuator (value >= range HIGH)");
       } else {
-        this->write(1);
-        DEBUG_LOG("Turned ON onboard actuator (value < range HIGH)");
+        this->state = 1;
+        Serial.print("1");
+        DEBUG_LOG("Turned ON actuator (value < range HIGH)");
       }
     }
-  } else if (hour > this->actor.hourLow) {
-    if (measurment >= this->actor.rangeHigh) {
-      this->write(0);
-      DEBUG_LOG("Turned OFF onboard actuator (value >= range HIGH)");
+  } else if (hour > this->hourLow) {
+    if (measurment >= this->rangeHigh) {
+      this->state = 0;
+      Serial.print("0");
+      DEBUG_LOG("Turned OFF actuator (value >= range HIGH)");
     } else {
-      this->write(1);
-      DEBUG_LOG("Turned ON onboard actuator (value < range HIGH)");
+      this->state = 1;
+      Serial.print("1");
+      DEBUG_LOG("Turned ON actuator (value < range HIGH)");
     }
   }
   // start the actor
-  else if (hour == this->actor.hourHigh) {
-    if (minute >= this->actor.minuteHigh) {
-      if (measurment < this->actor.rangeLow) {
-        this->write(1);
-        DEBUG_LOG("Turned ON onboard actuator (value < range LOW)");
+  else if (hour == this->hourHigh) {
+    if (minute >= this->minuteHigh) {
+      if (measurment < this->rangeLow) {
+        this->state = 1;
+        Serial.print("1");
+        DEBUG_LOG("Turned ON actuator (value < range LOW)");
       } else {
-        this->write(0);
-        DEBUG_LOG("Turned OFF onboard actuator (value >= range LOW)");
+        this->state = 0;
+        Serial.print("0");
+        DEBUG_LOG("Turned OFF actuator (value >= range LOW)");
       }
     }
-  } else if (hour > this->actor.hourHigh) {
-    if (measurment < this->actor.rangeLow) {
-      this->write(1);
-      DEBUG_LOG("Turned ON onboard actuator (value < range LOW)");
+  } else if (hour > this->hourHigh) {
+    if (measurment < this->rangeLow) {
+      this->state = 1;
+      Serial.print("1");
+      DEBUG_LOG("Turned ON actuator (value < range LOW)");
     } else {
-      this->write(0);
-      DEBUG_LOG("Turned OFF onboard actuator (value >= range LOW)");
+      this->state = 0;
+      Serial.print("0");
+      DEBUG_LOG("Turned OFF actuator (value >= range LOW)");
     }
   }
+  Serial.println(")");
 }

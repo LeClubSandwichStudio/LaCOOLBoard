@@ -25,7 +25,6 @@
 #define COOLBOARDACTOR_H
 
 #include <Arduino.h>
-
 #include <ArduinoJson.h>
 
 #define ONBOARD_ACTUATOR_PIN 15
@@ -36,7 +35,7 @@ public:
   void begin();
   bool getStatus();
   void write(bool action);
-  void doAction(JsonObject &data, uint8_t hour, uint8_t minute);
+  bool doAction(JsonObject &data, uint8_t hour, uint8_t minute);
   void normalAction(float measurment);
   void invertedAction(float measurment);
   void temporalActionOff();
@@ -52,24 +51,25 @@ public:
   bool config();
   void printConf();
 
-  struct {
-    bool actif = false;
-    bool temporal = false;
-    bool inverted = false;
-    String primaryType = "";
-    String secondaryType = "";
-    int rangeLow = 0;
-    unsigned long timeLow = 0;
-    uint8_t hourLow = 0;
-    uint8_t minuteLow = 0;
-    int rangeHigh = 0;
-    unsigned long timeHigh = 0;
-    uint8_t hourHigh = 0;
-    uint8_t minuteHigh = 0;
-    unsigned long actifTime = 0;
-    unsigned long inactifTime = 0;
-    bool failsave = false;
-  } actor;
+  bool state = 1;
+  bool actif = false;
+  bool temporal = false;
+  bool inverted = false;
+  String primaryType = "";
+  String secondaryType = "";
+  int rangeLow = 0;
+  unsigned long timeLow = 0;
+  uint8_t hourLow = 0;
+  uint8_t minuteLow = 0;
+  int rangeHigh = 0;
+  unsigned long timeHigh = 0;
+  uint8_t hourHigh = 0;
+  uint8_t minuteHigh = 0;
+  unsigned long actifTime = 0;
+  unsigned long inactifTime = 0;
+  bool failsave = false;
+
+  private:
 };
 
 #endif

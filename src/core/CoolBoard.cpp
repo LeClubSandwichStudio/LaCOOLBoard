@@ -224,14 +224,18 @@ void CoolBoard::handleActuators(JsonObject &reported) {
     INFO_LOG("Actuators configuration: automatic");
     tmElements_t tm;
     tm = this->rtc.getTimeDate();
-
     if (this->jetpackActive) {
       DEBUG_LOG("Collecting Jetpack actuators data...");
       this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
     }
-
     DEBUG_LOG("Collecting onboard actuator data...");
-    this->onBoardActor.doAction(reported, int(tm.Hour), int(tm.Minute));
+    if (this->onBoardActor.doAction(reported, int(tm.Hour), int(tm.Minute))) {
+      this->onBoardActor.write(1);
+      reported["ActB"] = 1;
+    } else {
+      this->onBoardActor.write(0);
+      reported["ActB"] = 0;
+    }
   } else {
     INFO_LOG("Actuators configuration: manual");
   }
