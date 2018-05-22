@@ -45,8 +45,8 @@ void CoolBoard::begin() {
   this->coolBoardSensors.begin();
   delay(100);
 
-  this->onBoardActor.config();
-  this->onBoardActor.begin();
+  this->onBoardActuator.config();
+  this->onBoardActuator.begin();
   delay(100);
 
   this->wifiManager.config();
@@ -56,7 +56,7 @@ void CoolBoard::begin() {
   this->printConf();
   this->led.printConf();
   this->coolBoardSensors.printConf();
-  this->onBoardActor.printConf();
+  this->onBoardActuator.printConf();
   this->rtc.printConf();
 
   if (this->jetpackActive) {
@@ -229,11 +229,11 @@ void CoolBoard::handleActuators(JsonObject &reported) {
       this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
     }
     DEBUG_LOG("Collecting onboard actuator data...");
-    if (this->onBoardActor.doAction(reported, int(tm.Hour), int(tm.Minute))) {
-      this->onBoardActor.write(1);
+    if (this->onBoardActuator.doAction(reported, int(tm.Hour), int(tm.Minute))) {
+      this->onBoardActuator.write(1);
       reported["ActB"] = 1;
     } else {
-      this->onBoardActor.write(0);
+      this->onBoardActuator.write(0);
       reported["ActB"] = 0;
     }
   } else {
@@ -391,7 +391,7 @@ void CoolBoard::update(const char *answer) {
         } else if (strcmp(kv.key, "Act7") == 0) {
           this->jetPack.writeBit(7, kv.value.as<bool>());
         } else if (strcmp(kv.key, "ActB") == 0) {
-          this->onBoardActor.write(kv.value.as<bool>());
+          this->onBoardActuator.write(kv.value.as<bool>());
         }
       }
     }

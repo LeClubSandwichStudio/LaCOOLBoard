@@ -27,8 +27,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
-#include "CoolBoardActor.h"
-#include "CoolBoardActor.h"
+#include "CoolBoardActuator.h"
 
 #define JETPACK_CLOCK_PIN 4
 #define JETPACK_DATA_PIN 15
@@ -47,7 +46,7 @@ public:
 private:
 
   uint8_t action = B00000000;
-  CoolBoardActor actorList[8];
+  CoolBoardActuator actuatorList[8];
 };
 
 #endif

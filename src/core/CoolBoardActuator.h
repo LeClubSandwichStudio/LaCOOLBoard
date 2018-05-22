@@ -21,15 +21,15 @@
  *
  */
 
-#ifndef COOLBOARDACTOR_H
-#define COOLBOARDACTOR_H
+#ifndef COOLBOARDACTUATOR_H
+#define COOLBOARDACTUATOR_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
 #define ONBOARD_ACTUATOR_PIN 15
 
-class CoolBoardActor {
+class CoolBoardActuator {
 
 public:
   void begin();
@@ -51,7 +51,7 @@ public:
   bool config();
   void printConf();
 
-  bool state = 1;
+  bool state = 0;
   bool actif = false;
   bool temporal = false;
   bool inverted = false;
@@ -68,8 +68,6 @@ public:
   unsigned long actifTime = 0;
   unsigned long inactifTime = 0;
   bool failsave = false;
-
-  private:
 };
 
 #endif
