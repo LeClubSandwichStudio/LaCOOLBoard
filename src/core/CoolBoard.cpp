@@ -253,7 +253,8 @@ unsigned long CoolBoard::secondsToNextLog() {
 }
 
 bool CoolBoard::config() {
-  INFO_VAR("MAC address is ", WiFi.macAddress());
+  INFO_VAR("MAC address is:", WiFi.macAddress());
+  INFO_VAR("Firmware version is:", COOL_FW_VERSION);
 
   this->fileSystem.begin();
   this->led.config();
