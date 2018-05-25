@@ -21,33 +21,26 @@
  *
  */
 
-#ifndef CoolWifi_H
-#define CoolWifi_H
+#ifndef COOLWIFI_H
+#define COOLWIFI_H
 
 #include <Arduino.h>
 #include <ESP8266WiFiMulti.h>
 
-/**
- *  \class CoolWifi
- *
- *  \brief This class manages the WiFi connection .
- *
- */
-
 class CoolWifi {
 
 public:
-  bool config();
   static void printStatus(wl_status_t status);
+  bool config();
   wl_status_t connect();
   wl_status_t connectWifiMulti();
   wl_status_t connectAP();
   wl_status_t state();
   wl_status_t disconnect();
   String getExternalIP();
-  bool addWifi(String ssid, String pass);
   uint8_t wifiCount = 0;
 private:
+  bool addWifi(String ssid, String pass);
   void printConf(String ssid[]);
   ESP8266WiFiMulti wifiMulti;
   uint8_t timeOut = 180;

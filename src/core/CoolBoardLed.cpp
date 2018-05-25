@@ -27,125 +27,97 @@
 #include <NeoPixelBus.h>
 
 #include "CoolBoardLed.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
-/**
- *  CoolBoardLed::fade ( Red , Green , Blue, Time in seconds ):
- *  fade animation:  Fade In over T(seconds)
- *      Fade Out over T(seconds)
- */
-void CoolBoardLed::fade(uint8_t R, uint8_t G, uint8_t B, float T) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
-  TRACE_VAR("Duration", T);
+void CoolBoardLed::fade(uint8_t r, uint8_t g, uint8_t b, float t) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
+  TRACE_VAR("Duration", t);
 
   if (this->ledActive == 1) {
     for (int k = 0; k < 1000; k++) {
       this->neoPixelLed.SetPixelColor(
-          0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+          0, RgbColor(k * r / 1000, k * g / 1000, k * b / 1000));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
     }
 
     for (int k = 1000; k >= 0; k--) {
       this->neoPixelLed.SetPixelColor(
-          0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+          0, RgbColor(k * r / 1000, k * g / 1000, k * b / 1000));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
     }
   }
 }
 
-/**
-*  CoolBoardLed::blink( Red , Green , Blue , Time in seconds ):
-*  Blink animation:  Led On for T seconds
-                                Led off
-*/
-void CoolBoardLed::blink(uint8_t R, uint8_t G, uint8_t B, float T) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
-  TRACE_VAR("Duration", T);
+void CoolBoardLed::blink(uint8_t r, uint8_t g, uint8_t b, float t) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
+  TRACE_VAR("Duration", t);
 
   if (this->ledActive == 1) {
-    this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+    this->neoPixelLed.SetPixelColor(0, RgbColor(r, g, b));
     this->neoPixelLed.Show();
-    delay(T * 1000);
+    delay(t * 1000);
     this->neoPixelLed.SetPixelColor(0, RgbColor(0, 0, 0));
     this->neoPixelLed.Show();
   }
 }
 
-/**
- *  CoolBoardLed::fadeIn(Red , Green , Blue , Time in seconds)
- *  Fade In animation:  gradual increase over T(seconds)
- */
-void CoolBoardLed::fadeIn(uint8_t R, uint8_t G, uint8_t B, float T) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
-  TRACE_VAR("Duration", T);
+void CoolBoardLed::fadeIn(uint8_t r, uint8_t g, uint8_t b, float t) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
+  TRACE_VAR("Duration", t);
 
   if (this->ledActive == 1) {
     for (int k = 0; k < 1000; k++) {
       this->neoPixelLed.SetPixelColor(
-          0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+          0, RgbColor(k * r / 1000, k * g / 1000, k * b / 1000));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
     }
   }
 }
 
-/**
- *  CoolBoardLed::fadeOut( Red , Green , Blue , Time in seconds)
- *  Fade Out animation:  gradual decrease over T(seconds)
- */
-void CoolBoardLed::fadeOut(uint8_t R, uint8_t G, uint8_t B, float T) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
-  TRACE_VAR("Duration", T);
+void CoolBoardLed::fadeOut(uint8_t r, uint8_t g, uint8_t b, float t) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
+  TRACE_VAR("Duration", t);
 
   if (this->ledActive == 1) {
     for (int k = 1000; k >= 0; k--) {
       this->neoPixelLed.SetPixelColor(
-          0, RgbColor(k * R / 1000, k * G / 1000, k * B / 1000));
+          0, RgbColor(k * r / 1000, k * g / 1000, k * b / 1000));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
     }
   }
 }
 
-/**
- *  CoolBoardLed::strobe(Red , Green , Blue , Time in seconds)
- *  Strobe animation:  blinks over T(seconds)
- */
-void CoolBoardLed::strobe(uint8_t R, uint8_t G, uint8_t B, float T) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
-  TRACE_VAR("Duration", T);
+void CoolBoardLed::strobe(uint8_t r, uint8_t g, uint8_t b, float t) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
+  TRACE_VAR("Duration", t);
 
   if (this->ledActive == 1) {
     for (int k = 1000; k >= 0; k--) {
-      this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+      this->neoPixelLed.SetPixelColor(0, RgbColor(r, g, b));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
       this->neoPixelLed.SetPixelColor(0, RgbColor(0, 0, 0));
       this->neoPixelLed.Show();
-      delay(T);
+      delay(t);
     }
   }
 }
 
-
-/**
- *  CoolBoardLed::begin():
- *  This method is provided to start the Led Object
- *  by setting the correct pin and creating a dynamic
- *  neoPixelBus
- */
 void CoolBoardLed::begin() {
   yield();
   if (this->ledActive == 1) {
@@ -156,79 +128,37 @@ void CoolBoardLed::begin() {
   }
 }
 
-/**
- *  CoolBoardLed::write(Red,Green,Blue):
- *  This method is provided to set the
- *  Color of the Led
- */
-void CoolBoardLed::write(uint8_t R, uint8_t G, uint8_t B) {
-  TRACE_VAR("Red value:", R);
-  TRACE_VAR("Green value:", G);
-  TRACE_VAR("Blue value:", B);
+void CoolBoardLed::write(uint8_t r, uint8_t g, uint8_t b) {
+  TRACE_VAR("Red value:", r);
+  TRACE_VAR("Green value:", g);
+  TRACE_VAR("Blue value:", b);
 
   if (this->ledActive == 1) {
-    this->neoPixelLed.SetPixelColor(0, RgbColor(R, G, B));
+    this->neoPixelLed.SetPixelColor(0, RgbColor(r, g, b));
     this->neoPixelLed.Show();
   }
 }
 
-/**
- *  CoolBoardLed::config():
- *  This method is provided to configure
- *  the Led Object :  -ledActive=0 : deactivated
- *        -ledActive=1 : activated
- *  \return true if the configuration done,
- *  false otherwise
- */
 bool CoolBoardLed::config() {
-  File configFile = SPIFFS.open("/coolBoardLedConfig.json", "r");
+  CoolConfig config("/coolBoardLedConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /coolBoardLedConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read LED configuration");
     return (false);
-  } else {
-    String data = configFile.readString();
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(data);
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON LED config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("LED config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["ledActive"].success()) {
-        this->ledActive = json["ledActive"];
-      }
-      json["ledActive"] = this->ledActive;
-      configFile.close();
-      configFile = SPIFFS.open("/coolBoardLedConfig.json", "w");
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /coolBoardLedConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      INFO_LOG("Saved LED config to /coolBoardLedConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  config.set(json, "ledActive", this->ledActive);
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save LED configuration");
+    return (false);
+  }
+  INFO_LOG("LED configuration loaded");
+  return (true);
 }
 
-/**
- *  CoolBoardLed::printConf():
- *  This method is provided to print the
- *  Led Object Configuration to the Serial
- *  Monitor
- */
 void CoolBoardLed::printConf() {
   INFO_LOG("LED configuration");
   INFO_VAR("  LED active =", ledActive);
 }
 
-/**
- *  CoolBoardLed::activate():
- *  This method is provided to activate the
- *  Led Object without the configuration
- *  file
- */
 void CoolBoardLed::activate() { this->ledActive = 1; }

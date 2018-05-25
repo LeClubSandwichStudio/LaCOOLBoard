@@ -25,13 +25,14 @@
 
 #include <OneWire.h>
 
+#include "CoolConfig.h"
 #include "ExternalSensors.h"
 
 OneWire oneWire(0);
 
 void ExternalSensors::begin() {
 
-  Sensor *sensors = new Sensor[this->sensorsNumber];
+  Sensor sensors[this->sensorsNumber];
 
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
     if ((sensors[i].reference) == "NDIR_I2C") {
@@ -94,12 +95,11 @@ void ExternalSensors::begin() {
       sensors[i].exSensor->read(&A, &B, &C);
     }
   }
-  delete[] sensors; // need to test if we delete the struct array, sensors rest
 }
 
 void ExternalSensors::read(JsonObject &root) {
 
-  Sensor *sensors = new Sensor[this->sensorsNumber];
+  Sensor sensors[this->sensorsNumber];
 
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
@@ -155,108 +155,50 @@ void ExternalSensors::read(JsonObject &root) {
     }
   }
   DEBUG_JSON("External sensors data:", root);
-  delete[] sensors;
 }
 
 bool ExternalSensors::config() {
-  File configFile = SPIFFS.open("/externalSensorsConfig.json", "r");
+  CoolConfig config("/externalSensorsConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /externalSensorsConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read external sensors configuration");
     return (false);
-  } else {
-    String data = configFile.readString();
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse external sensors config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("External sensor config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      if (json["sensorsNumber"] != NULL) {
-        this->sensorsNumber = json["sensorsNumber"];
-
-        Sensor *sensors = new Sensor[sensorsNumber];
-
-        for (uint8_t i = 0; i < sensorsNumber; i++) {
-          String name = "sensor" + String(i);
-
-          if (json[name].success()) {
-            JsonObject &sensorJson = json[name];
-
-            if (sensorJson["reference"].success()) {
-              sensors[i].reference = sensorJson["reference"].as<String>();
-            }
-            sensorJson["reference"] = sensors[i].reference;
-
-            if (sensorJson["type"].success()) {
-              sensors[i].type = sensorJson["type"].as<String>();
-            }
-            sensorJson["type"] = sensors[i].type;
-
-            if (sensorJson["address"].success()) {
-              sensors[i].address = sensorJson["address"];
-            }
-            sensorJson["address"] = sensors[i].address;
-
-            if (sensorJson["kind0"].success()) {
-              sensors[i].kind0 = sensorJson["kind0"].as<String>();
-            }
-            sensorJson["kind0"] = sensors[i].kind0;
-
-            if (sensorJson["kind1"].success()) {
-              sensors[i].kind1 = sensorJson["kind1"].as<String>();
-            }
-            sensorJson["kind1"] = sensors[i].kind1;
-
-            if (sensorJson["kind2"].success()) {
-              sensors[i].kind2 = sensorJson["kind2"].as<String>();
-            }
-            sensorJson["kind2"] = sensors[i].kind2;
-
-            if (sensorJson["kind3"].success()) {
-              sensors[i].kind3 = sensorJson["kind3"].as<String>();
-            }
-            sensorJson["sensor3"] = sensors[i].kind3;
-          }
-          json[name]["reference"] = sensors[i].reference;
-          json[name]["type"] = sensors[i].type;
-          json[name]["address"] = sensors[i].address;
-          json[name]["kind0"] = sensors[i].kind0;
-          json[name]["kind1"] = sensors[i].kind1;
-          json[name]["kind2"] = sensors[i].kind2;
-          json[name]["kind3"] = sensors[i].kind3;
-        }
-        this->printConf(sensors);
-        delete[] sensors;
-      }
-      json["sensorsNumber"] = this->sensorsNumber;
-      configFile.close();
-      configFile = SPIFFS.open("/externalSensorsConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /externalSensorsConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_LOG("Saved external sensors config to /externalSensorsConfig.json");
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  config.set<uint8_t>(json, "sensorsNumber", this->sensorsNumber);
+  Sensor sensors[this->sensorsNumber];
+  for (int i = 0; i < sensorsNumber; i++) {
+    String name = "sensor" + String(i);
+
+    if (!json[name].success()) {
+      json.createNestedObject(name);
+    }
+    JsonObject &sensor = json[name];
+    config.set<String>(sensor, "reference", sensors[i].reference);
+    config.set<String>(sensor, "type", sensors[i].type);
+    config.set<uint8_t>(sensor, "address", sensors[i].address);
+    config.set<String>(sensor, "kind0", sensors[i].kind0);
+    config.set<String>(sensor, "kind1", sensors[i].kind1);
+    config.set<String>(sensor, "kind2", sensors[i].kind2);
+    config.set<String>(sensor, "kind3", sensors[i].kind3);
+  }
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save external sensors configuration");
+    return (false);
+  }
+  DEBUG_LOG("External sensors configuration loaded");
+  this->printConf(sensors);
+  return (true);
 }
 
 void ExternalSensors::printConf(Sensor sensors[]) {
   INFO_LOG("External sensors configuration");
-  INFO_VAR("Number of external sensors:", this->sensorsNumber);
+  INFO_VAR("Number of external sensors =", this->sensorsNumber);
 
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
-    DEBUG_VAR("Sensor #", i);
-    DEBUG_VAR("  Reference:", sensors[i].reference);
-    DEBUG_VAR("  Type     :", sensors[i].type);
-    DEBUG_VAR("  Address  :", sensors[i].address);
+    INFO_VAR("Sensor #", i);
+    INFO_VAR("  Reference =", sensors[i].reference);
+    DEBUG_VAR("  Type     =", sensors[i].type);
+    DEBUG_VAR("  Address  =", sensors[i].address);
   }
 }

@@ -26,6 +26,7 @@
 #include <memory>
 
 #include "CoolBoard.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
 #define SEND_MSG_BATCH 10
@@ -167,7 +168,6 @@ bool CoolBoard::isConnected() {
 
 int CoolBoard::connect() {
   if (this->wifiManager.wifiCount > 0) {
-    this->wifiManager.config();
     this->led.write(BLUE);
     if (this->wifiManager.connect() != 3) {
       this->led.blink(RED, 10);
@@ -265,84 +265,44 @@ bool CoolBoard::config() {
   this->led.begin();
   delay(10);
   this->led.write(YELLOW);
-  File configFile = SPIFFS.open("/coolBoardConfig.json", "r");
+  CoolConfig config("/coolBoardConfig.json");
 
-  if (!configFile) {
-    ERROR_LOG("Failed to read /coolBoardConfig.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to parse main configuration");
     this->spiffsProblem();
     return (false);
   }
-
-  else {
-    String data = configFile.readString();
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse COOL Board configuration as JSON");
-      this->spiffsProblem();
-      return (false);
-    } else {
-      if (json["logInterval"].success()) {
-        this->logInterval = json["logInterval"].as<unsigned long>();
-      }
-      json["logInterval"] = this->logInterval;
-      if (json["ireneActive"].success()) {
-        this->ireneActive = json["ireneActive"];
-      }
-      json["ireneActive"] = this->ireneActive;
-      if (json["jetpackActive"].success()) {
-        this->jetpackActive = json["jetpackActive"];
-      }
-      json["jetpackActive"] = this->jetpackActive;
-      if (json["externalSensorsActive"].success()) {
-        this->externalSensorsActive = json["externalSensorsActive"];
-      }
-      json["externalSensorsActive"] = this->externalSensorsActive;
-      if (json["sleepActive"].success()) {
-        this->sleepActive = json["sleepActive"];
-      }
-      json["sleepActive"] = this->sleepActive;
-      if (json["manual"].success()) {
-        this->manual = json["manual"].as<bool>();
-      }
-      json["manual"] = this->manual;
-      if (json["mqttServer"].success()) {
-        this->mqttServer = json["mqttServer"].as<String>();
-      }
-      json["mqttServer"] = this->mqttServer;
-
-      this->mqttClient.setClient(this->wifiClient);
-      this->mqttClient.setServer(this->mqttServer.c_str(), 1883);
-      this->mqttClient.setCallback(
-          [this](char *topic, byte *payload, unsigned int length) {
-            this->mqttCallback(topic, payload, length);
-          });
-      this->mqttId = WiFi.macAddress();
-      this->mqttId.replace(F(":"), F(""));
-      this->mqttOutTopic = String(F("$aws/things/")) + this->mqttId +
-                           String(F("/shadow/update"));
-      this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
-                          String(F("/shadow/update/delta"));
-      configFile.close();
-      configFile = SPIFFS.open("/coolBoardConfig.json", "w");
-
-      if (!configFile) {
-        ERROR_LOG("failed to write to /coolBoardConfig.json");
-        this->spiffsProblem();
-        return (false);
-      }
-
-      json.printTo(configFile);
-      configFile.close();
-      INFO_LOG("Configuration loaded");
-      return (true);
-    }
+  JsonObject &json = config.get();
+  config.set<unsigned long>(json, "logInterval", this->logInterval);
+  config.set<bool>(json, "ireneActive", this->ireneActive);
+  config.set<bool>(json, "jetpackActive", this->jetpackActive);
+  config.set<bool>(json, "externalSensorsActive", this->externalSensorsActive);
+  config.set<bool>(json, "sleepActive", this->sleepActive);
+  config.set<bool>(json, "manual", this->manual);
+  config.set<String>(json, "mqttServer", this->mqttServer);
+  this->mqttClient.setClient(this->wifiClient);
+  this->mqttClient.setServer(this->mqttServer.c_str(), 1883);
+  this->mqttClient.setCallback(
+      [this](char *topic, byte *payload, unsigned int length) {
+        this->mqttCallback(topic, payload, length);
+      });
+  this->mqttId = WiFi.macAddress();
+  this->mqttId.replace(F(":"), F(""));
+  this->mqttOutTopic =
+      String(F("$aws/things/")) + this->mqttId + String(F("/shadow/update"));
+  this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
+                      String(F("/shadow/update/delta"));
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save main configuration");
+    this->spiffsProblem();
+    return (false);
   }
+  INFO_LOG("Main configuration loaded");
+  return (true);
 }
 
 void CoolBoard::printConf() {
-  INFO_LOG("COOL Board configuration");
+  INFO_LOG("General configuration");
   INFO_VAR("  Log interval            =", this->logInterval);
   INFO_VAR("  Irene active            =", this->ireneActive);
   INFO_VAR("  Jetpack active          =", this->jetpackActive);
@@ -462,34 +422,21 @@ void CoolBoard::sendAllConfig() {
 }
 
 bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
-  String result;
+  CoolConfig config(filePath);
 
-  File configFile = SPIFFS.open(filePath, "r");
-  if (!configFile) {
+  if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     return (false);
-  } else {
-    DynamicJsonBuffer jsonBuffer;
-    String data = configFile.readString();
-    JsonObject &json = jsonBuffer.parseObject(data);
-
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON object");
-      return (false);
-    } else {
-      String temporary;
-      DEBUG_JSON("Configuration JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-
-      json.printTo(temporary);
-      result = "{\"state\":{\"reported\":{\"";
-      result += moduleName;
-      result += "\":";
-      result += temporary;
-      result += "} } }";
-      return (this->mqttPublish(result.c_str()));
-    }
   }
+  String message;
+  DynamicJsonBuffer buffer;
+  JsonObject &root = buffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+  reported[moduleName] = config.get();
+  root.printTo(message);
+  DEBUG_VAR("JSON configuration message:", message);
+  return (this->mqttPublish(message.c_str()));
 }
 
 void CoolBoard::sendPublicIP() {

@@ -21,28 +21,33 @@
  *
  */
 
-#ifndef COOLFILESYSTEM_H
-#define COOLFILESYSTEM_H
+#ifndef COOLCONFIG_H
+#define COOLCONFIG_H
 
+#include "ArduinoJson.h"
 #include <Arduino.h>
 
-#include <ArduinoJson.h>
+class CoolConfig {
 
-typedef struct {
-  const char *code;
+private:
   const char *path;
-} ConfigFile;
+  JsonVariant json;
+  DynamicJsonBuffer buffer;
 
-class CoolFileSystem {
 public:
-  bool begin();
-  void updateConfigFiles(JsonObject &root);
-  bool fileUpdate(JsonObject &updateJson, const char *path);
-  bool saveLogToFile(const char *data);
-  bool hasSavedLogs();
-  int lastSavedLogNumber();
-  String getSavedLogAsString(int num);
-  bool deleteSavedLog(int num);
+  CoolConfig(const char *path);
+  bool readFileAsJson();
+  void setConfig(JsonVariant json);
+  JsonObject &get();
+  bool writeJsonToFile();
+  template <typename T>
+  static void set(JsonObject &json, const char *key, T &val, bool overwrite = false) {
+    if (!overwrite && json[key].success()) {
+      val = json[key].as<T>();
+    } else {
+      json[key] = val;
+    }
+  };
 };
 
 #endif

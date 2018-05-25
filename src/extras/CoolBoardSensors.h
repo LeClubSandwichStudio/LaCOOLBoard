@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef CoolBoardSensors_H
-#define CoolBoardSensors_H
+#ifndef COOLBOARDSENSORS_H
+#define COOLBOARDSENSORS_H
 
 #include <Arduino.h>
 

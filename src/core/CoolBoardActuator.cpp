@@ -24,6 +24,7 @@
 #include <FS.h>
 
 #include "CoolBoardActuator.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
 
 void CoolBoardActuator::begin() { pinMode(ONBOARD_ACTUATOR_PIN, OUTPUT); }
@@ -37,7 +38,8 @@ bool CoolBoardActuator::getStatus() {
   return digitalRead(ONBOARD_ACTUATOR_PIN);
 }
 
-bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute) {
+bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour,
+                                 uint8_t minute) {
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
 
@@ -60,8 +62,7 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute)
         // hour actor
         if (root[this->primaryType].success()) {
           // mixed hour actor
-          this->mixedHourAction(hour,
-                                root[this->primaryType].as<float>());
+          this->mixedHourAction(hour, root[this->primaryType].as<float>());
         } else {
           // normal hour actor
           this->hourAction(hour);
@@ -71,8 +72,7 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute)
         // minute actor
         if (root[this->primaryType].success()) {
           // mixed minute actor
-          this->mixedMinuteAction(minute,
-                                  root[this->primaryType].as<float>());
+          this->mixedMinuteAction(minute, root[this->primaryType].as<float>());
         } else {
           // normal minute actor
           this->minuteAction(minute);
@@ -81,8 +81,8 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute)
         // hourMinute actor
         if (root[this->primaryType].success()) {
           // mixed hourMinute actor
-          this->mixedHourMinuteAction(
-              hour, minute, root[this->primaryType].as<float>());
+          this->mixedHourMinuteAction(hour, minute,
+                                      root[this->primaryType].as<float>());
         } else {
           // normal hourMinute actor
           this->hourMinuteAction(hour, minute);
@@ -91,8 +91,7 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute)
         // normal temporal actor
         if (root[this->primaryType].success()) {
           // mixed temporal actor
-          this->mixedTemporalActionOn(
-              root[this->primaryType].as<float>());
+          this->mixedTemporalActionOn(root[this->primaryType].as<float>());
         } else {
           // normal temporal actor
           this->temporalActionOff();
@@ -116,75 +115,62 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour, uint8_t minute)
 }
 
 bool CoolBoardActuator::config() {
-  File configFile = SPIFFS.open("/coolBoardActorConfig.json", "r");
-  if (!configFile) {
-    ERROR_LOG("Failed to read /coolBoardActorConfig.json");
+  CoolConfig config("/coolBoardActorConfig.json");
+
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read builtin actuator configuration");
     return (false);
-  } else {
-    String data = configFile.readString();
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &json = jsonBuffer.parseObject(data);
-    if (!json.success()) {
-      ERROR_LOG("Failed to parse JSON actuator config from file");
-      return (false);
-    } else {
-      DEBUG_JSON("Actuator config JSON:", json);
-      DEBUG_VAR("JSON buffer size:", jsonBuffer.size());
-      if (json["actif"].success()) {
-        this->actif = json["actif"];
-      }
-      json["actif"] = this->actif;
-      // parsing temporal key
-      if (json["temporal"].success()) {
-        this->temporal = json["temporal"];
-      }
-      json["temporal"] = this->temporal;
-      // parsing inverted key
-      if (json["inverted"].success()) {
-        this->inverted = json["inverted"];
-      }
-      json["inverted"] = this->inverted;
-      // parsing low key
-      if (json["low"].success()) {
-        this->rangeLow = json["low"][0];
-        this->timeLow = json["low"][1];
-        this->hourLow = json["low"][2];
-        this->minuteLow = json["low"][3];
-      }
-      json["low"][0] = this->rangeLow;
-      json["low"][1] = this->timeLow;
-      json["low"][2] = this->hourLow;
-      json["low"][3] = this->minuteLow;
-      // parsing high key
-      if (json["high"].success()) {
-        this->rangeHigh = json["high"][0];
-        this->timeHigh = json["high"][1];
-        this->hourHigh = json["high"][2];
-        this->minuteHigh = json["high"][3];
-      }
-      json["high"][0] = this->rangeHigh;
-      json["high"][1] = this->timeHigh;
-      json["high"][2] = this->hourHigh;
-      json["high"][3] = this->minuteHigh;
-      // parsing type key
-      if (json["type"].success()) {
-        this->primaryType = json["type"][0].as<String>();
-        this->secondaryType = json["type"][1].as<String>();
-      }
-      json["type"][0] = this->primaryType;
-      json["type"][1] = this->secondaryType;
-      configFile.close();
-      configFile = SPIFFS.open("/coolBoardActorConfig.json", "w");
-      if (!configFile) {
-        ERROR_LOG("Failed to write to /coolBoardActorConfig.json");
-        return (false);
-      }
-      json.printTo(configFile);
-      configFile.close();
-      DEBUG_JSON("Saved actuator config to /coolBoardActorConfig.json", json);
-      return (true);
-    }
   }
+  JsonObject &json = config.get();
+  if (json["actif"].success()) {
+    this->actif = json["actif"];
+  }
+  json["actif"] = this->actif;
+  // parsing temporal key
+  if (json["temporal"].success()) {
+    this->temporal = json["temporal"];
+  }
+  json["temporal"] = this->temporal;
+  // parsing inverted key
+  if (json["inverted"].success()) {
+    this->inverted = json["inverted"];
+  }
+  json["inverted"] = this->inverted;
+  // parsing low key
+  if (json["low"].success()) {
+    this->rangeLow = json["low"][0];
+    this->timeLow = json["low"][1];
+    this->hourLow = json["low"][2];
+    this->minuteLow = json["low"][3];
+  }
+  json["low"][0] = this->rangeLow;
+  json["low"][1] = this->timeLow;
+  json["low"][2] = this->hourLow;
+  json["low"][3] = this->minuteLow;
+  // parsing high key
+  if (json["high"].success()) {
+    this->rangeHigh = json["high"][0];
+    this->timeHigh = json["high"][1];
+    this->hourHigh = json["high"][2];
+    this->minuteHigh = json["high"][3];
+  }
+  json["high"][0] = this->rangeHigh;
+  json["high"][1] = this->timeHigh;
+  json["high"][2] = this->hourHigh;
+  json["high"][3] = this->minuteHigh;
+  // parsing type key
+  if (json["type"].success()) {
+    this->primaryType = json["type"][0].as<String>();
+    this->secondaryType = json["type"][1].as<String>();
+  }
+  json["type"][0] = this->primaryType;
+  json["type"][1] = this->secondaryType;
+  if (!config.writeJsonToFile()) {
+    ERROR_LOG("Failed to save builtin actuator configuration");
+    return (false);
+  }
+  INFO_LOG("Builtin actuator configuration loaded");
+  return (true);
 }
 
 void CoolBoardActuator::printConf() {
@@ -234,7 +220,8 @@ void CoolBoardActuator::temporalActionOff() {
   DEBUG_VAR("Current millis:", millis());
   DEBUG_VAR("Time active:", this->actifTime);
   DEBUG_VAR("Time HIGH:", this->timeHigh);
-  if ((millis() - this->actifTime) >= (this->timeHigh) || this->actifTime == 0) {
+  if ((millis() - this->actifTime) >= (this->timeHigh) ||
+      this->actifTime == 0) {
     this->state = 0;
     this->actif = 0;
     this->inactifTime = millis();
@@ -348,8 +335,7 @@ void CoolBoardActuator::mixedHourAction(uint8_t hour, float measurment) {
   if (measurment <= this->rangeLow && this->failsave == true) {
     this->failsave = false;
     WARN_LOG("Resetting failsave for actuator");
-  } else if (measurment >= this->rangeHigh &&
-             this->failsave == false) {
+  } else if (measurment >= this->rangeHigh && this->failsave == false) {
     this->failsave = true;
     WARN_LOG("Engaging failsave for actuator");
   }
@@ -466,7 +452,7 @@ void CoolBoardActuator::hourMinuteAction(uint8_t hour, uint8_t minute) {
 }
 
 void CoolBoardActuator::mixedHourMinuteAction(uint8_t hour, uint8_t minute,
-                                           float measurment) {
+                                              float measurment) {
   DEBUG_LOG("Mixed Hour:minute triggered actuator");
   DEBUG_VAR("Current hour:", hour);
   DEBUG_VAR("Hour HIGH:", this->hourHigh);

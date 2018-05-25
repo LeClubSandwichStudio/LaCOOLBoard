@@ -21,28 +21,47 @@
  *
  */
 
-#ifndef COOLFILESYSTEM_H
-#define COOLFILESYSTEM_H
+#include <FS.h>
 
-#include <Arduino.h>
+#include "CoolConfig.h"
+#include "CoolLog.h"
 
-#include <ArduinoJson.h>
+CoolConfig::CoolConfig(const char *path) : path(path) {};
 
-typedef struct {
-  const char *code;
-  const char *path;
-} ConfigFile;
+bool CoolConfig::readFileAsJson() {
+  File file = SPIFFS.open(this->path, "r");
 
-class CoolFileSystem {
-public:
-  bool begin();
-  void updateConfigFiles(JsonObject &root);
-  bool fileUpdate(JsonObject &updateJson, const char *path);
-  bool saveLogToFile(const char *data);
-  bool hasSavedLogs();
-  int lastSavedLogNumber();
-  String getSavedLogAsString(int num);
-  bool deleteSavedLog(int num);
-};
+  if (!file) {
+    ERROR_VAR("Failed to open file for reading:", path);
+    return (false);
+  }
+  String data = file.readString();
+  this->json = this->buffer.parse(data);
 
-#endif
+  if (!this->json.success()) {
+    file.close();
+    ERROR_VAR("Failed to parse file as JSON:", this->path);
+    return (false);
+  }
+  DEBUG_VAR("Reading configuration file as JSON:", this->path);
+  DEBUG_JSON("Configuration JSON:", this->json);
+  file.close();
+  return (true);
+}
+
+JsonObject &CoolConfig::get() { return this->json; }
+
+void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
+
+bool CoolConfig::writeJsonToFile() {
+  File file = SPIFFS.open(this->path, "w");
+  if (!file) {
+    ERROR_VAR("Failed to open file for writing:", this->path);
+    return (false);
+  }
+  DEBUG_JSON("Configuration JSON:", this->json);
+  json.printTo(file);
+  file.close();
+  DEBUG_VAR("Saved JSON config to:", this->path);
+  return (true);
+}
