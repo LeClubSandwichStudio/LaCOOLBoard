@@ -25,8 +25,9 @@
 #define JETPACK_H
 
 #include <Arduino.h>
-
 #include <ArduinoJson.h>
+
+#include "CoolBoardActuator.h"
 
 #define JETPACK_CLOCK_PIN 4
 #define JETPACK_DATA_PIN 15
@@ -39,43 +40,13 @@ public:
   void write(byte action);
   void writeBit(byte pin, bool state);
   void doAction(JsonObject &root, int hour, int minute);
-  void normalAction(int actorNumber, float measurment);
-  void invertedAction(int actorNumber, float measurment);
-  void temporalActionOff(int actorNumber);
-  void temporalActionOn(int actorNumber);
-  void mixedTemporalActionOff(int actorNumber, float measurment);
-  void mixedTemporalActionOn(int actorNumber, float measurment);
-  void hourAction(int actorNumber, int hour);
-  void mixedHourAction(int actorNumber, int hour, float measurment);
-  void minuteAction(int actorNumber, int minute);
-  void mixedMinuteAction(int actorNumber, int minute, float measurment);
-  void hourMinuteAction(int actorNumber, int hour, int minute);
-  void mixedHourMinuteAction(int actorNumber, int hour, int minute,
-                             float measurment);
   bool config();
   void printConf();
-  byte action = B00000000;
 
 private:
-  struct {
-    bool actif = false;
-    bool temporal = false;
-    bool inverted = false;
-    String primaryType = "";
-    String secondaryType = "";
-    int rangeLow = 0;
-    unsigned long timeLow = 0;
-    int hourLow = 0;
-    int minuteLow = 0;
-    int rangeHigh = 0;
-    unsigned long timeHigh = 0;
-    int hourHigh = 0;
-    int minuteHigh = 0;
-    unsigned long actifTime = 0;
-    unsigned long inactifTime = 0;
-    bool failsave = false;
-  } actors[8];
 
+  uint8_t action = B00000000;
+  CoolBoardActuator actuatorList[8];
 };
 
 #endif

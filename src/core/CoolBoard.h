@@ -26,7 +26,7 @@
 
 #include <Arduino.h>
 
-#include "CoolBoardActor.h"
+#include "CoolBoardActuator.h"
 #include "CoolBoardLed.h"
 #include "CoolBoardSensors.h"
 #include "CoolFileSystem.h"
@@ -82,7 +82,7 @@ private:
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors externalSensors;
-  CoolBoardActor onBoardActor;
+  CoolBoardActuator onBoardActuator;
   CoolPubSubClient mqttClient;
   WiFiClient wifiClient;
   bool ireneActive = false;
