@@ -26,6 +26,8 @@
 #include "CoolConfig.h"
 #include "CoolLog.h"
 
+CoolConfig::CoolConfig(const char *path) : path(path) {};
+
 bool CoolConfig::readFileAsJson() {
   File file = SPIFFS.open(this->path, "r");
 

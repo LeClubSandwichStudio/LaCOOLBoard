@@ -35,7 +35,7 @@ private:
   DynamicJsonBuffer buffer;
 
 public:
-  CoolConfig(const char *path) { this->path = path; };
+  CoolConfig(const char *path);
   bool readFileAsJson();
   void setConfig(JsonVariant json);
   JsonObject &get();
@@ -44,8 +44,9 @@ public:
   static void set(JsonObject &json, const char *key, T &val, bool overwrite = false) {
     if (!overwrite && json[key].success()) {
       val = json[key].as<T>();
+    } else {
+      json[key] = val;
     }
-    json[key] = val;
   };
 };
 
