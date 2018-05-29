@@ -311,7 +311,6 @@ bool CoolBoard::config() {
 
   if (!this->doOta) {
     CoolConfig config("/coolBoardConfig.json");
-
     if (!config.readFileAsJson()) {
       ERROR_LOG("Failed to parse main configuration");
       this->spiffsProblem();
@@ -687,6 +686,7 @@ void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
 }
 
 void CoolBoard::otaUpdate() {
+  this->led->write(255,128,80);
   delete this->led;
   delete this->irene3000;
   delete this->jetPack;
@@ -695,7 +695,6 @@ void CoolBoard::otaUpdate() {
   delete this->coolBoardSensors;
   delete this->fileSystem;
   delete this->onBoardActuator;
-
   yield();
   if (this->wifiManager->wifiMulti.run() == WL_CONNECTED) {
     Serial.flush();
