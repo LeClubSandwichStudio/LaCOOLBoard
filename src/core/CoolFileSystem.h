@@ -35,14 +35,14 @@ typedef struct {
 
 class CoolFileSystem {
 public:
-  bool begin();
-  void updateConfigFiles(JsonObject &root);
-  bool fileUpdate(JsonObject &updateJson, const char *path);
-  bool saveLogToFile(const char *data);
-  bool hasSavedLogs();
-  int lastSavedLogNumber();
-  String getSavedLogAsString(int num);
-  bool deleteSavedLog(int num);
+  static bool begin();
+  static void updateConfigFiles(JsonObject &root);
+  static bool fileUpdate(JsonObject &updateJson, const char *path);
+  static bool saveLogToFile(const char *data);
+  static bool hasSavedLogs();
+  static int lastSavedLogNumber();
+  static String getSavedLogAsString(int num);
+  static bool deleteSavedLog(int num);
 };
 
 #endif
