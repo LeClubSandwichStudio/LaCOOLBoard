@@ -78,7 +78,6 @@ public:
   void otaUpdate();
 
 private:
-  CoolFileSystem *fileSystem = new CoolFileSystem;
   CoolBoardSensors *coolBoardSensors = new CoolBoardSensors;
   CoolBoardLed *led = new CoolBoardLed;
   CoolTime *rtc = new CoolTime;
