@@ -108,7 +108,8 @@ void CoolBoard::loop() {
   INFO_LOG("Listening to saved messages...");
   this->mqttListen();
 
-  if (this->fileSystem->hasSavedLogs()) {
+
+  if (CoolFileSystem::hasSavedLogs()) {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
   }
@@ -142,6 +143,7 @@ void CoolBoard::loop() {
     String data;
     root.printTo(data);
     if (!this->mqttPublish(data.c_str())) {
+      CoolFileSystem::saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
       this->fileSystem->saveLogToFile(data.c_str());
       this->mqttProblem();
@@ -197,23 +199,28 @@ int CoolBoard::connect() {
   return (this->mqttClient->state());
 }
 
+String getSavedLogAsMessage(int logNumber) {
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  state["reported"] =
+      jsonBuffer.parseObject(CoolFileSystem::getSavedLogAsString(logNumber));
+
+  String jsonData;
+  root.printTo(jsonData);
+  return jsonData;
+}
+
 void CoolBoard::sendSavedMessages() {
   for (int i = 0; i < SEND_MSG_BATCH; i++) {
-    int lastLog = this->fileSystem->lastSavedLogNumber();
-    INFO_VAR("Sending saved log number:", lastLog);
+    int savedLogNumber = CoolFileSystem::lastSavedLogNumber();
+    INFO_VAR("Sending saved log number:", savedLogNumber);
     // only send a log if there is a log. 0 means zero files in the SPIFFS
-    if (lastLog != 0) {
-      DynamicJsonBuffer jsonBuffer;
-      JsonObject &root = jsonBuffer.createObject();
-      JsonObject &state = root.createNestedObject("state");
-      state["reported"] = jsonBuffer.parseObject(
-          this->fileSystem->getSavedLogAsString(lastLog));
-
-      String jsonData;
-      root.printTo(jsonData);
+    if (savedLogNumber != 0) {
+      String jsonData = getSavedLogAsMessage(savedLogNumber);
       DEBUG_VAR("Saved JSON data to send:", jsonData);
       if (this->mqttPublish(jsonData)) {
-        this->fileSystem->deleteSavedLog(lastLog);
+        CoolFileSystem::deleteSavedLog(savedLogNumber);
         this->messageSent();
       } else {
         this->mqttProblem();
@@ -304,6 +311,7 @@ bool CoolBoard::config() {
   this->fileSystem->begin();
   this->led->config();
   this->led->begin();
+
   delay(10);
   this->led->write(YELLOW);
 
@@ -452,7 +460,7 @@ void CoolBoard::update(const char *answer) {
       }
     }
 
-    this->fileSystem->updateConfigFiles(stateDesired);
+    CoolFileSystem::updateConfigFiles(stateDesired);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
     state["reported"] = stateDesired;
