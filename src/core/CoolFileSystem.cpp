@@ -52,7 +52,7 @@ void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   for (uint8_t i = 0; i < CONFIG_FILES_COUNT; ++i) {
     JsonObject &json = root[CONFIG_FILES[i].code];
     if (json.success()) {
-      this->fileUpdate(json, CONFIG_FILES[i].path);
+      CoolFileSystem::fileUpdate(json, CONFIG_FILES[i].path);
     }
   }
 }
