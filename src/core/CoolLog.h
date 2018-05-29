@@ -26,7 +26,7 @@
     Serial.print(F(":"));                                                      \
     Serial.print(__LINE__);                                                    \
     Serial.println(F("]"));                                                    \
-    Serial.println("HEAP: ");                                                  \
+    Serial.print("HEAP: ");                                                    \
     Serial.println(ESP.getFreeHeap());                                         \
   } while (0)
 #else
@@ -41,6 +41,8 @@
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.println(F(m));                                                      \
+    Serial.printf("HEAP: ");                                                   \
+    Serial.println(ESP.getFreeHeap());                                         \
   } while (0)
 #define VAR(level, m, v)                                                       \
   do {                                                                         \
@@ -50,6 +52,8 @@
     Serial.print(F(m));                                                        \
     Serial.print(F(" "));                                                      \
     Serial.println(v);                                                         \
+    Serial.printf("HEAP: ");                                                   \
+    Serial.println(ESP.getFreeHeap());                                         \
   } while (0)
 #define NBR(level, m, n, f)                                                    \
   do {                                                                         \
