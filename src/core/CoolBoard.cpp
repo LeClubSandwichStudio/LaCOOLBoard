@@ -145,7 +145,7 @@ void CoolBoard::loop() {
     if (!this->mqttPublish(data.c_str())) {
       CoolFileSystem::saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
-      this->fileSystem->saveLogToFile(data.c_str());
+      CoolFileSystem::saveLogToFile(data.c_str());
       this->mqttProblem();
     } else {
       this->messageSent();
@@ -308,7 +308,7 @@ bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
 
-  this->fileSystem->begin();
+  CoolFileSystem::begin();
   this->led->config();
   this->led->begin();
 
@@ -701,7 +701,6 @@ void CoolBoard::otaUpdate() {
   delete this->mqttClient;
   delete this->rtc;
   delete this->coolBoardSensors;
-  delete this->fileSystem;
   delete this->onBoardActuator;
   yield();
   if (this->wifiManager->wifiMulti.run() == WL_CONNECTED) {
