@@ -143,7 +143,6 @@ void CoolBoard::loop() {
     String data;
     root.printTo(data);
     if (!this->mqttPublish(data.c_str())) {
-      CoolFileSystem::saveLogToFile(data.c_str());
       ERROR_LOG("MQTT publish failed! Data saved on SPIFFS");
       CoolFileSystem::saveLogToFile(data.c_str());
       this->mqttProblem();
