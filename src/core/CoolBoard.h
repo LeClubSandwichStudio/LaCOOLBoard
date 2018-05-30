@@ -72,6 +72,7 @@ public:
   bool mqttPublish(String data);
   bool mqttListen();
   void mqttCallback(char *topic, byte *payload, unsigned int length);
+  bool mqttsConfig();
 
 private:
   CoolFileSystem fileSystem;
@@ -84,7 +85,7 @@ private:
   ExternalSensors externalSensors;
   CoolBoardActuator onBoardActuator;
   CoolPubSubClient mqttClient;
-  WiFiClient wifiClient;
+  WiFiClientSecure wifiClient;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;

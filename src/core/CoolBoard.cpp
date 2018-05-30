@@ -28,6 +28,7 @@
 #include "CoolBoard.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "libb64/cdecode.h"
 
 #define SEND_MSG_BATCH 10
 
@@ -262,6 +263,14 @@ unsigned long CoolBoard::secondsToNextLog() {
   return (seconds > this->logInterval ? this->logInterval : seconds);
 }
 
+int b64decode(String b64Text, uint8_t *output) {
+  base64_decodestate s;
+  base64_init_decodestate(&s);
+  int cnt = base64_decode_block(b64Text.c_str(), b64Text.length(),
+                                (char *)output, &s);
+  return cnt;
+}
+
 bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
@@ -286,23 +295,12 @@ bool CoolBoard::config() {
   config.set<bool>(json, "sleepActive", this->sleepActive);
   config.set<bool>(json, "manual", this->manual);
   config.set<String>(json, "mqttServer", this->mqttServer);
-  this->mqttClient.setClient(this->wifiClient);
-  this->mqttClient.setServer(this->mqttServer.c_str(), 1883);
-  this->mqttClient.setCallback(
-      [this](char *topic, byte *payload, unsigned int length) {
-        this->mqttCallback(topic, payload, length);
-      });
-  this->mqttId = WiFi.macAddress();
-  this->mqttId.replace(F(":"), F(""));
-  this->mqttOutTopic =
-      String(F("$aws/things/")) + this->mqttId + String(F("/shadow/update"));
-  this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
-                      String(F("/shadow/update/delta"));
-  if (!config.writeJsonToFile()) {
+  this->mqttsConfig();  
+  /*if (!config.writeJsonToFile()) {
     ERROR_LOG("Failed to save main configuration");
     this->spiffsProblem();
     return (false);
-  }
+  }*/
   INFO_LOG("Main configuration loaded");
   return (true);
 }
@@ -594,4 +592,40 @@ void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
   }
   temp[length] = '\0';
   this->update(temp);
+}
+
+bool CoolBoard::mqttsConfig(){
+if (SPIFFS.exists("/certificate.bin") && SPIFFS.exists("/privateKey.bin")) {
+    File CertificateBin = SPIFFS.open("/certificate.bin", "r");
+    String CertficateString = CertificateBin.readString();
+    CertificateBin.close();
+    uint8_t binaryCert[CertficateString.length()];
+    uint16_t len = b64decode(CertficateString, binaryCert);
+    wifiClient.setCertificate(binaryCert, len);
+    File privateKeyBin = SPIFFS.open("/privateKey.bin", "r");
+    CertficateString = privateKeyBin.readString();
+    uint8_t binaryPrivate[CertficateString.length()];
+    len = b64decode(CertficateString, binaryPrivate);
+    privateKeyBin.close();
+    wifiClient.setPrivateKey(binaryPrivate, len);
+    this->mqttClient.setClient(this->wifiClient);
+    this->mqttClient.setServer(this->mqttServer.c_str(), 8883);
+    this->mqttClient.setCallback(
+        [this](char *topic, byte *payload, unsigned int length) {
+          this->mqttCallback(topic, payload, length);
+        });
+    this->mqttId = WiFi.macAddress();
+    this->mqttId.replace(F(":"), F(""));
+    this->mqttOutTopic =
+        String(F("$aws/things/")) + this->mqttId + String(F("/shadow/update"));
+    this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
+                        String(F("/shadow/update/delta"));
+                        return(true);
+  } else {
+    this->spiffsProblem();
+    ERROR_LOG("Certificate & Key binaries not found");
+    DEBUG_VAR("/certificate.bin exist return: ", SPIFFS.exists("/certificate.bin"));
+    DEBUG_VAR("/privateKey.bin exist return: ", SPIFFS.exists("/privateKey.bin"));
+    return(false);
+  }
 }
