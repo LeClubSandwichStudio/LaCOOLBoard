@@ -73,6 +73,8 @@ public:
   bool mqttListen();
   void mqttCallback(char *topic, byte *payload, unsigned int length);
   bool mqttsConfig();
+  static int b64decode(String b64Text, uint8_t *output);
+  void mqttsConvert(String cert);
 
 private:
   CoolFileSystem fileSystem;
