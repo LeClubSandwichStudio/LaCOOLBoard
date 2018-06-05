@@ -36,6 +36,8 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 #include "CoolPubSubClient.h"
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
@@ -75,19 +77,20 @@ public:
   bool mqttsConfig();
   static int b64decode(String b64Text, uint8_t *output);
   void mqttsConvert(String cert);
+  void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
+  void tryFirmwareUpdate();
 
 private:
-  CoolFileSystem fileSystem;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed led;
   CoolTime rtc;
-  CoolWifi wifiManager;
+  CoolWifi *wifiManager = new CoolWifi;
   Jetpack jetPack;
   Irene3000 irene3000;
-  ExternalSensors externalSensors;
+  ExternalSensors *externalSensors = new ExternalSensors;
   CoolBoardActuator onBoardActuator;
-  CoolPubSubClient mqttClient;
-  WiFiClientSecure wifiClient;
+  CoolPubSubClient *mqttClient = new CoolPubSubClient;
+  WiFiClientSecure *wifiClient = new WiFiClientSecure;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;

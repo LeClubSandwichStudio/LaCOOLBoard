@@ -16,6 +16,19 @@
 #define COOL_LEVEL COOL_INFO
 #endif
 
+#ifdef COOL_HEAP_TRACE
+#define ADD_HEAP                                                               \
+  do {                                                                         \
+    Serial.print(F("[HEAP:"));                                                 \
+    Serial.print(ESP.getFreeHeap());                                           \
+    Serial.print(F("]"));                                                      \
+  } while (0)
+#else
+#define ADD_HEAP                                                               \
+  do {                                                                         \
+  } while (0)
+#endif
+
 #ifdef COOL_FUNC_TRACE
 #define ADD_TRACE                                                              \
   do {                                                                         \
@@ -25,9 +38,7 @@
     Serial.print(__FUNCTION__);                                                \
     Serial.print(F(":"));                                                      \
     Serial.print(__LINE__);                                                    \
-    Serial.println(F("]"));                                                    \
-    Serial.println("HEAP: ");                                                  \
-    Serial.println(ESP.getFreeHeap());                                         \
+    Serial.print(F("]"));                                                      \
   } while (0)
 #else
 #define ADD_TRACE                                                              \
@@ -38,6 +49,7 @@
 #define LOG(level, m)                                                          \
   do {                                                                         \
     ADD_TRACE;                                                                 \
+    ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.println(F(m));                                                      \
@@ -45,6 +57,7 @@
 #define VAR(level, m, v)                                                       \
   do {                                                                         \
     ADD_TRACE;                                                                 \
+    ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
@@ -54,6 +67,7 @@
 #define NBR(level, m, n, f)                                                    \
   do {                                                                         \
     ADD_TRACE;                                                                 \
+    ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
@@ -63,6 +77,7 @@
 #define JSON(level, m, j)                                                      \
   do {                                                                         \
     ADD_TRACE;                                                                 \
+    ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \

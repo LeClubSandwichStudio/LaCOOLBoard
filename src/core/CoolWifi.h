@@ -30,6 +30,7 @@
 class CoolWifi {
 
 public:
+  ESP8266WiFiMulti wifiMulti;
   static void printStatus(wl_status_t status);
   bool config();
   wl_status_t connect();
@@ -42,7 +43,6 @@ public:
 private:
   bool addWifi(String ssid, String pass);
   void printConf(String ssid[]);
-  ESP8266WiFiMulti wifiMulti;
   uint8_t timeOut = 180;
 };
 
