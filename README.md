@@ -58,31 +58,42 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 
 ### First steps
  
- 1. Download and install the [Arduino IDE](https://www.arduino.cc/en/Main/Software)
- 2. Download and add the [ESP8266 hardware extension to Arduino](https://github.com/esp8266/Arduino). **If you already have Arduino IDE and the ESP8266 Hardware extension, make sure you upgrade these to the latest version.**
- 3. Download and add the COOL Board library set to the Arduino IDE
-     1. First Method
-         * Open the Arduino IDE
-         * Go to the `Sketch` Menu 
-         * Choose `Include Library > Manage Libraries.` 
-         * Search for `CoolBoard`
-         * Install
-         * Restart the Arduino IDE
-     2. Second Method (if you have a CoolBoard.zip file )
-         * Open the Arduino IDE
-         * Go to the `Sketch > Include Library > Add .ZIP Library` menu item
-         * Search for `CoolBoard.zip`
-         * Click Open
-         * Restart the Arduino IDE
-     3. Third Method (with the library GitHub link)
-         * Open Arduino IDE
-         * Go to the `File > Preferences` menu item
-         * Check "SketchBook Location" path
-         * Go to the `Arduino/libraries` folder (create it if necessary)
-         * Clone the repository the there (`git clone <github_repo_url`)
-         * Restart the Arduino IDE
-4. Download [ESP8266 SPIFFS Tool](https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
-5. **Optional but highly recommended:** Download the [ESP8266 Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6) and follow its [installation guide](https://github.com/me-no-dev/EspExceptionDecoder)
+ 1. Download and install the Visual Studio Code (https://code.visualstudio.com/)
+    * Go to the ‘extensions menu’
+    * Search for ‘PlatformIO IDE’
+    * Install
+
+2. Install on your computer ‘git’.
+    1. First Method : Ubuntu
+        * Open a terminal
+        * Write ‘apt-get install git’
+    2. Second Method : MAC
+        * Open a terminal
+        * Write ‘brew install git’
+
+3. Connect the CoolBoard to your computer and assure you that your switch is on the LOAD position and not the RUN’s one
+
+4. On a terminal, write ‘git clone https://github.com/LaCoolCo/LaCOOLBoard.git’
+
+5. Then, you have to go to LaCOOLBoard’s menu thanks to ‘cd LaCOOLBoard/’
+
+6. Write ‘pio run -e prod -t upload’
+
+7. Reboot your LaCOOLBoard thanks to the reset button
+
+8. Write ‘pio run -e prod -t uploadfs’
+
+9. Contact LaCoolCo via mail (team@lacool.co) to ask for your certificate and private keys
+
+10.When you have it, write ‘vim examples/WeatherStation/data/privateKey.bin’
+
+11. In the new window which is opened thanks to the last command, you tap on the letter ‘i’, then you paste the private key that LaCoolCo sent to you, you click on echap on you keyboard and finally you write ‘:wq’
+
+12.Write ‘vim examples/weatherStation/data/certificate.bin’, and do as in step 11. but with your certificate key
+
+13. Put the switch of your LaCOOLBoard on the RUN position & press the reset button
+
+14. When LaCoolBoard’ s led is pink , you need to access to the wifi named ‘CoolBoard ...’ and search the IP address 192.168.4.1 on internet. Then, select your own wifi and go to the https://demo.lecool.menu’ to see your data
 
 ### Dependencies
 
