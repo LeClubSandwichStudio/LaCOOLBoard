@@ -34,17 +34,24 @@
 #include <TimeLib.h>
 
 #define NTP_PACKET_SIZE 48
-#define SERVERCOUNT 6
+#define SERVERCOUNT 1
 #define NTP_OVERSAMPLE 3
 #define TIMEOUT 2000
 #define SECONDS_IN_WEEK 604800
+
+typedef struct {
+  const char *month;
+  uint8_t dec;
+} dateConfig;
 
 class CoolTime {
 
 public:
   void begin();
+  int8_t timeServerIdx = -1;
+  bool readOSF();
   void offGrid();
-  void update();
+  bool update();
   bool config(bool overwrite = false);
   void printConf();
   void setDateTime(int year, int month, int day, int hour, int minutes,
@@ -61,11 +68,7 @@ public:
 
 private:
   unsigned long timeSync = 0;
-  int8_t timeServerIdx = -1;
-  const char *TIME_SERVER_LIST[SERVERCOUNT] = {
-      "africa.pool.ntp.org",  "asia.pool.ntp.org",
-      "europe.pool.ntp.org",  "north-america.pool.ntp.org",
-      "oceania.pool.ntp.org", "south-america.pool.ntp.org"};
+  const char *TIME_SERVER_LIST[SERVERCOUNT] = {"pool.ntp.org"};
   bool NTP = true;
   bool compileTime = false;
   WiFiUDP Udp;

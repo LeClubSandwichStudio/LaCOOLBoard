@@ -29,12 +29,16 @@
 #include "CoolLog.h"
 #include "CoolTime.h"
 
+static constexpr dateConfig _dateConfig[] = {
+    {"Jan", 1}, {"Feb", 2}, {"Mar", 3}, {"Apr", 4},  {"May", 5},  {"Jun", 6},
+    {"Jul", 7}, {"Aug", 8}, {"Sep", 9}, {"Oct", 10}, {"Nov", 11}, {"Dec", 12}};
+
 void CoolTime::begin() { Udp.begin(localPort); }
 
 void CoolTime::offGrid() {
   if (compileTime && !NTP) {
     char posMarker = 0;
-    for (int i = 0; i <= sizeof(__TIMESTAMP__); i++) {
+    for (uint8_t i = 0; i <= sizeof(__TIMESTAMP__); i++) {
       if (__TIMESTAMP__[i] == ':') {
         posMarker = i;
         break;
@@ -43,57 +47,27 @@ void CoolTime::offGrid() {
     char monthAbbr[4] = {__TIMESTAMP__[4], __TIMESTAMP__[5], __TIMESTAMP__[6],
                          0};
     char tempDay[3] = {__TIMESTAMP__[8], __TIMESTAMP__[9], 0};
-    int Day = atoi(&tempDay[0]);
+    uint8_t Day = atoi(&tempDay[0]);
     char tempHour[3] = {__TIMESTAMP__[posMarker - 2],
                         __TIMESTAMP__[posMarker - 1], 0};
-    int Hour = atoi(&tempHour[0]);
+    uint8_t Hour = atoi(&tempHour[0]);
     char tempMinute[3] = {__TIMESTAMP__[posMarker + 1],
                           __TIMESTAMP__[posMarker + 2], 0};
-    int Minute = atoi(&tempMinute[0]);
+    uint8_t Minute = atoi(&tempMinute[0]);
     char tempSecond[3] = {__TIMESTAMP__[posMarker + 4],
                           __TIMESTAMP__[posMarker + 5], 0};
-    int Second = atoi(&tempSecond[0]);
+    uint8_t Second = atoi(&tempSecond[0]);
     char tempYear[3] = {__TIMESTAMP__[posMarker + 9],
                         __TIMESTAMP__[posMarker + 10], 0};
     int Year = atoi(&tempYear[0]);
-    int Month;
+    uint8_t Month;
 
-    if (strstr(monthAbbr, "Jan")) {
-      Month = 1;
+    for (uint8_t i = 0; i <= 12; i++) {
+      if (strstr(monthAbbr, _dateConfig[i].month)) {
+        Month = _dateConfig[i].dec;
+      }
     }
-    if (strstr(monthAbbr, "Feb")) {
-      Month = 2;
-    }
-    if (strstr(monthAbbr, "Mar")) {
-      Month = 3;
-    }
-    if (strstr(monthAbbr, "Apr")) {
-      Month = 4;
-    }
-    if (strstr(monthAbbr, "May")) {
-      Month = 5;
-    }
-    if (strstr(monthAbbr, "Jun")) {
-      Month = 6;
-    }
-    if (strstr(monthAbbr, "Jul")) {
-      Month = 7;
-    }
-    if (strstr(monthAbbr, "Aug")) {
-      Month = 8;
-    }
-    if (strstr(monthAbbr, "Sep")) {
-      Month = 9;
-    }
-    if (strstr(monthAbbr, "Oct")) {
-      Month = 10;
-    }
-    if (strstr(monthAbbr, "Nov")) {
-      Month = 11;
-    }
-    if (strstr(monthAbbr, "Dec")) {
-      Month = 12;
-    }
+
     setDateTime(y2kYearToTm(Year), Month, Day, Hour, Minute, Second);
     unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
     this->timeSync = instantTime;
@@ -104,12 +78,11 @@ void CoolTime::offGrid() {
   }
 }
 
-void CoolTime::update() {
+bool CoolTime::update() {
   if (this->NTP && WiFi.status() == WL_CONNECTED) {
-    if (!this->isServerSelected()) {
-      this->selectTimeServer();
-      this->printConf();
-    }
+    this->selectTimeServer();
+    this->printConf();
+
     if (!(this->isTimeSync())) {
       int repeats = 0;
 
@@ -131,6 +104,7 @@ void CoolTime::update() {
       this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS);
     }
     this->config(true);
+    return (true);
   }
 }
 
@@ -196,8 +170,7 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
 time_t CoolTime::getNtpTime() {
   IPAddress timeServerIp;
 
-  WiFi.hostByName(this->TIME_SERVER_LIST[this->timeServerIdx],
-                  timeServerIp);
+  WiFi.hostByName(this->TIME_SERVER_LIST[this->timeServerIdx], timeServerIp);
   if (timeServerIp[0] == 0 && timeServerIp[1] == 0 && timeServerIp[2] == 0 &&
       timeServerIp[3] == 0) {
     WARN_VAR("No IP address for timeserver",
@@ -272,6 +245,7 @@ bool CoolTime::config(bool overwrite) {
     return (false);
   }
   INFO_LOG("RTC configuration loaded");
+
   return (true);
 }
 
@@ -292,6 +266,7 @@ void CoolTime::printConf() {
   INFO_VAR("  Use compilation date  =", this->compileTime);
   INFO_VAR("  Selected time server  =", timeServer);
   INFO_VAR("  RTC timestamp         =", this->timeSync);
+  this->readOSF();
 }
 
 String CoolTime::formatDigits(int digits) {
@@ -303,7 +278,6 @@ String CoolTime::formatDigits(int digits) {
 
 bool CoolTime::selectTimeServer() {
   INFO_LOG("Performing NTP server benchmark...");
-
   uint32_t latency[SERVERCOUNT];
   bool timeout[SERVERCOUNT];
 
@@ -327,7 +301,6 @@ bool CoolTime::selectTimeServer() {
       } else {
         DEBUG_VAR("Sending NTP request to:", timeServer);
         sendNTPpacket(timeServerIp);
-
         uint32_t beginWait = millis();
 
         while ((millis() - beginWait) < (TIMEOUT + 200)) {
@@ -356,10 +329,19 @@ bool CoolTime::selectTimeServer() {
   }
   INFO_VAR("NTP minimum latency:", minLatency / NTP_OVERSAMPLE);
   if (this->isServerSelected()) {
-    INFO_VAR("NTP latency test finished, fastest is:", TIME_SERVER_LIST[this->timeServerIdx]);
+    INFO_VAR("NTP latency test finished, fastest is:",
+             TIME_SERVER_LIST[this->timeServerIdx]);
     return true;
   } else {
     ERROR_LOG("NTP latency test finished, no suitable server found!");
     return false;
   }
+}
+
+bool CoolTime::readOSF() {
+  if (this->rtc.readOSF() == true) {
+    WARN_LOG("RTC battery was removed, need to resync with NTP server");
+    return (true);
+  }
+  return (false);
 }

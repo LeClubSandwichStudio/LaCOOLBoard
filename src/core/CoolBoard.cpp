@@ -281,7 +281,6 @@ bool CoolBoard::config() {
     this->spiffsProblem();
     return (false);
   }
-  this->wifiManager->config();
   JsonObject &json = config.get();
   config.set<unsigned long>(json, "logInterval", this->logInterval);
   config.set<bool>(json, "ireneActive", this->ireneActive);
@@ -641,12 +640,12 @@ bool CoolBoard::mqttsConfig() {
                         String(F("/shadow/update/delta"));
     return (true);
   } else {
-    this->spiffsProblem();
     ERROR_LOG("Certificate & Key binaries not found");
     DEBUG_VAR("/certificate.bin exist return: ",
               SPIFFS.exists("/certificate.bin"));
     DEBUG_VAR("/privateKey.bin exist return: ",
               SPIFFS.exists("/privateKey.bin"));
+    this->spiffsProblem();
     return (false);
   }
 }
