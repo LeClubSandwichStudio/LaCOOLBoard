@@ -32,8 +32,6 @@ OneWire oneWire(0);
 
 void ExternalSensors::begin() {
 
-  Sensor sensors[this->sensorsNumber];
-
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
     if ((sensors[i].reference) == "NDIR_I2C") {
       std::unique_ptr<ExternalSensor<NDIR_I2C>> sensorCO2(
@@ -99,7 +97,6 @@ void ExternalSensors::begin() {
 
 void ExternalSensors::read(JsonObject &root) {
 
-  Sensor sensors[this->sensorsNumber];
 
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
@@ -166,8 +163,7 @@ bool ExternalSensors::config() {
   }
   JsonObject &json = config.get();
   config.set<uint8_t>(json, "sensorsNumber", this->sensorsNumber);
-  Sensor sensors[this->sensorsNumber];
-  for (int i = 0; i < sensorsNumber; i++) {
+  for (uint8_t i = 0; i < sensorsNumber; i++) {
     String name = "sensor" + String(i);
 
     if (!json[name].success()) {
