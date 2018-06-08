@@ -230,7 +230,7 @@ float CoolBoardSensors::readWallMoisture() {
   digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
   delay(200);
   // oversample value 64 times for stable readings
-  for (int i = 1; i <= 64; i++) {
+  for (uint8_t i = 1; i <= 64; i++) {
     digitalWrite(MOISTURE_SENSOR_PIN, LOW);
     delay(2);
     // read moisture sensor value
