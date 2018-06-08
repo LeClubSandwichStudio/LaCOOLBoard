@@ -3,15 +3,14 @@ python:
   - "2.7"
 
 sudo: false
-cache:
-  directories:
-    - "~/.platformio"
 
 install:
   - pip install -U platformio
   - platformio update
 
 script:
+  - platformio run -t clean
+  - patch/patch.sh
   - export RELEASE_VERSION=$(git describe --tags --always)
   - platformio run
   - export FIRMWARE=.pioenvs/prod/LaCOOLBoard-${RELEASE_VERSION}.bin
