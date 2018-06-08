@@ -63,37 +63,23 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
     * Search for ‘PlatformIO IDE’
     * Install
 
-2. Install on your computer ‘git’.
-    1. First Method : Ubuntu
-        * Open a terminal
-        * Write ‘apt-get install git’
-    2. Second Method : MAC
-        * Open a terminal
-        * Write ‘brew install git’
+2. Connect the CoolBoard to your computer and assure you that your switch is in the "LOAD" position
 
-3. Connect the CoolBoard to your computer and assure you that your switch is on the LOAD position and not the RUN’s one
+3. On a terminal, enter `git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
 
-4. On a terminal, write ‘git clone https://github.com/LaCoolCo/LaCOOLBoard.git’
+4. Go to [www.lecool.menu], create an account and choose
 
-5. Then, you have to go to LaCOOLBoard’s menu thanks to ‘cd LaCOOLBoard/’
+5. Contact LaCoolCo via mail (team@lacool.co) to ask for your certificate and private keys. We'll provide you with two files : privateKey.bin and certificate.bin
+    * Save privateKey.bin in examples/WeatherStation/data/privateKey.bin
+    * Save cerificate.bin in examples/weatherStation/data/certificate.bin
 
-6. Write ‘pio run -e prod -t upload’
+6. Open a terminal and type: `git clone https://github.com/LaCoolCo/LaCOOLBoard.git’cd LaCoolBoardpio run -e prod -t uploadfs`
 
-7. Reboot your LaCOOLBoard thanks to the reset button
+7. Hit the RESET switch, then type `pio run -e prod -t upload`
 
-8. Write ‘pio run -e prod -t uploadfs’
+8. Put the side switch back in RUN position & press the "RESET" button
 
-9. Contact LaCoolCo via mail (team@lacool.co) to ask for your certificate and private keys
-
-10.When you have it, write ‘vim examples/WeatherStation/data/privateKey.bin’
-
-11. In the new window which is opened thanks to the last command, you tap on the letter ‘i’, then you paste the private key that LaCoolCo sent to you, you click on echap on you keyboard and finally you write ‘:wq’
-
-12.Write ‘vim examples/weatherStation/data/certificate.bin’, and do as in step 11. but with your certificate key
-
-13. Put the switch of your LaCOOLBoard on the RUN position & press the reset button
-
-14. When LaCoolBoard’ s led is pink , you need to access to the wifi named ‘CoolBoard ...’ and search the IP address 192.168.4.1 on internet. Then, select your own wifi and go to the https://demo.lecool.menu’ to see your data
+9. When you board LED flashes pink, you need to access to the wifi named ‘CoolBoard-` and then go to http://192.168.4.1 in your browser. Then, select the Wifi network you want the board to connect to
 
 ### Dependencies
 
