@@ -59,7 +59,6 @@ bool CoolConfig::writeJsonToFile() {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
-  DEBUG_JSON("Configuration JSON:", this->json);
   json.printTo(file);
   file.close();
   DEBUG_VAR("Saved JSON config to:", this->path);
