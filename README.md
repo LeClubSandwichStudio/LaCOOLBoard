@@ -57,32 +57,26 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 ## How do I get set up?
 
 ### First steps
- 
- 1. Download and install the [Arduino IDE](https://www.arduino.cc/en/Main/Software)
- 2. Download and add the [ESP8266 hardware extension to Arduino](https://github.com/esp8266/Arduino). **If you already have Arduino IDE and the ESP8266 Hardware extension, make sure you upgrade these to the latest version.**
- 3. Download and add the COOL Board library set to the Arduino IDE
-     1. First Method
-         * Open the Arduino IDE
-         * Go to the `Sketch` Menu 
-         * Choose `Include Library > Manage Libraries.` 
-         * Search for `CoolBoard`
-         * Install
-         * Restart the Arduino IDE
-     2. Second Method (if you have a CoolBoard.zip file )
-         * Open the Arduino IDE
-         * Go to the `Sketch > Include Library > Add .ZIP Library` menu item
-         * Search for `CoolBoard.zip`
-         * Click Open
-         * Restart the Arduino IDE
-     3. Third Method (with the library GitHub link)
-         * Open Arduino IDE
-         * Go to the `File > Preferences` menu item
-         * Check "SketchBook Location" path
-         * Go to the `Arduino/libraries` folder (create it if necessary)
-         * Clone the repository the there (`git clone <github_repo_url`)
-         * Restart the Arduino IDE
-4. Download [ESP8266 SPIFFS Tool](https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system)
-5. **Optional but highly recommended:** Download the [ESP8266 Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder/releases/tag/1.0.6) and follow its [installation guide](https://github.com/me-no-dev/EspExceptionDecoder)
+
+ 1. Install PlatformIO (using either the [Atom based distribution](http://docs.platformio.org/en/latest/ide/atom.html), the [Visual Studio code plugin](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide) or [Platform IO core](https://platformio.org/get-started/cli))
+
+2. Connect the COOL Board to your computer and assure you that your switch is in the LOAD position
+
+3. On a terminal, enter `git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
+
+4. Go to [www.lecool.menu], create an account and choose `Join us`
+
+5. Contact La COOL Co via mail (team@lacool.co) to ask for your certificate and private keys. We'll provide you with two files : `privateKey.bin` and `certificate.bin`
+    * Save `privateKey.bin` in `examples/WeatherStation/data/privateKey.bin`
+    * Save `cerificate.bin` in `examples/weatherStation/data/certificate.bin`
+
+6. Open a terminal and type `git clone https://github.com/LaCoolCo/LaCOOLBoard.git’cd LaCoolBoardpio run -e prod -t uploadfs`
+
+7. Hit the RESET switch, then type `pio run -e prod -t upload`
+
+8. Put the side switch back in RUN position & press the RESET button
+
+9. When your board LED flashes pink, you need to access the Wifi network named ‘CoolBoard-` and then go to http://192.168.4.1 in your browser. Then, select the Wifi network you want the board to connect to.
 
 ### Dependencies
 
