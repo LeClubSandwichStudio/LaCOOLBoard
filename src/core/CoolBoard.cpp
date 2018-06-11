@@ -45,8 +45,8 @@ void CoolBoard::begin() {
   delay(100);
 
   DEBUG_LOG("Start RTC configuration...");
-  this->rtc.config();
-  this->rtc.offGrid();
+  this->coolTime.config();
+  this->coolTime.offGrid();
   delay(100);
 
   this->coolBoardSensors.config();
@@ -60,7 +60,7 @@ void CoolBoard::begin() {
   this->led.printConf();
   this->coolBoardSensors.printConf();
   this->onBoardActuator.printConf();
-  this->rtc.printConf();
+  this->coolTime.printConf();
 
   if (this->jetpackActive) {
     this->jetPack.config();
@@ -86,7 +86,7 @@ void CoolBoard::begin() {
   this->connect();
   this->sendPublicIP();
   delay(100);
-  this->rtc.begin();
+  this->coolTime.begin();
 
   if (!this->sleepActive) {
     sendAllConfig();
@@ -101,8 +101,8 @@ void CoolBoard::loop() {
     INFO_LOG("Sending public IP...");
     this->sendPublicIP();
   }
-  INFO_LOG("Updating RTC...");
-  this->rtc.update();
+  INFO_LOG("Updating coolTime...");
+  this->coolTime.update();
 
   INFO_LOG("Listening to saved messages...");
   this->mqttListen();
@@ -138,7 +138,7 @@ void CoolBoard::loop() {
     INFO_LOG("Sending log over MQTT...");
     String data;
     root.printTo(data);
-    if (!this->mqttPublish(data.c_str())) {
+    if (!this->mqttPublish(data.c_str()) && !this->rtc.hasStopped()) {
       CoolFileSystem::saveLogToFile(data.c_str());
       WARN_LOG("MQTT publish failed, data saved on SPIFFS");
       this->mqttProblem();
@@ -227,15 +227,13 @@ void CoolBoard::sendSavedMessages() {
 void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
     INFO_LOG("Actuators configuration: automatic");
-    tmElements_t tm;
-    tm = this->rtc.getTimeDate();
     if (this->jetpackActive) {
       DEBUG_LOG("Collecting Jetpack actuators data...");
-      this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
+      this->jetPack.doAction(reported, this->rtc.getDate().getHour(), this->rtc.getDate().getMinutes());
     }
     DEBUG_LOG("Collecting onboard actuator data...");
-    if (this->onBoardActuator.doAction(reported, int(tm.Hour),
-                                       int(tm.Minute))) {
+    if (this->onBoardActuator.doAction(reported, this->rtc.getDate().getHour(),
+                                       this->rtc.getDate().getMinutes())) {
       this->onBoardActuator.write(1);
       reported["ActB"] = 1;
     } else {
@@ -407,7 +405,7 @@ void CoolBoard::readSensors(JsonObject &reported) {
 }
 
 void CoolBoard::readBoardData(JsonObject &reported) {
-  reported["timestamp"] = this->rtc.getESDate();
+  reported["timestamp"] = this->coolTime.getESDate();
   reported["mac"] = this->mqttId;
   reported["firmwareVersion"] = COOL_FW_VERSION;
   if (this->isConnected()) {

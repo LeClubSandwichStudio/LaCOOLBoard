@@ -68,13 +68,11 @@ void CoolTime::offGrid() {
       }
     }
 
-    setDateTime(y2kYearToTm(Year), Month, Day, Hour, Minute, Second);
-    unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
-    this->timeSync = instantTime;
+    this->timeSync = this->rtc.getTimestamp();
     this->compileTime = false;
     this->config(false);
     DEBUG_VAR("RTC set from:", __TIMESTAMP__);
-    DEBUG_VAR("Seconds since UNIX Epoch:", instantTime);
+    DEBUG_VAR("Seconds since UNIX Epoch:", timeSync);
   }
 }
 
@@ -82,10 +80,8 @@ bool CoolTime::update() {
   if (this->NTP && WiFi.status() == WL_CONNECTED) {
     this->selectTimeServer();
     this->printConf();
-
     if (!(this->isTimeSync())) {
       int repeats = 0;
-
       DEBUG_LOG("Waiting for sync");
       this->timeSync = this->getNtpTime();
       while (!this->timeSync) {
@@ -100,8 +96,10 @@ bool CoolTime::update() {
         }
         repeats++;
       }
-      breakTime(this->timeSync, this->tmSet);
-      this->rtc.set(makeTime(this->tmSet), CLOCK_ADDRESS);
+      this->rtc.clearOSF();
+      this->rtc.getTime(this->timeSync, Year, Month, Day, Hour, Minute, Second);
+      this->rtc.setDate(Year, Month, Day);
+      this->rtc.setTime(Hour, Minute, Second);
     }
     this->config(true);
     return (true);
@@ -110,39 +108,15 @@ bool CoolTime::update() {
 
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes,
                            int seconds) {
-  tmElements_t tm;
-
-  tm.Second = seconds;
-  tm.Minute = minutes;
-  tm.Hour = hour;
-  tm.Day = day;
-  tm.Month = month;
-  tm.Year = year;
-  this->rtc.set(makeTime(tm), CLOCK_ADDRESS);
-  DEBUG_VAR("Time set to:", this->getESDate());
-}
-
-tmElements_t CoolTime::getTimeDate() {
-  tmElements_t tm;
-
-  // FIXME: experimental: dummy call to prevent slow RTC
-  rtc.get(CLOCK_ADDRESS);
-  delay(50);
-  time_t timeDate = this->rtc.get(CLOCK_ADDRESS);
-  breakTime(timeDate, tm);
-  return (tm);
+  this->rtc.setTime(hour, minutes, seconds);
+  this->rtc.setDate(year, month, day);
+  DEBUG_VAR("Time set to: ", this->getESDate());
 }
 
 String CoolTime::getESDate() {
-  tmElements_t tm = this->getTimeDate();
-
-  // output format: "yyyy-mm-ddTHH:MM:ssZ"
-  String elasticSearchString =
-      String(tm.Year + 1970) + "-" + this->formatDigits(tm.Month) + "-";
-  elasticSearchString +=
-      this->formatDigits(tm.Day) + "T" + this->formatDigits(tm.Hour) + ":";
-  elasticSearchString +=
-      this->formatDigits(tm.Minute) + ":" + this->formatDigits(tm.Second) + "Z";
+  // // output format: "yyyy-mm-ddTHH:MM:ssZ"
+  String elasticSearchString ="20" + 
+      this->rtc.getDate().getDateString() + "T" + this->rtc.getDate().getTimeString() + "Z";
   return (elasticSearchString);
 }
 
@@ -152,11 +126,7 @@ unsigned long CoolTime::getLastSyncTime() {
 }
 
 bool CoolTime::isTimeSync(unsigned long seconds) {
-  // FIXME: experimental: dummy call to prevent slow RTC
-  RTC.get(CLOCK_ADDRESS);
-
-  unsigned long instantTime = RTC.get(CLOCK_ADDRESS);
-
+  unsigned long instantTime = this->rtc.getTimestamp();
   DEBUG_VAR("Current RTC time:", instantTime);
   DEBUG_VAR("Time since last sync:", instantTime - this->timeSync);
   if ((instantTime - this->timeSync) > (seconds)) {
@@ -164,6 +134,7 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
     return (false);
   }
   DEBUG_LOG("RTC is synchronised");
+  this->rtc.clearOSF();
   return (true);
 }
 
@@ -266,7 +237,11 @@ void CoolTime::printConf() {
   INFO_VAR("  Use compilation date  =", this->compileTime);
   INFO_VAR("  Selected time server  =", timeServer);
   INFO_VAR("  RTC timestamp         =", this->timeSync);
-  this->readOSF();
+  if( this->rtc.hasStopped()){
+    WARN_LOG(" RTC clock Was Stopped, need to resync");
+  } else {
+    INFO_LOG(" RTC clock: OK");
+  }
 }
 
 String CoolTime::formatDigits(int digits) {
@@ -336,12 +311,4 @@ bool CoolTime::selectTimeServer() {
     ERROR_LOG("NTP latency test finished, no suitable server found!");
     return false;
   }
-}
-
-bool CoolTime::readOSF() {
-  if (this->rtc.readOSF() == true) {
-    WARN_LOG("RTC battery was removed, need to resync with NTP server");
-    return (true);
-  }
-  return (false);
 }
