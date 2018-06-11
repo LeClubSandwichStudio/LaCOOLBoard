@@ -30,12 +30,12 @@
 #include "CoolBoardLed.h"
 #include "CoolBoardSensors.h"
 #include "CoolFileSystem.h"
+#include "CoolPubSubClient.h"
 #include "CoolTime.h"
 #include "CoolWifi.h"
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
-#include "CoolPubSubClient.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 
@@ -77,14 +77,16 @@ public:
   bool mqttsConfig();
   static int b64decode(String b64Text, uint8_t *output);
   void mqttsConvert(String cert);
-  void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
+  void updateFirmware(String firmwareVersion, String firmwareUrl,
+                      String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
   void mqttLog(String data);
 
 private:
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed led;
-  CoolTime rtc;
+  CoolTime coolTime;
+  DS1337 rtc;
   CoolWifi *wifiManager = new CoolWifi;
   Jetpack jetPack;
   Irene3000 irene3000;

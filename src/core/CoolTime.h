@@ -28,10 +28,7 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <time.h>
-
-#include <DS1337RTC.h>
-#include <TimeLib.h>
+#include <DS1337.h>
 
 #define NTP_PACKET_SIZE 48
 #define SERVERCOUNT 1
@@ -56,7 +53,7 @@ public:
   void printConf();
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);
-  tmElements_t getTimeDate();
+  void getTimeDate();
   String getESDate();
   unsigned long getLastSyncTime();
   bool isTimeSync(unsigned long seconds = SECONDS_IN_WEEK);
@@ -65,6 +62,7 @@ public:
   String formatDigits(int digits);
   bool selectTimeServer();
   bool isServerSelected() const;
+  int Year,Month,Day,Hour,Minute,Second;
 
 private:
   unsigned long timeSync = 0;
@@ -74,8 +72,7 @@ private:
   WiFiUDP Udp;
   unsigned int localPort = 0;
   byte packetBuffer[NTP_PACKET_SIZE];
-  tmElements_t tmSet;
-  DS1337RTC rtc;
+  DS1337 rtc;
 };
 
 #endif
