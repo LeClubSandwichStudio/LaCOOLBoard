@@ -61,7 +61,7 @@ public:
   void readBoardData(JsonObject &reported);
   void sendSavedMessages();
   void sendAllConfig();
-  bool sendConfig(const char *moduleName, const char *filePath);
+  void sendConfig(const char *moduleName, const char *filePath);
   void sendPublicIP();
   void startAP();
   void mqttProblem();
@@ -79,6 +79,7 @@ public:
   void mqttsConvert(String cert);
   void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
+  void mqttLog(String data);
 
 private:
   CoolBoardSensors coolBoardSensors;
