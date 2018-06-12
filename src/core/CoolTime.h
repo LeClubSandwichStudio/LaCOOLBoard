@@ -26,52 +26,38 @@
 
 #include <Arduino.h>
 
+#include <DS1337.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <DS1337.h>
+#include <coredecls.h>
+#include <sys/time.h>
+#include <time.h>
 
-#define NTP_PACKET_SIZE 48
-#define SERVERCOUNT 1
-#define NTP_OVERSAMPLE 3
 #define TIMEOUT 2000
 #define SECONDS_IN_WEEK 604800
-
-typedef struct {
-  const char *month;
-  uint8_t dec;
-} dateConfig;
+#define TZ 0 
+#define DST_MN 60 
+#define TZ_MN ((TZ)*60)
+#define TZ_SEC ((TZ)*3600)
+#define DST_SEC ((DST_MN)*60)
 
 class CoolTime {
 
 public:
   void begin();
   int8_t timeServerIdx = -1;
-  bool readOSF();
-  void offGrid();
   bool update();
   bool config(bool overwrite = false);
   void printConf();
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);
-  void getTimeDate();
   String getESDate();
   unsigned long getLastSyncTime();
   bool isTimeSync(unsigned long seconds = SECONDS_IN_WEEK);
-  time_t getNtpTime();
-  void sendNTPpacket(IPAddress &address);
-  String formatDigits(int digits);
-  bool selectTimeServer();
-  bool isServerSelected() const;
-  int Year,Month,Day,Hour,Minute,Second;
+  int Year, Month, Day, Hour, Minute, Second;
 
 private:
-  unsigned long timeSync = 0;
-  const char *TIME_SERVER_LIST[SERVERCOUNT] = {"pool.ntp.org"};
-  bool NTP = true;
-  bool compileTime = false;
-  WiFiUDP Udp;
-  unsigned int localPort = 0;
-  byte packetBuffer[NTP_PACKET_SIZE];
+  const char *timeServer = "pool.ntp.org";
   DS1337 rtc;
 };
 
