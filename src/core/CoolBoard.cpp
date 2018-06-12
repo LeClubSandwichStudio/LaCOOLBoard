@@ -46,7 +46,6 @@ void CoolBoard::begin() {
 
   DEBUG_LOG("Start RTC configuration...");
   this->coolTime.config();
-  this->coolTime.offGrid();
   delay(100);
 
   this->coolBoardSensors.config();
