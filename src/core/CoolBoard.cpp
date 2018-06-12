@@ -163,25 +163,13 @@ int CoolBoard::connect() {
   return (this->mqttClient->state());
 }
 
-String getSavedLogAsMessage(int logNumber) {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-  JsonObject &state = root.createNestedObject("state");
-  state["reported"] =
-      jsonBuffer.parseObject(CoolFileSystem::getSavedLogAsString(logNumber));
-
-  String jsonData;
-  root.printTo(jsonData);
-  return jsonData;
-}
-
 void CoolBoard::sendSavedMessages() {
   for (int i = 0; i < SEND_MSG_BATCH; i++) {
     int savedLogNumber = CoolFileSystem::lastSavedLogNumber();
 
     INFO_VAR("Sending saved log number:", savedLogNumber);
     if (savedLogNumber != 0) {
-      String jsonData = getSavedLogAsMessage(savedLogNumber);
+      String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
       DEBUG_VAR("Saved JSON data to send:", jsonData);
       if (this->mqttPublish(jsonData)) {
         CoolFileSystem::deleteSavedLog(savedLogNumber);
