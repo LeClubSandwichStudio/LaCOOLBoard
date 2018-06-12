@@ -431,14 +431,15 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 
 void CoolBoard::sendPublicIP() {
   if (this->isConnected()) {
-    String tempStr = this->wifiManager->getExternalIP();
-    if (tempStr.length() > 6) {
-      String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
-      publicIP += tempStr;
-      publicIP += "}}}";
-      INFO_VAR("Sending public IP address:", tempStr);
-      this->mqttPublish(publicIP.c_str());
-    }
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    JsonObject &state = root.createNestedObject("state");
+    JsonObject &reported = state.createNestedObject("reported");
+    String tmp;
+    reported["publicIp"] = this->wifiManager->getExternalIP();
+    DEBUG_JSON("Sending public IP address:", reported);
+    root.printTo(tmp);
+    this->mqttLog(tmp);
   }
 }
 
