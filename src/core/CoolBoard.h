@@ -62,7 +62,7 @@ public:
   void sendSavedMessages();
   void sendAllConfig();
   void sendConfig(const char *moduleName, const char *filePath);
-  void sendPublicIP();
+  void readPublicIP(JsonObject &reported);
   void startAP();
   void mqttProblem();
   void spiffsProblem();
