@@ -58,25 +58,31 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 
 ### First steps
 
- 1. Install PlatformIO (using either the [Atom based distribution](http://docs.platformio.org/en/latest/ide/atom.html), the [Visual Studio code plugin](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide) or [Platform IO core](https://platformio.org/get-started/cli))
+1. Install PlatformIO (using either the [Atom based distribution](http://docs.platformio.org/en/latest/ide/atom.html), the [Visual Studio code plugin](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide) or [Platform IO core](https://platformio.org/get-started/cli))
 
-2. Connect the COOL Board to your computer and assure you that your switch is in the LOAD position
+2. Break out the sensor board and insert its pins into the main board header
 
-3. On a terminal, enter `git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
+3. Connect the COOL Board to your computer and ensure you that your switch is in the LOAD position 
 
-4. Go to [www.lecool.menu], create an account and choose `Join us`
+4. On a terminal, enter 
+        git clone https://github.com/LaCoolCo/LaCOOLBoard.git
+        patch/patch.sh
 
-5. Contact La COOL Co via mail (team@lacool.co) to ask for your certificate and private keys. We'll provide you with two files : `privateKey.bin` and `certificate.bin`
+5. Go to [www.lecool.menu], create an account and choose `Join us`
+
+6. Contact La COOL Co via mail (team@lacool.co) to ask for your certificate and private keys. We'll provide you with two files : `privateKey.bin` and `certificate.bin`
     * Save `privateKey.bin` in `examples/WeatherStation/data/privateKey.bin`
     * Save `cerificate.bin` in `examples/weatherStation/data/certificate.bin`
 
-6. Open a terminal and type `git clone https://github.com/LaCoolCo/LaCOOLBoard.git’cd LaCoolBoardpio run -e prod -t uploadfs`
+7. Open a terminal and type 
+        cd LaCoolBoard
+        pio run -e prod -t uploadfs
 
-7. Hit the RESET switch, then type `pio run -e prod -t upload`
+8. Hit the RESET switch, then type `pio run -e prod -t upload`
 
-8. Put the side switch back in RUN position & press the RESET button
+9. Put the side switch back in RUN position & press the RESET button
 
-9. When your board LED flashes pink, you need to access the Wifi network named ‘CoolBoard-` and then go to http://192.168.4.1 in your browser. Then, select the Wifi network you want the board to connect to.
+10. When your board LED flashes pink, you need to access the Wifi network named ‘CoolBoard-` and then go to http://192.168.4.1 in your browser. Then, select the Wifi network you want the board to connect to.
 
 ### Dependencies
 
