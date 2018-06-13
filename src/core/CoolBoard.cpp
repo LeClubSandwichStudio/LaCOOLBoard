@@ -495,6 +495,7 @@ int CoolBoard::mqttConnect() {
   INFO_LOG("MQTT connecting...");
   DEBUG_VAR("MQTT client id:", this->mqttId);
   while (!this->mqttClient->connected() && i < MQTT_RETRIES) {
+    this->mqttsConfig();
     if (this->mqttClient->connect(this->mqttId.c_str())) {
       this->mqttClient->subscribe(this->mqttInTopic.c_str());
       INFO_LOG("Subscribed to MQTT input topic");
