@@ -83,9 +83,9 @@ void Irene3000::calibrate(CoolBoardLed &led) {
 
 void Irene3000::read(JsonObject &root) {
   if (waterTemp.active) {
-    root["waterTemp"] = this->readTemp();
+    readTemp(root);
     if (phProbe.active) {
-      root["ph"] = this->readPh(root["waterTemp"].as<double>());
+      readPh(root);
     }
   }
   if (adc2.active) {
@@ -144,8 +144,7 @@ int Irene3000::readADSChannel2() {
   return (result);
 }
 
-float Irene3000::readPh(double t) {
-  // FIXME: Magic numbers
+void Irene3000::readPh(JsonObject &root) {
   this->ads.setGain(GAIN_FOUR);
 
   int adcR = ads.readADC_SingleEnded(PH_CHANNEL);
@@ -158,14 +157,12 @@ float Irene3000::readPh(double t) {
 
   DEBUG_VAR("pH value:", phT);
   if (isnan(phT)) {
-    // FIXME: No, returning NaN is better!
-    return (-42);
+    root["pH"] = RawJson("null");
   }
-  return (phT);
+  root["pH"] = phT;
 }
 
-double Irene3000::readTemp() {
-  // FIXME: Magic numbers
+void Irene3000::readTemp(JsonObject &root) {
   const double A = 3.9083E-3;
   const double B = -5.775E-7;
   double T;
@@ -182,20 +179,18 @@ double Irene3000::readTemp() {
   if (T > 0 && T < 200) {
     DEBUG_VAR("IRN3000 temperature in °C: ", T);
     if (isnan(T)) {
-      // FIXME: No, returning NaN is better!
-      return (-300);
+      root["waterTemp"] = RawJson("null");
     }
-    return T;
+    root["waterTemp"] = T;
   } else {
     T = 0.0 - A;
     T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
     T /= (2.0 * B);
     DEBUG_VAR("IRN3000 temperature in °C:", T);
     if (isnan(T)) {
-      // FIXME: No, returning NaN is better!
-      return (-400);
+      root["waterTemp"] = RawJson("null");
     }
-    return T;
+    root["waterTemp"] = T;
   }
 }
 

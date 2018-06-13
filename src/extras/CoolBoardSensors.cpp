@@ -72,8 +72,7 @@ void CoolBoardSensors::read(JsonObject &root) {
 
   if (this->lightDataActive.visible) {
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
-      // FIXME: return NaN or null
-      root["visibleLight"] = "overflow";
+      root["visibleLight"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
@@ -82,8 +81,7 @@ void CoolBoardSensors::read(JsonObject &root) {
   }
   if (this->lightDataActive.ir) {
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_IR_OVERFLOW) {
-      // FIXME: return NaN or null
-      root["infraRed"] = "overflow";
+      root["infraRed"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
@@ -93,8 +91,7 @@ void CoolBoardSensors::read(JsonObject &root) {
 
   if (this->lightDataActive.uv) {
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_UV_OVERFLOW) {
-      // FIXME: return NaN or null
-      root["ultraViolet"] = "overflow";
+      root["ultraViolet"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
