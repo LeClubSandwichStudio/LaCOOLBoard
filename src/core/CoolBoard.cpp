@@ -91,8 +91,6 @@ void CoolBoard::loop() {
   this->connect();
   INFO_LOG("Updating RTC...");
   this->rtc.update();
-  INFO_LOG("Sending public IP...");
-  this->sendPublicIP();
   if (!this->sleepActive) {
     sendAllConfig();
   }
@@ -107,6 +105,7 @@ void CoolBoard::loop() {
   JsonObject &state = root.createNestedObject("state");
   JsonObject &reported = state.createNestedObject("reported");
   INFO_LOG("Collecting board and sensor data...");
+  this->readPublicIP(reported);
   this->readBoardData(reported);
   this->readSensors(reported);
   INFO_LOG("Setting actuators and reporting their state...");
@@ -417,17 +416,10 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   mqttLog(message);
 }
 
-void CoolBoard::sendPublicIP() {
+void CoolBoard::readPublicIP(JsonObject &reported) {
   if (this->isConnected()) {
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
-    JsonObject &state = root.createNestedObject("state");
-    JsonObject &reported = state.createNestedObject("reported");
-    String tmp;
     reported["publicIp"] = this->wifiManager->getExternalIP();
     DEBUG_JSON("Sending public IP address:", reported);
-    root.printTo(tmp);
-    this->mqttLog(tmp);
   }
 }
 
