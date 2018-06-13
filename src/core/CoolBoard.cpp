@@ -154,10 +154,13 @@ int CoolBoard::connect() {
   delay(100);
   if (this->wifiManager->state() == WL_CONNECTED) {
     delay(100);
+    this->led.blink(GREEN, 5);
     if (this->mqttConnect() != 0) {
       this->mqttProblem();
     }
     delay(100);
+  } else {
+    this->led.blink(RED, 10);
   }
   return (this->mqttClient->state());
 }
@@ -432,6 +435,11 @@ void CoolBoard::startAP() {
     this->led.write(FUCHSIA);
     this->wifiManager->connectAP();
     yield();
+    if (this->wifiManager->state() == WL_CONNECTED) {
+    this->led.blink(GREEN, 5);
+    } else {
+      this->led.blink(RED, 10);
+    }
     delay(500);
   }
 }
