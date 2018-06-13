@@ -91,8 +91,14 @@ void CoolBoard::loop() {
   this->connect();
   INFO_LOG("Updating RTC...");
   this->rtc.update();
-  if (!this->sleepActive) {
+  if (!SPIFFS.exists("/configSent.flag")) {
     sendAllConfig();
+    File f;
+    if (!(f = SPIFFS.open("/configSent.flag", "w"))) {
+      ERROR_LOG("Can't create file configSent.flag in SPIFFS");
+    } else {
+      f.close();
+    }
   }
   INFO_LOG("Listening to saved messages...");
   this->mqttListen();
