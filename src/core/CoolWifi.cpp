@@ -29,6 +29,7 @@
 #include "CoolLog.h"
 #include "CoolWifi.h"
 #include "WiFiManagerReadFileButton.h"
+#include <ESP8266HTTPClient.h>
 
 #define MAX_WIFI_NETWORKS 10
 
@@ -175,29 +176,16 @@ bool CoolWifi::addWifi(String ssid, String pass) {
 }
 
 String CoolWifi::getExternalIP() {
-  WiFiClient client;
-  String IP;
+  HTTPClient http;
+  String ip;
 
-  if (!client.connect("api.ipify.org", 80)) {
-    DEBUG_LOG("Failed to connect to http://api.ipify.org");
-  } else {
-    int timeout = millis() + 800;
-    client.print("GET /?format=json HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n");
-    while (client.available() == 0) {
-      if (timeout - millis() < 0) {
-        ERROR_LOG("Failed to get public IP (client timeout");
-      }
-      yield();
-    }
-    while (client.available()) {
-      char msg = client.read();
-      IP += msg;
-    }
-    client.stop();
-    DEBUG_VAR("Public IP address:", IP);
+  http.begin("http://api.ipify.org/");
+  if (http.GET() == HTTP_CODE_OK) {
+    ip = http.getString();
+    DEBUG_VAR("Public IP address:", ip);
   }
   // return only the IP in the string
-  return IP.substring(IP.indexOf("{") + 6, IP.lastIndexOf("}"));
+  return (ip);
 }
 
 void CoolWifi::printConf(String ssidList[]) {
