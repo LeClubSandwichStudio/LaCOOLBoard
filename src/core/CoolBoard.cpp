@@ -102,10 +102,6 @@ void CoolBoard::loop() {
   }
   INFO_LOG("Listening to saved messages...");
   this->mqttListen();
-  if (CoolFileSystem::hasSavedLogs()) {
-    INFO_LOG("Sending saved messages...");
-    this->sendSavedMessages();
-  }
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   JsonObject &state = root.createNestedObject("state");
@@ -125,6 +121,10 @@ void CoolBoard::loop() {
     this->previousLogTime = millis();
   }
   this->startAP();
+  if (CoolFileSystem::hasSavedLogs()) {
+    INFO_LOG("Sending saved messages...");
+    this->sendSavedMessages();
+  }
   if (this->sleepActive) {
     this->sleep(this->secondsToNextLog());
   }
@@ -172,21 +172,18 @@ int CoolBoard::connect() {
 }
 
 void CoolBoard::sendSavedMessages() {
-  for (int i = 0; i < SEND_MSG_BATCH; i++) {
-    int savedLogNumber = CoolFileSystem::lastSavedLogNumber();
-
+  int savedLogNumber;
+  while ((savedLogNumber = CoolFileSystem::lastSavedLogNumber()) && !this->shouldLog()) {
     INFO_VAR("Sending saved log number:", savedLogNumber);
-    if (savedLogNumber != 0) {
-      String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
-      DEBUG_VAR("Saved JSON data to send:", jsonData);
-      if (this->mqttPublish(jsonData)) {
-        CoolFileSystem::deleteSavedLog(savedLogNumber);
-        this->messageSent();
-      } else {
-        ERROR_LOG("MQTT publish failed, data stay on SPIFFS");
-        this->mqttProblem();
-        break;
-      }
+    String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
+    DEBUG_VAR("Saved JSON data to send:", jsonData);
+    if (this->mqttPublish(jsonData)) {
+      CoolFileSystem::deleteSavedLog(savedLogNumber);
+      this->messageSent();
+    } else {
+      ERROR_LOG("MQTT publish failed, data stay on SPIFFS");
+      this->mqttProblem();
+      break;
     }
   }
 }
