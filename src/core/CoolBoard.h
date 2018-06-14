@@ -99,6 +99,7 @@ private:
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool timeSync = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;

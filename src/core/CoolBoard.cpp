@@ -45,7 +45,6 @@ void CoolBoard::begin() {
   delay(100);
 
   DEBUG_LOG("Start RTC configuration...");
-  this->coolTime.config();
   delay(100);
 
   this->coolBoardSensors.config();
@@ -81,7 +80,6 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
-  this->coolTime.begin();
   delay(100);
 }
 
@@ -89,7 +87,7 @@ void CoolBoard::loop() {
   INFO_LOG("Connecting...");
   this->connect();
   INFO_LOG("Updating RTC...");
-  this->coolTime.update();
+  this->timeSync = this->coolTime.update();
   if (!SPIFFS.exists("/configSent.flag")) {
     sendAllConfig();
     File f;
@@ -144,6 +142,7 @@ bool CoolBoard::isConnected() {
 int CoolBoard::connect() {
   if (this->wifiManager->wifiCount > 0) {
     this->led.write(BLUE);
+    this->wifiManager->config();
     if (this->wifiManager->connect() != 3) {
       this->led.blink(RED, 10);
     } else {
@@ -158,6 +157,7 @@ int CoolBoard::connect() {
   }
   delay(100);
   if (this->wifiManager->state() == WL_CONNECTED) {
+    this->coolTime.begin();
     delay(100);
     this->led.blink(GREEN, 5);
     if (this->mqttConnect() != 0) {
@@ -527,7 +527,7 @@ void CoolBoard::mqttLog(String data) {
   if (this->isConnected()) {
     messageSent = this->mqttPublish(data);
   }
-  if ((!this->isConnected() || !messageSent) && !rtc.hasStopped()) {
+  if ((!this->isConnected() || !messageSent) && !this->rtc.hasStopped()) {
     ERROR_LOG("MQTT publish failed, data saved on SPIFFS");
     CoolFileSystem::saveLogToFile(data.c_str());
     this->mqttProblem();
