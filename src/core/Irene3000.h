@@ -53,8 +53,8 @@ public:
   void read(JsonObject &root);
   int readButton();
   int readADSChannel2();
-  float readPh(double t);
-  double readTemp();
+  void readPh(JsonObject &root);
+  void readTemp(JsonObject &root);
   void resetParams();
   void calibratepH7();
   void calibratepH4();
