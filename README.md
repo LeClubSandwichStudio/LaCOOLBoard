@@ -65,8 +65,8 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 3. Connect the COOL Board to your computer and ensure you that your switch is in the LOAD position 
 
 4. On a terminal, enter 
-        git clone https://github.com/LaCoolCo/LaCOOLBoard.git
-        patch/patch.sh
+        * `git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
+        * `patch/patch.sh`
 
 5. Go to [www.lecool.menu], create an account and choose `Join us`
 
@@ -75,8 +75,8 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
     * Save `cerificate.bin` in `examples/weatherStation/data/certificate.bin`
 
 7. Open a terminal and type 
-        cd LaCoolBoard
-        pio run -e prod -t uploadfs
+        * `cd LaCoolBoard`
+        * `pio run -e prod -t uploadfs`
 
 8. Hit the RESET switch, then type `pio run -e prod -t upload`
 
