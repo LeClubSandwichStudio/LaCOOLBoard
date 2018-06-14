@@ -61,8 +61,8 @@ public:
   void readBoardData(JsonObject &reported);
   void sendSavedMessages();
   void sendAllConfig();
-  bool sendConfig(const char *moduleName, const char *filePath);
-  void sendPublicIP();
+  void sendConfig(const char *moduleName, const char *filePath);
+  void readPublicIP(JsonObject &reported);
   void startAP();
   void mqttProblem();
   void spiffsProblem();
@@ -80,6 +80,7 @@ public:
   void updateFirmware(String firmwareVersion, String firmwareUrl,
                       String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
+  void mqttLog(String data);
 
 private:
   CoolBoardSensors coolBoardSensors;
@@ -98,6 +99,7 @@ private:
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool timeSync = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;

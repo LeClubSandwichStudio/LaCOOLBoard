@@ -45,7 +45,6 @@ void CoolBoard::begin() {
   delay(100);
 
   DEBUG_LOG("Start RTC configuration...");
-  this->coolTime.config();
   delay(100);
 
   this->coolBoardSensors.config();
@@ -81,72 +80,47 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
-
-  this->connect();
-  this->sendPublicIP();
-  delay(100);
-  this->coolTime.begin();
-
-  if (!this->sleepActive) {
-    sendAllConfig();
-  }
   delay(100);
 }
 
 void CoolBoard::loop() {
   INFO_LOG("Connecting...");
-  if (!this->isConnected()) {
-    this->connect();
-    INFO_LOG("Sending public IP...");
-    this->sendPublicIP();
+  this->connect();
+  INFO_LOG("Updating RTC...");
+  this->timeSync = this->coolTime.update();
+  if (!SPIFFS.exists("/configSent.flag")) {
+    sendAllConfig();
+    File f;
+    if (!(f = SPIFFS.open("/configSent.flag", "w"))) {
+      ERROR_LOG("Can't create file configSent.flag in SPIFFS");
+    } else {
+      f.close();
+    }
   }
-  INFO_LOG("Updating coolTime...");
-  this->coolTime.update();
-
   INFO_LOG("Listening to saved messages...");
   this->mqttListen();
-
   if (CoolFileSystem::hasSavedLogs()) {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
   }
-
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   JsonObject &state = root.createNestedObject("state");
   JsonObject &reported = state.createNestedObject("reported");
-
   INFO_LOG("Collecting board and sensor data...");
+  this->readPublicIP(reported);
   this->readBoardData(reported);
   this->readSensors(reported);
-
   INFO_LOG("Setting actuators and reporting their state...");
   this->handleActuators(reported);
-
   delay(50);
-  if (this->mqttClient->state() != 0) {
-    WARN_LOG("Reconnecting MQTT...");
-    if (this->mqttConnect() != 0) {
-      this->mqttProblem();
-    }
-    delay(200);
-  }
-
-  // publish if we hit logInterval.
   if (this->shouldLog()) {
     INFO_LOG("Sending log over MQTT...");
     String data;
     root.printTo(data);
-    if (!this->mqttPublish(data.c_str()) && !this->rtc.hasStopped()) {
-      CoolFileSystem::saveLogToFile(data.c_str());
-      WARN_LOG("MQTT publish failed, data saved on SPIFFS");
-      this->mqttProblem();
-    } else {
-      this->messageSent();
-    }
+    this->mqttLog(data);
     this->previousLogTime = millis();
   }
-
   this->startAP();
   if (this->sleepActive) {
     this->sleep(this->secondsToNextLog());
@@ -168,6 +142,7 @@ bool CoolBoard::isConnected() {
 int CoolBoard::connect() {
   if (this->wifiManager->wifiCount > 0) {
     this->led.write(BLUE);
+    this->wifiManager->config();
     if (this->wifiManager->connect() != 3) {
       this->led.blink(RED, 10);
     } else {
@@ -181,27 +156,18 @@ int CoolBoard::connect() {
     this->wifiManager->connectAP();
   }
   delay(100);
-
   if (this->wifiManager->state() == WL_CONNECTED) {
+    this->coolTime.begin();
     delay(100);
+    this->led.blink(GREEN, 5);
     if (this->mqttConnect() != 0) {
       this->mqttProblem();
     }
     delay(100);
+  } else {
+    this->led.blink(RED, 10);
   }
   return (this->mqttClient->state());
-}
-
-String getSavedLogAsMessage(int logNumber) {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-  JsonObject &state = root.createNestedObject("state");
-  state["reported"] =
-      jsonBuffer.parseObject(CoolFileSystem::getSavedLogAsString(logNumber));
-
-  String jsonData;
-  root.printTo(jsonData);
-  return jsonData;
 }
 
 void CoolBoard::sendSavedMessages() {
@@ -210,12 +176,13 @@ void CoolBoard::sendSavedMessages() {
 
     INFO_VAR("Sending saved log number:", savedLogNumber);
     if (savedLogNumber != 0) {
-      String jsonData = getSavedLogAsMessage(savedLogNumber);
+      String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
       DEBUG_VAR("Saved JSON data to send:", jsonData);
       if (this->mqttPublish(jsonData)) {
         CoolFileSystem::deleteSavedLog(savedLogNumber);
         this->messageSent();
       } else {
+        ERROR_LOG("MQTT publish failed, data stay on SPIFFS");
         this->mqttProblem();
         break;
       }
@@ -436,12 +403,12 @@ void CoolBoard::sendAllConfig() {
   }
 }
 
-bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
+void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   CoolConfig config(filePath);
 
   if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file:", filePath);
-    return (false);
+    this->spiffsProblem();
   }
   String message;
   DynamicJsonBuffer buffer;
@@ -451,19 +418,13 @@ bool CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   reported[moduleName] = config.get();
   root.printTo(message);
   DEBUG_VAR("JSON configuration message:", message);
-  return (this->mqttPublish(message.c_str()));
+  mqttLog(message);
 }
 
-void CoolBoard::sendPublicIP() {
+void CoolBoard::readPublicIP(JsonObject &reported) {
   if (this->isConnected()) {
-    String tempStr = this->wifiManager->getExternalIP();
-    if (tempStr.length() > 6) {
-      String publicIP = "{\"state\":{\"reported\":{\"publicIP\":";
-      publicIP += tempStr;
-      publicIP += "}}}";
-      INFO_VAR("Sending public IP address:", tempStr);
-      this->mqttPublish(publicIP.c_str());
-    }
+    reported["publicIp"] = this->wifiManager->getExternalIP();
+    DEBUG_JSON("Sending public IP address:", reported);
   }
 }
 
@@ -476,6 +437,11 @@ void CoolBoard::startAP() {
     this->led.write(FUCHSIA);
     this->wifiManager->connectAP();
     yield();
+    if (this->wifiManager->state() == WL_CONNECTED) {
+    this->led.blink(GREEN, 5);
+    } else {
+      this->led.blink(RED, 10);
+    }
     delay(500);
   }
 }
@@ -539,6 +505,7 @@ int CoolBoard::mqttConnect() {
   INFO_LOG("MQTT connecting...");
   DEBUG_VAR("MQTT client id:", this->mqttId);
   while (!this->mqttClient->connected() && i < MQTT_RETRIES) {
+    this->mqttsConfig();
     if (this->mqttClient->connect(this->mqttId.c_str())) {
       this->mqttClient->subscribe(this->mqttInTopic.c_str());
       INFO_LOG("Subscribed to MQTT input topic");
@@ -553,31 +520,27 @@ int CoolBoard::mqttConnect() {
   return (state);
 }
 
-bool CoolBoard::mqttPublish(String data) {
+void CoolBoard::mqttLog(String data) {
   DEBUG_VAR("Message to publish:", data);
   DEBUG_VAR("Message size:", data.length());
-
-  uint8_t retries = 0;
-  bool published = false;
-  do {
-    published =
-        this->mqttClient->publish(this->mqttOutTopic.c_str(),
-                                  (byte *)(data.c_str()), data.length(), false);
-    if (!published) {
-      WARN_LOG("MQTT publish failed, retrying...");
-      if (!this->isConnected()) {
-        WARN_LOG("Wifi offline, reconnecting...");
-        this->connect();
-      }
-    }
-    retries++;
-  } while (!published && retries < MQTT_RETRIES);
-  if (published) {
-    INFO_LOG("MQTT publish successful");
-  } else {
-    ERROR_LOG("MQTT publish failed, no more retries left!");
+  bool messageSent = false;
+  if (this->isConnected()) {
+    messageSent = this->mqttPublish(data);
   }
-  return (published);
+  if ((!this->isConnected() || !messageSent) && !this->rtc.hasStopped()) {
+    ERROR_LOG("MQTT publish failed, data saved on SPIFFS");
+    CoolFileSystem::saveLogToFile(data.c_str());
+    this->mqttProblem();
+  } else {
+    INFO_LOG("MQTT publish successful");
+    this->messageSent();
+  }
+}
+
+bool CoolBoard::mqttPublish(String data) {
+  return (this->mqttClient->publish(this->mqttOutTopic.c_str(),
+                                    (byte *)(data.c_str()), data.length(),
+                                    false));
 }
 
 bool CoolBoard::mqttListen() {
@@ -585,9 +548,6 @@ bool CoolBoard::mqttListen() {
   unsigned long lastTime = millis();
   while ((millis() - lastTime) < 2000) {
     success = this->mqttClient->loop();
-    if (!success) {
-      this->connect();
-    }
     yield();
   }
   return (success);

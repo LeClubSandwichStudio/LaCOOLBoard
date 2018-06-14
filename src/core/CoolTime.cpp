@@ -35,14 +35,12 @@ timeval tv;
 timespec tp;
 time_t now;
 
-void CoolTime::begin() {
-  configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
-}
+void CoolTime::begin() { configTime(0, 0, "pool.ntp.org"); }
 
 bool CoolTime::update() {
   if (WiFi.status() == WL_CONNECTED) {
     INFO_LOG("Researching NTP time...");
-    configTime(TZ_SEC, DST_SEC, timeServer);
+    configTime(0, 0, timeServer);
     gettimeofday(&tv, nullptr);
     clock_gettime(0, &tp);
     now = time(nullptr);
@@ -51,6 +49,7 @@ bool CoolTime::update() {
     this->setDateTime(Year, Month, Day, Hour, Minute, Second);
     return (true);
   }
+  return (false);
 }
 
 void CoolTime::setDateTime(int year, int month, int day, int hour, int minutes,
@@ -83,25 +82,6 @@ bool CoolTime::isTimeSync(unsigned long seconds) {
   }
   DEBUG_LOG("RTC is synchronised");
   this->rtc.clearOSF();
-  return (true);
-}
-
-bool CoolTime::config(bool overwrite) {
-  CoolConfig config("/rtcConfig.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to parse RTC configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-  DEBUG_JSON("RTC configuration JSON:", json);
-  config.set<int8_t>(json, "timePool", this->timeServerIdx, overwrite);
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save RTC configuration");
-    return (false);
-  }
-  INFO_LOG("RTC configuration loaded");
-
   return (true);
 }
 
