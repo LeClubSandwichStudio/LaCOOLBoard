@@ -87,8 +87,10 @@ void CoolBoard::begin() {
 }
 
 void CoolBoard::loop() {
-  INFO_LOG("Connecting...");
-  this->connect();
+  if (!this->isConnected()) {
+    INFO_LOG("Connecting...");
+    this->connect();
+  }
   INFO_LOG("Updating RTC...");
   this->rtc.update();
   if (!SPIFFS.exists("/configSent.flag")) {
@@ -100,8 +102,6 @@ void CoolBoard::loop() {
       f.close();
     }
   }
-  INFO_LOG("Listening to saved messages...");
-  this->mqttListen();
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   JsonObject &state = root.createNestedObject("state");
@@ -121,6 +121,8 @@ void CoolBoard::loop() {
     this->previousLogTime = millis();
   }
   this->startAP();
+  INFO_LOG("Listening to saved messages...");
+  this->mqttListen();
   if (CoolFileSystem::hasSavedLogs()) {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
@@ -145,11 +147,7 @@ bool CoolBoard::isConnected() {
 int CoolBoard::connect() {
   if (this->wifiManager->wifiCount > 0) {
     this->led.write(BLUE);
-    if (this->wifiManager->connect() != 3) {
-      this->led.blink(RED, 10);
-    } else {
-      this->led.blink(GREEN, 5);
-    }
+    this->wifiManager->connect();
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
     this->wifiManager->disconnect();
@@ -425,7 +423,6 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 void CoolBoard::readPublicIP(JsonObject &reported) {
   if (this->isConnected()) {
     reported["publicIp"] = this->wifiManager->getExternalIP();
-    DEBUG_JSON("Sending public IP address:", reported);
   }
 }
 
