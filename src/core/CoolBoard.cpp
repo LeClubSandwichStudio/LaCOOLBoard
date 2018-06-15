@@ -87,8 +87,10 @@ void CoolBoard::begin() {
 }
 
 void CoolBoard::loop() {
-  INFO_LOG("Connecting...");
-  this->connect();
+  if (!this->isConnected()) {
+    INFO_LOG("Connecting...");
+    this->connect();
+  }
   INFO_LOG("Updating RTC...");
   this->rtc.update();
   if (!SPIFFS.exists("/configSent.flag")) {
