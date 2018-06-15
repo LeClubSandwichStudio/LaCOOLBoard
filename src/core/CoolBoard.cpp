@@ -147,11 +147,7 @@ bool CoolBoard::isConnected() {
 int CoolBoard::connect() {
   if (this->wifiManager->wifiCount > 0) {
     this->led.write(BLUE);
-    if (this->wifiManager->connect() != 3) {
-      this->led.blink(RED, 10);
-    } else {
-      this->led.blink(GREEN, 5);
-    }
+    this->wifiManager->connect();
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
     this->wifiManager->disconnect();
