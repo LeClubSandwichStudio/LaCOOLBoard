@@ -102,8 +102,6 @@ void CoolBoard::loop() {
       f.close();
     }
   }
-  INFO_LOG("Listening to saved messages...");
-  this->mqttListen();
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   JsonObject &state = root.createNestedObject("state");
@@ -123,6 +121,8 @@ void CoolBoard::loop() {
     this->previousLogTime = millis();
   }
   this->startAP();
+  INFO_LOG("Listening to saved messages...");
+  this->mqttListen();
   if (CoolFileSystem::hasSavedLogs()) {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
