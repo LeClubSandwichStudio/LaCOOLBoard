@@ -45,8 +45,6 @@ void CoolBoard::begin() {
   delay(100);
 
   DEBUG_LOG("Start RTC configuration...");
-  this->rtc.config();
-  this->rtc.offGrid();
   delay(100);
 
   this->coolBoardSensors.config();
@@ -60,7 +58,7 @@ void CoolBoard::begin() {
   this->led.printConf();
   this->coolBoardSensors.printConf();
   this->onBoardActuator.printConf();
-  this->rtc.printConf();
+  this->coolTime.printConf();
 
   if (this->jetpackActive) {
     this->jetPack.config();
@@ -82,7 +80,6 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
-  this->rtc.begin();
   delay(100);
 }
 
@@ -90,7 +87,7 @@ void CoolBoard::loop() {
   INFO_LOG("Connecting...");
   this->connect();
   INFO_LOG("Updating RTC...");
-  this->rtc.update();
+  this->timeSync = this->coolTime.update();
   if (!SPIFFS.exists("/configSent.flag")) {
     sendAllConfig();
     File f;
@@ -145,6 +142,7 @@ bool CoolBoard::isConnected() {
 int CoolBoard::connect() {
   if (this->wifiManager->wifiCount > 0) {
     this->led.write(BLUE);
+    this->wifiManager->config();
     if (this->wifiManager->connect() != 3) {
       this->led.blink(RED, 10);
     } else {
@@ -159,6 +157,7 @@ int CoolBoard::connect() {
   }
   delay(100);
   if (this->wifiManager->state() == WL_CONNECTED) {
+    this->coolTime.begin();
     delay(100);
     this->led.blink(GREEN, 5);
     if (this->mqttConnect() != 0) {
@@ -191,15 +190,13 @@ void CoolBoard::sendSavedMessages() {
 void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
     INFO_LOG("Actuators configuration: automatic");
-    tmElements_t tm;
-    tm = this->rtc.getTimeDate();
     if (this->jetpackActive) {
       DEBUG_LOG("Collecting Jetpack actuators data...");
-      this->jetPack.doAction(reported, int(tm.Hour), int(tm.Minute));
+      this->jetPack.doAction(reported, this->rtc.getDate().getHour(), this->rtc.getDate().getMinutes());
     }
     DEBUG_LOG("Collecting onboard actuator data...");
-    if (this->onBoardActuator.doAction(reported, int(tm.Hour),
-                                       int(tm.Minute))) {
+    if (this->onBoardActuator.doAction(reported, this->rtc.getDate().getHour(),
+                                       this->rtc.getDate().getMinutes())) {
       this->onBoardActuator.write(1);
       reported["ActB"] = 1;
     } else {
@@ -245,7 +242,6 @@ bool CoolBoard::config() {
     this->spiffsProblem();
     return (false);
   }
-  this->wifiManager->config();
   JsonObject &json = config.get();
   config.set<unsigned long>(json, "logInterval", this->logInterval);
   config.set<bool>(json, "ireneActive", this->ireneActive);
@@ -372,7 +368,7 @@ void CoolBoard::readSensors(JsonObject &reported) {
 }
 
 void CoolBoard::readBoardData(JsonObject &reported) {
-  reported["timestamp"] = this->rtc.getESDate();
+  reported["timestamp"] = this->coolTime.getESDate();
   reported["mac"] = this->mqttId;
   reported["firmwareVersion"] = COOL_FW_VERSION;
   if (this->isConnected()) {
@@ -528,7 +524,7 @@ void CoolBoard::mqttLog(String data) {
   if (this->isConnected()) {
     messageSent = this->mqttPublish(data);
   }
-  if (!this->isConnected() || !messageSent) {
+  if ((!this->isConnected() || !messageSent) || !this->rtc.hasStopped()) {
     ERROR_LOG("MQTT publish failed, data saved on SPIFFS");
     CoolFileSystem::saveLogToFile(data.c_str());
     this->mqttProblem();
@@ -598,12 +594,12 @@ bool CoolBoard::mqttsConfig() {
                         String(F("/shadow/update/delta"));
     return (true);
   } else {
-    this->spiffsProblem();
     ERROR_LOG("Certificate & Key binaries not found");
     DEBUG_VAR("/certificate.bin exist return: ",
               SPIFFS.exists("/certificate.bin"));
     DEBUG_VAR("/privateKey.bin exist return: ",
               SPIFFS.exists("/privateKey.bin"));
+    this->spiffsProblem();
     return (false);
   }
 }
