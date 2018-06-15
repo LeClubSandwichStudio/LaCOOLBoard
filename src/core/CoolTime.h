@@ -35,19 +35,13 @@
 
 #define TIMEOUT 2000
 #define SECONDS_IN_WEEK 604800
-#define TZ 0 
-#define DST_MN 60 
-#define TZ_MN ((TZ)*60)
-#define TZ_SEC ((TZ)*3600)
-#define DST_SEC ((DST_MN)*60)
 
 class CoolTime {
 
 public:
   void begin();
-  int8_t timeServerIdx = -1;
   bool update();
-  bool config(bool overwrite = false);
+  bool config();
   void printConf();
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);

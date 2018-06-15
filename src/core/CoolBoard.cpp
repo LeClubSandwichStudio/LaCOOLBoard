@@ -527,7 +527,7 @@ void CoolBoard::mqttLog(String data) {
   if (this->isConnected()) {
     messageSent = this->mqttPublish(data);
   }
-  if ((!this->isConnected() || !messageSent) && !this->rtc.hasStopped()) {
+  if ((!this->isConnected() || !messageSent) || !this->rtc.hasStopped()) {
     ERROR_LOG("MQTT publish failed, data saved on SPIFFS");
     CoolFileSystem::saveLogToFile(data.c_str());
     this->mqttProblem();
