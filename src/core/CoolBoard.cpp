@@ -423,7 +423,6 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 void CoolBoard::readPublicIP(JsonObject &reported) {
   if (this->isConnected()) {
     reported["publicIp"] = this->wifiManager->getExternalIP();
-    DEBUG_JSON("Sending public IP address:", reported);
   }
 }
 
