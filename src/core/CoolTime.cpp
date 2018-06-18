@@ -267,11 +267,13 @@ bool CoolTime::config(bool overwrite) {
   config.set<unsigned long>(json, "timeSync", this->timeSync, overwrite);
   config.set<bool>(json, "NTP", this->NTP, overwrite);
   config.set<bool>(json, "compileTime", this->compileTime, overwrite);
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save RTC configuration");
-    return (false);
-  }
   INFO_LOG("RTC configuration loaded");
+  if (overwrite) {
+    if (!config.writeJsonToFile()) {
+      ERROR_LOG("Failed to save RTC configuration");
+      return (false);
+    }
+  }
   return (true);
 }
 

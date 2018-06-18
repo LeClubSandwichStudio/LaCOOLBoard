@@ -153,10 +153,6 @@ bool CoolBoardSensors::config() {
   config.set<bool>(json, "vbat", this->vbatActive);
   config.set<bool>(json, "soilMoisture", this->soilMoistureActive);
   config.set<bool>(json, "wallMoisture", this->wallMoistureActive);
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save builtin sensors configuration");
-    return (false);
-  }
   DEBUG_LOG("Builtin sensors configuration loaded");
   return (true);
 }

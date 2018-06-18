@@ -165,10 +165,6 @@ bool CoolBoardActuator::config() {
   }
   json["type"][0] = this->primaryType;
   json["type"][1] = this->secondaryType;
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save builtin actuator configuration");
-    return (false);
-  }
   INFO_LOG("Builtin actuator configuration loaded");
   return (true);
 }

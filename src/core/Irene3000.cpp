@@ -111,9 +111,11 @@ bool Irene3000::config(bool overwrite) {
   config.set<int>(json, "ph4Cal", this->params.pH4Cal, overwrite);
   config.set<int>(json, "ph7Cal", this->params.pH7Cal, overwrite);
   config.set<float>(json, "phStep", this->params.pHStep, overwrite);
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save IRN3000 configuration");
-    return (false);
+  if (overwrite) {
+    if (!config.writeJsonToFile()) {
+      ERROR_LOG("Failed to save IRN3000 configuration");
+      return (false);
+    }
   }
   DEBUG_LOG("IRN3000 configuration loaded");
   return (true);
