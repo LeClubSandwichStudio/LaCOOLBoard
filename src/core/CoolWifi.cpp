@@ -136,10 +136,6 @@ bool CoolWifi::config() {
     config.set<String>(json[key], "pass", passList[i]);
     this->wifiMulti.addAP(ssidList[i].c_str(), passList[i].c_str());
   }
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save Wifi configuration");
-    return (false);
-  }
   INFO_LOG("Wifi configuration loaded");
   this->printConf(ssidList);
   return (true);

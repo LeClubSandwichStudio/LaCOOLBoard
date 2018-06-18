@@ -178,10 +178,6 @@ bool ExternalSensors::config() {
     config.set<String>(sensor, "kind2", sensors[i].kind2);
     config.set<String>(sensor, "kind3", sensors[i].kind3);
   }
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save external sensors configuration");
-    return (false);
-  }
   DEBUG_LOG("External sensors configuration loaded");
   this->printConf(sensors);
   return (true);

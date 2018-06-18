@@ -171,10 +171,6 @@ bool Jetpack::config() {
     json[String("Act") + String(i)]["type"][1] =
         this->actuatorList[i].secondaryType;
   }
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save Jetpack configuration");
-    return (false);
-  }
   INFO_LOG("Jetpack configuration loaded");
   return (true);
 }

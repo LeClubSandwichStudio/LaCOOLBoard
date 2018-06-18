@@ -254,11 +254,6 @@ bool CoolBoard::config() {
   config.set<bool>(json, "manual", this->manual);
   config.set<String>(json, "mqttServer", this->mqttServer);
   this->mqttsConfig();
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Failed to save main configuration");
-    this->spiffsProblem();
-    return (false);
-  }
   INFO_LOG("Main configuration loaded");
   return (true);
 }
