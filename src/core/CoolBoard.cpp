@@ -127,7 +127,7 @@ void CoolBoard::loop() {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
   }
-  if (this->sleepActive) {
+  if (this->sleepActive && !this->shouldLog()) {
     this->sleep(this->secondsToNextLog());
   }
 }
