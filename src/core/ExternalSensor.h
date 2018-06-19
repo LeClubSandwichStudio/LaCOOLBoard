@@ -33,7 +33,6 @@
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include "CoolSDS011.h"
-
 #include "CoolLog.h"
 
 #define SHT1X_DATA_PIN 4
