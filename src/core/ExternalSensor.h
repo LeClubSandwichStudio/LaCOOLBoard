@@ -32,6 +32,7 @@
 #include "SHT1x.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
+#include "CoolSDS011.h"
 
 #include "CoolLog.h"
 
@@ -301,8 +302,30 @@ public:
     *b = B;
     return (0.0);
   }
+private: 
+  SHT1x sensor;
+};
+
+template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
+public:
+  ExternalSensor() { sensor = SDS011(); }
+
+  virtual uint8_t begin() {
+    sensor.start();
+  }
+
+  virtual float read(float *a, float *b) {
+    float A, B;
+
+    sensor.read();
+    A = sensor.pm10();
+    B = sensor.pm25();
+    *a = A;
+    *b = B;
+    return (0.0);
+  }
 
 private:
-  SHT1x sensor;
+  SDS011 sensor;
 };
 #endif
