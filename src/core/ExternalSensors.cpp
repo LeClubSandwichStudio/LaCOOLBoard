@@ -91,12 +91,17 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
+    } else if ((sensors[i].reference) == "SHT1x") {
+      float A, B, C;
+      std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
+          new ExternalSensor<SHT1x>());
+      sensors[i].exSensor = CoolSHT1x.release();
+      sensors[i].exSensor->begin();
     }
   }
 }
 
 void ExternalSensors::read(JsonObject &root) {
-
 
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
@@ -138,11 +143,15 @@ void ExternalSensors::read(JsonObject &root) {
           root["G3_" + sensors[i].kind3] = gain3;
         } else if (sensors[i].reference == "CoolGauge") {
           uint32_t A, B, C;
-
           sensors[i].exSensor->read(&A, &B, &C);
           root[sensors[i].kind0] = A;
           root[sensors[i].kind1] = B;
           root[sensors[i].kind2] = C;
+        } else if (sensors[i].reference == "SHT1x") {
+          float A, B, C;
+          sensors[i].exSensor->read(&A, &B);
+          root[sensors[i].kind0] = A;
+          root[sensors[i].kind1] = B;
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }

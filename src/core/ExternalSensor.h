@@ -24,16 +24,19 @@
 #ifndef EXTERNALSENSOR_H
 #define EXTERNALSENSOR_H
 
-#include <Arduino.h>
-#include <DallasTemperature.h>
-
 #include "CoolAdafruit_ADS1015.h"
 #include "CoolAdafruit_CCS811.h"
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
+#include "SHT1x.h"
+#include <Arduino.h>
+#include <DallasTemperature.h>
 
 #include "CoolLog.h"
+
+#define SHT1X_DATA_PIN 4
+#define SHT1X_CLOCK_PIN 5
 
 class BaseExternalSensor {
 
@@ -55,6 +58,7 @@ public:
                      int16_t *f, int16_t *g, int16_t *h) {
     return (-42.42);
   }
+  virtual float read(float *a, float *b) { return (-42.42); }
 };
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
@@ -157,9 +161,7 @@ private:
 
 template <> class ExternalSensor<Adafruit_CCS811> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) {
-    sensor = Adafruit_CCS811();
-  }
+  ExternalSensor(uint8_t i2c_addr) { sensor = Adafruit_CCS811(); }
 
   virtual uint8_t begin() {
     while (!sensor.available())
@@ -287,4 +289,20 @@ private:
   Gauges sensor;
 };
 
+template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
+public:
+  ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
+  virtual uint8_t begin() {}
+  virtual float read(float *a, float *b) {
+    float A, B, C;
+    A = sensor.readHumidity();
+    B = sensor.readTemperatureC();
+    *a = A;
+    *b = B;
+    return (0.0);
+  }
+
+private:
+  SHT1x sensor;
+};
 #endif
