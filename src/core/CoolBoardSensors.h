@@ -35,6 +35,10 @@
 #define ANALOG_MULTIPLEXER_PIN 12
 #define ADC_MAX_VAL 1023.
 #define MAX_BATTERY_VOLTAGE 5.6
+#define LINEARISATION_MOISTURE_A 0.00027
+#define LINEARISATION_MOISTURE_B -0.13
+#define LINEARISATION_MOISTURE_C -4.0
+#define MOISTURE_SAMPLES 64
 
 class CoolBoardSensors {
 
@@ -53,6 +57,7 @@ public:
                             uint8_t pressOverSample = 1,
                             uint8_t humidOverSample = 1);
   float readVBat();
+  float soilMoistureLinearisation(float rawMoistureValue=0);
   float readSoilMoisture();
   float readWallMoisture();
   CoolSI114X lightSensor;
