@@ -32,7 +32,6 @@ class CoolWifi {
 public:
   ESP8266WiFiMulti wifiMulti;
   static void printStatus(wl_status_t status);
-  bool config();
   wl_status_t connect();
   wl_status_t connectWifiMulti();
   wl_status_t connectAP();
@@ -41,6 +40,7 @@ public:
   String getExternalIP();
   uint8_t wifiCount = 0;
 private:
+  bool config();
   bool addWifi(String ssid, String pass);
   void printConf(String ssid[]);
   uint8_t timeOut = 180;

@@ -42,6 +42,7 @@ wl_status_t CoolWifi::disconnect() {
 }
 
 wl_status_t CoolWifi::connect() {
+  this->config();
   INFO_LOG("Wifi connecting...");
   this->connectWifiMulti();
   return (WiFi.status());
