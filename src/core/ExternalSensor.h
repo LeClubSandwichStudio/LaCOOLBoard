@@ -32,7 +32,7 @@
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
-#include "SDS011.h"
+#include "CoolSDS011.h"
 
 #include "CoolLog.h"
 
