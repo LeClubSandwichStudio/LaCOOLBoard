@@ -58,43 +58,41 @@ If you encounter a problem, have some genius, crazy idea or just want to have a 
 
 ### First steps
 
-1. Install PlatformIO (using either the [Atom based distribution](http://docs.platformio.org/en/latest/ide/atom.html), the [Visual Studio code plugin](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide) or [Platform IO core](https://platformio.org/get-started/cli))
+1. Install [Platform IO core](https://platformio.org/get-started/cli)
 
 2. Break out the sensor board and insert its pins into the main board header
 
 3. Connect the COOL Board to your computer and ensure you that your switch is in the LOAD position 
 
-4. On a terminal, enter 
-        * `git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
-        * `patch/patch.sh`
+4. On a terminal, enter
+
+        git clone https://github.com/LaCoolCo/LaCOOLBoard.git`
+        cd LaCoolBoard`
+        patch/patch.sh`
 
 5. Go to [www.lecool.menu], create an account and choose `Join us`
 
 6. Contact La COOL Co via mail (team@lacool.co) to ask for your certificate and private keys. We'll provide you with two files : `privateKey.bin` and `certificate.bin`
+
     * Save `privateKey.bin` in `examples/WeatherStation/data/privateKey.bin`
     * Save `cerificate.bin` in `examples/weatherStation/data/certificate.bin`
 
-7. Open a terminal and type 
-        * `cd LaCoolBoard`
-        * `pio run -e prod -t uploadfs`
+7. In your terminal, type 
 
-8. Hit the RESET switch, then type `pio run -e prod -t upload`
+        pio run -e prod -t uploadfs`
+
+8. Hit the RESET switch, then type 
+
+        pio run -e prod -t upload`
 
 9. Put the side switch back in RUN position & press the RESET button
 
-10. When your board LED flashes pink, you need to access the Wifi network named ‘CoolBoard-` and then go to http://192.168.4.1 in your browser. Then, select the Wifi network you want the board to connect to.
+10. After a few seconds, you COOL Board LED should glow purple to signal that the onboard Wifi access point has started. You'll now need to:
 
-### Dependencies
-
-You'll need the following libraries to be able to use the COOL Board:
-
-* [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
-* [NeoPixelBus](https://github.com/Makuna/NeoPixelBus)
-* [TimeLib](https://github.com/PaulStoffregen/Time)
-* [DS1337RTC](https://github.com/etrombly/DS1337RTC)
-* [DallasTemperature](https://github.com/milesburton/Arduino-Temperature-Control-Library)
-* [OneWire](https://github.com/PaulStoffregen/OneWire)
-* [Sparkfun BME280](https://github.com/sparkfun/SparkFun_BME280_Arduino_Library)
+  1. connect your computer (or phone/tablet) to the Wifi network named **CoolBoard-XXXXXXXXXXXX** 
+  2. open http://192.168.4.1 in your browser. 
+  3. click **configure Wifi**
+  4. Select the Wifi network you want your board to connect to and enter its password
 
 ### Configuration files
 
@@ -109,11 +107,9 @@ The COOL Board embedded software makes heavy use of the SPIFFS for storing its c
 * `sleepActive`: set to `true` if you want your COOL Board to enable [sleep mode](#sleep-mode)
 * `userActive`: set this to `true` if you want your COOL Board to collect `userData` (`userName`, `macAddress`, `timeStamp`)
 * `manual`: set this to `true` to enable MQTT remote-control of onboard actuators, bypassing rule-based configuration. **Be extremely careful with this mode:** when it is active, the COOL Board will not restart automatically to apply any new configuration sent on the `update` MQTT topic. Plus, restarting a COOL Board in manual mode will disable all the actuators. Thus, never forget to reset this to false to go back to normal mode!
-* `saveAsJSON`: set this to `true` if you want La COOL Board to store untransmitted messages in the SPIFFS and send them as soon as a network connection is established. This is the best solution when your COOL Board Internet connectivity isn't stable. Set it to `false` if you have no internet at all and use the `saveAsCSV` flag instead.
-* `saveAsCSV`: set this to `true` if you want to save sensor data in a `.csv` file. Use it when your COOL Board is running in a fully offline scenario.
 
 #### `coolBoardLedConfig.json`
-  
+
 * `ledActive`: Put this flag to 1(true) if you want to turn on the onboard LED.
 
 #### `coolBoardSensorsConfig.json`
@@ -138,7 +134,7 @@ The COOL Board embedded software makes heavy use of the SPIFFS for storing its c
 * `kind0`...`kind4`: names of the sensors sensor connected to ADCs models ADS1015 and ADS1115 (`kind0` is sensor on A0, `kind1` is A1, and so on)
 
 #### `irene3000Config.json`
-  
+
 * `waterTemp.active`: set to `true` to use the temperature sensor connected to the Irene3000
 * `phProbe.active`: set to `true` to use the ph sensor connected to the Irene3000
 * `adc2.active`: set to `true` to use the extra ADC input of the Irene3000
@@ -173,9 +169,6 @@ Note that `coolBoardActorConfig.json` contains only one actor.
 #### `mqttConfig.json`
 
 * `mqttServer`: MQTT server IP address or hostname
-* `bufferSize`: memory allocated to the MQTT buffer in bytes
-* `inTopic`: MQTT topic that the COOL Board subscribes to (i.e. receives updates from). Autogenerated by default
-* `outTopic`: MQTT topic that the COOL Board will publish to. Autogenerated by default
 
 #### `rtcConfig.json`
 
@@ -184,6 +177,5 @@ Note that `coolBoardActorConfig.json` contains only one actor.
 * `timeSync`: the last time the board updated the RTC (UNIX Time). By default, La COOL Board tries to update once a week.
 
 #### `wifiConfig.json`
-    
-* `wifiCount`: the number of WiFi networks that can be saved in this configuration file
+
 * `timeOut`: access point timeout in seconds
