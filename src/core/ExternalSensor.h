@@ -32,6 +32,7 @@
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
+#include "SDS011.h"
 
 #include "CoolLog.h"
 
@@ -42,6 +43,7 @@ public:
   virtual uint8_t begin() { return (-2); }
   virtual float read() { return (-2); }
   virtual float read(int16_t *a) { return (-42, 42); }
+  virtual float read(float *a, float *b) { return (-42.42); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) { return (-42.42); }
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
@@ -285,6 +287,30 @@ public:
 
 private:
   Gauges sensor;
+};
+
+template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
+public:
+  ExternalSensor() { sensor = SDS011(); }
+
+  virtual uint8_t begin() {
+    sensor.start();
+  }
+
+  virtual float read(float *a, float *b) {
+    float A, B;
+
+    sensor.read();
+    A = sensor.pm10();
+    B = sensor.pm25();
+
+    *a = A;
+    *b = B;
+    return (0.0);
+  }
+
+private:
+  SDS011 sensor;
 };
 
 #endif

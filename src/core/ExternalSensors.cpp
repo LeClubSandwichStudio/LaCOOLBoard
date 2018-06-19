@@ -91,6 +91,13 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
+    } else if ((sensors[i].reference) == "SDS011") {
+      float A, B;
+      std::unique_ptr<ExternalSensor<SDS011>> sds011(
+          new ExternalSensor<SDS011>());
+      sensors[i].exSensor = sds011.release();
+      sensors[i].exSensor-> begin();
+      sensors[i].exSensor-> read(&A, &B);
     }
   }
 }
@@ -143,6 +150,12 @@ void ExternalSensors::read(JsonObject &root) {
           root[sensors[i].kind0] = A;
           root[sensors[i].kind1] = B;
           root[sensors[i].kind2] = C;
+        } else if (sensors[i].reference == "SDS011") {
+          float A, B;
+          sensors[i].exSensor->read(&A, &B);
+          delay(200);
+          root[sensors[i].kind0] = A; //PM10
+          root[sensors[i].kind1] = B; //PM25
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
@@ -196,5 +209,9 @@ void ExternalSensors::printConf(Sensor sensors[]) {
     INFO_VAR("  Reference =", sensors[i].reference);
     DEBUG_VAR("  Type     =", sensors[i].type);
     DEBUG_VAR("  Address  =", sensors[i].address);
+    DEBUG_VAR("kind0 :    =", sensors[i].kind0);
+    DEBUG_VAR("kind0 :    =", sensors[i].kind1);
+    DEBUG_VAR("kind0 :    =", sensors[i].kind2);
+    DEBUG_VAR("kind0 :    =", sensors[i].kind3);
   }
 }
