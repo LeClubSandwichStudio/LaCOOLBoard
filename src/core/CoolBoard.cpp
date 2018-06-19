@@ -33,7 +33,9 @@
 #define SEND_MSG_BATCH 10
 
 void CoolBoard::begin() {
-  CoolFileSystem::begin();
+  if (!SPIFFS.begin()) {
+    this->spiffsProblem();
+  }
   this->led.config();
   this->led.begin();
   delay(10);
@@ -84,9 +86,13 @@ void CoolBoard::begin() {
   }
   this->rtc.begin();
   delay(100);
+  SPIFFS.end();
 }
 
 void CoolBoard::loop() {
+  if (!SPIFFS.begin()) {
+    this->spiffsProblem();
+  }
   if (!this->isConnected()) {
     INFO_LOG("Connecting...");
     this->connect();
@@ -127,6 +133,7 @@ void CoolBoard::loop() {
     INFO_LOG("Sending saved messages...");
     this->sendSavedMessages();
   }
+  SPIFFS.end();
   if (this->sleepActive && !this->shouldLog()) {
     this->sleep(this->secondsToNextLog());
   }

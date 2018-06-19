@@ -35,7 +35,6 @@ typedef struct {
 
 class CoolFileSystem {
 public:
-  static bool begin();
   static void updateConfigFiles(JsonObject &root);
   static bool fileUpdate(JsonObject &updateJson, const char *path);
   static bool saveLogToFile(const char *data);

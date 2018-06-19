@@ -42,12 +42,6 @@ static constexpr ConfigFile CONFIG_FILES[] = {
 
 static const uint8_t CONFIG_FILES_COUNT = 9;
 
-bool CoolFileSystem::begin() {
-  bool status = SPIFFS.begin();
-  INFO_VAR("SPIFFS starting, status:", status);
-  return status;
-}
-
 void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   for (uint8_t i = 0; i < CONFIG_FILES_COUNT; ++i) {
     JsonObject &json = root[CONFIG_FILES[i].code];
