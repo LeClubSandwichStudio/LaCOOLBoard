@@ -235,6 +235,7 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
 bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
+  this->wifiManager->config();
   this->tryFirmwareUpdate();
   CoolConfig config("/coolBoardConfig.json");
   if (!config.readFileAsJson()) {
