@@ -26,6 +26,7 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFiMulti.h>
+#include "CoolBoardLed.h"
 
 class CoolWifi {
 
@@ -33,12 +34,9 @@ public:
   ESP8266WiFiMulti wifiMulti;
   static void printStatus(wl_status_t status);
   bool config();
-  wl_status_t connect();
-  wl_status_t connectWifiMulti();
-  wl_status_t connectAP();
-  wl_status_t state();
-  wl_status_t disconnect();
-  String getExternalIP();
+  void connect();
+  void startAccessPoint(CoolBoardLed &led);
+  bool getPublicIp(String &ip);
   uint8_t wifiCount = 0;
 private:
   bool addWifi(String ssid, String pass);

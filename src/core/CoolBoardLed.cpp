@@ -65,6 +65,7 @@ void CoolBoardLed::blink(uint8_t r, uint8_t g, uint8_t b, float t) {
     delay(t * 1000);
     this->neoPixelLed.SetPixelColor(0, RgbColor(0, 0, 0));
     this->neoPixelLed.Show();
+    delay(t * 1000);
   }
 }
 
