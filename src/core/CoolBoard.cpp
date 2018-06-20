@@ -33,6 +33,7 @@
 #define SEND_MSG_BATCH 10
 
 void CoolBoard::begin() {
+  WiFi.mode(WIFI_STA);
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
@@ -179,7 +180,8 @@ int CoolBoard::connect() {
 
 void CoolBoard::sendSavedMessages() {
   int savedLogNumber;
-  while ((savedLogNumber = CoolFileSystem::lastSavedLogNumber()) && !this->shouldLog()) {
+  while ((savedLogNumber = CoolFileSystem::lastSavedLogNumber()) &&
+         !this->shouldLog()) {
     INFO_VAR("Sending saved log number:", savedLogNumber);
     String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
     DEBUG_VAR("Saved JSON data to send:", jsonData);
@@ -205,7 +207,7 @@ void CoolBoard::handleActuators(JsonObject &reported) {
     }
     DEBUG_LOG("Collecting onboard actuator data...");
     if (this->coolBoardActuator.doAction(reported, int(tm.Hour),
-                                       int(tm.Minute))) {
+                                         int(tm.Minute))) {
       this->coolBoardActuator.write(1);
       reported["ActB"] = 1;
     } else {
@@ -302,7 +304,8 @@ void CoolBoard::update(const char *answer) {
           firmwareJson.printTo(otaUpdateConfig);
           otaUpdateConfig.close();
           DEBUG_JSON("Saved OTA HTTPS update configuration to: ", firmwareJson);
-          INFO_LOG("New firmaware update received, your board will now reboot to apply...");
+          INFO_LOG("New firmaware update received, your board will now reboot "
+                   "to apply...");
           delay(100);
           ESP.restart();
         }
@@ -438,7 +441,7 @@ void CoolBoard::startAP() {
     this->coolWifi->connectAP();
     yield();
     if (this->coolWifi->state() == WL_CONNECTED) {
-    this->coolBoardLed.blink(GREEN, 5);
+      this->coolBoardLed.blink(GREEN, 5);
     } else {
       this->coolBoardLed.blink(RED, 10);
     }
@@ -539,8 +542,8 @@ void CoolBoard::mqttLog(String data) {
 
 bool CoolBoard::mqttPublish(String data) {
   return (this->coolPubSubClient->publish(this->mqttOutTopic.c_str(),
-                                    (byte *)(data.c_str()), data.length(),
-                                    false));
+                                          (byte *)(data.c_str()), data.length(),
+                                          false));
 }
 
 bool CoolBoard::mqttListen() {
