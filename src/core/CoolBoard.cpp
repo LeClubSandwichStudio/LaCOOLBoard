@@ -94,7 +94,7 @@ void CoolBoard::loop() {
     this->spiffsProblem();
   }
   if (!this->isConnected()) {
-    this->mqttClient->disconnect();
+    this->coolPubSubClient->disconnect();
     INFO_LOG("Connecting...");
     this->connect();
   }
