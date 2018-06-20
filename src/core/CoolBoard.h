@@ -83,15 +83,15 @@ public:
 
 private:
   CoolBoardSensors coolBoardSensors;
-  CoolBoardLed led;
-  CoolTime rtc;
-  CoolWifi *wifiManager = new CoolWifi;
+  CoolBoardLed coolBoardLed;
+  CoolTime coolTime;
+  CoolWifi *coolWifi = new CoolWifi;
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;
-  CoolBoardActuator onBoardActuator;
-  CoolPubSubClient *mqttClient = new CoolPubSubClient;
-  WiFiClientSecure *wifiClient = new WiFiClientSecure;
+  CoolBoardActuator coolBoardActuator;
+  CoolPubSubClient *coolPubSubClient = new CoolPubSubClient;
+  WiFiClientSecure *wifiClientSecure = new WiFiClientSecure;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;
