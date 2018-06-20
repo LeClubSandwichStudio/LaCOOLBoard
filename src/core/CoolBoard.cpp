@@ -344,6 +344,9 @@ void CoolBoard::update(const char *answer) {
     }
 
     CoolFileSystem::updateConfigFiles(stateDesired);
+    SPIFFS.end();
+    this->begin();
+    SPIFFS.begin();
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
     state["reported"] = stateDesired;
@@ -351,7 +354,8 @@ void CoolBoard::update(const char *answer) {
     String updateAnswer;
     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
-    this->mqttPublish(updateAnswer.c_str());
+    this->mqttLog(updateAnswer);
+    this->sendAllConfig();
     delay(10);
   } else {
     ERROR_LOG("Failed to parse update message");
