@@ -36,7 +36,7 @@
 #define YELLOW 30, 30, 0
 #define BLUE 0, 0, 50
 #define FUCHSIA 30, 0, 30
-#define BROWN 50, 25, 0
+#define ORANGE 50, 25, 0
 
 class CoolBoardLed {
 

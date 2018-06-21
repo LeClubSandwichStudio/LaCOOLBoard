@@ -32,20 +32,21 @@
 #include <ESP8266HTTPClient.h>
 
 #define MAX_WIFI_NETWORKS 10
+#define WIFI_CONNECT_TIMEOUT_DECISECONDS 300
 
-wl_status_t CoolWifi::state() { return (WiFi.status()); }
-
-wl_status_t CoolWifi::disconnect() {
-  WiFi.disconnect();
-  DEBUG_VAR("Wifi status:", WiFi.status());
-  return (WiFi.status());
-}
-
-wl_status_t CoolWifi::connect() {
+void CoolWifi::connect() {
   this->config();
   INFO_LOG("Wifi connecting...");
-  this->connectWifiMulti();
-  return (WiFi.status());
+  int i = 0;
+  DEBUG_VAR("Entry time to Wifi connection attempt:", millis());
+  while ((this->wifiMulti.run() != WL_CONNECTED) &&
+         (i < WIFI_CONNECT_TIMEOUT_DECISECONDS)) {
+    i++;
+    delay(100);
+  }
+  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+
+  printStatus(WiFi.status());
 }
 
 void CoolWifi::printStatus(wl_status_t status) {
@@ -77,22 +78,11 @@ void CoolWifi::printStatus(wl_status_t status) {
   }
 }
 
-wl_status_t CoolWifi::connectWifiMulti() {
-  int i = 0;
-
-  DEBUG_VAR("Entry time to Wifi connection attempt:", millis());
-  while ((this->wifiMulti.run() != WL_CONNECTED) && (i < 300)) {
-    i++;
-    delay(100);
-  }
-  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
-
-  wl_status_t status = WiFi.status();
-  printStatus(status);
-  return (status);
-}
-
-wl_status_t CoolWifi::connectAP() {
+void CoolWifi::startAccessPoint(CoolBoardLed &led) {
+  WiFi.disconnect();
+  delay(200);
+  led.write(FUCHSIA);
+  delay(500);
   WiFiManager wifiManager;
   String tempMAC = WiFi.macAddress();
 
@@ -106,13 +96,15 @@ wl_status_t CoolWifi::connectAP() {
   wl_status_t status = WiFi.status();
 
   if (status == WL_CONNECTED) {
+    led.blink(GREEN, 5);
     INFO_VAR("Wifi network selected:", WiFi.SSID());
     this->addWifi(WiFi.SSID(), WiFi.psk());
   } else {
+    led.blink(RED, 10);
     ERROR_LOG("No Wifi network was configured.");
   }
   printStatus(status);
-  return (status);
+  yield();
 }
 
 bool CoolWifi::config() {
@@ -172,17 +164,15 @@ bool CoolWifi::addWifi(String ssid, String pass) {
   return (true);
 }
 
-String CoolWifi::getExternalIP() {
+bool CoolWifi::getPublicIp(String &ip) {
   HTTPClient http;
-  String ip;
 
   http.begin("http://api.ipify.org/");
   if (http.GET() == HTTP_CODE_OK) {
     ip = http.getString();
-    DEBUG_VAR("Public IP address:", ip);
+    return (true);
   }
-  // return only the IP in the string
-  return (ip);
+  return (false);
 }
 
 void CoolWifi::printConf(String ssidList[]) {
