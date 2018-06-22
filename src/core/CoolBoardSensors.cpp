@@ -150,7 +150,6 @@ bool CoolBoardSensors::config() {
   config.set<bool>(json["SI114X"], "ir", this->lightDataActive.ir);
   config.set<bool>(json["SI114X"], "uv", this->lightDataActive.uv);
   config.set<bool>(json, "vbat", this->vbatActive);
-  config.set<bool>(json, "vbat", this->vbatActive);
   config.set<bool>(json, "soilMoisture", this->soilMoistureActive);
   config.set<bool>(json, "wallMoisture", this->wallMoistureActive);
   DEBUG_LOG("Builtin sensors configuration loaded");
@@ -191,11 +190,10 @@ float CoolBoardSensors::readVBat() {
 
   // read battery voltage
   int raw = analogRead(A0);
-  // convert it to approx. correct tension in volts
-  float val = 6.04 / 1024 * raw;
-
-  DEBUG_VAR("Battery voltage:", val);
-  return (val);
+  float voltage = (raw * MAX_BATTERY_VOLTAGE) / ADC_MAX_VAL;
+  DEBUG_VAR("Raw value:", raw);
+  DEBUG_VAR("Battery voltage:", voltage);
+  return (voltage);
 }
 
 float CoolBoardSensors::readSoilMoisture() {

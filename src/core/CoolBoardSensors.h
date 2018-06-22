@@ -33,6 +33,8 @@
 
 #define MOISTURE_SENSOR_PIN 13
 #define ANALOG_MULTIPLEXER_PIN 12
+#define ADC_MAX_VAL 1023.
+#define MAX_BATTERY_VOLTAGE 5.6
 
 class CoolBoardSensors {
 
