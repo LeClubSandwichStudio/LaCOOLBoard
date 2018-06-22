@@ -121,50 +121,25 @@ bool CoolBoardActuator::config() {
     ERROR_LOG("Failed to read builtin actuator configuration");
     return (false);
   }
-  JsonObject &json = config.get();
-  if (json["actif"].success()) {
-    this->actif = json["actif"];
-  }
-  json["actif"] = this->actif;
+  JsonObject &json = config.get();   
+  config.set<bool>(json, "actif", this->actif);
   // parsing temporal key
-  if (json["temporal"].success()) {
-    this->temporal = json["temporal"];
-  }
-  json["temporal"] = this->temporal;
+  config.set<bool>(json, "temporal", this->temporal);
   // parsing inverted key
-  if (json["inverted"].success()) {
-    this->inverted = json["inverted"];
-  }
-  json["inverted"] = this->inverted;
-  // parsing low key
-  if (json["low"].success()) {
-    this->rangeLow = json["low"][0];
-    this->timeLow = json["low"][1];
-    this->hourLow = json["low"][2];
-    this->minuteLow = json["low"][3];
-  }
-  json["low"][0] = this->rangeLow;
-  json["low"][1] = this->timeLow;
-  json["low"][2] = this->hourLow;
-  json["low"][3] = this->minuteLow;
+  config.set<bool>(json, "inverted", this->inverted);
+  // parsing low key 
+  config.setArray<int>(json, "low", 0, this->rangeLow);
+  config.setArray<unsigned long>(json, "low", 1, this->timeLow);
+  config.setArray<uint8_t>(json, "low", 2, this->hourLow);
+  config.setArray<uint8_t>(json, "low", 3, this->minuteLow);
   // parsing high key
-  if (json["high"].success()) {
-    this->rangeHigh = json["high"][0];
-    this->timeHigh = json["high"][1];
-    this->hourHigh = json["high"][2];
-    this->minuteHigh = json["high"][3];
-  }
-  json["high"][0] = this->rangeHigh;
-  json["high"][1] = this->timeHigh;
-  json["high"][2] = this->hourHigh;
-  json["high"][3] = this->minuteHigh;
+  config.setArray<int>(json, "high", 0, this->rangeHigh);
+  config.setArray<unsigned long>(json, "high", 1, this->timeHigh);
+  config.setArray<uint8_t>(json, "high", 2, this->hourHigh);
+  config.setArray<uint8_t>(json, "high", 3, this->minuteHigh);
   // parsing type key
-  if (json["type"].success()) {
-    this->primaryType = json["type"][0].as<String>();
-    this->secondaryType = json["type"][1].as<String>();
-  }
-  json["type"][0] = this->primaryType;
-  json["type"][1] = this->secondaryType;
+  config.setArray<String>(json, "type", 0, this->primaryType);
+  config.setArray<String>(json, "type", 1, this->secondaryType);
   INFO_LOG("Builtin actuator configuration loaded");
   return (true);
 }

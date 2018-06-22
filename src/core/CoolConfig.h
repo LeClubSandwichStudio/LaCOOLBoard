@@ -48,6 +48,14 @@ public:
       json[key] = val;
     }
   };
+  template <typename T>
+  static void setArray(JsonObject &json, const char *key, const uint8_t i, T &val, bool overwrite = false) {
+    if (!overwrite && json[key][i].success()) {
+      val = json[key][i].as<T>();
+    } else {
+      json[key][i] = val;
+    }
+  };
 };
 
 #endif
