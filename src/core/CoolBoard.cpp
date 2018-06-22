@@ -333,11 +333,7 @@ void CoolBoard::update(const char *answer) {
         }
       }
     }
-
     CoolFileSystem::updateConfigFiles(stateDesired);
-    SPIFFS.end();
-    this->begin();
-    SPIFFS.begin();
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
     state["reported"] = stateDesired;
@@ -346,11 +342,19 @@ void CoolBoard::update(const char *answer) {
     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttLog(updateAnswer);
-    this->sendAllConfig();
     delay(10);
   } else {
     ERROR_LOG("Failed to parse update message");
   }
+  if (SPIFFS.exists("/configSent.flag")) {
+      if (SPIFFS.remove("/configSent.flag")) {
+        DEBUG_LOG("Delete /configSent.flag");
+      } else {
+        ERROR_LOG("Failed to delete /configSent.flag");
+      }
+    }
+  SPIFFS.end();
+  ESP.restart();
 }
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
