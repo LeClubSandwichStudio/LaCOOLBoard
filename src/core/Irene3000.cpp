@@ -74,7 +74,7 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     INFO_LOG("Starting pH 4 calibration for 30 seconds");
     delay(30000);
     this->calibratepH4();
-    this->config(false);
+    this->config(true);
     led.write(WHITE);
     INFO_LOG("Calibration finished, hold button to exit calibration");
     this->waitForButtonPress();
