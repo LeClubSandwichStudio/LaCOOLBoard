@@ -33,9 +33,8 @@
 #define SEND_MSG_BATCH 10
 
 void CoolBoard::begin() {
-  if (this->powerCheck()) {
-    WiFi.mode(WIFI_STA);
-  }
+  this->powerCheck();
+  WiFi.mode(WIFI_STA);
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
@@ -78,10 +77,15 @@ void CoolBoard::begin() {
   }
   this->mqttsConfig();
   delay(100);
+  SPIFFS.end();
 }
 
 void CoolBoard::loop() {
-  if (!this->isConnected() && this->powerCheck()) {
+  this->powerCheck();
+  if (!SPIFFS.begin()) {
+    this->spiffsProblem();
+  }
+  if (!this->isConnected()) {
     this->coolPubSubClient->disconnect();
     INFO_LOG("Connecting...");
     this->connect();
@@ -119,7 +123,7 @@ void CoolBoard::loop() {
       this->previousLogTime = millis();
     }
 
-    if (digitalRead(BOOTSTRAP_PIN) == LOW && this->powerCheck()) {
+    if (digitalRead(BOOTSTRAP_PIN) == LOW) {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
                "configuration...");
       this->coolWifi->startAccessPoint(this->coolBoardLed);
@@ -132,8 +136,8 @@ void CoolBoard::loop() {
       this->sendSavedMessages();
     }
   }
-  if (this->sleepActive && (!this->shouldLog() || !rtcSynced) ||
-      !this->powerCheck()) {
+  SPIFFS.end();
+  if (this->sleepActive && (!this->shouldLog() || !rtcSynced)) {
     this->sleep(this->secondsToNextLog());
   }
 }
@@ -340,7 +344,6 @@ void CoolBoard::update(const char *answer) {
     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttLog(updateAnswer);
-    this->sendAllConfig();
     delay(10);
   } else {
     ERROR_LOG("Failed to parse update message");
@@ -460,22 +463,14 @@ void CoolBoard::spiffsProblem() {
 void CoolBoard::lowBattery() {
   WiFi.mode(WIFI_OFF);
   SPIFFS.end();
-  for (uint8_t i = 0; i < 8; i++) {
-    this->coolBoardLed.blink(RED, 0.2);
-    if (i <= 8) {
-      ESP.deepSleep(LOW_POWER_SLEEP);
-    }
-  }
+  ESP.deepSleep(LOW_POWER_SLEEP);
 }
 
-bool CoolBoard::powerCheck() {
-  if (this->coolBoardSensors.readVBat() < NOT_IN_CHARGING ||
-      this->coolBoardSensors.readVBat() > MIN_BAT_VOLTAGE) {
-    return (true);
-  } else {
+void CoolBoard::powerCheck() {
+  if (!this->coolBoardSensors.readVBat() < NOT_IN_CHARGING ||
+      !this->coolBoardSensors.readVBat() > MIN_BAT_VOLTAGE) {
     WARN_LOG("Battery Power is low! Need to charge!");
     this->lowBattery();
-    return (false);
   }
 }
 
@@ -541,7 +536,7 @@ void CoolBoard::mqttLog(String data) {
 
   DEBUG_VAR("Message to log:", data);
   DEBUG_VAR("Message size:", data.length());
-  if (this->isConnected() && this->powerCheck()) {
+  if (this->isConnected()) {
     messageSent = this->mqttPublish(data);
   }
   if (!messageSent) {
@@ -563,7 +558,7 @@ bool CoolBoard::mqttPublish(String data) {
 bool CoolBoard::mqttListen() {
   bool success = false;
   unsigned long lastTime = millis();
-  while ((millis() - lastTime) < 2000 && this->powerCheck()) {
+  while ((millis() - lastTime) < 2000) {
     success = this->coolPubSubClient->loop();
     yield();
   }
@@ -624,7 +619,7 @@ void CoolBoard::mqttsConfig() {
 
 void CoolBoard::tryFirmwareUpdate() {
   File config = SPIFFS.open("/otaUpdateConfig.json", "r");
-  if (config && this->powerCheck()) {
+  if (config) {
     INFO_LOG("Parsing firmware update configuration...");
     DynamicJsonBuffer buffer;
     JsonObject &json = buffer.parseObject(config.readString());

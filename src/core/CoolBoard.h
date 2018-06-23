@@ -42,7 +42,7 @@
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
 #define MQTT_RETRIES 5
-#define MIN_BAT_VOLTAGE 3.4
+#define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
 #define LOW_POWER_SLEEP 300
 
@@ -69,7 +69,7 @@ public:
   void networkProblem();
   void spiffsProblem();
   void lowBattery();
-  bool powerCheck();
+  void powerCheck();
   void messageSent();
   unsigned long secondsToNextLog();
   bool shouldLog();
