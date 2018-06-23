@@ -1,5 +1,30 @@
+/**
+ *  Copyright (c) 2018 La Cool Co SAS
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
+ *  copy of this software and associated documentation files (the "Software"),
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included
+ *  in all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ *  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ *  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ *  IN THE SOFTWARE.
+ *
+ */
+
 #ifndef _COOL_LOG_H_
 #define _COOL_LOG_H_
+
+#include "CoolTime.h"
 
 #define COOL_CRITICAL 0
 #define COOL_ERROR 1
@@ -14,6 +39,19 @@
 
 #ifndef COOL_LEVEL
 #define COOL_LEVEL COOL_INFO
+#endif
+
+#ifdef COOL_TIMESTAMP_TRACE
+#define ADD_TIMESTAMP                                                          \
+  do {                                                                         \
+    Serial.print(F("["));                                                      \
+    Serial.print(CoolTime::getInstance().getIso8601DateTime());                \
+    Serial.print(F("]"));                                                      \
+  } while (0)
+#else
+#define ADD_TIMESTAMP                                                          \
+  do {                                                                         \
+  } while (0)
 #endif
 
 #ifdef COOL_HEAP_TRACE
@@ -48,6 +86,7 @@
 
 #define LOG(level, m)                                                          \
   do {                                                                         \
+    ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
@@ -56,6 +95,7 @@
   } while (0)
 #define VAR(level, m, v)                                                       \
   do {                                                                         \
+    ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
@@ -66,6 +106,7 @@
   } while (0)
 #define NBR(level, m, n, f)                                                    \
   do {                                                                         \
+    ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
@@ -76,6 +117,7 @@
   } while (0)
 #define JSON(level, m, j)                                                      \
   do {                                                                         \
+    ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
