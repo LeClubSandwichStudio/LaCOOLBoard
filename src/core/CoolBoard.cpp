@@ -336,7 +336,6 @@ void CoolBoard::update(const char *answer) {
     CoolFileSystem::updateConfigFiles(stateDesired);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
-    state["reported"] = stateDesired;
     state["desired"] = RawJson("null");
     String updateAnswer;
     newRoot.printTo(updateAnswer);
