@@ -32,6 +32,7 @@
 #include "CoolFileSystem.h"
 #include "CoolTime.h"
 #include "CoolWifi.h"
+#include "CoolWebServer.h"
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
@@ -89,6 +90,7 @@ private:
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
   CoolWifi *coolWifi = new CoolWifi;
+  CoolWebServer coolWebServer;
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;

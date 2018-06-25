@@ -85,7 +85,7 @@ void CoolBoard::loop() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-  if (!this->isConnected()) {
+  if (!this->isConnected() && !this->coolWebServer.isRunnig) {
     this->coolPubSubClient->disconnect();
     INFO_LOG("Connecting...");
     this->connect();
@@ -126,8 +126,14 @@ void CoolBoard::loop() {
     if (digitalRead(BOOTSTRAP_PIN) == LOW) {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
                "configuration...");
-      this->coolWifi->startAccessPoint(this->coolBoardLed);
-      delay(500);
+      this->coolPubSubClient->disconnect();
+      if (!this->coolWebServer.isRunnig) {
+        this->coolWebServer.begin(NULL, NULL);
+      }
+    } else {
+      if (this->coolWebServer.isRunnig) {
+        this->coolWebServer.end();
+      }
     }
     INFO_LOG("Listening to update messages...");
     this->mqttListen();
@@ -137,7 +143,7 @@ void CoolBoard::loop() {
     }
   }
   SPIFFS.end();
-  if (this->sleepActive && (!this->shouldLog() || !rtcSynced)) {
+  if (this->sleepActive && (!this->shouldLog() || !rtcSynced || !this->coolWebServer.isRunnig)) {
     this->sleep(this->secondsToNextLog());
   }
 }
@@ -158,7 +164,9 @@ void CoolBoard::connect() {
     this->coolWifi->connect();
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
-    this->coolWifi->startAccessPoint(this->coolBoardLed);
+    if (!this->coolWebServer.isRunnig) {
+      this->coolWebServer.begin(NULL, NULL);
+    }
   }
   delay(100);
   if (WiFi.status() == WL_CONNECTED) {
@@ -467,8 +475,9 @@ void CoolBoard::lowBattery() {
 }
 
 void CoolBoard::powerCheck() {
-  if (!this->coolBoardSensors.readVBat() < NOT_IN_CHARGING ||
-      !this->coolBoardSensors.readVBat() > MIN_BAT_VOLTAGE) {
+  float batteryVoltage = this->coolBoardSensors.readVBat();
+  if (!(batteryVoltage < NOT_IN_CHARGING || batteryVoltage > MIN_BAT_VOLTAGE)) {
+    DEBUG_VAR("Battery voltage:", batteryVoltage);
     WARN_LOG("Battery Power is low! Need to charge!");
     this->lowBattery();
   }

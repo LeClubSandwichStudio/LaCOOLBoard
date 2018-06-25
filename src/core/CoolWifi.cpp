@@ -28,7 +28,6 @@
 #include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolWifi.h"
-#include "WiFiManagerReadFileButton.h"
 #include <ESP8266HTTPClient.h>
 
 #define MAX_WIFI_NETWORKS 10
@@ -76,35 +75,6 @@ void CoolWifi::printStatus(wl_status_t status) {
     ERROR_LOG("Wifi status: unknown");
     break;
   }
-}
-
-void CoolWifi::startAccessPoint(CoolBoardLed &led) {
-  WiFi.disconnect();
-  delay(200);
-  led.write(FUCHSIA);
-  delay(500);
-  WiFiManager wifiManager;
-  String tempMAC = WiFi.macAddress();
-
-  wifiManager.setRemoveDuplicateAPs(true);
-  wifiManager.setTimeout(this->timeOut);
-  tempMAC.replace(":", "");
-
-  String name = "CoolBoard-" + tempMAC;
-
-  wifiManager.autoConnect(name.c_str());
-  wl_status_t status = WiFi.status();
-
-  if (status == WL_CONNECTED) {
-    led.blink(GREEN, 5);
-    INFO_VAR("Wifi network selected:", WiFi.SSID());
-    this->addWifi(WiFi.SSID(), WiFi.psk());
-  } else {
-    led.blink(RED, 10);
-    ERROR_LOG("No Wifi network was configured.");
-  }
-  printStatus(status);
-  yield();
 }
 
 bool CoolWifi::config() {

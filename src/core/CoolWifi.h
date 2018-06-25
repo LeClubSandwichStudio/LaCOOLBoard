@@ -35,7 +35,6 @@ public:
   static void printStatus(wl_status_t status);
   bool config();
   void connect();
-  void startAccessPoint(CoolBoardLed &led);
   bool getPublicIp(String &ip);
   uint8_t wifiCount = 0;
 private:
