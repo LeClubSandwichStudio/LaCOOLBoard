@@ -30,13 +30,14 @@
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
 #include "SHT1x.h"
+#include "CoolSDS011.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 
 #include "CoolLog.h"
 
-#define SHT1X_DATA_PIN 4
-#define SHT1X_CLOCK_PIN 5
+#define SHT1X_DATA_PIN 0
+#define SHT1X_CLOCK_PIN 12
 
 class BaseExternalSensor {
 
@@ -304,5 +305,27 @@ public:
 
 private:
   SHT1x sensor;
+};
+
+template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
+public:
+  ExternalSensor() :  sensor() {}
+  virtual uint8_t begin() {
+    sensor.start();
+  }
+
+  virtual float read(float *a, float *b) {
+    float A, B;
+
+    sensor.read();
+    A = sensor.pm10();
+    B = sensor.pm25();
+    *a = A;
+    *b = B;
+    return (0.0);
+  }
+
+private:
+  SDS011 sensor;
 };
 #endif
