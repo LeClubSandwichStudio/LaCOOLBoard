@@ -35,7 +35,9 @@
 #define YEAR_2K 2000
 
 class CoolTime {
+
 public:
+  static CoolTime &getInstance();
   void begin();
   bool sync();
   void printStatus();
@@ -44,6 +46,12 @@ public:
   String getIso8601DateTime();
   DS1337 rtc;
   static bool ntpSync;
+
+  CoolTime(CoolTime const &) = delete;
+  void operator=(CoolTime const &) = delete;
+
+private:
+  CoolTime() {}
 };
 
 #endif

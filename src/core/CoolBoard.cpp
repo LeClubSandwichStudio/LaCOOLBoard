@@ -89,7 +89,7 @@ void CoolBoard::loop() {
     this->connect();
   }
   INFO_LOG("Synchronizing RTC...");
-  bool rtcSynced = this->coolTime.sync();
+  bool rtcSynced = CoolTime::getInstance().sync();
   if (!rtcSynced) {
     this->clockProblem();
   } else {
@@ -160,7 +160,7 @@ void CoolBoard::connect() {
   }
   delay(100);
   if (WiFi.status() == WL_CONNECTED) {
-    this->coolTime.begin();
+    CoolTime::getInstance().begin();
     delay(100);
     this->mqttConnect();
     delay(100);
@@ -190,7 +190,7 @@ void CoolBoard::sendSavedMessages() {
 
 void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
-    Date date = this->coolTime.rtc.getDate();
+    Date date = CoolTime::getInstance().rtc.getDate();
 
     INFO_LOG("Actuators configuration: automatic");
     if (this->jetpackActive) {
@@ -374,7 +374,7 @@ void CoolBoard::readSensors(JsonObject &reported) {
 }
 
 void CoolBoard::readBoardData(JsonObject &reported) {
-  reported["timestamp"] = this->coolTime.getIso8601DateTime();
+  reported["timestamp"] = CoolTime::getInstance().getIso8601DateTime();
   reported["mac"] = this->mqttId;
   reported["firmwareVersion"] = COOL_FW_VERSION;
   if (WiFi.status() == WL_CONNECTED) {

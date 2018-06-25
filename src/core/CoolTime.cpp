@@ -31,6 +31,12 @@
 
 bool CoolTime::ntpSync = false;
 
+CoolTime &CoolTime::getInstance() {
+  static CoolTime instance;
+
+  return instance;
+}
+
 void timeSet(void) {
   CoolTime::ntpSync = true;
   DEBUG_LOG("Received response from NTP server");
