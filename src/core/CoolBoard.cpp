@@ -467,8 +467,10 @@ void CoolBoard::lowBattery() {
 }
 
 void CoolBoard::powerCheck() {
-  if (!this->coolBoardSensors.readVBat() < NOT_IN_CHARGING ||
-      !this->coolBoardSensors.readVBat() > MIN_BAT_VOLTAGE) {
+  float batteryVoltage = this->coolBoardSensors.readVBat();
+  if (!(batteryVoltage < NOT_IN_CHARGING ||
+      batteryVoltage > MIN_BAT_VOLTAGE)) {
+    DEBUG_VAR("Battery voltage:", batteryVoltage);
     WARN_LOG("Battery Power is low! Need to charge!");
     this->lowBattery();
   }
