@@ -33,6 +33,7 @@
 #define SEND_MSG_BATCH 10
 
 void CoolBoard::begin() {
+  this->powerCheck();
   WiFi.mode(WIFI_STA);
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
@@ -80,6 +81,7 @@ void CoolBoard::begin() {
 }
 
 void CoolBoard::loop() {
+  this->powerCheck();
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
@@ -305,7 +307,6 @@ void CoolBoard::update(const char *answer) {
 
     this->coolBoardLed.strobe(BLUE, 0.5);
 
-    // manual mode check
     if (this->manual) {
       INFO_LOG("Entering actuators manual mode");
       for (auto kv : stateDesired) {
@@ -333,6 +334,7 @@ void CoolBoard::update(const char *answer) {
         }
       }
     }
+
     CoolFileSystem::updateConfigFiles(stateDesired);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
@@ -347,12 +349,12 @@ void CoolBoard::update(const char *answer) {
     ERROR_LOG("Failed to parse update message");
   }
   if (SPIFFS.exists("/configSent.flag")) {
-      if (SPIFFS.remove("/configSent.flag")) {
-        DEBUG_LOG("Delete /configSent.flag");
-      } else {
-        ERROR_LOG("Failed to delete /configSent.flag");
-      }
+    if (SPIFFS.remove("/configSent.flag")) {
+      DEBUG_LOG("Delete /configSent.flag");
+    } else {
+      ERROR_LOG("Failed to delete /configSent.flag");
     }
+  }
   SPIFFS.end();
   ESP.restart();
 }
@@ -438,14 +440,14 @@ void CoolBoard::networkProblem() {
   WARN_LOG("Network unreachable");
   CoolWifi::printStatus(WiFi.status());
   this->printMqttState(this->coolPubSubClient->state());
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(ORANGE, 0.2);
   }
 }
 
 void CoolBoard::clockProblem() {
   ERROR_LOG("NTP failed and RTC has stopped, not doing anything!");
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(RED, 0.2);
   }
 }
@@ -455,6 +457,20 @@ void CoolBoard::spiffsProblem() {
   this->coolBoardLed.write(RED);
   while (true) {
     yield();
+  }
+}
+
+void CoolBoard::lowBattery() {
+  WiFi.mode(WIFI_OFF);
+  SPIFFS.end();
+  ESP.deepSleep(LOW_POWER_SLEEP);
+}
+
+void CoolBoard::powerCheck() {
+  if (!this->coolBoardSensors.readVBat() < NOT_IN_CHARGING ||
+      !this->coolBoardSensors.readVBat() > MIN_BAT_VOLTAGE) {
+    WARN_LOG("Battery Power is low! Need to charge!");
+    this->lowBattery();
   }
 }
 
