@@ -419,7 +419,6 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   JsonObject &reported = state.createNestedObject("reported");
   reported[moduleName] = config.get();
   root.printTo(message);
-  DEBUG_VAR("JSON configuration message:", message);
   mqttLog(message);
 }
 
