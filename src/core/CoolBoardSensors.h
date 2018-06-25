@@ -56,7 +56,7 @@ public:
                             uint8_t pressOverSample = 1,
                             uint8_t humidOverSample = 1);
   float readVBat();
-  float soilMoistureLinearisation(float rawMoistureValue=0);
+  float soilMoistureLinearisation(float rawMoistureValue);
   float readSoilMoisture();
   float readWallMoisture();
   CoolSI114X lightSensor;
