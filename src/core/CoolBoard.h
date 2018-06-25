@@ -84,7 +84,6 @@ public:
 private:
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
-  CoolTime coolTime;
   CoolWifi *coolWifi = new CoolWifi;
   Jetpack jetPack;
   Irene3000 irene3000;
