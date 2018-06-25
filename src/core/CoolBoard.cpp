@@ -336,7 +336,6 @@ void CoolBoard::update(const char *answer) {
     CoolFileSystem::updateConfigFiles(stateDesired);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
-    state["reported"] = stateDesired;
     state["desired"] = RawJson("null");
     String updateAnswer;
     newRoot.printTo(updateAnswer);
@@ -420,7 +419,6 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   JsonObject &reported = state.createNestedObject("reported");
   reported[moduleName] = config.get();
   root.printTo(message);
-  DEBUG_VAR("JSON configuration message:", message);
   mqttLog(message);
 }
 
