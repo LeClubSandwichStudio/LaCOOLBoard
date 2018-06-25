@@ -70,8 +70,6 @@ bool SDS011::read() {
     temp25[4] = '\0';
     ftemp10 = atoi(temp10);
     ftemp25 = atoi(temp25);
-    Serial.println("RAW Wire from SDS    " + String(ftemp10) + "    " +
-                   String(ftemp25));
     lastPM10 = float(ftemp10) / 10.0;
     lastPM25 = float(ftemp25) / 10.0;
     return true;

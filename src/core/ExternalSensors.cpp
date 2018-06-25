@@ -213,9 +213,9 @@ void ExternalSensors::printConf(Sensor sensors[]) {
     INFO_VAR("  Reference =", sensors[i].reference);
     DEBUG_VAR("  Type     =", sensors[i].type);
     DEBUG_VAR("  Address  =", sensors[i].address);
-    DEBUG_VAR("kind0 :    =", sensors[i].kind0);
-    DEBUG_VAR("kind1 :    =", sensors[i].kind1);
-    DEBUG_VAR("kind2 :    =", sensors[i].kind2);
-    DEBUG_VAR("kind3 :    =", sensors[i].kind3);
+    DEBUG_VAR("  Kind (0) =", sensors[i].kind0);
+    DEBUG_VAR("  Kind (1) =", sensors[i].kind1);
+    DEBUG_VAR("  Kind (2) =", sensors[i].kind2);
+    DEBUG_VAR("  Kind (3) =", sensors[i].kind3);
   }
 }
