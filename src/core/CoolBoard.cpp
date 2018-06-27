@@ -122,13 +122,6 @@ void CoolBoard::loop() {
       this->mqttLog(data);
       this->previousLogTime = millis();
     }
-
-    if (digitalRead(BOOTSTRAP_PIN) == LOW) {
-      INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
-               "configuration...");
-      this->coolWifi->startAccessPoint(this->coolBoardLed);
-      delay(500);
-    }
     INFO_LOG("Listening to update messages...");
     this->mqttListen();
     if (CoolFileSystem::hasSavedLogs()) {
@@ -153,11 +146,11 @@ bool CoolBoard::isConnected() {
 }
 
 void CoolBoard::connect() {
-  if (this->coolWifi->wifiCount > 0) {
+  if (this->coolWifi->wifiCount > 0 && digitalRead(BOOTSTRAP_PIN) == HIGH) {
     this->coolBoardLed.write(BLUE);
     this->coolWifi->connect();
   } else {
-    INFO_LOG("No configured Wifi access point, launching configuration portal");
+    INFO_LOG("Starting Wifi access point and configuration portal");
     this->coolWifi->startAccessPoint(this->coolBoardLed);
   }
   delay(100);
