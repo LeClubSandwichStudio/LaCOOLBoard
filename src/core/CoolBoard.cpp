@@ -516,7 +516,7 @@ void CoolBoard::printMqttState(int state) {
 }
 
 void CoolBoard::mqttConnect() {
-  int i = 0;
+  uint8_t i = 0;
 
   INFO_LOG("MQTT connecting...");
   DEBUG_VAR("MQTT client id:", this->mqttId);

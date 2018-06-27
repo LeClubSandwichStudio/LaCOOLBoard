@@ -33,6 +33,7 @@ static constexpr ConfigFile CONFIG_FILES[] = {
       {"CoolBoard", "/coolBoardConfig.json"},
       {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
       {"CoolBoardActor", "/coolBoardActorConfig.json"},
+      {"externalSensors", "/externalSensorsConfig.json"},
       {"rtc", "/rtcConfig.json"},
       {"led", "/coolBoardLedConfig.json"},
       {"jetPack", "/jetPackConfig.json"},
@@ -40,7 +41,7 @@ static constexpr ConfigFile CONFIG_FILES[] = {
       {"mqtt", "/mqttConfig.json"},
       {"wifi", "/wifiConfig.json"}};
 
-static const uint8_t CONFIG_FILES_COUNT = 9;
+static const uint8_t CONFIG_FILES_COUNT = 10;
 
 void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   for (uint8_t i = 0; i < CONFIG_FILES_COUNT; ++i) {
@@ -60,10 +61,8 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
     return (false);
   }
   JsonObject &fileJson = config.get();
-  for (auto kv : fileJson) {
-    if (updateJson[kv.key].success()) {
+  for (auto kv : updateJson) {
       fileJson[kv.key] = updateJson[kv.key];
-    }
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
