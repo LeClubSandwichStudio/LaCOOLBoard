@@ -121,13 +121,13 @@ bool CoolBoardActuator::config() {
     ERROR_LOG("Failed to read builtin actuator configuration");
     return (false);
   }
-  JsonObject &json = config.get();   
+  JsonObject &json = config.get();
   config.set<bool>(json, "actif", this->actif);
   // parsing temporal key
   config.set<bool>(json, "temporal", this->temporal);
   // parsing inverted key
   config.set<bool>(json, "inverted", this->inverted);
-  // parsing low key 
+  // parsing low key
   config.setArray<int>(json, "low", 0, this->rangeLow);
   config.setArray<unsigned long>(json, "low", 1, this->timeLow);
   config.setArray<uint8_t>(json, "low", 2, this->hourLow);
@@ -145,6 +145,7 @@ bool CoolBoardActuator::config() {
 }
 
 void CoolBoardActuator::printConf() {
+  INFO_LOG("Builtin actuator configuration");
   INFO_VAR("  Actif          = ", this->actif);
   INFO_VAR("  Temporal       = ", this->temporal);
   INFO_VAR("  Inverted       = ", this->inverted);
