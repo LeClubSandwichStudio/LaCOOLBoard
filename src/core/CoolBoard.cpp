@@ -395,7 +395,6 @@ void CoolBoard::sendAllConfig() {
   this->sendConfig("CoolBoard", "/coolBoardConfig.json");
   this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
   this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
-  this->sendConfig("rtc", "/rtcConfig.json");
   this->sendConfig("led", "/coolBoardLedConfig.json");
   if (this->jetpackActive) {
     this->sendConfig("jetPack", "/jetPackConfig.json");
