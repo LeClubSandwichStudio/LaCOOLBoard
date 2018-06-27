@@ -28,7 +28,9 @@
 
 #include <NeoPixelBus.h>
 
+#define OFF 0, 0, 0
 #define RED 50, 0, 0
+#define BRIGHT_RED 255, 0, 0
 #define GREEN 0, 50, 0
 #define BRIGHT_GREEN 0, 255, 0
 #define WHITE 20, 20, 20
