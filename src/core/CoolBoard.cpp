@@ -516,11 +516,17 @@ void CoolBoard::mqttConnect() {
     if (this->coolPubSubClient->connect(this->mqttId.c_str())) {
       this->coolPubSubClient->subscribe(this->mqttInTopic.c_str());
       INFO_LOG("Subscribed to MQTT input topic");
+      mqttRetries = 0;
     } else {
       WARN_LOG("MQTT connection failed, retrying");
+      mqttRetries++;
     }
     delay(5);
     i++;
+  }
+  if (mqttRetries >= MAX_MQTT_RETRIES) {
+    SPIFFS.end();
+    ESP.restart();
   }
 }
 
