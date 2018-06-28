@@ -41,10 +41,11 @@
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
-#define MQTT_RETRIES 5
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
 #define LOW_POWER_SLEEP 300
+#define MQTT_RETRIES 5
+#define MAX_MQTT_RETRIES 15
 
 class CoolBoard {
 
@@ -86,6 +87,7 @@ public:
   void mqttLog(String data);
 
 private:
+  uint8_t mqttRetries = 0;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
   CoolWifi *coolWifi = new CoolWifi;
