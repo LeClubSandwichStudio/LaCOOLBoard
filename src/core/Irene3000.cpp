@@ -30,6 +30,7 @@
 #include "CoolBoardLed.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "CoolTime.h"
 #include "Irene3000.h"
 
 void Irene3000::begin() {
@@ -74,6 +75,7 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     INFO_LOG("Starting pH 4 calibration for 30 seconds");
     delay(30000);
     this->calibratepH4();
+    this->saveCalibrationDate();
     this->config(true);
     led.write(FUCHSIA);
     INFO_LOG("Calibration finished, hold button to exit calibration");
@@ -87,6 +89,7 @@ void Irene3000::read(JsonObject &root) {
     readTemp(root);
     if (phProbe.active) {
       readPh(root);
+      readLastCalibrationDate(root);
     }
   }
   if (adc2.active) {
@@ -113,6 +116,8 @@ bool Irene3000::config(bool overwrite) {
   config.set<int>(json, "ph4Cal", this->params.pH4Cal, overwrite);
   config.set<int>(json, "ph7Cal", this->params.pH7Cal, overwrite);
   config.set<float>(json, "phStep", this->params.pHStep, overwrite);
+  config.set<String>(json, "calibrationDate", this->params.calibrationDate,
+                     overwrite);
   if (overwrite) {
     if (!config.writeJsonToFile()) {
       ERROR_LOG("Failed to save IRN3000 configuration");
@@ -129,6 +134,7 @@ void Irene3000::printConf() {
   DEBUG_NBR("  Temperature gain   :", waterTemp.gain, HEX);
   DEBUG_VAR("  pH probe enabled   :", phProbe.active);
   DEBUG_NBR("  pH probe gain      :", phProbe.gain, HEX);
+  DEBUG_VAR("  Last PH calibration:", params.calibrationDate);
   DEBUG_VAR("  ADC2 enabled       :", adc2.active);
   DEBUG_NBR("  ADC2 gain          :", adc2.gain, HEX);
   DEBUG_VAR("  ADC2 type          :", adc2.type);
@@ -212,6 +218,21 @@ void Irene3000::calibratepH4() {
   this->calcpHSlope();
 }
 
+void Irene3000::saveCalibrationDate() {
+  this->params.calibrationDate = CoolTime::getInstance().getIso8601DateTime();
+}
+
+void Irene3000::readLastCalibrationDate(JsonObject &root) {
+  String calibrationDate = params.calibrationDate;
+  DEBUG_VAR("laste calibration date: ", calibrationDate);
+  if (calibrationDate == "0000-00-00T00:00:00Z") {
+    ERROR_LOG("PH calibration date error");
+    root["calibrationDate"] = RawJson("null");
+  } else {
+    root["calibrationDate"] = calibrationDate;
+  }
+}
+
 void Irene3000::calcpHSlope() {
   params.pHStep =
       ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) *
@@ -225,6 +246,7 @@ void Irene3000::resetParams(void) {
   params.pH4Cal = 8192;  // using ideal probe slope we end up this many 12bit
                          // units away on the 4 scale
   params.pHStep = 59.16; // ideal probe slope
+  params.calibrationDate = "0000-00-00T00:00:00Z";
 }
 
 adsGain_t Irene3000::gainConvert(uint16_t tempGain) {

@@ -58,6 +58,8 @@ public:
   void resetParams();
   void calibratepH7();
   void calibratepH4();
+  void saveCalibrationDate();
+  void readLastCalibrationDate(JsonObject &root);
   void calcpHSlope();
   adsGain_t gainConvert(uint16_t tempGain);
   void waitForButtonPress();
@@ -70,6 +72,7 @@ private:
     int pH7Cal = 0;
     int pH4Cal = 0;
     float pHStep = 1;
+    String calibrationDate = "0000-00-00T00:00:00Z";
   } params;
   struct {
     bool active = 0;
