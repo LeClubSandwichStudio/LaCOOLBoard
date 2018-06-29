@@ -104,7 +104,8 @@ bool Irene3000::config(bool overwrite) {
   }
   JsonObject &json = config.get();
 
-  config.set<bool>(json["waterTemp"], "active", this->waterTemp.active, overwrite);
+  config.set<bool>(json["waterTemp"], "active", this->waterTemp.active,
+                   overwrite);
   config.set<bool>(json["phProbe"], "active", this->phProbe.active, overwrite);
   config.set<bool>(json["adc2"], "active", this->adc2.active, overwrite);
   config.set<int>(json["adc2"], "gain", this->adc2.gain, overwrite);
@@ -161,8 +162,8 @@ void Irene3000::readPh(JsonObject &root) {
   DEBUG_VAR("pH value:", phT);
   if (isnan(phT)) {
     root["pH"] = RawJson("null");
-  }
-  root["pH"] = phT;
+  } else
+    root["pH"] = phT;
 }
 
 void Irene3000::readTemp(JsonObject &root) {
@@ -183,8 +184,8 @@ void Irene3000::readTemp(JsonObject &root) {
     DEBUG_VAR("IRN3000 temperature in °C: ", T);
     if (isnan(T)) {
       root["waterTemp"] = RawJson("null");
-    }
-    root["waterTemp"] = T;
+    } else
+      root["waterTemp"] = T;
   } else {
     T = 0.0 - A;
     T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
@@ -192,8 +193,8 @@ void Irene3000::readTemp(JsonObject &root) {
     DEBUG_VAR("IRN3000 temperature in °C:", T);
     if (isnan(T)) {
       root["waterTemp"] = RawJson("null");
-    }
-    root["waterTemp"] = T;
+    } else
+      root["waterTemp"] = T;
   }
 }
 
