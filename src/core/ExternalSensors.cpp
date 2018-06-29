@@ -182,7 +182,8 @@ bool ExternalSensors::config() {
     ERROR_LOG("Failed to read external sensors configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
   config.set<uint8_t>(json, "sensorsNumber", this->sensorsNumber);
   for (uint8_t i = 0; i < sensorsNumber; i++) {
     String name = "sensor" + String(i);

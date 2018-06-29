@@ -59,7 +59,8 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
     ERROR_VAR("Failed to read configuration file for updating:", path);
     return (false);
   }
-  JsonObject &fileJson = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &fileJson = document.as<JsonObject>();
   for (auto kv : updateJson) {
       fileJson[kv.key] = updateJson[kv.key];
   }

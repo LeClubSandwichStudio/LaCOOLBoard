@@ -123,7 +123,7 @@
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
     Serial.print(F(m));                                                        \
-    j.printTo(Serial);                                                         \
+    serializeJson(j, Serial);                                                         \
     Serial.println();                                                          \
   } while (0)
 

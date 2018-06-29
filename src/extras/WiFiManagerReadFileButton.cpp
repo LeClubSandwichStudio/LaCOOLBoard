@@ -702,16 +702,16 @@ void WiFiManager::handleWifiReset() {
 
  //create json wifi count = 0 ,timeout=300
  const size_t bufferSize = JSON_OBJECT_SIZE(3) + 40;
- DynamicJsonBuffer jsonBuffer(bufferSize);
+ DynamicJsonDocument jsonDocument(bufferSize);
 
  const char* json = "{\"wifiCount\":0,\"timeOut\":300}";
-
- JsonObject& root = jsonBuffer.parseObject(json);
+ deserializeJson(jsonDocument, json);
+ JsonObject &root = jsonDocument.as<JsonObject>();
 
  //open wifi file in w : delete contents
  File configFile = SPIFFS.open("/wifiConfig.json", "w");
  //write json in file 
- root.printTo(configFile);
+ serializeJson(jsonDocument, configFile);
  //close file 
  configFile.close();
  delay(500);

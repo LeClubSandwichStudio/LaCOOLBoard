@@ -68,7 +68,8 @@ bool Jetpack::config() {
     ERROR_LOG("Failed to read Jetpack configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument  &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
   for (int i = 0; i < 8; i++) {
     String actuatorName = String("Act") + String(i);
     JsonObject &act = json[actuatorName];

@@ -25,6 +25,7 @@
 
 #include <ArduinoJson.h>
 
+#include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolTime.h"
 

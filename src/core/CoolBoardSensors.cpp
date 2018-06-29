@@ -141,7 +141,8 @@ bool CoolBoardSensors::config() {
     ERROR_LOG("Failed to builtin sensors configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
   config.set<bool>(json["BME280"], "temperature",
                    this->airDataActive.temperature);
   config.set<bool>(json["BME280"], "humidity", this->airDataActive.humidity);

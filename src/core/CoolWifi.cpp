@@ -114,7 +114,8 @@ bool CoolWifi::config() {
     ERROR_LOG("Failed to read Wifi configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
   config.set<uint8_t>(json, "wifiCount", this->wifiCount);
   config.set<uint8_t>(json, "timeOut", this->timeOut);
 
@@ -147,7 +148,8 @@ bool CoolWifi::addWifi(String ssid, String pass) {
     ERROR_LOG("Cannot add new network, failed to read Wifi configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
 
   json["wifiCount"] = this->wifiCount + 1;
   JsonObject &newWifi =

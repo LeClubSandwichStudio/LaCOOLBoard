@@ -31,14 +31,13 @@ class CoolConfig {
 
 private:
   const char *path;
-  JsonVariant json;
-  DynamicJsonBuffer buffer;
+  DynamicJsonDocument document;
 
 public:
   CoolConfig(const char *path);
   bool readFileAsJson();
-  void setConfig(JsonVariant json);
-  JsonObject &get();
+  void setConfig(DynamicJsonDocument &json);
+  DynamicJsonDocument &get();
   bool writeJsonToFile();
   template <typename T>
   static void set(JsonObject &json, const char *key, T &val, bool overwrite = false) {

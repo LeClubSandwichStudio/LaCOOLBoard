@@ -147,7 +147,8 @@ bool CoolBoardLed::config() {
     ERROR_LOG("Failed to read LED configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
   config.set(json, "ledActive", this->ledActive);
   INFO_LOG("LED configuration loaded");
   return (true);

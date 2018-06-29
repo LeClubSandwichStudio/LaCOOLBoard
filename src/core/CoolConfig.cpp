@@ -36,22 +36,22 @@ bool CoolConfig::readFileAsJson() {
     return (false);
   }
   String data = file.readString();
-  this->json = this->buffer.parse(data);
-
-  if (!this->json.success()) {
+  auto error = deserializeJson(this->document, data);
+  if (error) {
     file.close();
     ERROR_VAR("Failed to parse file as JSON:", this->path);
+    ERROR_VAR("Error Type :", error.c_str());
     return (false);
   }
   DEBUG_VAR("Reading configuration file as JSON:", this->path);
-  DEBUG_JSON("Configuration JSON:", this->json);
+  data = "";
+  serializeJson(this->document, data);
+  DEBUG_VAR("Configuration JSON:", data.c_str());
   file.close();
   return (true);
 }
 
-JsonObject &CoolConfig::get() { return this->json; }
-
-void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
+DynamicJsonDocument &CoolConfig::get() { return this->document; }
 
 bool CoolConfig::writeJsonToFile() {
   File file = SPIFFS.open(this->path, "w");
@@ -59,7 +59,7 @@ bool CoolConfig::writeJsonToFile() {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
-  json.printTo(file);
+  serializeJson(this->document, file);
   file.close();
   DEBUG_VAR("Saved JSON config to:", this->path);
   return (true);
