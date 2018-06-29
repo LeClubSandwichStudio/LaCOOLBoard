@@ -1,9 +1,12 @@
+#include "CoolAsyncEditor.h"
 #include <CoolLog.h>
 #include <CoolWebServer.h>
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
+
+String handleMessageReceived;
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len) {
@@ -94,7 +97,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
 
 bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
   DEBUG_LOG("AsyncWebServer begin");
-  this->isRunnig = true;
+  this->isRunning = true;
   String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
   String name = "CoolBoard-" + tempMAC;
@@ -112,20 +115,21 @@ bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
     client->send("hello!", NULL, millis(), 1000);
   });
   server.addHandler(&events);
-  server.addHandler(new SPIFFSEditor(http_username, http_password));
+  // server.addHandler(new SPIFFSEditor(http_username, http_password));
   this->requestConfiguration();
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
+  this->onNotFoundConfig();
   server.begin();
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
   return (true);
 }
 
 void CoolWebServer::end() {
-  if (this->isRunnig) {
+  if (this->isRunning) {
     events.close();
     ws.closeAll();
     WiFi.mode(WIFI_STA);
-    this->isRunnig = false;
+    this->isRunning = false;
     DEBUG_LOG("AsyncWebServer disconnected!");
   } else {
     DEBUG_LOG("AsyncWebServer is already closed!");
@@ -133,10 +137,101 @@ void CoolWebServer::end() {
 }
 
 void CoolWebServer::requestConfiguration() {
+  server.on("/add/wifi", HTTP_POST,
+            [](AsyncWebServerRequest *request) { request->send(200); },
+            [](AsyncWebServerRequest *request, String filename, size_t index,
+               uint8_t *data, size_t len, bool final) {
+              if (!index) {
+                DEBUG_VAR("BodyStart: ", filename.length());
+              }
+              for (size_t i = 0; i < len; i++) {
+                handleMessageReceived += (const char)data[i];
+              }
+              if (index + len == filename.length()) {
+                Serial.printf("BodyEnd: %u B\n", filename.length());
+              }
+              if (final) {
+                INFO_VAR("File len: ", (uint32_t)len);
+                INFO_VAR("File name: ", filename.c_str());
+                INFO_VAR("File data: ", String((char *)data));
+                INFO_VAR("File data: ", handleMessageReceived);
+                handleMessageReceived = "";
+              }
+            },
+            [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
+               size_t index, size_t total) {
+              if (!index) {
+                DEBUG_VAR("BodyStart: ", total);
+              }
+              for (size_t i = 0; i < len; i++) {
+                handleMessageReceived += (const char)data[i];
+              }
+              if (index + len == total) {
+                DEBUG_VAR("BodyEnd: %u B\n", total);
+                DynamicJsonBuffer jsonBuffer;
+                JsonObject &root =
+                    jsonBuffer.parseObject(handleMessageReceived);
+                if (root["ssid"].success() && root["pass"].success()) {
+                  INFO_VAR("New SSID received:", root.get<String>("ssid"));
+                  DEBUG_VAR("pass: :", root.get<String>("pass"));
+                  CoolAsyncEditor coolAsyncEditor;
+                  if (coolAsyncEditor.addNewWifi(root.get<String>("ssid"),
+                                                 root.get<String>("pass"))) {
+                    request->send(201);
+                  } else {
+                    request->send(500);
+                  }
+                } else {
+                  request->send(415);
+                }
+                handleMessageReceived = "";
+              }
+            });
+
+  server.on("/reset/wifi", HTTP_POST,
+            [](AsyncWebServerRequest *request) { request->send(200); },
+            [](AsyncWebServerRequest *request, String filename, size_t index,
+               uint8_t *data, size_t len, bool final) {
+              if (!index) {
+                DEBUG_VAR("BodyStart: ", filename.length());
+              }
+              for (size_t i = 0; i < len; i++) {
+                handleMessageReceived += (const char)data[i];
+              }
+              if (index + len == filename.length()) {
+                Serial.printf("BodyEnd: %u B\n", filename.length());
+              }
+              if (final) {
+                INFO_VAR("File len: ", (uint32_t)len);
+                INFO_VAR("File name: ", filename.c_str());
+                INFO_VAR("File data: ", String((char *)data));
+                INFO_VAR("File data: ", handleMessageReceived);
+                handleMessageReceived = "";
+              }
+            },
+            [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
+               size_t index, size_t total) {
+              if (!index) {
+                DEBUG_VAR("total: ", total);
+              }
+              for (size_t i = 0; i < len; i++) {
+                handleMessageReceived += (const char)data[i];
+              }
+              if (index + len == total) {
+                DEBUG_VAR("BodyEnd: ", total);
+                CoolAsyncEditor coolAsyncEditor;
+                DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
+                coolAsyncEditor.reWriteWifi(handleMessageReceived);
+                request->send(201);
+                handleMessageReceived = "";
+              }
+            });
+
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
-  server.on("/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
+
+  server.on("/wifi/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
     INFO_LOG("Scanning WiFi networks");
     String json = "[";
     uint8_t n = WiFi.scanComplete();
@@ -177,4 +272,56 @@ void CoolWebServer::doWithSta(const char *ssid, const char *pass) {
       WiFi.begin(ssid, pass);
     }
   }
+}
+
+void CoolWebServer::onNotFoundConfig() {
+  server.onNotFound([](AsyncWebServerRequest *request) {
+    Serial.printf("NOT_FOUND: ");
+    if (request->method() == HTTP_GET)
+      Serial.printf("GET");
+    else if (request->method() == HTTP_POST)
+      Serial.printf("POST");
+    else if (request->method() == HTTP_DELETE)
+      Serial.printf("DELETE");
+    else if (request->method() == HTTP_PUT)
+      Serial.printf("PUT");
+    else if (request->method() == HTTP_PATCH)
+      Serial.printf("PATCH");
+    else if (request->method() == HTTP_HEAD)
+      Serial.printf("HEAD");
+    else if (request->method() == HTTP_OPTIONS)
+      Serial.printf("OPTIONS");
+    else
+      Serial.printf("UNKNOWN");
+    Serial.printf(" http://%s%s\n", request->host().c_str(),
+                  request->url().c_str());
+
+    if (request->contentLength()) {
+      Serial.printf("_CONTENT_TYPE: %s\n", request->contentType().c_str());
+      Serial.printf("_CONTENT_LENGTH: %u\n", request->contentLength());
+    }
+
+    int headers = request->headers();
+    int i;
+    for (i = 0; i < headers; i++) {
+      AsyncWebHeader *h = request->getHeader(i);
+      Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+    }
+
+    int params = request->params();
+    for (i = 0; i < params; i++) {
+      AsyncWebParameter *p = request->getParam(i);
+      if (p->isFile()) {
+        Serial.printf("_FILE[%s]: %s, size: %u\n", p->name().c_str(),
+                      p->value().c_str(), p->size());
+      } else if (p->isPost()) {
+        Serial.printf("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+
+      } else {
+        Serial.printf("_GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      }
+    }
+
+    request->send(404);
+  });
 }

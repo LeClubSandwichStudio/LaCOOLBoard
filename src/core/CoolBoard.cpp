@@ -38,6 +38,7 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
+
   this->coolBoardLed.config();
   this->coolBoardLed.begin();
   delay(10);
@@ -85,7 +86,7 @@ void CoolBoard::loop() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-  if (!this->isConnected() && !this->coolWebServer.isRunnig) {
+  if (!this->isConnected() && !this->coolWebServer.isRunning) {
     this->coolPubSubClient->disconnect();
     INFO_LOG("Connecting...");
     this->connect();
@@ -127,11 +128,11 @@ void CoolBoard::loop() {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
                "configuration...");
       this->coolPubSubClient->disconnect();
-      if (!this->coolWebServer.isRunnig) {
+      if (!this->coolWebServer.isRunning) {
         this->coolWebServer.begin(NULL, NULL);
       }
     } else {
-      if (this->coolWebServer.isRunnig) {
+      if (this->coolWebServer.isRunning) {
         this->coolWebServer.end();
       }
     }
@@ -143,7 +144,8 @@ void CoolBoard::loop() {
     }
   }
   SPIFFS.end();
-  if (this->sleepActive && (!this->shouldLog() || !rtcSynced || !this->coolWebServer.isRunnig)) {
+  if (this->sleepActive &&
+      (!this->shouldLog() || !rtcSynced || !this->coolWebServer.isRunning)) {
     this->sleep(this->secondsToNextLog());
   }
 }
@@ -164,7 +166,7 @@ void CoolBoard::connect() {
     this->coolWifi->connect();
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
-    if (!this->coolWebServer.isRunnig) {
+    if (!this->coolWebServer.isRunning) {
       this->coolWebServer.begin(NULL, NULL);
     }
   }

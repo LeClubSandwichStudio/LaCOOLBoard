@@ -24,9 +24,9 @@
 #ifndef COOLWIFI_H
 #define COOLWIFI_H
 
+#include "CoolBoardLed.h"
 #include <Arduino.h>
 #include <ESP8266WiFiMulti.h>
-#include "CoolBoardLed.h"
 
 class CoolWifi {
 
@@ -36,9 +36,10 @@ public:
   bool config();
   void connect();
   bool getPublicIp(String &ip);
-  uint8_t wifiCount = 0;
-private:
   bool addWifi(String ssid, String pass);
+  uint8_t wifiCount = 0;
+
+private:
   void printConf(String ssid[]);
   uint8_t timeOut = 180;
 };
