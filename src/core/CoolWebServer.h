@@ -8,6 +8,7 @@
 #include <FS.h>
 #include <Hash.h>
 // #include <SPIFFSEditor.h>
+#include <ESP8266SSDP.h>
 
 #define http_username "admin"
 #define http_password "admin"
@@ -17,7 +18,7 @@ public:
   bool begin(const char *currentSSID, const char *currentPASS);
   void end();
   bool isRunning = false;
-
+  void ssdpBegin(String coolName, String Mac);
 private:
   void doWithSta(const char *ssid, const char *pass);
   void requestConfiguration();

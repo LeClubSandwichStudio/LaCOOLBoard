@@ -104,7 +104,7 @@ bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
   WiFi.hostname(name.c_str());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(name.c_str());
-  this->doWithSta(currentPASS, currentSSID);
+  this->doWithSta("biohacking", "LaPaillasse");
   MDNS.addService("http", "tcp", 80);
   if (!SPIFFS.begin()) {
     return (false);
@@ -121,6 +121,7 @@ bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
   this->onNotFoundConfig();
   server.begin();
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
+  this->ssdpBegin(name,tempMAC);
   return (true);
 }
 
@@ -260,18 +261,20 @@ void CoolWebServer::requestConfiguration() {
     request->send(200, "text/json", json);
     json = String();
   });
+
+  server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request) {
+    CoolAsyncEditor coolAsyncEditor;
+    String descriptor = coolAsyncEditor.getSdpConfig();
+    request->send(200,"text/xml" ,descriptor);
+  });
 }
 
 void CoolWebServer::doWithSta(const char *ssid, const char *pass) {
-  if (ssid != NULL) {
-    WiFi.begin(ssid, pass);
-    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-      WARN_LOG("STA: Failed!\n");
-      WiFi.disconnect(false);
-      delay(100);
-      WiFi.begin(ssid, pass);
-    }
-  }
+  ;
+  // WiFi.disconnect(false);
+  // delay(100);
+  // WiFi.begin(ssid, pass);
+  INFO_VAR("Local ip:", WiFi.localIP());
 }
 
 void CoolWebServer::onNotFoundConfig() {
@@ -324,4 +327,21 @@ void CoolWebServer::onNotFoundConfig() {
 
     request->send(404);
   });
+}
+
+void CoolWebServer::ssdpBegin(String coolName, String mac) {
+
+  SSDP.setSchemaURL("description.xml");
+  SSDP.setHTTPPort(80);
+  SSDP.setName(coolName);
+  SSDP.setSerialNumber(mac);
+  SSDP.setURL("https://prod.lecool.menu/");
+  SSDP.setModelName("LaCoolCo LaCoolBoard");
+  char *uuid = "%08";
+  uuid = PRIx32,spi_flash_get_id();
+  SSDP.setModelNumber(uuid);
+  SSDP.setModelURL("http://www.lacool.co");
+  SSDP.setManufacturer("LaCoolCo");
+  SSDP.setManufacturerURL("http://www.lacool.co");
+  SSDP.begin();
 }

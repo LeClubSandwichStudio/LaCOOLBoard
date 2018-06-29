@@ -2,6 +2,8 @@
 #include "ArduinoJson.h"
 #include "CoolLog.h"
 #include <FS.h>
+#include <avr/pgmspace.h>
+#include <user_interface.h>
 
 CoolAsyncEditor::CoolAsyncEditor(const fs::FS &fs) : _fs(fs) {}
 
@@ -20,17 +22,22 @@ void CoolAsyncEditor::reWriteWifi(String data) {
 }
 
 bool CoolAsyncEditor::addNewWifi(String ssid, String pass) {
-  StaticJsonBuffer<256> json;
-  JsonObject &root = json.parseObject(this->read("/wifiConfig.json"));
-  uint8_t wifiCount = root.get<uint8_t>("wifiCount");
+  DynamicJsonBuffer json;
+  JsonObject &jsonBuf =
+      json.parseObject(this->read("/wifiConfig.json").c_str());
+  uint8_t wifiCount = jsonBuf.get<uint8_t>("wifiCount");
   DEBUG_VAR("Number of recorded networks: ", wifiCount);
-  if (root["wifiCount"].success()) {
+  if (jsonBuf["wifiCount"].success()) {
     wifiCount++;
-    JsonObject &newWifi = root.createNestedObject("Wifi" + String(wifiCount));
+    jsonBuf["wifiCount"] = wifiCount;
+    JsonObject &newWifi =
+        jsonBuf.createNestedObject("Wifi" + String(wifiCount));
+
     newWifi["ssid"] = ssid;
     newWifi["pass"] = pass;
     String tmp;
-    root.printTo(tmp);
+    jsonBuf.printTo(tmp);
+    DEBUG_VAR("New wifi Configuration: ", tmp);
     this->write("/wifiConfig.json", tmp);
     return (true);
   }
@@ -48,7 +55,7 @@ String CoolAsyncEditor::read(String patch) {
       do {
         lastChar = file.read();
         linebuf[idx++] = lastChar;
-      } while ((lastChar >= 0) && (idx < file.size()));
+      } while ((lastChar >= 0) && (idx < (file.size() + 1)));
       linebuf[idx - 1] = '\0';
     }
   }
@@ -57,3 +64,38 @@ String CoolAsyncEditor::read(String patch) {
   file.close();
   return (buf);
 }
+
+char *CoolAsyncEditor::readChars(String patch) {
+  File file = _fs.open(patch, "r");
+  uint8_t linebuf[file.size()];
+  if (file.size() > 0) {
+    uint32_t idx;
+    while (file.available()) {
+      linebuf[0] = '\0';
+      idx = 0;
+      uint8_t lastChar;
+      do {
+        lastChar = file.read();
+        linebuf[idx++] = lastChar;
+      } while ((lastChar >= 0) && (idx < (file.size() + 1)));
+      linebuf[idx - 1] = '\0';
+    }
+  }
+  DEBUG_VAR("Async read From SPIFFS: ", (char *)linebuf);
+  file.close();
+  return ((char *)linebuf);
+}
+
+String CoolAsyncEditor::getSdpConfig() {
+  IPAddress ip = WiFi.localIP();
+  String xml = this->read("/description.xml");
+  char buffer[sizeof xml];
+  char ipBuffer[sizeof ip.toString()];
+  ip.toString().toCharArray(ipBuffer, sizeof ip + 1);
+  xml.toCharArray(buffer, sizeof xml + 1);
+  sprintf(buffer, ipBuffer);
+  DEBUG_VAR("UPnP descriptor: ", buffer);
+  return (buffer);
+}
+
+void CoolAsyncEditor::configSSDP() {}
