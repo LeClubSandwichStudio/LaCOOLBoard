@@ -80,11 +80,8 @@ bool CoolTime::sync() {
 }
 
 String CoolTime::getIso8601DateTime() {
-  char timestamp[] = "YYYY-MM-DDTHH:MM:SSZ";
-  Date d = this->rtc.getDate();
-
-  sprintf(timestamp, "%04d-%02d-%02dT%02d:%02d:%02dZ", YEAR_2K + d.getYear(),
-          d.getMonth(), d.getDay(), d.getHour(), d.getMinutes(),
-          d.getSeconds());
-  return String(timestamp);
+  char iso8601Date[] = "YYYY-MM-DDTHH:MM:SSZ";
+  time_t t = this->rtc.getTimestamp();
+  strftime(iso8601Date, sizeof iso8601Date, "%FT%TZ", gmtime(&t));
+  return String(iso8601Date);
 }
