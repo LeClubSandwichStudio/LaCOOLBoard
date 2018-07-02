@@ -86,8 +86,8 @@ void Adafruit_CCS811::setEnvironmentalData(uint8_t humidity, double temperature)
 	humidity would be 0x61, 0x00.*/
 	
 	/* Temperature is stored as an unsigned 16 bits integer in 1/512
-	degrees; there is an offset: 0 maps to -25�C. The default value is
-	25�C = 0x64, 0x00. As an example 23.5% temperature would be
+	degrees; there is an offset: 0 maps to -25°C. The default value is
+	25°C = 0x64, 0x00. As an example 23.5% temperature would be
 	0x61, 0x00.
 	The internal algorithm uses these values (or default values if
 	not set by the application) to compensate for changes in

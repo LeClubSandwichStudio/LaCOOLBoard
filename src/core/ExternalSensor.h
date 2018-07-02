@@ -29,8 +29,8 @@
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
-#include "SHT1x.h"
 #include "CoolSDS011.h"
+#include "SHT1x.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 
@@ -74,7 +74,7 @@ private:
 
 template <> class ExternalSensor<NDIR_I2C> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr){} 
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}
   virtual uint8_t begin() {
     if (sensor.begin()) {
       delay(10000);
@@ -169,7 +169,7 @@ public:
       ;
     float T = sensor.calculateTemperature();
     sensor.setTempOffset(T - 25.0);
-    return(0);
+    return (0);
   }
 
   virtual float read(int16_t *a, int16_t *b, float *c) {
@@ -198,25 +198,14 @@ public:
 
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d, int16_t *e,
                      int16_t *f, int16_t *g, int16_t *h) {
-    uint16_t channel0, channel1, channel2, channel3;
-    uint16_t gain0, gain1, gain2, gain3;
-
-    channel0 = sensor.readADC_SingleEnded(0);
-    gain0 = sensor.getGain();
-    channel1 = sensor.readADC_SingleEnded(1);
-    gain1 = sensor.getGain();
-    channel2 = sensor.readADC_SingleEnded(2);
-    gain2 = sensor.getGain();
-    channel3 = sensor.readADC_SingleEnded(3);
-    gain3 = sensor.getGain();
-    *a = (int16_t)channel0;
-    *b = (int16_t)gain0;
-    *c = (int16_t)channel1;
-    *d = (int16_t)gain1;
-    *e = (int16_t)channel2;
-    *f = (int16_t)gain2;
-    *g = (int16_t)channel3;
-    *h = (int16_t)gain3;
+    *a = sensor.readADC_SingleEnded(0);
+    *b = sensor.getGain();
+    *c = sensor.readADC_SingleEnded(1);
+    *d = sensor.getGain();
+    *e = sensor.readADC_SingleEnded(2);
+    *f = sensor.getGain();
+    *g = sensor.readADC_SingleEnded(3);
+    *h = sensor.getGain();
     return (0.0);
   }
 
@@ -235,25 +224,14 @@ public:
 
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d, int16_t *e,
                      int16_t *f, int16_t *g, int16_t *h) {
-    uint16_t channel0, channel1, channel2, channel3;
-    uint16_t gain0, gain1, gain2, gain3;
-
-    channel0 = sensor.readADC_SingleEnded(0);
-    gain0 = sensor.getGain();
-    channel1 = sensor.readADC_SingleEnded(1);
-    gain1 = sensor.getGain();
-    channel2 = sensor.readADC_SingleEnded(2);
-    gain2 = sensor.getGain();
-    channel3 = sensor.readADC_SingleEnded(3);
-    gain3 = sensor.getGain();
-    *a = (int16_t)channel0;
-    *b = (int16_t)gain0;
-    *c = (int16_t)channel1;
-    *d = (int16_t)gain1;
-    *e = (int16_t)channel2;
-    *f = (int16_t)gain2;
-    *g = (int16_t)channel3;
-    *h = (int16_t)gain3;
+    *a = sensor.readADC_SingleEnded(0);
+    *b = sensor.getGain();
+    *c = sensor.readADC_SingleEnded(1);
+    *d = sensor.getGain();
+    *e = sensor.readADC_SingleEnded(2);
+    *f = sensor.getGain();
+    *g = sensor.readADC_SingleEnded(3);
+    *h = sensor.getGain();
     return (0.0);
   }
 
@@ -265,20 +243,12 @@ template <> class ExternalSensor<Gauges> : public BaseExternalSensor {
 public:
   ExternalSensor() { sensor = Gauges(); }
 
-  virtual uint8_t begin(){
-    return(0);
-  }
+  virtual uint8_t begin() { return (0); }
 
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) {
-    uint32_t A, B, C;
-
-    A = sensor.readGauge1();
-    B = sensor.readGauge2();
-    C = sensor.readGauge3();
-
-    *a = A;
-    *b = B;
-    *c = C;
+    *a = sensor.readGauge1();
+    *b = sensor.readGauge2();
+    *c = sensor.readGauge3();
     return (0.0);
   }
 
@@ -289,15 +259,10 @@ private:
 template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
-  virtual uint8_t begin() {
-    return(0);
-  }
+  virtual uint8_t begin() { return (0); }
   virtual float read(float *a, float *b) {
-    float A, B;
-    A = sensor.readHumidity();
-    B = sensor.readTemperatureC();
-    *a = A;
-    *b = B;
+    *a = sensor.readHumidity();
+    *b = sensor.readTemperatureC();
     return (0.0);
   }
 
@@ -307,20 +272,17 @@ private:
 
 template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
 public:
-  ExternalSensor() :  sensor() {}
+  ExternalSensor() : sensor() {}
   virtual uint8_t begin() {
     sensor.start();
-    return(0);
+    return (0);
   }
 
   virtual float read(float *a, float *b) {
-    float A, B;
-
     sensor.read();
-    A = sensor.pm10();
-    B = sensor.pm25();
-    *a = A;
-    *b = B;
+    *a = sensor.pm10();
+    *b = sensor.pm25();
+    ;
     return (0.0);
   }
 
