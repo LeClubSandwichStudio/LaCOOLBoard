@@ -105,7 +105,8 @@ bool Irene3000::config(bool overwrite) {
     ERROR_LOG("Failed to overwrite IRN3000 configuration");
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject &json = document.as<JsonObject>();
 
   config.set<bool>(json["waterTemp"], "active", this->waterTemp.active,
                    overwrite);

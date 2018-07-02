@@ -104,8 +104,8 @@ void CoolBoard::loop() {
         f.close();
       }
     }
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
+    DynamicJsonDocument doc;
+    JsonObject &root = doc.to<JsonObject>();
     JsonObject &state = root.createNestedObject("state");
     JsonObject &reported = state.createNestedObject("reported");
     INFO_LOG("Collecting board and sensor data...");
@@ -118,7 +118,7 @@ void CoolBoard::loop() {
     if (this->shouldLog()) {
       INFO_LOG("Sending log over MQTT...");
       String data;
-      root.printTo(data);
+      serializeJson(doc, data);
       this->mqttLog(data);
       this->previousLogTime = millis();
     }
@@ -240,7 +240,8 @@ bool CoolBoard::config() {
     this->spiffsProblem();
     return (false);
   }
-  JsonObject &json = config.get();
+  DynamicJsonDocument &document = config.get();
+  JsonObject  &json = document.as<JsonObject>();
   config.set<unsigned long>(json, "logInterval", this->logInterval);
   config.set<bool>(json, "ireneActive", this->ireneActive);
   config.set<bool>(json, "jetpackActive", this->jetpackActive);
@@ -265,21 +266,22 @@ void CoolBoard::printConf() {
 
 void CoolBoard::update(const char *answer) {
   INFO_LOG("Received new MQTT message");
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.parseObject(answer);
-  JsonObject &stateDesired = root["state"];
-  if (stateDesired.success()) {
-    DEBUG_JSON("Desired state JSON:", stateDesired);
-    if (stateDesired["CoolBoard"]["manual"].success()) {
-      this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
+  DynamicJsonDocument doc;
+  deserializeJson(doc, answer);
+  JsonObject &root = doc.as<JsonObject>();
+  JsonObject &state = root["state"];
+  if (state.success()) {
+    DEBUG_JSON("Desired state JSON:", doc);
+    if (state["CoolBoard"]["manual"].success()) {
+      this->manual = state["CoolBoard"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
     }
-    JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
+    JsonObject &firmwareJson = state["CoolBoard"]["firmwareUpdate"];
     if (firmwareJson.success()) {
       String firmwareVersion = firmwareJson.get<String>("firmwareVersion");
       if (String(COOL_FW_VERSION) == firmwareVersion) {
         INFO_LOG("You firmware version is up to date!");
-        stateDesired["CoolBoard"]["firmwareUpdate"] = NULL;
+        state["CoolBoard"]["firmwareUpdate"] = NULL;
       } else {
         File otaUpdateConfig = SPIFFS.open("/otaUpdateConfig.json", "w");
         if (!otaUpdateConfig) {
@@ -287,9 +289,9 @@ void CoolBoard::update(const char *answer) {
         } else {
           DEBUG_VAR("Firmware update scheduled, target version:",
                     firmwareVersion);
-          firmwareJson.printTo(otaUpdateConfig);
+          serializeJson(doc, otaUpdateConfig);
           otaUpdateConfig.close();
-          DEBUG_JSON("Saved OTA HTTPS update configuration to: ", firmwareJson);
+          DEBUG_JSON("Saved OTA HTTPS update configuration to: ", doc);
           INFO_LOG("New firmware update received, your board will now reboot "
                    "to apply...");
           delay(100);
@@ -302,7 +304,7 @@ void CoolBoard::update(const char *answer) {
 
     if (this->manual) {
       INFO_LOG("Entering actuators manual mode");
-      for (auto kv : stateDesired) {
+      for (auto kv : state) {
         DEBUG_VAR("Writing to:", kv.key);
         DEBUG_VAR("State:", kv.value.as<bool>());
 
@@ -328,13 +330,13 @@ void CoolBoard::update(const char *answer) {
       }
     }
 
-    CoolFileSystem::updateConfigFiles(stateDesired);
-    JsonObject &newRoot = jsonBuffer.createObject();
-    JsonObject &state = newRoot.createNestedObject("state");
-    state["reported"] = stateDesired;
+    CoolFileSystem::updateConfigFiles(state);
+    JsonObject& root = doc.to<JsonObject>();
+    JsonObject &state = root.createNestedObject("state");
+    state["reported"] = state;
     state["desired"] = RawJson("null");
     String updateAnswer;
-    newRoot.printTo(updateAnswer);
+    serializeJson(doc, updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttLog(updateAnswer);
     delay(10);
@@ -408,12 +410,13 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
     this->spiffsProblem();
   }
   String message;
-  DynamicJsonBuffer buffer;
-  JsonObject &root = buffer.createObject();
+  DynamicJsonDocument doc;
+  JsonObject &root = doc.to<JsonObject>();
   JsonObject &state = root.createNestedObject("state");
   JsonObject &reported = state.createNestedObject("reported");
-  reported[moduleName] = config.get();
-  root.printTo(message);
+  DynamicJsonDocument &tmp = config.get();
+  reported[moduleName] = tmp.as<JsonObject>();
+  serializeJson(doc, message);
   DEBUG_VAR("JSON configuration message:", message);
   mqttLog(message);
 }
@@ -460,7 +463,8 @@ void CoolBoard::lowBattery() {
 
 void CoolBoard::powerCheck() {
   float batteryVoltage = this->coolBoardSensors.readVBat();
-  if (!(batteryVoltage < NOT_IN_CHARGING || batteryVoltage > MIN_BAT_VOLTAGE)) {
+  if (!(batteryVoltage < NOT_IN_CHARGING ||
+      batteryVoltage > MIN_BAT_VOLTAGE)) {
     DEBUG_VAR("Battery voltage:", batteryVoltage);
     WARN_LOG("Battery Power is low! Need to charge!");
     this->lowBattery();
@@ -620,20 +624,21 @@ void CoolBoard::tryFirmwareUpdate() {
   File config = SPIFFS.open("/otaUpdateConfig.json", "r");
   if (config) {
     INFO_LOG("Parsing firmware update configuration...");
-    DynamicJsonBuffer buffer;
-    JsonObject &json = buffer.parseObject(config.readString());
-    DEBUG_JSON("Firmware update json:", json);
-    INFO_VAR("Target version:", json.get<String>("firmwareVersion"));
-    DEBUG_VAR("Firmware URL:", json.get<String>("firmwareUrl"));
+    DynamicJsonDocument doc;
+    deserializeJson(doc, config.readString());
+    JsonObject &root = doc.as<JsonObject>();
+    DEBUG_JSON("Firmware update json:", doc);
+    INFO_VAR("Target version:", root.get<String>("firmwareVersion"));
+    DEBUG_VAR("Firmware URL:", root.get<String>("firmwareUrl"));
     DEBUG_VAR("Server fingerprint: ",
-              json.get<String>("firmwareUrlFingerprint"));
+              root.get<String>("firmwareUrlFingerprint"));
     config.close();
-    if (json["firmwareUrlFingerprint"].success() &&
-        json["firmwareUrl"].success() && json["firmwareVersion"].success()) {
+    if (root["firmwareUrlFingerprint"].success() &&
+        root["firmwareUrl"].success() && root["firmwareVersion"].success()) {
       INFO_VAR("Firmware has to be updated from version:", COOL_FW_VERSION);
-      this->updateFirmware(json.get<String>("firmwareVersion"),
-                           json.get<String>("firmwareUrl"),
-                           json.get<String>("firmwareUrlFingerprint"));
+      this->updateFirmware(root.get<String>("firmwareVersion"),
+                           root.get<String>("firmwareUrl"),
+                           root.get<String>("firmwareUrlFingerprint"));
     } else {
       INFO_LOG("Failed to prepare firmware update (missing configuration)");
     }
