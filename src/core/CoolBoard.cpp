@@ -658,7 +658,7 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
     delete this->coolWifi;
     INFO_LOG("Starting firmware update...");
     t_httpUpdate_return ret =
-        ESPhttpUpdate.update(firmwareUrl, "", firmwareUrlFingerprint, true);
+        ESPhttpUpdate.update(firmwareUrl, "", firmwareUrlFingerprint);
     switch (ret) {
     case HTTP_UPDATE_FAILED:
       ERROR_VAR("HTTP Update failed, code:", ESPhttpUpdate.getLastError());
@@ -667,6 +667,8 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
       break;
     case HTTP_UPDATE_OK:
       INFO_LOG("HTTP update succeeded!");
+      break;
+    case HTTP_UPDATE_NO_UPDATES:
       break;
     }
   } else {

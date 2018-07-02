@@ -57,11 +57,11 @@ void CoolBoardSensors::begin() {
   }
   this->setEnvSensorSettings();
   delay(100);
-  uint8_t envSensorStatus = this->envSensor.begin();
+  this->envSensor.begin();
   // Make sure sensors had enough time to turn on.
   // BME280 requires 2ms to start up.
   delay(1000);
-  DEBUG_VAR("BME280 status after begin is:", envSensorStatus);
+  DEBUG_VAR("BME280 status after begin is:", this->envSensor.begin());
   DEBUG_LOG("Builtin sensors started");
 }
 

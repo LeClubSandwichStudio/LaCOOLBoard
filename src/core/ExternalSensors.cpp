@@ -65,7 +65,7 @@ void ExternalSensors::begin() {
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&C02, &VOT, &Temp);
     } else if ((sensors[i].reference) == "Adafruit_ADS1015") {
-      int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+      int16_t channel0, channel1, channel2, channel3;
       int16_t gain0, gain1, gain2, gain3;
       std::unique_ptr<ExternalSensor<Adafruit_ADS1015>> analogI2C(
           new ExternalSensor<Adafruit_ADS1015>(sensors[i].address));
@@ -76,7 +76,7 @@ void ExternalSensors::begin() {
                                 &gain2, &channel3, &gain3);
 
     } else if ((sensors[i].reference) == "Adafruit_ADS1115") {
-      int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+      int16_t channel0, channel1, channel2, channel3;
       int16_t gain0, gain1, gain2, gain3;
 
       std::unique_ptr<ExternalSensor<Adafruit_ADS1115>> analogI2C(
@@ -92,13 +92,11 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
     } else if ((sensors[i].reference) == "SHT1x") {
-      float A, B, C;
       std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
           new ExternalSensor<SHT1x>());
       sensors[i].exSensor = CoolSHT1x.release();
       sensors[i].exSensor->begin();
     } else if ((sensors[i].reference) == "SDS011") {
-      float A, B;
       std::unique_ptr<ExternalSensor<SDS011>> sds011(
           new ExternalSensor<SDS011>());
       sensors[i].exSensor = sds011.release();
@@ -130,7 +128,7 @@ void ExternalSensors::read(JsonObject &root) {
           root[sensors[i].kind2] = T;
         } else if ((sensors[i].reference == "Adafruit_ADS1015") ||
                    (sensors[i].reference == "Adafruit_ADS1115")) {
-          int16_t channel0, channel1, channel2, channel3, diff01, diff23;
+          int16_t channel0, channel1, channel2, channel3;
           int16_t gain0, gain1, gain2, gain3;
 
           sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1,
@@ -154,7 +152,7 @@ void ExternalSensors::read(JsonObject &root) {
           root[sensors[i].kind1] = B;
           root[sensors[i].kind2] = C;
         } else if (sensors[i].reference == "SHT1x") {
-          float A, B, C;
+          float A, B;
           sensors[i].exSensor->read(&A, &B);
           root[sensors[i].kind0] = A;
           root[sensors[i].kind1] = B;

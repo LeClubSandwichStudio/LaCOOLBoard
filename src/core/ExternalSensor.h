@@ -45,7 +45,7 @@ public:
   BaseExternalSensor() {}
   virtual uint8_t begin() { return (-2); }
   virtual float read() { return (-2); }
-  virtual float read(int16_t *a) { return (-42, 42); }
+  virtual float read(int16_t *a) { return (-42); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) { return (-42.42); }
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
@@ -74,7 +74,7 @@ private:
 
 template <> class ExternalSensor<NDIR_I2C> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) { sensor = NDIR_I2C(i2c_addr); }
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr){} 
   virtual uint8_t begin() {
     if (sensor.begin()) {
       delay(10000);
@@ -93,7 +93,7 @@ public:
   }
 
 private:
-  NDIR_I2C sensor = NULL;
+  NDIR_I2C sensor;
 };
 
 template <>
@@ -169,23 +169,17 @@ public:
       ;
     float T = sensor.calculateTemperature();
     sensor.setTempOffset(T - 25.0);
+    return(0);
   }
 
   virtual float read(int16_t *a, int16_t *b, float *c) {
-    uint16_t internC, internV;
-    float internT;
-
     if (sensor.available()) {
-      internT = sensor.calculateTemperature();
+      *c = sensor.calculateTemperature();
       if (!sensor.readData()) {
-        internC = sensor.geteCO2();
-        internV = sensor.getTVOC();
+        *a = sensor.geteCO2();
+        *b = sensor.getTVOC();
       }
     }
-
-    *a = (int16_t)internC;
-    *b = (int16_t)internV;
-    *c = internT;
     return (0.0);
   }
 
@@ -271,7 +265,9 @@ template <> class ExternalSensor<Gauges> : public BaseExternalSensor {
 public:
   ExternalSensor() { sensor = Gauges(); }
 
-  virtual uint8_t begin() {}
+  virtual uint8_t begin(){
+    return(0);
+  }
 
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) {
     uint32_t A, B, C;
@@ -293,9 +289,11 @@ private:
 template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
-  virtual uint8_t begin() {}
+  virtual uint8_t begin() {
+    return(0);
+  }
   virtual float read(float *a, float *b) {
-    float A, B, C;
+    float A, B;
     A = sensor.readHumidity();
     B = sensor.readTemperatureC();
     *a = A;
@@ -312,6 +310,7 @@ public:
   ExternalSensor() :  sensor() {}
   virtual uint8_t begin() {
     sensor.start();
+    return(0);
   }
 
   virtual float read(float *a, float *b) {
