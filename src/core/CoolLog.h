@@ -45,7 +45,7 @@
 #define ADD_TIMESTAMP                                                          \
   do {                                                                         \
     Serial.print(F("["));                                                      \
-    Serial.print(CoolTime::getInstance().getIso8601DateTime());                \
+    Serial.print(CoolTime::getInstance().getHumanDateTime());                \
     Serial.print(F("]"));                                                      \
   } while (0)
 #else
