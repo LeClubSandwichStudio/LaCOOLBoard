@@ -85,3 +85,10 @@ String CoolTime::getIso8601DateTime() {
   strftime(iso8601Date, sizeof iso8601Date, "%FT%TZ", gmtime(&t));
   return String(iso8601Date);
 }
+
+String CoolTime::getHumanDateTime() {
+  char humanDate[] = "YYYY-MM-DD HH:MM:SS";
+  time_t t = this->rtc.getTimestamp();
+  strftime(humanDate, sizeof humanDate, "%F %T ", gmtime(&t));
+  return String(humanDate);
+}

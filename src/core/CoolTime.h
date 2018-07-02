@@ -44,6 +44,7 @@ public:
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);
   String getIso8601DateTime();
+  String getHumanDateTime();
   DS1337 rtc;
   static bool ntpSync;
 
