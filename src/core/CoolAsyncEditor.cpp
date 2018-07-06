@@ -87,15 +87,34 @@ char *CoolAsyncEditor::readChars(String patch) {
 }
 
 String CoolAsyncEditor::getSdpConfig() {
-  IPAddress ip = WiFi.localIP();
+  String friendlyName = "CoolBoard-" + this->getMAC();
+  String ip = WiFi.localIP().toString();
   String xml = this->read("/description.xml");
-  char buffer[sizeof xml];
-  char ipBuffer[sizeof ip.toString()];
-  ip.toString().toCharArray(ipBuffer, sizeof ip + 1);
-  xml.toCharArray(buffer, sizeof xml + 1);
-  sprintf(buffer, ipBuffer);
+  int outputLength = xml.length() + ip.length() + friendlyName.length() +
+                     (this->getMAC().length() * 3) + this->getFlashID().length() + 1;
+  char buffer[outputLength];
+  buffer[outputLength - 1] = (char)NULL;
+  sprintf(buffer, xml.c_str(), ip.c_str(), friendlyName.c_str(),
+          this->getMAC().c_str(), this->getMAC().c_str(), this->getUUID().c_str());
   DEBUG_VAR("UPnP descriptor: ", buffer);
-  return (buffer);
+  return String(buffer);
 }
 
-void CoolAsyncEditor::configSSDP() {}
+String CoolAsyncEditor::getFlashID() {
+  return (String(ESP.getFlashChipId(), HEX));
+}
+
+String CoolAsyncEditor::getMAC() {
+  String tempMAC = WiFi.macAddress();
+  tempMAC.replace(":", "");
+  return (tempMAC);
+}
+
+String CoolAsyncEditor::getUUID() {
+  uint32_t chipId = ESP.getChipId();
+  char uuid[SSDP_UUID_SIZE];
+  sprintf(uuid, "38323636-4558-4dda-9188-cda0e6%02x%02x%02x",
+          (uint16_t)((chipId >> 16) & 0xff), (uint16_t)((chipId >> 8) & 0xff),
+          (uint16_t)chipId & 0xff);
+          return(uuid);
+}

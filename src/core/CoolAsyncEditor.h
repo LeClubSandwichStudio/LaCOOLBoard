@@ -1,11 +1,8 @@
 #ifndef COOLASYNCEDITOR_H
 #define COOLASYNCEDITOR_H
 #include <ESPAsyncWebServer.h>
-#define PRESENTATION_URL "http://lacool.co"
-#define MODEL_NAME "LaCoolBoard"
-#define MODEL_URL "http://lacool.co"
-#define MANUFACTURER "LaCoolCo"
-#define MANUFACTURER_URL "http://lacool.co"
+
+#define SSDP_UUID_SIZE 37
 
 class CoolAsyncEditor : public AsyncWebHandler {
 private:
@@ -24,8 +21,11 @@ public:
   virtual bool addNewWifi(String ssid, String pass);
   virtual void reWriteWifi(String json);
   virtual String getSdpConfig();
-  virtual void configSSDP();
- 
+
+private:
+  virtual String getFlashID();
+  virtual String getMAC();
+  virtual String getUUID();
 };
 
 #endif

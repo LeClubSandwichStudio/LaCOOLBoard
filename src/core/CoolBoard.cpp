@@ -123,17 +123,19 @@ void CoolBoard::loop() {
       this->mqttLog(data);
       this->previousLogTime = millis();
     }
-
     if (digitalRead(BOOTSTRAP_PIN) == LOW) {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
                "configuration...");
       this->coolPubSubClient->disconnect();
       if (!this->coolWebServer.isRunning) {
-        this->coolWebServer.begin(NULL, NULL);
+        this->coolWebServer.begin();
       }
     } else {
       if (this->coolWebServer.isRunning) {
+        root["state"] = NULL;
         this->coolWebServer.end();
+        INFO_LOG("CooBoard is rebooting...");
+        ESP.restart();
       }
     }
     INFO_LOG("Listening to update messages...");
@@ -167,7 +169,7 @@ void CoolBoard::connect() {
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
     if (!this->coolWebServer.isRunning) {
-      this->coolWebServer.begin(NULL, NULL);
+      this->coolWebServer.begin();
     }
   }
   delay(100);
@@ -266,6 +268,7 @@ bool CoolBoard::config() {
   config.set<bool>(json, "manual", this->manual);
   config.set<String>(json, "mqttServer", this->mqttServer);
   INFO_LOG("Main configuration loaded");
+  this->coolWebServer.ssdpBegin();
   return (true);
 }
 

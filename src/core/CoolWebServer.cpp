@@ -95,7 +95,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
   }
 }
 
-bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
+bool CoolWebServer::begin() {
   DEBUG_LOG("AsyncWebServer begin");
   this->isRunning = true;
   String tempMAC = WiFi.macAddress();
@@ -104,7 +104,7 @@ bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
   WiFi.hostname(name.c_str());
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(name.c_str());
-  this->doWithSta("biohacking", "LaPaillasse");
+  INFO_VAR("Local ip:", WiFi.localIP());
   MDNS.addService("http", "tcp", 80);
   if (!SPIFFS.begin()) {
     return (false);
@@ -115,13 +115,11 @@ bool CoolWebServer::begin(const char *currentSSID, const char *currentPASS) {
     client->send("hello!", NULL, millis(), 1000);
   });
   server.addHandler(&events);
-  // server.addHandler(new SPIFFSEditor(http_username, http_password));
   this->requestConfiguration();
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm").setAuthentication(HTTP_USERNAME, HTTP_PASSWORD);;
   this->onNotFoundConfig();
   server.begin();
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
-  this->ssdpBegin(name,tempMAC);
   return (true);
 }
 
@@ -269,14 +267,6 @@ void CoolWebServer::requestConfiguration() {
   });
 }
 
-void CoolWebServer::doWithSta(const char *ssid, const char *pass) {
-  ;
-  // WiFi.disconnect(false);
-  // delay(100);
-  // WiFi.begin(ssid, pass);
-  INFO_VAR("Local ip:", WiFi.localIP());
-}
-
 void CoolWebServer::onNotFoundConfig() {
   server.onNotFound([](AsyncWebServerRequest *request) {
     Serial.printf("NOT_FOUND: ");
@@ -328,20 +318,22 @@ void CoolWebServer::onNotFoundConfig() {
     request->send(404);
   });
 }
-
-void CoolWebServer::ssdpBegin(String coolName, String mac) {
-
+void CoolWebServer::ssdpBegin() {
   SSDP.setSchemaURL("description.xml");
   SSDP.setHTTPPort(80);
-  SSDP.setName(coolName);
-  SSDP.setSerialNumber(mac);
-  SSDP.setURL("https://prod.lecool.menu/");
-  SSDP.setModelName("LaCoolCo LaCoolBoard");
-  char *uuid = "%08";
-  uuid = PRIx32,spi_flash_get_id();
-  SSDP.setModelNumber(uuid);
-  SSDP.setModelURL("http://www.lacool.co");
-  SSDP.setManufacturer("LaCoolCo");
-  SSDP.setManufacturerURL("http://www.lacool.co");
+  SSDP.setName("CoolBoard");
+  SSDP.setModelName("CoolBoard");
+  SSDP.setURL("/index.htm"); 
   SSDP.begin();
+  String coolName = "coolboard-"+ this->getCoolMac();
+    if (!MDNS.begin(coolName.c_str())) {
+    INFO_LOG("Error setting up MDNS responder!");
+    while (1) {
+      delay(1000);
+    }
+  }
+  SSDP.setDeviceType("upnp:rootdevice");
+  INFO_VAR("Bonjour service started at: ", coolName);
+  INFO_LOG("TCP server started");
+  MDNS.addService("http", "tcp", 80);
 }
