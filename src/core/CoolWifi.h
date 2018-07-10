@@ -38,8 +38,8 @@ public:
   bool getPublicIp(String &ip);
   bool addWifi(String ssid, String pass);
   uint8_t wifiCount = 0;
-
-private:
+  
+  private:
   void printConf(String ssid[]);
   uint8_t timeOut = 180;
 };

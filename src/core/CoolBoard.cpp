@@ -135,7 +135,7 @@ void CoolBoard::loop() {
         root["state"] = NULL;
         this->coolWebServer.end();
         INFO_LOG("CooBoard is rebooting...");
-        ESP.restart();
+        // ESP.restart();
       }
     }
     INFO_LOG("Listening to update messages...");
@@ -147,7 +147,7 @@ void CoolBoard::loop() {
   }
   SPIFFS.end();
   if (this->sleepActive &&
-      (!this->shouldLog() || !rtcSynced || !this->coolWebServer.isRunning)) {
+      (!this->shouldLog() || !rtcSynced) && !this->coolWebServer.isRunning) {
     this->sleep(this->secondsToNextLog());
   }
 }

@@ -1,5 +1,6 @@
 #ifndef COOLASYNCEDITOR_H
 #define COOLASYNCEDITOR_H
+#include "ESPAsyncWiFiManager.h"
 #include <ESPAsyncWebServer.h>
 
 #define SSDP_UUID_SIZE 37
@@ -21,8 +22,11 @@ public:
   virtual bool addNewWifi(String ssid, String pass);
   virtual void reWriteWifi(String json);
   virtual String getSdpConfig();
+  virtual String getSavedWifi(String index);
+  virtual String getSavedCredentialFromIndex(uint8_t i, String type);
 
 private:
+  AsyncWiFiManager *asyncWiFiManager;
   virtual String getFlashID();
   virtual String getMAC();
   virtual String getUUID();

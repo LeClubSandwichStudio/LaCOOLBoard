@@ -116,7 +116,10 @@ bool CoolWebServer::begin() {
   });
   server.addHandler(&events);
   this->requestConfiguration();
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm").setAuthentication(HTTP_USERNAME, HTTP_PASSWORD);;
+  server.serveStatic("/", SPIFFS, "/")
+      .setDefaultFile("index.htm")
+      .setAuthentication(HTTP_USERNAME, HTTP_PASSWORD);
+  ;
   this->onNotFoundConfig();
   server.begin();
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
@@ -260,10 +263,60 @@ void CoolWebServer::requestConfiguration() {
     json = String();
   });
 
+  server.on("/wifi/saved", HTTP_GET, [](AsyncWebServerRequest *request) {
+    CoolAsyncEditor coolAsyncEditor;
+    int params = request->params();
+    if (params == 0) {
+      request->send(200, "text/json", coolAsyncEditor.read("/wifiConfig.json"));
+    }
+    for (int i = 0; i < params; i++) {
+      AsyncWebParameter *p = request->getParam(i);
+      if (!p->isFile() && !p->isPost()) {
+        Serial.printf("GET[%s]: WiFi:%s\n", p->name().c_str(),
+                      p->value().c_str());
+        CoolAsyncEditor coolAsyncEditor;
+        if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
+          request->send(404);
+        } else {
+          request->send(200, "text/json",
+                        coolAsyncEditor.getSavedWifi(p->value()));
+        }
+      }
+    }
+  });
+// FIX ME:
+  server.on("/wifi/connect", HTTP_GET, [](AsyncWebServerRequest *request) {
+    CoolAsyncEditor coolAsyncEditor;
+    int params = request->params();
+    for (int i = 0; i < params; i++) {
+      AsyncWebParameter *p = request->getParam(i);
+      if (!p->isFile() && !p->isPost()) {
+        Serial.printf("GET[%s]: WiFi:%s\n", p->name().c_str(),
+                      p->value().c_str());
+        CoolAsyncEditor coolAsyncEditor;
+        if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
+          request->send(404);
+        } else {
+          WiFi.begin(
+                  coolAsyncEditor.getSavedCredentialFromIndex(atoi(p->value().c_str() ),
+                                                              "ssid").c_str(),
+                  coolAsyncEditor.getSavedCredentialFromIndex(atoi(p->value().c_str() ),
+                                                              "pass").c_str() );
+          if (WiFi.waitForConnectResult() == WL_CONNECTED){
+          request->send(200, "text/json","CONNECTED!");
+          }
+          else {
+            request->send(200, "text/json", "Not connected :(");
+          }
+        }
+      }
+    }
+  });
+
   server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request) {
     CoolAsyncEditor coolAsyncEditor;
     String descriptor = coolAsyncEditor.getSdpConfig();
-    request->send(200,"text/xml" ,descriptor);
+    request->send(200, "text/xml", descriptor);
   });
 }
 
@@ -293,14 +346,12 @@ void CoolWebServer::onNotFoundConfig() {
       Serial.printf("_CONTENT_TYPE: %s\n", request->contentType().c_str());
       Serial.printf("_CONTENT_LENGTH: %u\n", request->contentLength());
     }
-
     int headers = request->headers();
     int i;
     for (i = 0; i < headers; i++) {
       AsyncWebHeader *h = request->getHeader(i);
       Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
     }
-
     int params = request->params();
     for (i = 0; i < params; i++) {
       AsyncWebParameter *p = request->getParam(i);
@@ -323,17 +374,12 @@ void CoolWebServer::ssdpBegin() {
   SSDP.setHTTPPort(80);
   SSDP.setName("CoolBoard");
   SSDP.setModelName("CoolBoard");
-  SSDP.setURL("/index.htm"); 
+  SSDP.setURL("/index.htm");
   SSDP.begin();
-  String coolName = "coolboard-"+ this->getCoolMac();
-    if (!MDNS.begin(coolName.c_str())) {
-    INFO_LOG("Error setting up MDNS responder!");
-    while (1) {
-      delay(1000);
-    }
-  }
+  String coolName = "coolboard-" + this->getCoolMac();
   SSDP.setDeviceType("upnp:rootdevice");
   INFO_VAR("Bonjour service started at: ", coolName);
   INFO_LOG("TCP server started");
   MDNS.addService("http", "tcp", 80);
+  MDNS.begin(coolName.c_str());
 }

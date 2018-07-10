@@ -29,6 +29,7 @@
 #include "CoolLog.h"
 #include "CoolWifi.h"
 #include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.H>
 
 #define MAX_WIFI_NETWORKS 10
 #define WIFI_CONNECT_TIMEOUT_DECISECONDS 300
