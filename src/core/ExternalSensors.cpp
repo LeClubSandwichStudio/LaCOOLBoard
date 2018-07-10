@@ -45,7 +45,7 @@ void ExternalSensors::begin() {
           new ExternalSensor<DallasTemperature>(&oneWire));
 
       sensors[i].exSensor = dallasTemp.release();
-      sensors[i].exSensor->begin();
+      sensors[i].exSensor->begin(sensors[i].address);
       sensors[i].exSensor->read();
     } else if ((sensors[i].reference) == "Adafruit_TCS34725") {
       int16_t r, g, b, c, colorTemp, lux;

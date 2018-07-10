@@ -39,7 +39,7 @@ private:
   struct Sensor {
     String reference = "";
     String type = "";
-    uint8_t address = 0;
+    uint16_t address = 0;
     BaseExternalSensor *exSensor = NULL;
     String kind0 = "0";
     String kind1 = "0";

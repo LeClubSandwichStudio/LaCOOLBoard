@@ -44,6 +44,7 @@ class BaseExternalSensor {
 public:
   BaseExternalSensor() {}
   virtual uint8_t begin() { return (-2); }
+  virtual uint16_t begin(int16_t *addr) { return (-2); }
   virtual float read() { return (-2); }
   virtual float read(int16_t *a) { return (-42, 42); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
@@ -101,16 +102,20 @@ class ExternalSensor<DallasTemperature> : public BaseExternalSensor {
 public:
   ExternalSensor(OneWire *oneWire) { sensor = DallasTemperature(oneWire); }
 
-  virtual uint8_t begin() {
+  virtual uint16_t begin(uint16_t addr) {
     sensor.begin();
     delay(5);
-    sensor.getAddress(this->dallasAddress, 0);
+    sensor.getAddress(this->dallasAddress, addr);
+    Serial.println();
+    Serial.print("Dallas addr in ExternalSensor : ");
+    Serial.println(addr);
+    Serial.println();
     return (true);
   }
 
   virtual float read() {
     sensor.requestTemperatures();
-    float result = (float)sensor.getTempCByIndex(0);
+    float result = (float)sensorSHT1X_DATA_PIN, SHT1X_CLOCK_PIN.getTempCByIndex(0);
     return (result);
   }
 
@@ -198,7 +203,7 @@ public:
   ExternalSensor(uint8_t i2c_addr) { sensor = Adafruit_ADS1015(i2c_addr); }
 
   virtual uint8_t begin() {
-    sensor.begin();
+    sensor.begin();oneWire
     return (true);
   }
 
