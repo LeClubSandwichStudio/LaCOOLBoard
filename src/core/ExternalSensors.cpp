@@ -103,6 +103,13 @@ void ExternalSensors::begin() {
           new ExternalSensor<SDS011>());
       sensors[i].exSensor = sds011.release();
       sensors[i].exSensor-> begin();
+    } else if ((sensors[i].reference) == "MCP342X_4-20mA") {
+      int16_t channel0, channel1, channel2, channel3;
+
+      std::unique_ptr<ExternalSensor<MCP342X>> analogI2C(
+          new ExternalSensor<MCP342X>(sensors[i].address));
+      sensors[i].exSensor = analogI2C.release();
+      sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
     }
   }
 }
@@ -164,6 +171,18 @@ void ExternalSensors::read(JsonObject &root) {
           delay(200);
           root[sensors[i].kind0] = A; //PM10
           root[sensors[i].kind1] = B; //PM2.5
+        } else if (sensors[i].reference == "MCP342X_4-20mA") {
+          int16_t channel0, channel1, channel2, channel3;
+
+          sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
+          root[sensors[i].kind0] = channel0;
+          root[sensors[i].kind1] = channel1;
+          root[sensors[i].kind2] = channel2;
+          root[sensors[i].kind3] = channel3;
+          DEBUG_VAR("MCP342X Channel 1 Output:",channel0);
+          DEBUG_VAR("MCP342X Channel 2 Output:",channel1);
+          DEBUG_VAR("MCP342X Channel 3 Output:",channel2);
+          DEBUG_VAR("MCP342X Channel 4 Output:",channel3);
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
