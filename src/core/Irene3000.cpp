@@ -93,7 +93,11 @@ void Irene3000::read(JsonObject &root) {
     }
   }
   if (adc2.active) {
+    if (this->adc2.type == "DFrobotEC") {
+      readEC(root);
+    } else {
     root[adc2.type] = this->readADSChannel2();
+    }
   }
   DEBUG_JSON("Irene data:", root);
 }
@@ -202,6 +206,46 @@ void Irene3000::readTemp(JsonObject &root) {
     } else
       root["waterTemp"] = T;
   }
+}
+
+float Irene3000::readTemp() {
+  const double A = 3.9083E-3;
+  const double B = -5.775E-7;
+  double T;
+
+  this->ads.setGain(GAIN_EIGHT);
+
+  double adc0 = ads.readADC_SingleEnded(TEMP_CHANNEL);
+  double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
+
+  T = 0.0 - A;
+  T += sqrt((A * A) - 4.0 * B * (1.0 - R));
+  T /= (2.0 * B);
+  DEBUG_VAR("IRN3000 temperature in °C:", T);
+  return T ;
+}
+
+void Irene3000::readEC(JsonObject &root) {
+  int overSample = 16;
+  float ecCurrent = 0;
+  unsigned long average = 0;
+  unsigned int averageVoltage = 0;
+  for (int i = 0; i<=64; i++) {
+    delay(20);
+    average += readADSChannel2();
+  }
+  average = average / 64;
+  averageVoltage = average * 0.1875;
+  DEBUG_VAR("Average RAW : ", average);
+  DEBUG_VAR("Average Voltage : ", averageVoltage);
+  float TempCoefficient=1.0+0.0185*(readTemp()-25.0);    //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
+  float CoefficientVolatge=(float)averageVoltage/TempCoefficient;   
+  if(CoefficientVolatge<=448)ecCurrent=6.84*CoefficientVolatge-64.32;   //1ms/cm<EC<=3ms/cm
+  else if(CoefficientVolatge<=1457)ecCurrent=6.98*CoefficientVolatge-127;  //3ms/cm<EC<=10ms/cm
+  else ecCurrent=5.3*CoefficientVolatge+2278;                           //10ms/cm<EC<20ms/cm
+  ecCurrent/=1000;    //convert us/cm to ms/cm
+  DEBUG_VAR("EC value",ecCurrent);
+  root["EC"] = ecCurrent;
 }
 
 void Irene3000::calibratepH7() {
