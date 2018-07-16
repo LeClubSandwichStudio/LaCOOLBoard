@@ -230,20 +230,27 @@ void Irene3000::readEC(JsonObject &root) {
   float ecCurrent = 0;
   unsigned long average = 0;
   unsigned int averageVoltage = 0;
+  //Oversample 64 time to get a good reading
   for (int i = 0; i<=64; i++) {
     delay(20);
     average += readADSChannel2();
   }
   average = average / 64;
+  // resolution for ADS1115 is 0.1875 uV per tick
   averageVoltage = average * 0.1875;
   DEBUG_VAR("Average RAW : ", average);
   DEBUG_VAR("Average Voltage : ", averageVoltage);
-  float TempCoefficient=1.0+0.0185*(readTemp()-25.0);    //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
+  //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
+  float TempCoefficient=1.0+0.0185*(readTemp()-25.0);
   float CoefficientVolatge=(float)averageVoltage/TempCoefficient;   
-  if(CoefficientVolatge<=448)ecCurrent=6.84*CoefficientVolatge-64.32;   //1ms/cm<EC<=3ms/cm
-  else if(CoefficientVolatge<=1457)ecCurrent=6.98*CoefficientVolatge-127;  //3ms/cm<EC<=10ms/cm
-  else ecCurrent=5.3*CoefficientVolatge+2278;                           //10ms/cm<EC<20ms/cm
-  ecCurrent/=1000;    //convert us/cm to ms/cm
+  //1ms/cm<EC<=3ms/cm
+  if(CoefficientVolatge<=448)ecCurrent=6.84*CoefficientVolatge-64.32;   
+  //3ms/cm<EC<=10ms/cm
+  else if(CoefficientVolatge<=1457)ecCurrent=6.98*CoefficientVolatge-127;  
+  //10ms/cm<EC<20ms/cm
+  else ecCurrent=5.3*CoefficientVolatge+2278;
+  //convert us/cm to ms/cm
+  ecCurrent/=1000;    
   DEBUG_VAR("EC value",ecCurrent);
   root["EC"] = ecCurrent;
 }
