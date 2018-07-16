@@ -37,7 +37,7 @@
 #define LINEARISATION_MOISTURE_100 100.
 #define LINEARISATION_MOISTURE_A 0.157
 #define MOISTURE_SAMPLES 64
-
+#define SOIL_MOISTURE_SAMPLES 10
 class CoolBoardSensors {
 
 public:

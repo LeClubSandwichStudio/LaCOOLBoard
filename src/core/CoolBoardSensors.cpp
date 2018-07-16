@@ -208,20 +208,20 @@ float CoolBoardSensors::soilMoistureLinearisation(float rawMoistureValue) {
 }
 
 float CoolBoardSensors::readSoilMoisture() {
-  digitalWrite(MOISTURE_SENSOR_PIN, LOW);
   digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
-  delay(2000);
+  delay(200);
   int rawVal = 0;
-  for (int i = 0; i < MOISTURE_SAMPLES; i++) {
-    delay(10);
+  for (int i = 0; i < SOIL_MOISTURE_SAMPLES; i++) {
+    digitalWrite(MOISTURE_SENSOR_PIN, LOW);
+    delay(2);
     rawVal = rawVal + analogRead(A0);
-    delay(10);
+    delay(200);
+    digitalWrite(MOISTURE_SENSOR_PIN, HIGH);  // disable moisture sensor for minimum wear
   }
-  float result = (float)rawVal / MOISTURE_SAMPLES;
+  float result = (float)rawVal / SOIL_MOISTURE_SAMPLES;
   result = soilMoistureLinearisation(result);
-  // disable moisture sensor for minimum wear
   digitalWrite(MOISTURE_SENSOR_PIN, HIGH);
-  DEBUG_VAR("Raw soil moisture sensor value:", rawVal / MOISTURE_SAMPLES);
+  DEBUG_VAR("Raw soil moisture sensor value:", rawVal / SOIL_MOISTURE_SAMPLES);
   DEBUG_VAR("Computed soil moisture:", result);
   return (result);
 }
