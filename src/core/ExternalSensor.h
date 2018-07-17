@@ -33,6 +33,7 @@
 #include "CoolSDS011.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
+#include <MCP342X.h>
 
 #include "CoolLog.h"
 
@@ -328,4 +329,54 @@ public:
 private:
   SDS011 sensor;
 };
+
+template <> class ExternalSensor<MCP342X> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2c_addr) { sensor = MCP342X(i2c_addr); }
+
+  virtual uint8_t begin() {
+    //sensor.testConnection();
+    Serial.println(sensor.testConnection() ? "MCP342X connection successful" : "MCP342X connection failed");
+    return (true);
+  }
+
+  virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_1 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*a);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_2 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*b);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_3 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*c);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_4 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*d);
+    return (0.0);
+  }
+
+private:
+  MCP342X sensor;
+};
+
 #endif
