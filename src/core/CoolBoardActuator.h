@@ -57,11 +57,11 @@ public:
   bool inverted = false;
   String primaryType = "";
   String secondaryType = "";
-  int rangeLow = 0;
+  float rangeLow = 0;
   unsigned long timeLow = 0;
   uint8_t hourLow = 0;
   uint8_t minuteLow = 0;
-  int rangeHigh = 0;
+  float rangeHigh = 0;
   unsigned long timeHigh = 0;
   uint8_t hourHigh = 0;
   uint8_t minuteHigh = 0;
