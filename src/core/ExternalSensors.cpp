@@ -108,6 +108,14 @@ void ExternalSensors::begin() {
           new ExternalSensor<MCP342X>(sensors[i].address));
       sensors[i].exSensor = analogI2C.release();
       sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
+    } else if ((sensors[i].reference) == "I2CSoilMoistureSensor") {
+      int16_t A;
+      float B;
+
+      std::unique_ptr<ExternalSensor<I2CSoilMoistureSensor>> i2cSoilMoistureSensor(
+          new ExternalSensor<I2CSoilMoistureSensor>(sensors[i].address));
+      sensors[i].exSensor = i2cSoilMoistureSensor.release();
+      sensors[i].exSensor->read(&A, &B);
     }
   }
 }

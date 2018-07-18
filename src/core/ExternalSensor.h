@@ -34,6 +34,7 @@
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include <MCP342X.h>
+#include <I2CSoilMoistureSensor.h>
 
 #include "CoolLog.h"
 
@@ -61,6 +62,7 @@ public:
     return (-42.42);
   }
   virtual float read(float *a, float *b) { return (-42.42); }
+  virtual float read(uint16_t *a, float *b) { return (-42.42); }
 };
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
@@ -340,4 +342,32 @@ private:
   MCP342X sensor;
 };
 
+template <> class ExternalSensor<I2CSoilMoistureSensor> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2c_addr) {I2CSoilMoistureSensor sensor(i2c_addr); }
+
+  virtual uint8_t begin() {
+    sensor.begin();
+    Serial.print("I2C Soil Moisture Sensor Address: ");
+    Serial.println(sensor.getAddress(),HEX);
+    Serial.print("Sensor Firmware version: ");
+    Serial.println(sensor.getVersion(),HEX);
+    Serial.println();
+    return (true);
+  }
+
+  virtual float read(int16_t *a, float *b) {
+    uint16_t A = sensor.getCapacitance();
+    float B = sensor.getTemperature()/(float)10;
+    Serial.print("Soil Moisture Capacitance: ");
+    Serial.print(A); //read capacitance register
+    Serial.print(", Temperature: ");
+    Serial.print(B); //temperature register
+    *a = A;
+    *b = B;
+    return (0.0);
+  }
+private:
+  I2CSoilMoistureSensor sensor;
+};
 #endif
