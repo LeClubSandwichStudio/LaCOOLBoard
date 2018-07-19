@@ -344,7 +344,7 @@ private:
 
 template <> class ExternalSensor<I2CSoilMoistureSensor> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) {I2CSoilMoistureSensor sensor(i2c_addr); }
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}//{sensor = I2CSoilMoistureSensor();}//(i2c_addr); }
 
   virtual uint8_t begin() {
     sensor.begin();
@@ -356,7 +356,8 @@ public:
     return (true);
   }
 
-  virtual float read(int16_t *a, float *b) {
+  virtual float read(uint16_t *a, float *b) {
+    Serial.println("Entering ExternalSensor::read()");
     uint16_t A = sensor.getCapacitance();
     float B = sensor.getTemperature()/(float)10;
     Serial.print("Soil Moisture Capacitance: ");
