@@ -104,13 +104,11 @@ String CoolAsyncEditor::getSdpConfig() {
   String ip = WiFi.localIP().toString();
   String xml = this->read("/description.xml");
   int outputLength = xml.length() + ip.length() + friendlyName.length() +
-                     (this->getMAC().length() * 3) +
-                     this->getFlashID().length() + 1;
+                     (this->getMAC().length() * 2) + this->getUUID().length() + 1;
   char buffer[outputLength];
   buffer[outputLength - 1] = (char)NULL;
   sprintf(buffer, xml.c_str(), ip.c_str(), friendlyName.c_str(),
-          this->getMAC().c_str(), this->getMAC().c_str(),
-          this->getUUID().c_str());
+          this->getMAC().c_str(), this->getMAC().c_str(), this->getUUID().c_str());
   DEBUG_VAR("UPnP descriptor: ", buffer);
   return String(buffer);
 }
