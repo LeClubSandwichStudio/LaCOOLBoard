@@ -128,12 +128,12 @@ bool CoolBoardActuator::config() {
   // parsing inverted key
   config.set<bool>(json, "inverted", this->inverted);
   // parsing low key
-  config.setArray<int>(json, "low", 0, this->rangeLow);
+  config.setArray<float>(json, "low", 0, this->rangeLow);
   config.setArray<unsigned long>(json, "low", 1, this->timeLow);
   config.setArray<uint8_t>(json, "low", 2, this->hourLow);
   config.setArray<uint8_t>(json, "low", 3, this->minuteLow);
   // parsing high key
-  config.setArray<int>(json, "high", 0, this->rangeHigh);
+  config.setArray<float>(json, "high", 0, this->rangeHigh);
   config.setArray<unsigned long>(json, "high", 1, this->timeHigh);
   config.setArray<uint8_t>(json, "high", 2, this->hourHigh);
   config.setArray<uint8_t>(json, "high", 3, this->minuteHigh);

@@ -80,12 +80,12 @@ bool Jetpack::config() {
       // parsing inverted key
       config.set<bool>(act, "inverted", this->actuatorList[i].inverted);
       // parsing low key
-      config.setArray<int>(act, "low", 0, this->actuatorList[i].rangeLow);
+      config.setArray<float>(act, "low", 0, this->actuatorList[i].rangeLow);
       config.setArray<unsigned long>(act, "low", 1, this->actuatorList[i].timeLow);
       config.setArray<uint8_t>(act, "low", 2, this->actuatorList[i].hourLow);
       config.setArray<uint8_t>(act, "low", 3, this->actuatorList[i].minuteLow);
       // parsing high key
-      config.setArray<int>(act, "high", 0, this->actuatorList[i].rangeHigh);
+      config.setArray<float>(act, "high", 0, this->actuatorList[i].rangeHigh);
       config.setArray<unsigned long>(act, "high", 1, this->actuatorList[i].timeHigh);
       config.setArray<uint8_t>(act, "high", 2, this->actuatorList[i].hourHigh);
       config.setArray<uint8_t>(act, "high", 3, this->actuatorList[i].minuteHigh);
