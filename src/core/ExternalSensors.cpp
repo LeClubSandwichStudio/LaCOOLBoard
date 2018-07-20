@@ -190,11 +190,12 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("MCP342X Channel 3 Output:",channel2);
           DEBUG_VAR("MCP342X Channel 4 Output:",channel3);
         } else if (sensors[i].reference == "I2Cchirp") {
-          Serial.println("Entering I2CSoilMoistureSensor read()");
           uint16_t A;
           float B;
           sensors[i].exSensor->read(&A, &B);
-          delay(200);
+          DEBUG_VAR("ChirpSoilMoisture Address:",sensors[i].address);
+          DEBUG_VAR("SoilMoisture RAW:", A);
+          DEBUG_VAR("SoilTemperature:", B);
           root[sensors[i].kind0] = A; 
           root[sensors[i].kind1] = B;
         } else {
