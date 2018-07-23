@@ -46,7 +46,7 @@ public:
   void read(JsonObject &root);
   void allActive();
   void end();
-  bool config();
+  bool config(JsonArray &root);
   void printConf();
   void setEnvSensorSettings(uint8_t commInterface = I2C_MODE,
                             uint8_t I2CAddress = 0x76, uint8_t runMode = 3,

@@ -37,7 +37,6 @@ bool CoolConfig::readFileAsJson() {
   }
   String data = file.readString();
   this->json = this->buffer.parse(data);
-
   if (!this->json.success()) {
     file.close();
     ERROR_VAR("Failed to parse file as JSON:", this->path);
@@ -54,12 +53,13 @@ JsonObject &CoolConfig::get() { return this->json; }
 void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
 
 bool CoolConfig::writeJsonToFile() {
+  delay(1000);
   File file = SPIFFS.open(this->path, "w");
   if (!file) {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
-  json.printTo(file);
+  this->json.printTo(file);
   file.close();
   DEBUG_VAR("Saved JSON config to:", this->path);
   return (true);

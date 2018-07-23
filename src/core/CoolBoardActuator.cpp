@@ -60,105 +60,101 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour,
       // temporal actor
       if (this->secondaryType == "hour") {
         // hour actor
-        if (root[this->primaryType].success()) {
-          // mixed hour actor
-          this->mixedHourAction(hour, root[this->primaryType].as<float>());
-        } else {
+        // if (root[this->primaryType].success()) {
+        //   // mixed hour actor
+        //   this->mixedHourAction(hour, root[this->primaryType].as<float>());
+        // } else {
           // normal hour actor
           this->hourAction(hour);
           // root[this->secondaryType].as<int>());
-        }
+        // }
       } else if (this->secondaryType == "minute") {
         // minute actor
-        if (root[this->primaryType].success()) {
-          // mixed minute actor
-          this->mixedMinuteAction(minute, root[this->primaryType].as<float>());
-        } else {
+        // if (root[this->primaryType].success()) {
+        //   // mixed minute actor
+        //   this->mixedMinuteAction(minute, root[this->primaryType].as<float>());
+        // } else {
           // normal minute actor
           this->minuteAction(minute);
-        }
+        // }
       } else if (this->secondaryType == "hourMinute") {
         // hourMinute actor
-        if (root[this->primaryType].success()) {
-          // mixed hourMinute actor
-          this->mixedHourMinuteAction(hour, minute,
-                                      root[this->primaryType].as<float>());
-        } else {
+        // if (root[this->primaryType].success()) {
+        //   // mixed hourMinute actor
+        //   this->mixedHourMinuteAction(hour, minute,
+                                      // root[this->primaryType].as<float>());
+        // } else {
           // normal hourMinute actor
           this->hourMinuteAction(hour, minute);
-        }
-      } else if (this->secondaryType == "") {
+        // }
+      } else if (this->secondaryType == "time") {
         // normal temporal actor
-        if (root[this->primaryType].success()) {
-          // mixed temporal actor
-          this->mixedTemporalActionOn(root[this->primaryType].as<float>());
-        } else {
+        // if (root[this->primaryType].success()) {
+        //   // mixed temporal actor
+        //   this->mixedTemporalActionOn(root[this->primaryType].as<float>());
+        // } else {
           // normal temporal actor
           this->temporalActionOff();
-        }
+        // }
       }
     }
   } else if (this->actif == 0) {
     // disabled actor
     if (this->temporal == 1) {
       // temporal actor
-      if (root[this->primaryType].success()) {
-        // mixed temporal actor
-        this->mixedTemporalActionOff(root[this->primaryType].as<float>());
-      } else {
+      // if (root[this->primaryType].success()) {
+      //   // mixed temporal actor
+      //   this->mixedTemporalActionOff(root[this->primaryType].as<float>());
+      // } else {
         // normal temporal actor
         this->temporalActionOn();
-      }
+      // }
     }
   }
   return (this->state);
 }
 
-bool CoolBoardActuator::config() {
-  CoolConfig config("/coolBoardActorConfig.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read builtin actuator configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-  config.set<bool>(json, "actif", this->actif);
+bool CoolBoardActuator::config(JsonObject &root) {
+  // parsing actif key
+  CoolConfig::set<bool>(root, "actif", this->actif);
   // parsing temporal key
-  config.set<bool>(json, "temporal", this->temporal);
+  CoolConfig::set<bool>(root, "temporal", this->temporal);
   // parsing inverted key
-  config.set<bool>(json, "inverted", this->inverted);
-  // parsing low key
-  config.setArray<float>(json, "low", 0, this->rangeLow);
-  config.setArray<unsigned long>(json, "low", 1, this->timeLow);
-  config.setArray<uint8_t>(json, "low", 2, this->hourLow);
-  config.setArray<uint8_t>(json, "low", 3, this->minuteLow);
-  // parsing high key
-  config.setArray<float>(json, "high", 0, this->rangeHigh);
-  config.setArray<unsigned long>(json, "high", 1, this->timeHigh);
-  config.setArray<uint8_t>(json, "high", 2, this->hourHigh);
-  config.setArray<uint8_t>(json, "high", 3, this->minuteHigh);
+  CoolConfig::set<bool>(root, "inverted", this->inverted);
   // parsing type key
-  config.setArray<String>(json, "type", 0, this->primaryType);
-  config.setArray<String>(json, "type", 1, this->secondaryType);
+  CoolConfig::set<String>(root, "sensor", this->primaryType);
+  CoolConfig::set<String>(root, "type", this->secondaryType);
+  // parsing low key
+  CoolConfig::set<float>(root["low"], "range", this->rangeLow);
+  CoolConfig::set<unsigned long>(root["low"], "time", this->timeLow);
+  CoolConfig::set<uint8_t>(root["low"], "hour", this->hourLow);
+  CoolConfig::set<uint8_t>(root["low"], "minute", this->minuteLow);
+  // parsing high key
+  CoolConfig::set<float>(root["high"], "range", this->rangeHigh);
+  CoolConfig::set<unsigned long>(root["high"], "time", this->timeHigh);
+  CoolConfig::set<uint8_t>(root["high"], "hour", this->hourHigh);
+  CoolConfig::set<uint8_t>(root["high"], "minute", this->minuteHigh);
   INFO_LOG("Builtin actuator configuration loaded");
   return (true);
 }
 
 void CoolBoardActuator::printConf() {
   INFO_LOG("Builtin actuator configuration");
-  INFO_VAR("  Actif          = ", this->actif);
-  INFO_VAR("  Temporal       = ", this->temporal);
-  INFO_VAR("  Inverted       = ", this->inverted);
-  INFO_VAR("  Primary type   = ", this->primaryType);
-  INFO_VAR("  Secondary type = ", this->secondaryType);
-  INFO_VAR("  Range low      = ", this->rangeLow);
-  INFO_VAR("  Time low       = ", this->timeLow);
-  INFO_VAR("  Hour low       = ", this->hourLow);
-  INFO_VAR("  Minute low     = ", this->minuteLow);
-  INFO_VAR("  Range high     = ", this->rangeHigh);
-  INFO_VAR("  Time high      = ", this->timeHigh);
-  INFO_VAR("  Hour high      = ", this->hourHigh);
-  INFO_VAR("  Minute high    = ", this->minuteHigh);
+  INFO_VAR("  Actif       = ", this->actif);
+  INFO_VAR("  Temporal    = ", this->temporal);
+  INFO_VAR("  Inverted    = ", this->inverted);
+  INFO_VAR("  Type        = ", this->secondaryType);
+  INFO_VAR("  Sensor      = ", this->primaryType);
+  INFO_LOG("  Low:");
+  INFO_VAR("  Range low   = ", this->rangeLow);
+  INFO_VAR("  Time low    = ", this->timeLow);
+  INFO_VAR("  Hour low    = ", this->hourLow);
+  INFO_VAR("  Minute low  = ", this->minuteLow);
+  INFO_LOG("  High:");
+  INFO_VAR("  Range high  = ", this->rangeHigh);
+  INFO_VAR("  Time high   = ", this->timeHigh);
+  INFO_VAR("  Hour high   = ", this->hourHigh);
+  INFO_VAR("  Minute high = ", this->minuteHigh);
 }
 
 void CoolBoardActuator::normalAction(float measurment) {
