@@ -54,7 +54,11 @@ bool SDS011::read() {
   Wire.endTransmission();
   delay(200);
   Wire.requestFrom(SDS011_ADRESS, 8);
+  uint32_t temp = millis();
   while (Wire.available() < 7) {
+    if (millis() > temp + 2000) {
+      return (false);
+    }
     delay(10);
   }
   if (Wire.available() >= 8) {

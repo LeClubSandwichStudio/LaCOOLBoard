@@ -76,7 +76,12 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     delay(30000);
     this->calibratepH4();
     this->saveCalibrationDate();
-    this->config(true);
+    CoolConfig config("coolConfig.json");
+    if (!config.readFileAsJson()) {
+      ERROR_LOG("Failed to read configuration");
+    }
+    JsonObject &root = config.get();
+    this->config(root["sensors"], true);
     led.write(FUCHSIA);
     INFO_LOG("Calibration finished, hold button to exit calibration");
     this->waitForButtonPress();
@@ -86,46 +91,47 @@ void Irene3000::calibrate(CoolBoardLed &led) {
 
 void Irene3000::read(JsonObject &root) {
   if (waterTemp.active) {
-    readTemp(root);
+    root.createNestedObject("PT1000");
+    this->readTemp(root["PT1000"]);
     if (phProbe.active) {
-      readPh(root);
-      readLastCalibrationDate(root);
+      root.createNestedObject("phProbe");
+      this->readPh(root["phProbe"]);
+      // readLastCalibrationDate(root);
     }
   }
   if (adc2.active) {
+    root.createNestedObject("adc2");
     if (this->adc2.type == "DFrobotEC") {
-      readEC(root);
+      this->readEC(root["adc2"]);
     } else {
-    root[adc2.type] = this->readADSChannel2();
+    root["adc2"][adc2.type] = this->readADSChannel2();
     }
   }
   DEBUG_JSON("Irene data:", root);
 }
 
-bool Irene3000::config(bool overwrite) {
-  CoolConfig config("/irene3000Config.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to overwrite IRN3000 configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-
-  config.set<bool>(json["waterTemp"], "active", this->waterTemp.active,
-                   overwrite);
-  config.set<bool>(json["phProbe"], "active", this->phProbe.active, overwrite);
-  config.set<bool>(json["adc2"], "active", this->adc2.active, overwrite);
-  config.set<int>(json["adc2"], "gain", this->adc2.gain, overwrite);
-  config.set<String>(json["adc2"], "type", this->adc2.type, overwrite);
-  config.set<int>(json, "ph4Cal", this->params.pH4Cal, overwrite);
-  config.set<int>(json, "ph7Cal", this->params.pH7Cal, overwrite);
-  config.set<float>(json, "phStep", this->params.pHStep, overwrite);
-  config.set<String>(json, "calibrationDate", this->params.calibrationDate,
-                     overwrite);
-  if (overwrite) {
-    if (!config.writeJsonToFile()) {
-      ERROR_LOG("Failed to save IRN3000 configuration");
-      return (false);
+bool Irene3000::config(JsonArray &root, bool overwrite) {
+  for (auto kv : root) {
+    if (kv["key"] == "PT1000") {
+      CoolConfig::set<bool>(kv["measures"], "waterTemp", this->waterTemp.active,
+                            overwrite);
+    } else if (kv["key"] == "phProbe") {
+      CoolConfig::set<bool>(kv["measures"], "phProbe", this->phProbe.active,
+                            overwrite);
+      CoolConfig::set<int>(kv["measures"], "ph4Cal", this->params.pH4Cal,
+                           overwrite);
+      CoolConfig::set<int>(kv["measures"], "ph7Cal", this->params.pH7Cal,
+                           overwrite);
+      CoolConfig::set<float>(kv["measures"], "phStep", this->params.pHStep,
+                             overwrite);
+      CoolConfig::set<String>(kv["measures"], "calibrationDate",
+                              this->params.calibrationDate, overwrite);
+    } else if (kv["key"] == "adc2") {
+      CoolConfig::set<bool>(kv["measures"], "active", this->adc2.active,
+                            overwrite);
+      CoolConfig::set<int>(kv["utils"], "gain", this->adc2.gain, overwrite);
+      CoolConfig::set<String>(kv["measures"], "type", this->adc2.type,
+                              overwrite);
     }
   }
   DEBUG_LOG("IRN3000 configuration loaded");
@@ -169,11 +175,11 @@ void Irene3000::readPh(JsonObject &root) {
       OPAMP_GAIN;
   float phT = 7 - (temporary / params.pHStep);
 
-  DEBUG_VAR("pH value:", phT);
+  DEBUG_VAR("ph value:", phT);
   if (isnan(phT)) {
-    root["pH"] = RawJson("null");
+    root["ph"] = RawJson("null");
   } else
-    root["pH"] = phT;
+    root["ph"] = phT;
 }
 
 void Irene3000::readTemp(JsonObject &root) {
@@ -190,21 +196,11 @@ void Irene3000::readTemp(JsonObject &root) {
   T += sqrt((A * A) - 4.0 * B * (1.0 - R));
   T /= (2.0 * B);
 
+  DEBUG_VAR("IRN3000 temperature in °C: ", T);
   if (T > 0 && T < 200) {
-    DEBUG_VAR("IRN3000 temperature in °C: ", T);
-    if (isnan(T)) {
-      root["waterTemp"] = RawJson("null");
-    } else
-      root["waterTemp"] = T;
+    root["waterTemp"] = T;
   } else {
-    T = 0.0 - A;
-    T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
-    T /= (2.0 * B);
-    DEBUG_VAR("IRN3000 temperature in °C:", T);
-    if (isnan(T)) {
-      root["waterTemp"] = RawJson("null");
-    } else
-      root["waterTemp"] = T;
+    root["waterTemp"] = RawJson("null");
   }
 }
 

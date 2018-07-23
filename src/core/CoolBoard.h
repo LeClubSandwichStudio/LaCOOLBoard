@@ -47,13 +47,14 @@
 #define MQTT_RETRIES 5
 #define MAX_MQTT_RETRIES 15
 #define MAX_SLEEP_TIME 3600
+#define ANSWER_MAX_SIZE 1024
 
 class CoolBoard {
 
 public:
   void begin();
-  bool config();
-  void update(const char *answer);
+  bool config(JsonObject &root);
+  int update(String &answer);
   void loop();
   void connect();
   bool isConnected();
@@ -61,11 +62,11 @@ public:
   void printConf();
   void sleep();
   void handleActuators(JsonObject &reported);
-  void readSensors(JsonObject &reported);
-  void readBoardData(JsonObject &reported);
+  void readSensors(JsonObject &root);
+  void readBoardData(JsonObject &root);
   void sendSavedMessages();
   void sendAllConfig();
-  void sendConfig(const char *moduleName, const char *filePath);
+  String parseJsonConfig(const char *filePath);
   void readPublicIP(JsonObject &reported);
   void clockProblem();
   void networkProblem();
@@ -105,10 +106,12 @@ private:
   bool manual = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
-  String mqttId;
-  String mqttServer;
-  String mqttInTopic;
-  String mqttOutTopic;
+  String mqttId = "";
+  String mqttServer = "";
+  String mqttInTopic = "";
+  String mqttOutTopic = "";
+  String updateAnswer = "";
+  bool connection = 0;
 };
 
 #endif

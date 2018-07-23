@@ -30,17 +30,12 @@
 #define JSON_FILE_EXT_SIZE 5
 
 static constexpr ConfigFile CONFIG_FILES[] = {
-      {"CoolBoard", "/coolBoardConfig.json"},
-      {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
-      {"CoolBoardActor", "/coolBoardActorConfig.json"},
-      {"externalSensors", "/externalSensorsConfig.json"},
-      {"led", "/coolBoardLedConfig.json"},
-      {"jetPack", "/jetPackConfig.json"},
-      {"irene3000", "/irene3000Config.json"},
-      {"mqtt", "/mqttConfig.json"},
+      {"general", "/general.json"},
+      {"sensors", "/sensors.json"},
+      {"actuators", "/actuators.json"},
       {"wifi", "/wifiConfig.json"}};
 
-static const uint8_t CONFIG_FILES_COUNT = 9;
+static const uint8_t CONFIG_FILES_COUNT = 4;
 
 void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   for (uint8_t i = 0; i < CONFIG_FILES_COUNT; ++i) {

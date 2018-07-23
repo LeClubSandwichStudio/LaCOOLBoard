@@ -48,7 +48,7 @@ class Irene3000 {
 
 public:
   void begin();
-  bool config(bool overWrite = false);
+  bool config(JsonArray &root, bool overWrite = false);
   void printConf();
   void read(JsonObject &root);
   int readButton();
