@@ -8,10 +8,12 @@ def printjson( jsonmessage ):
     for i in jsonmessage: 
         if( "{" in i ):
             nbTab = nbTab +1
-            print( i , end="" )
+            print( "\n"+ "    "*nbTab + i , end="" )
         elif ("}" in i ): 
             nbTab = nbTab -1
-            print(i + "\n" + "  "*nbTab ,end="" ) 
+            print(i + "\n" + "    "*nbTab ,end="" )
+        elif ("," in i ): 
+            print(i + "\n" + "    "*nbTab ,end="" ) 
         else: 
             print(i ,end="" )
 
