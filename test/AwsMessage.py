@@ -1,7 +1,35 @@
 #!/usr/bin/env python3
 import json
 import boto3
-MacAddress = '2C3AE84FBF4F'
+
+macAddress = '2C3AE84FBF4F'
+valueLogInterval = 320
+linkFirmware = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
+versionFirmware = "v0.2.7-14-gdc7c463"
+
+logInterval = {"state":
+                {"desired":
+                    {"CoolBoard":
+                        {"logInterval": valueLogInterval
+                        }
+                    }
+                }
+            }
+jsonLogInterval = json.dumps(logInterval)
+
+firmware = {"state":
+                {"desired":
+                    {"CoolBoard":
+                        {"firmwareUpdate":
+                            {"firmwareUrlFingerprint": "BC5445C5CE60988076FFFE5C83555949810370A1",
+                            "firmwareUrl": linkFirmware,
+                            "firmwareVersion": versionFirmware
+                            }
+                        }
+                    }
+                }
+            }
+jsonFirmware = json.dumps(firmware)
 
 
 def printjson(jsonmessage):
@@ -22,44 +50,31 @@ def printjson(jsonmessage):
     print(printableMessage)
 
 
-def sendMessageLogInterval()
+def sendMessageLogInterval():
+    global jsonLogInterval
     client.update_thing_shadow(
-        thingName=MacAddress,
-        payload=b"""'{"state":
-                        {"desired":
-                            {"CoolBoard":
-                                {"logInterval":306
-                                }
-                            }
-                        }
-                    }'"""
+        thingName=macAddress,
+        payload=jsonLogInterval
     )
 
 
-#def sendMessageFirmwareVersion():
-#    client.update_thing_shadow(
-#        thingName=MacAddress,
-#        payload=b"""'{
-#                    "state": {
-#                        "desired": {
-#                            "CoolBoard": {
-#                                "firmwareUpdate": {
-#                                    "firmwareUrlFingerprint" : "BC5445C5CE60988076FFFE5C83555949810370A1",
-#                                    "firmwareUrl" : "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin",
-#                                    "firmwareVersion" : "v0.2.7-14-gdc7c463"
-#                                }
-#                            }
-#                        }
-#                    }
-#                }'"""
-#        )
+def sendMessageFirmwareVersion():
+    global jsonFirmware
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonFirmware
+        )
+
+
+def getShadow():
+    response = client.get_thing_shadow(thingName=macAddress)
+    streamingBody = response["payload"]
+    rawDataBytes = streamingBody.read()
+    rawDataString = rawDataBytes.decode('utf-8')
+    jsonState = json.loads(rawDataString)
 
 
 client = boto3.client('iot-data', region_name='eu-west-1')
-response = client.get_thing_shadow(thingName=MacAddress)
-streamingBody = response["payload"]
-rawDataBytes = streamingBody.read()
-rawDataString = rawDataBytes.decode('utf-8')
-jsonState = json.loads(rawDataString)
+getShadow()
 sendMessageLogInterval()
 # sendMessageFirmwareVersion()
