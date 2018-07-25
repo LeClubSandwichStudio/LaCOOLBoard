@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import SerialParameters
+import SerialFonctions
 
 # --------------------------TEMPLATE TEST FONCTIONS-------------------------- #
 
@@ -28,7 +28,7 @@ def runner(
     resultFile = open(resultFileName, 'a')
     listWARN = []
     if (READFROMBEGINNING):
-        Config.resetBuffer()
+        SerialFonctions.resetBuffer()
     if (errorLen == 0 and successLen == 0):
         print(TEST_NAME,
               "impossible to assert : no ERROR or SUCCESS line given")
@@ -37,21 +37,21 @@ def runner(
         return False
     if (beginLen > 0 and READFROMBEGINNING):
         waitBegin = 0
-        while(Config.readLine(serialBus)[:beginLen] !=
+        while(SerialFonctions.readLine(serialBus)[:beginLen] !=
                 BEGIN and waitBegin < maxLinesRead):
             waitBegin += 1
             if waitBegin == maxLinesRead:
                 resultFile.write("ERROR reached limit- " + TEST_NAME + "\n")
                 print("--------------------", TEST_NAME,
                       ": ERROR reached limit\n")
-                Config.resetBuffer()
+                SerialFonctions.resetBuffer()
                 resultFile.close()
                 return False
     print("\nBegin ", TEST_NAME, "------------------------")
     waitEndTest = 0
     testLine = []
     while(not waitEndTest > maxLinesRead):
-        testLine = Config.readLine(serialBus)
+        testLine = SerialFonctions.readLine(serialBus)
         print(testLine)
         if(successLen != 0 and testLine[:successLen] == SUCCESS):
             print("--------------------------------", TEST_NAME, ": OK")
@@ -81,6 +81,6 @@ def runner(
     resultFile.write("ERROR reached limit- " + TEST_NAME + "\n")
     print("-------------------------------",
           TEST_NAME, ": ERROR reached limit")
-    Config.resetBuffer()
+    SerialFonctions.resetBuffer()
     resultFile.close()
     return False

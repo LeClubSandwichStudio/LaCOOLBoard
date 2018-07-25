@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import Runner
+import SerialRunner
 
 # --------------------------TEST FONCTIONS-------------------------- #
 
@@ -12,7 +12,7 @@ def MAC_STATUS_TEST(serialBus, resultFileName, giveResult=True):
     success = "INFO:  MAC address is:"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -26,7 +26,7 @@ def FIRMWARE_VERSION_TEST(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Firmware version"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -40,7 +40,7 @@ def REGISTERED_WIFI_TEST(serialBus, resultFileName, giveResult=False):
     success = "INFO:    Wifi count"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -54,7 +54,7 @@ def RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Wifi status: connected"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -68,7 +68,7 @@ def RETRY_MQTT_CONNECTION(serialBus, resultFileName, giveResult=True):
     success = "WARN:  MQTT connection failed, retrying"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -82,7 +82,7 @@ def WIFI_CONNECTION(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Wifi status: connected"
     readFromBeginning = False
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -96,7 +96,7 @@ def WIFI_ACCESS_POINT_OPENED(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Starting Wifi access point and configuration portal"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -110,7 +110,7 @@ def MQTT_CONNECTION(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Subscribed to MQTT input topic"
     readFromBeginning = False
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -124,7 +124,7 @@ def RTC_SYNCHRO(serialBus, resultFileName, giveResult=True):
     success = "INFO:  RTC ISO8601 timestamp:"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -138,7 +138,7 @@ def SEND_LOG(serialBus, resultFileName, giveResult=True):
     success = "INFO:  MQTT publish successful"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -152,7 +152,7 @@ def SAVE_LOG(serialBus, resultFileName, giveResult=True):
     success = "WARN:  Log not sent, saved on SPIFFS"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -166,7 +166,7 @@ def MAIN_CONFIGURATION(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Main configuration loaded"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -180,7 +180,7 @@ def SPIFFS(serialBus, resultFileName, giveResult=True):
     success = "DEBUG: Configuring MQTT"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -194,7 +194,7 @@ def SLEEPMODE_ACTIVATE(serialBus, resultFileName, giveResult=True):
     success = "INFO:    Sleep active            = 1"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -208,7 +208,7 @@ def DATA_SAVING_JSON(serialBus, resultFileName, giveResult=True):
     success = "DEBUG: Saved file data name:  /log/"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -222,7 +222,7 @@ def DATA_DELETING_JSON(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Deleted log file: /log/"
     readFromBeginning = False
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -236,7 +236,7 @@ def DATA_SAVED_JSON(serialBus, resultFileName, giveResult=True):
     success = "DEBUG: Saved file data name:  /log/"
     readFromBeginning = False
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -250,7 +250,7 @@ def EXTERNAL_SENSOR_ACTIVATED(serialBus, resultFileName, giveResult=True):
     success = "INFO:    External sensors active = 1"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -264,7 +264,7 @@ def EXTERNAL_SENSOR_DATA_SEND(serialBus, resultFileName, giveResult=True):
     success = "INFO:  Number of external sensors ="
     readFromBeginning = False
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -278,7 +278,7 @@ def OTA_RECEIPTED(serialBus, resultFileName, giveResult=True):
     success = "INFO:  MQTT publish successful"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -292,7 +292,7 @@ def OTA_PUBLISHED(serialBus, resultFileName, giveResult=True):
     success = "DEBUG: Successfully updated configuration file:"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
@@ -306,7 +306,7 @@ def OTA_PUBLISHED(serialBus, resultFileName, giveResult=True):
     success = "HTTP update succeeded!"
     readFromBeginning = True
     maxLinesRead = 500
-    testResult = Runner.runner(
+    testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)

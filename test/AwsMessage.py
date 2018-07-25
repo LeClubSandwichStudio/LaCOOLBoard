@@ -31,6 +31,7 @@ firmware = {"state":
             }
 jsonFirmware = json.dumps(firmware)
 
+client = boto3.client('iot-data', region_name='eu-west-1')
 
 def printjson(jsonmessage):
     jsonmessage.split()
@@ -52,6 +53,7 @@ def printjson(jsonmessage):
 
 def sendMessageLogInterval():
     global jsonLogInterval
+    global macAddress
     client.update_thing_shadow(
         thingName=macAddress,
         payload=jsonLogInterval
@@ -60,6 +62,7 @@ def sendMessageLogInterval():
 
 def sendMessageFirmwareVersion():
     global jsonFirmware
+    global macAddress
     client.update_thing_shadow(
         thingName=macAddress,
         payload=jsonFirmware
@@ -67,14 +70,16 @@ def sendMessageFirmwareVersion():
 
 
 def getShadow():
+    global client
     response = client.get_thing_shadow(thingName=macAddress)
     streamingBody = response["payload"]
     rawDataBytes = streamingBody.read()
     rawDataString = rawDataBytes.decode('utf-8')
     jsonState = json.loads(rawDataString)
+    return(jsonState)
 
 
-client = boto3.client('iot-data', region_name='eu-west-1')
-getShadow()
-sendMessageLogInterval()
-# sendMessageFirmwareVersion()
+def testAWS() :
+    getShadow()
+    sendMessageLogInterval()
+    # sendMessageFirmwareVersion()

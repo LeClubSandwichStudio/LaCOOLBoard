@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import SerialParameters
-import Runner
-import Test
+import SerialTest
 import time
 import os
 import datetime
@@ -29,35 +28,35 @@ SerialParameters.resetBoard()
 
 while not endOfTest:
     # puts in the good order all the test functions
-    Test.SPIFFS(SerialParameters.serialBus, resultFileName, True)
-    Test.MAIN_CONFIGURATION(SerialParameters.serialBus, resultFileName, True)
-    Test.MAC_STATUS_TEST(SerialParameters.serialBus, resultFileName, True)
-    Test.FIRMWARE_VERSION_TEST(SerialParameters.serialBus, resultFileName, True)
+    SerialTest.SPIFFS(SerialParameters.serialBus, resultFileName, True)
+    SerialTest.MAIN_CONFIGURATION(SerialParameters.serialBus, resultFileName, True)
+    SerialTest.MAC_STATUS_TEST(SerialParameters.serialBus, resultFileName, True)
+    SerialTest.FIRMWARE_VERSION_TEST(SerialParameters.serialBus, resultFileName, True)
 
-    if (not Test.REGISTERED_WIFI_TEST(SerialParameters.serialBus, resultFileName, False)):
-        Test.WIFI_ACCESS_POINT_OPENED(SerialParameters.serialBus, resultFileName, True)
+    if (not SerialTest.REGISTERED_WIFI_TEST(SerialParameters.serialBus, resultFileName, False)):
+        SerialTest.WIFI_ACCESS_POINT_OPENED(SerialParameters.serialBus, resultFileName, True)
 
-    elif (Test.WIFI_CONNECTION(SerialParameters.serialBus, resultFileName, True)):
-        if (not Test.MQTT_CONNECTION(SerialParameters.serialBus, resultFileName, True)):
-            Test.SLEEPMODE_ACTIVATE(SerialParameters.serialBus, resultFileName, True)
-            Test.RETRY_MQTT_CONNECTION(SerialParameters.serialBus, resultFileName, True)
+    elif (SerialTest.WIFI_CONNECTION(SerialParameters.serialBus, resultFileName, True)):
+        if (not SerialTest.MQTT_CONNECTION(SerialParameters.serialBus, resultFileName, True)):
+            SerialTest.SLEEPMODE_ACTIVATE(SerialParameters.serialBus, resultFileName, True)
+            SerialTest.RETRY_MQTT_CONNECTION(SerialParameters.serialBus, resultFileName, True)
         else:
-            Test.SEND_LOG(SerialParameters.serialBus, resultFileName, True)
-            Test.RTC_SYNCHRO(SerialParameters.serialBus, resultFileName, True)
-            while(Test.DATA_SAVED_JSON(SerialParameters.serialBus, resultFileName, False)):
-                Test.DATA_DELETING_JSON(SerialParameters.serialBus, resultFileName, True)
-            if(Test.EXTERNAL_SENSOR_ACTIVATED(SerialParameters.serialBus, resultFileName, False)):
-                Test.EXTERNAL_SENSOR_DATA_SEND(SerialParameters.serialBus, resultFileName, True)
+            SerialTest.SEND_LOG(SerialParameters.serialBus, resultFileName, True)
+            SerialTest.RTC_SYNCHRO(SerialParameters.serialBus, resultFileName, True)
+            while(SerialTest.DATA_SAVED_JSON(SerialParameters.serialBus, resultFileName, False)):
+                SerialTest.DATA_DELETING_JSON(SerialParameters.serialBus, resultFileName, True)
+            if(SerialTest.EXTERNAL_SENSOR_ACTIVATED(SerialParameters.serialBus, resultFileName, False)):
+                SerialTest.EXTERNAL_SENSOR_DATA_SEND(SerialParameters.serialBus, resultFileName, True)
 
-            if (Test.OTA_RECEIPTED(SerialParameters.serialBus, resultFileName, False)):
-                Test.OTA_PUBLISHED(SerialParameters.serialBus, resultFileName, True)
-                # if(Test.OTA_UPDATE_FIRMWARE(serialBus, resultFileName, True)):
-                # Test.FIRMWARE_VERSION_TEST(serialBus, resultFileName, True)
+            if (SerialTest.OTA_RECEIPTED(SerialParameters.serialBus, resultFileName, False)):
+                SerialTest.OTA_PUBLISHED(SerialParameters.serialBus, resultFileName, True)
+                # if(SerialTest.OTA_UPDATE_FIRMWARE(serialBus, resultFileName, True)):
+                # SerialTest.FIRMWARE_VERSION_TEST(serialBus, resultFileName, True)
     else:
-        # Test.RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True)
+        # SerialTest.RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True)
         # passera a la suite que si succes
-        Test.SAVE_LOG(SerialParameters.serialBus, resultFileName, True)
-        Test.DATA_SAVING_JSON(SerialParameters.serialBus, resultFileName, True)
+        SerialTest.SAVE_LOG(SerialParameters.serialBus, resultFileName, True)
+        SerialTest.DATA_SAVING_JSON(SerialParameters.serialBus, resultFileName, True)
 
     time.sleep(1)
     SerialParameters.resetBoard()
