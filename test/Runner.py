@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import Config
+import SerialParameters
 
 # --------------------------TEMPLATE TEST FONCTIONS-------------------------- #
 

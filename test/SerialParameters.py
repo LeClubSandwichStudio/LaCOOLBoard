@@ -4,8 +4,6 @@ import RPi.GPIO as GPIO
 import time
 import serial
 
-# serialBus = serial.Serial('/dev/cu.usbserial-DN02PRAQ', 115200, timeout=10)
-# serialBus = serial.Serial('/COM7', 115200, timeout=10)
 serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10)
 
 # global variable
@@ -91,3 +89,8 @@ def waitLine(resetLineList, lineNumber, resultFileName):
             continue
         resetBoard()
         return False
+
+
+def initReset():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(4, GPIO.OUT, initial=GPIO.LOW)
