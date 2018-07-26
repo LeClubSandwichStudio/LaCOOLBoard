@@ -50,9 +50,9 @@ def REGISTERED_WIFI_TEST(serialBus, resultFileName, giveResult=False):
 def RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True):
     test_name = "RETRY WIFI CONNECTION"
     begin = "WARN:  Network unreachable"
-    error = ""
+    error = "INFO:  Wifi status: idle"
     success = "INFO:  Wifi status: connected"
-    readFromBeginning = True
+    readFromBeginning = False
     maxLinesRead = 500
     testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
@@ -299,15 +299,28 @@ def OTA_PUBLISHED(serialBus, resultFileName, giveResult=True):
     return testResult
 
 
-"""def OTA_UPDATE_FIRMWARE(serialBus, resultFileName, giveResult=True):
-    test_name = "FIRMWARE UPDATED BY OTA"
-    begin = ""  ###
-    error = "ERROR:  HTTP Update failed, code:"
-    success = "HTTP update succeeded!"
+def OTA_SYNCHRO(serialBus, resultFileName, giveResult=True):
+    test_name = "OTA SYNCHRONISATION"
+    begin = "INFO:  Received new MQTT message"
+    error = ""
+    success = "DEBUG: Preparing answer message:"
     readFromBeginning = True
     maxLinesRead = 500
     testResult = SerialRunner.runner(
         serialBus, resultFileName, maxLinesRead,
         test_name, begin, error,
         success, readFromBeginning, giveResult)
-    return testResult"""
+    return testResult
+
+def OTA_UPDATE_FIRMWARE(serialBus, resultFileName, giveResult=True):
+    test_name = "FIRMWARE UPDATED BY OTA"
+    begin = ""
+    error = "ERROR:  HTTP Update failed, code:"
+    success = "HTTP update succeeded!"
+    readFromBeginning = False
+    maxLinesRead = 500
+    testResult = SerialRunner.runner(
+        serialBus, resultFileName, maxLinesRead,
+        test_name, begin, error,
+        success, readFromBeginning, giveResult)
+    return testResult
