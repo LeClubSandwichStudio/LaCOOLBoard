@@ -3,6 +3,7 @@
 import RPi.GPIO as GPIO
 import time
 import serial
+import SerialTest
 
 serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10)
 
@@ -94,3 +95,13 @@ def waitLine(resetLineList, lineNumber, resultFileName):
 def initReset():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(4, GPIO.OUT, initial=GPIO.LOW)
+
+
+def waitSynchroAct(resultFileName):
+    timestamp = int(time.time())
+    while(not SerialTest.OTA_PUBLISHED(serialBus, resultFileName, False)):
+        if ((time.time() - timestamp) > 45):
+            resultFile = open(resultFileName, 'a')
+            resultFile.write("WARNING reached limit time for OTA to be published \n")
+            print("-------------------: WARNING reached limit time for OTA to be published\n")
+            resultFile.close()
