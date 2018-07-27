@@ -5,8 +5,8 @@ import time
 import serial
 import SerialTest
 
-serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10)
-
+#serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10)
+serialBus = serial.Serial('/dev/ttyUSB0', 115200, timeout=10)
 # global variable
 lineNumber = 0
 lineBuffer = []
@@ -103,3 +103,4 @@ def waitSynchroAct(resultFileName):
         resultFile.write("WARNING reached limit time for OTA to be published \n")
         print("-------------------: WARNING reached limit time for OTA to be published\n")
         resultFile.close()
+        

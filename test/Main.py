@@ -64,18 +64,19 @@ while not endOfTest:
     endOfTest = SerialFonctions.waitLine(resetLineList, resetLineNumber, resultFileName)
     resetLineNumber = resetLineNumber + 1
 
-
+SerialFonctions.resetBoard()
 AwsMessage.sendMessageLogInterval()
 # AwsMessage.sendMessageFirmwareVersion()
 # SerialFonctions.waitSynchroAct(resultFileName)
 AwsMessage.sendMessageAct0()
 AwsMessage.sendMessageAct1()
-SerialFonctions.resetBoard()
-SerialFonctions.waitSynchroAct(resultFileName)
+#SerialFonctions.resetBoard()
+# SerialFonctions.waitSynchroAct(resultFileName)
 Jetpack.ACTUATOR_1_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
-Jetpack.ACTUATOR_2_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
+Jetpack.ACTUATOR_2_DISACTIVATED(SerialFonctions.serialBus, resultFileName, True)
 Jetpack.ACTUATOR_3_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
 Jetpack.ACTUATOR_4_DISACTIVATED(SerialFonctions.serialBus, resultFileName, True)
+
 
 print("\n\n--------------------|END OF THE TEST|------------------------")
 

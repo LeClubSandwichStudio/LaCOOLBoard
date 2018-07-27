@@ -3,8 +3,8 @@ import json
 import boto3
 
 macAddress = '2C3AE84FBF4F'
-valueLogInterval = 320
-Act0 = False
+valueLogInterval = 230
+Act0 = True
 Act1 = True
 linkFirmware = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
 versionFirmware = "v0.2.7-14-gdc7c463"
@@ -29,9 +29,7 @@ jsonActuator_0 = json.dumps(actuator_0)
 
 actuator_1 = {"state":
                 {"desired":
-                    {"jetPack":
-                        {"Act1": Act1
-                        }
+                    {"Act1": Act1
                     }
                 }
             }
@@ -115,3 +113,6 @@ def getShadow():
     rawDataString = rawDataBytes.decode('utf-8')
     jsonState = json.loads(rawDataString)
     return(jsonState)
+
+# sendMessageLogInterval()
+# sendMessageAct0()
