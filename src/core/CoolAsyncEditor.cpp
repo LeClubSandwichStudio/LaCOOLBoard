@@ -39,7 +39,7 @@ bool CoolAsyncEditor::addNewWifi(String ssid, String pass) {
     this->write("/wifiConfig.json", tmp);
     return (true);
   }
-  return(false);
+  return (false);
 }
 
 String CoolAsyncEditor::getSavedWifi(String index) {
@@ -104,11 +104,13 @@ String CoolAsyncEditor::getSdpConfig() {
   String ip = WiFi.localIP().toString();
   String xml = this->read("/description.xml");
   int outputLength = xml.length() + ip.length() + friendlyName.length() +
-                     (this->getMAC().length() * 2) + this->getUUID().length() + 1;
+                     (this->getMAC().length() * 2) + this->getUUID().length() +
+                     1;
   char buffer[outputLength];
   buffer[outputLength - 1] = (char)NULL;
   sprintf(buffer, xml.c_str(), ip.c_str(), friendlyName.c_str(),
-          this->getMAC().c_str(), this->getMAC().c_str(), this->getUUID().c_str());
+          this->getMAC().c_str(), this->getMAC().c_str(),
+          this->getUUID().c_str());
   DEBUG_VAR("UPnP descriptor: ", buffer);
   return String(buffer);
 }
@@ -134,7 +136,8 @@ String CoolAsyncEditor::getUUID() {
 
 String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
   DynamicJsonBuffer json;
-  JsonObject &jsonBuf =  json.parseObject(this->read("/wifiConfig.json").c_str());
+  JsonObject &jsonBuf =
+      json.parseObject(this->read("/wifiConfig.json").c_str());
   if (jsonBuf["Wifi" + String(i)].success()) {
     JsonObject &jWifi = jsonBuf["Wifi" + String(i)];
     String tmp = jWifi.get<String>(type).c_str();
@@ -142,4 +145,45 @@ String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
     return (tmp);
   }
   return ("");
+}
+
+bool CoolAsyncEditor::beginAdminCredential() {
+  DynamicJsonBuffer json;
+  JsonObject &jsonBuf =
+      json.parseObject(this->read("/webServerCredentials.json").c_str());
+      if(jsonBuf["userName"].success() && jsonBuf["password"].success() ){
+      HTTPuserName = jsonBuf.get<String>("userName");
+      HTTPpassword = jsonBuf.get<String>("password");
+      return true;
+      } else{
+        ERROR_LOG("Impossible to get HTTP credential, need to reset.");
+        this->resetAdminCredential();
+        return false;
+      } 
+}
+
+bool CoolAsyncEditor::configureAdminCredential(String userName,
+                                               String password) {
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  root["userName"] = userName;
+  root["password"] = password;
+  String tmp;
+  root.printTo(tmp);
+  this->write("/webServerCredentials.json", tmp);
+  DEBUG_LOG("New Administrator Credential Saved!");
+  DEBUG_VAR("user: ", userName);
+  DEBUG_VAR("password: ", password);
+  return true;
+}
+
+bool CoolAsyncEditor::resetAdminCredential(){
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  root["userName"] = "admin";
+  root["password"] = "admin";
+  String tmp;
+  root.printTo(tmp);
+  this->write("/webServerCredentials.json", tmp);
+  WARN_LOG("HTTP credential reset done.");
 }

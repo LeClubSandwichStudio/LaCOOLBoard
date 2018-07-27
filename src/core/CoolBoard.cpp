@@ -128,7 +128,10 @@ void CoolBoard::loop() {
                "configuration...");
       this->coolPubSubClient->disconnect();
       if (!this->coolWebServer.isRunning) {
+        this->coolPubSubClient->disconnect();
         this->coolWebServer.begin();
+      } else {
+        CoolAsyncWiFiAction::getInstance().manageConnectionPortal();
       }
     } else {
       if (this->coolWebServer.isRunning) {
@@ -142,12 +145,11 @@ void CoolBoard::loop() {
     this->mqttListen();
     if (CoolFileSystem::hasSavedLogs()) {
       INFO_LOG("Sending saved messages...");
-      this->sendSavedMessages();
     }
   }
   SPIFFS.end();
-  if (this->sleepActive &&
-      (!this->shouldLog() || !rtcSynced) && !this->coolWebServer.isRunning) {
+  if (this->sleepActive && (!this->shouldLog() || !rtcSynced) &&
+      !this->coolWebServer.isRunning) {
     this->sleep(this->secondsToNextLog());
   }
 }
@@ -165,7 +167,10 @@ bool CoolBoard::isConnected() {
 void CoolBoard::connect() {
   if (this->coolWifi->wifiCount > 0) {
     this->coolBoardLed.write(BLUE);
-    this->coolWifi->connect();
+    INFO_VAR("WiFi.status", WiFi.status());
+    if (WiFi.status() != WL_CONNECTED) {
+      this->coolWifi->connect();
+    }
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
     if (!this->coolWebServer.isRunning) {

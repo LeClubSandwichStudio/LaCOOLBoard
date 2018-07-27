@@ -7,12 +7,12 @@
 class CoolAsyncEditor : public AsyncWebHandler {
 private:
   fs::FS _fs;
-  String _username;
-  String _password;
   bool _authenticated;
   uint32_t _startTime;
 
 public:
+  String HTTPuserName;
+  String HTTPpassword;
   CoolAsyncEditor(const fs::FS &fs = SPIFFS);
   virtual void write(String patch, String data);
   virtual String read(String patch);
@@ -23,8 +23,10 @@ public:
   virtual String getSdpConfig();
   virtual String getSavedWifi(String index);
   virtual String getSavedCredentialFromIndex(uint8_t i, String type);
-
+  virtual bool beginAdminCredential();
+  virtual bool configureAdminCredential(String userName, String password);
 private:
+  virtual bool resetAdminCredential();
   virtual String getFlashID();
   virtual String getMAC();
   virtual String getUUID();

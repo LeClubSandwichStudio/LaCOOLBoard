@@ -105,7 +105,6 @@ bool CoolWebServer::begin() {
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(name.c_str());
   INFO_VAR("Local ip:", WiFi.localIP());
-  MDNS.addService("http", "tcp", 80);
   if (!SPIFFS.begin()) {
     return (false);
   }
@@ -116,10 +115,18 @@ bool CoolWebServer::begin() {
   });
   server.addHandler(&events);
   this->requestConfiguration();
+  // CoolAsyncEditor* coolAsyncEditor;
+  // if(coolAsyncEditor->beginAdminCredential()){
   server.serveStatic("/", SPIFFS, "/")
       .setDefaultFile("index.htm")
-      .setAuthentication(HTTP_USERNAME, HTTP_PASSWORD);
-  ;
+      // .setAuthentication(coolAsyncEditor->HTTPuserName.c_str(),
+      // coolAsyncEditor->HTTPpassword.c_str());
+      .setAuthentication("admin", "admin");
+  // } else {
+  //       server.serveStatic("/", SPIFFS, "/")
+  //       .setDefaultFile("index.htm");
+  // }
+  // delete coolAsyncEditor;
   this->onNotFoundConfig();
   server.begin();
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
@@ -284,7 +291,7 @@ void CoolWebServer::requestConfiguration() {
       }
     }
   });
-// FIX ME:
+  // FIX ME:
   server.on("/wifi/connect", HTTP_GET, [](AsyncWebServerRequest *request) {
     CoolAsyncEditor coolAsyncEditor;
     int params = request->params();
@@ -297,20 +304,17 @@ void CoolWebServer::requestConfiguration() {
         if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
           request->send(404);
         } else {
-          WiFi.begin(
-                  coolAsyncEditor.getSavedCredentialFromIndex(atoi(p->value().c_str() ),
-                                                              "ssid").c_str(),
-                  coolAsyncEditor.getSavedCredentialFromIndex(atoi(p->value().c_str() ),
-                                                              "pass").c_str() );
-          if (WiFi.waitForConnectResult() == WL_CONNECTED){
-          request->send(200, "text/json","CONNECTED!");
-          }
-          else {
-            request->send(200, "text/json", "Not connected :(");
-          }
+          CoolAsyncWiFiAction::getInstance().SSID =
+              coolAsyncEditor.getSavedCredentialFromIndex(
+                  atoi(p->value().c_str()), "ssid");
+          CoolAsyncWiFiAction::getInstance().pass =
+              coolAsyncEditor.getSavedCredentialFromIndex(
+                  atoi(p->value().c_str()), "pass");
+          CoolAsyncWiFiAction::getInstance().haveToDo = true;
         }
       }
     }
+    request->send(200);
   });
 
   server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -382,4 +386,62 @@ void CoolWebServer::ssdpBegin() {
   INFO_LOG("TCP server started");
   MDNS.addService("http", "tcp", 80);
   MDNS.begin(coolName.c_str());
+}
+
+CoolAsyncWiFiAction &CoolAsyncWiFiAction::getInstance() {
+  static CoolAsyncWiFiAction instance;
+  return instance;
+}
+
+bool CoolAsyncWiFiAction::manageConnectionPortal() {
+  String tmp;
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  if (haveToDo) {
+    DEBUG_VAR("CoolAsyncWiFiAction: Connecting to new router",
+              CoolAsyncWiFiAction::getInstance().SSID);
+    wifi_station_disconnect();
+    int i = 0;
+    DEBUG_VAR("CoolAsyncWiFiAction: Entry time to Wifi connection attempt:",
+              millis());
+    if (CoolAsyncWiFiAction::getInstance().SSID != WiFi.SSID() &&
+        CoolAsyncWiFiAction::getInstance().SSID.length() > 1) {
+      WiFi.begin(CoolAsyncWiFiAction::getInstance().SSID.c_str(),
+                 CoolAsyncWiFiAction::getInstance().pass.c_str());
+      while ((WiFi.status() != WL_CONNECTED) ) {
+        i++;
+        delay(100);
+      }
+
+      // uint8_t y=0;
+      // while ((WiFi.status() != WL_DISCONNECTED) && (y < 250)) {
+      //   y++;
+      //   delay(100);
+      // }
+      DEBUG_VAR("CoolAsyncWiFiAction: Connected to : ", WiFi.SSID());
+      DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+    } else {
+      INFO_VAR("You are already connected to this network!", WiFi.status());
+    }
+  }
+  haveToDo = false;
+  INFO_VAR("CoolAsyncWiFiAction: wifi status", WiFi.status());
+  root["desired"] = CoolAsyncWiFiAction::getInstance().SSID;
+  root["currentSSID"] = WiFi.SSID();
+  root["status"] = (uint8_t)WiFi.status();
+  root.printTo(tmp);
+  events.send(tmp.c_str(), NULL, millis(), 1000);
+  CoolAsyncWiFiAction::getInstance().SSID = "";
+}
+
+void CoolAsyncWiFiAction::setAPCallback(
+    void (*func)(CoolAsyncWiFiAction *myWiFiManager)) {
+  _apcallback = func;
+}
+
+void CoolAsyncWiFiAction::setSaveConfigCallback(void (*func)(void)) {
+  _savecallback = func;
+}
+void CoolAsyncWiFiAction::setBreakAfterConfig(boolean shouldBreak) {
+  _shouldBreakAfterConfig = shouldBreak;
 }

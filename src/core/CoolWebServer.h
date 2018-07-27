@@ -11,6 +11,8 @@
 #define HTTP_USERNAME "admin"
 #define HTTP_PASSWORD "admin"
 
+#define SSID_MAX_LENGHT 32
+
 class CoolWebServer {
 public:
   bool begin();
@@ -26,4 +28,24 @@ private:
     tempMAC.replace(":", "");
     return (tempMAC);
   }
+};
+
+class CoolAsyncWiFiAction {
+public:
+  static CoolAsyncWiFiAction &getInstance();
+  bool manageConnectionPortal();
+  bool haveToDo = false;
+  String SSID;
+  String pass;
+  CoolAsyncWiFiAction(CoolAsyncWiFiAction const &) = delete;
+  void operator=(CoolAsyncWiFiAction const &) = delete;
+
+private:
+  void setAPCallback(void (*func)(CoolAsyncWiFiAction *));
+  void setSaveConfigCallback(void (*func)(void));
+  void setBreakAfterConfig(boolean shouldBreak);
+  void (*_apcallback)(CoolAsyncWiFiAction *) = NULL;
+  void (*_savecallback)(void) = NULL;
+  boolean _shouldBreakAfterConfig = false;
+  CoolAsyncWiFiAction() {}
 };
