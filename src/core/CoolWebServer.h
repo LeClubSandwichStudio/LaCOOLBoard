@@ -38,6 +38,9 @@ public:
   String SSID;
   String pass;
   CoolAsyncWiFiAction(CoolAsyncWiFiAction const &) = delete;
+  String jsonStringWiFiScan();
+  bool isAvailable(String ssid);
+  // bool autoConnect();
   void operator=(CoolAsyncWiFiAction const &) = delete;
 
 private:

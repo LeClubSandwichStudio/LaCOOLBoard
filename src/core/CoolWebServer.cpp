@@ -397,42 +397,80 @@ bool CoolAsyncWiFiAction::manageConnectionPortal() {
   String tmp;
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
-  if (haveToDo) {
-    DEBUG_VAR("CoolAsyncWiFiAction: Connecting to new router",
-              CoolAsyncWiFiAction::getInstance().SSID);
-    wifi_station_disconnect();
-    int i = 0;
-    DEBUG_VAR("CoolAsyncWiFiAction: Entry time to Wifi connection attempt:",
-              millis());
-    if (CoolAsyncWiFiAction::getInstance().SSID != WiFi.SSID() &&
-        CoolAsyncWiFiAction::getInstance().SSID.length() > 1) {
-      WiFi.begin(CoolAsyncWiFiAction::getInstance().SSID.c_str(),
-                 CoolAsyncWiFiAction::getInstance().pass.c_str());
-      while ((WiFi.status() != WL_CONNECTED) ) {
-        i++;
-        delay(100);
+  if (this->haveToDo) {
+    if (this->SSID != WiFi.SSID() && this->isAvailable(this->SSID)) {
+      DEBUG_VAR("CoolAsyncWiFiAction: Connecting to new router", this->SSID);
+      DEBUG_VAR("CoolAsyncWiFiAction: Entry time to Wifi connection attempt:",
+                millis());
+      ETS_UART_INTR_DISABLE();
+      wifi_station_disconnect();
+      ETS_UART_INTR_ENABLE();
+      WiFi.begin(this->SSID.c_str(), this->pass.c_str());
+      while ((WiFi.status() != WL_CONNECTED)) {
+        delay(10);
       }
-
-      // uint8_t y=0;
-      // while ((WiFi.status() != WL_DISCONNECTED) && (y < 250)) {
-      //   y++;
-      //   delay(100);
-      // }
       DEBUG_VAR("CoolAsyncWiFiAction: Connected to : ", WiFi.SSID());
       DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
     } else {
-      INFO_VAR("You are already connected to this network!", WiFi.status());
+      root["desired"] = this->SSID;
+      root["currentSSID"] = WiFi.SSID();
+      root["status"] = (uint8_t)WiFi.status();
+      root.printTo(tmp);
+      events.send(tmp.c_str(), NULL, millis(), 1000);
+      return false;
+    }
+    this->haveToDo = false;
+    INFO_VAR("CoolAsyncWiFiAction: wifi status", WiFi.status());
+    root["desired"] = this->SSID;
+    root["currentSSID"] = WiFi.SSID();
+    root["status"] = (uint8_t)WiFi.status();
+    root.printTo(tmp);
+    events.send(tmp.c_str(), NULL, millis(), 1000);
+    this->SSID = "";
+    return true;
+  }
+  return false;
+}
+
+String CoolAsyncWiFiAction::jsonStringWiFiScan() {
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  uint8_t n = WiFi.scanNetworks();
+  INFO_VAR("Scan status: ", n);
+  if (n) {
+    for (uint8_t i = 0; i < n; ++i) {
+      root.createNestedObject(WiFi.SSID(i));
+      JsonObject &obj = root[WiFi.SSID(i)];
+      obj["BSSID"] = WiFi.BSSIDstr(i);
+      obj["RSSI"] = WiFi.RSSI(i);
+      obj["channel"] = String(WiFi.channel(i));
+      obj["secure"] = String(WiFi.encryptionType(i));
+      obj["hidden"] = String(WiFi.isHidden(i) ? "true" : "false");
     }
   }
-  haveToDo = false;
-  INFO_VAR("CoolAsyncWiFiAction: wifi status", WiFi.status());
-  root["desired"] = CoolAsyncWiFiAction::getInstance().SSID;
-  root["currentSSID"] = WiFi.SSID();
-  root["status"] = (uint8_t)WiFi.status();
+  if (WiFi.scanComplete() >= 0) {
+    WiFi.scanDelete();
+  }
+  String tmp;
   root.printTo(tmp);
-  events.send(tmp.c_str(), NULL, millis(), 1000);
-  CoolAsyncWiFiAction::getInstance().SSID = "";
+  DEBUG_VAR("CoolAsyncWiFiAction::jsonStringWiFiScan: ", tmp);
+  return (tmp);
 }
+
+bool CoolAsyncWiFiAction::isAvailable(String ssid) {
+  // enhancement: need to verify also the BSSID
+  DynamicJsonBuffer json;
+  JsonObject &root = json.parseObject(this->jsonStringWiFiScan());
+  if (root[ssid].success()) {
+    return (true);
+  }
+  return (false);
+}
+
+// bool CoolAsyncWiFiAction::autoConnect(){
+//   DynamicJsonBuffer json;
+//   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
+// }
 
 void CoolAsyncWiFiAction::setAPCallback(
     void (*func)(CoolAsyncWiFiAction *myWiFiManager)) {
