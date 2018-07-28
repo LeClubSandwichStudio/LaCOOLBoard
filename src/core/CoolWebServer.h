@@ -1,5 +1,4 @@
 #include "ArduinoJson.h"
-#include "CoolWifi.h"
 #include <ESP8266SSDP.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -30,25 +29,26 @@ private:
   }
 };
 
-class CoolAsyncWiFiAction {
+class CoolWifi {
 public:
-  static CoolAsyncWiFiAction &getInstance();
+  static CoolWifi &getInstance();
   bool manageConnectionPortal();
   bool haveToDo = false;
   String SSID;
   String pass;
-  CoolAsyncWiFiAction(CoolAsyncWiFiAction const &) = delete;
+  CoolWifi(CoolWifi const &) = delete;
   String jsonStringWiFiScan();
   bool isAvailable(String ssid);
-  // bool autoConnect();
-  void operator=(CoolAsyncWiFiAction const &) = delete;
-
+  bool autoConnect();
+  void operator=(CoolWifi const &) = delete;
+  uint8_t getWifiCount();
+  bool getPublicIp(String &ip);
+  static void printStatus(wl_status_t status);
+  WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
+  int getIndexOfMaximumValue(int16_t *array, int size);
+  void setupHandlers();
+  bool mdnsState = false;
+  
 private:
-  void setAPCallback(void (*func)(CoolAsyncWiFiAction *));
-  void setSaveConfigCallback(void (*func)(void));
-  void setBreakAfterConfig(boolean shouldBreak);
-  void (*_apcallback)(CoolAsyncWiFiAction *) = NULL;
-  void (*_savecallback)(void) = NULL;
-  boolean _shouldBreakAfterConfig = false;
-  CoolAsyncWiFiAction() {}
+  CoolWifi() {}
 };

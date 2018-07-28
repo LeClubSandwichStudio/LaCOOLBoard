@@ -1,6 +1,11 @@
+// #include "AsyncJson.h"
 #include "CoolAsyncEditor.h"
+#include "WiFiUdp.h"
 #include <CoolLog.h>
 #include <CoolWebServer.h>
+#include <ESP8266HTTPClient.h>
+#include <stdio.h>
+#include <user_interface.h>
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -137,6 +142,8 @@ void CoolWebServer::end() {
   if (this->isRunning) {
     events.close();
     ws.closeAll();
+    WiFiUDP udp;
+    udp.stopAll();
     WiFi.mode(WIFI_STA);
     this->isRunning = false;
     DEBUG_LOG("AsyncWebServer disconnected!");
@@ -304,18 +311,55 @@ void CoolWebServer::requestConfiguration() {
         if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
           request->send(404);
         } else {
-          CoolAsyncWiFiAction::getInstance().SSID =
+          CoolWifi::getInstance().SSID =
               coolAsyncEditor.getSavedCredentialFromIndex(
                   atoi(p->value().c_str()), "ssid");
-          CoolAsyncWiFiAction::getInstance().pass =
+          CoolWifi::getInstance().pass =
               coolAsyncEditor.getSavedCredentialFromIndex(
                   atoi(p->value().c_str()), "pass");
-          CoolAsyncWiFiAction::getInstance().haveToDo = true;
+          CoolWifi::getInstance().haveToDo = true;
         }
       }
     }
     request->send(200);
   });
+
+  // server.on("/wifi/discover", HTTP_GET, [](AsyncWebServerRequest *request) {
+  //   int params = request->params();
+  //   String service = "cool-api";
+  //   for (int i = 0; i < params; i++) {
+  //     AsyncWebParameter *p = request->getParam(i);
+  //     if (!p->isFile() && !p->isPost()) {
+  //       service = p->value();
+  //     }
+  //   }
+
+  //   DEBUG_VAR("Service: ", service);
+  //   if (CoolWifi::getInstance().mdnsState) {
+  //     DynamicJsonBuffer json;
+  //     JsonObject &root = json.createObject();
+  //     uint8_t n = MDNS.queryService(service, "tcp");
+  //     DEBUG_VAR("Devices queried: ", n);
+  //     for (uint8_t i = 0; i < n; ++i) {
+  //       // if (n)
+  //       root.createNestedObject(MDNS.hostname(i));
+  //       JsonObject &obj = root[MDNS.hostname(i)];
+  //       obj["ip"] = String(MDNS.IP(i));
+  //       obj["port"] = MDNS.port(i);
+  //       obj["service"] = service;
+  //       DEBUG_VAR("ip: ", String(MDNS.IP(i)));
+  //       DEBUG_VAR("port: ", MDNS.port(i));
+  //     }
+  //     String buf;react-native link react-native-zeroconf
+  //     root.printTo(buf);
+  //     DEBUG_VAR("Json result:", buf);
+  //     request->send(200, "text/json", buf);
+  //   } else {
+  //     DEBUG_LOG("Bonjour Service never initialized, can't discover devices on "
+  //               "network");
+  //                request->send(404);
+  //   }
+  // });
 
   server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request) {
     CoolAsyncEditor coolAsyncEditor;
@@ -380,28 +424,35 @@ void CoolWebServer::ssdpBegin() {
   SSDP.setModelName("CoolBoard");
   SSDP.setURL("/index.htm");
   SSDP.begin();
-  String coolName = "coolboard-" + this->getCoolMac();
+  String coolName = "CoolBoard-" + this->getCoolMac();
   SSDP.setDeviceType("upnp:rootdevice");
-  INFO_VAR("Bonjour service started at: ", coolName);
   INFO_LOG("TCP server started");
+  MDNS.addService("smb", "tcp", 445);
   MDNS.addService("http", "tcp", 80);
-  MDNS.begin(coolName.c_str());
+  MDNS.addService("cool-api", "tcp", 80);
+  MDNS.addServiceTxt("cool-api", "tcp", "Firmware", COOL_FW_VERSION);
+  MDNS.addServiceTxt("http", "tcp", "Firmware", COOL_FW_VERSION);
+  MDNS.addServiceTxt("http", "tcp", "coreVersion", ESP.getCoreVersion());
+  MDNS.addServiceTxt("http", "tcp", "sdkVersion", ESP.getSdkVersion());
+  MDNS.addServiceTxt("http", "tcp", "firwmareMD5", ESP.getSketchMD5());
+  MDNS.addServiceTxt("http", "tcp", "fullVersion", ESP.getFullVersion());
+  CoolWifi::getInstance().mdnsState = MDNS.begin(coolName.c_str());
+  INFO_VAR("Bonjour service started at: ", coolName);
 }
 
-CoolAsyncWiFiAction &CoolAsyncWiFiAction::getInstance() {
-  static CoolAsyncWiFiAction instance;
+CoolWifi &CoolWifi::getInstance() {
+  static CoolWifi instance;
   return instance;
 }
 
-bool CoolAsyncWiFiAction::manageConnectionPortal() {
+bool CoolWifi::manageConnectionPortal() {
   String tmp;
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
   if (this->haveToDo) {
     if (this->SSID != WiFi.SSID() && this->isAvailable(this->SSID)) {
-      DEBUG_VAR("CoolAsyncWiFiAction: Connecting to new router", this->SSID);
-      DEBUG_VAR("CoolAsyncWiFiAction: Entry time to Wifi connection attempt:",
-                millis());
+      DEBUG_VAR("CoolWifi: Connecting to new router", this->SSID);
+      DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
       ETS_UART_INTR_DISABLE();
       wifi_station_disconnect();
       ETS_UART_INTR_ENABLE();
@@ -409,18 +460,18 @@ bool CoolAsyncWiFiAction::manageConnectionPortal() {
       while ((WiFi.status() != WL_CONNECTED)) {
         delay(10);
       }
-      DEBUG_VAR("CoolAsyncWiFiAction: Connected to : ", WiFi.SSID());
+      DEBUG_VAR("CoolWifi: Connected to : ", WiFi.SSID());
       DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
     } else {
       root["desired"] = this->SSID;
       root["currentSSID"] = WiFi.SSID();
-      root["status"] = (uint8_t)WiFi.status();
+      root["status"] = WL_NO_SSID_AVAIL;
       root.printTo(tmp);
       events.send(tmp.c_str(), NULL, millis(), 1000);
       return false;
     }
     this->haveToDo = false;
-    INFO_VAR("CoolAsyncWiFiAction: wifi status", WiFi.status());
+    INFO_VAR("CoolWifi: wifi status", WiFi.status());
     root["desired"] = this->SSID;
     root["currentSSID"] = WiFi.SSID();
     root["status"] = (uint8_t)WiFi.status();
@@ -432,32 +483,34 @@ bool CoolAsyncWiFiAction::manageConnectionPortal() {
   return false;
 }
 
-String CoolAsyncWiFiAction::jsonStringWiFiScan() {
+String CoolWifi::jsonStringWiFiScan() {
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
   uint8_t n = WiFi.scanNetworks();
+  while (WiFi.scanComplete() < 0) {
+    delay(10);
+  }
+
   INFO_VAR("Scan status: ", n);
   if (n) {
     for (uint8_t i = 0; i < n; ++i) {
       root.createNestedObject(WiFi.SSID(i));
       JsonObject &obj = root[WiFi.SSID(i)];
-      obj["BSSID"] = WiFi.BSSIDstr(i);
-      obj["RSSI"] = WiFi.RSSI(i);
+      obj["bssid"] = WiFi.BSSIDstr(i);
+      obj["rssi"] = WiFi.RSSI(i);
       obj["channel"] = String(WiFi.channel(i));
       obj["secure"] = String(WiFi.encryptionType(i));
       obj["hidden"] = String(WiFi.isHidden(i) ? "true" : "false");
     }
   }
-  if (WiFi.scanComplete() >= 0) {
-    WiFi.scanDelete();
-  }
+  WiFi.scanDelete();
   String tmp;
   root.printTo(tmp);
-  DEBUG_VAR("CoolAsyncWiFiAction::jsonStringWiFiScan: ", tmp);
+  DEBUG_VAR("CoolWifi::jsonStringWiFiScan: ", tmp);
   return (tmp);
 }
 
-bool CoolAsyncWiFiAction::isAvailable(String ssid) {
+bool CoolWifi::isAvailable(String ssid) {
   // enhancement: need to verify also the BSSID
   DynamicJsonBuffer json;
   JsonObject &root = json.parseObject(this->jsonStringWiFiScan());
@@ -467,19 +520,108 @@ bool CoolAsyncWiFiAction::isAvailable(String ssid) {
   return (false);
 }
 
-// bool CoolAsyncWiFiAction::autoConnect(){
-//   DynamicJsonBuffer json;
-//   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
-// }
-
-void CoolAsyncWiFiAction::setAPCallback(
-    void (*func)(CoolAsyncWiFiAction *myWiFiManager)) {
-  _apcallback = func;
+bool CoolWifi::autoConnect() {
+  DynamicJsonBuffer json;
+  JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
+  DynamicJsonBuffer config;
+  File f = SPIFFS.open("/wifiConfig.json", "r");
+  JsonObject &conf = config.parseObject(f.readString());
+  uint8_t wifiCount = conf.get<uint8_t>("wifiCount");
+  int16_t rssi[wifiCount];
+  if (wifiCount == 0) {
+    return false;
+  }
+  for (uint8_t i = 0; i < wifiCount; ++i) {
+    rssi[i] = -100;
+    if (scan[conf["Wifi" + String(i)]["ssid"].asString()].success()) {
+      DEBUG_VAR("Saved network found on scan:",
+                String(conf["Wifi" + String(i)]["ssid"].asString()));
+      String obj = scan[conf["Wifi" + String(i)]["ssid"].asString()];
+      JsonObject &network = json.parseObject(obj);
+      int16_t pwr = network.get<int16_t>("rssi");
+      DEBUG_VAR("Signal Power:", pwr);
+      rssi[i] = pwr;
+    }
+  }
+  uint8_t n = this->getIndexOfMaximumValue(rssi, wifiCount);
+  DEBUG_VAR("CoolWifi::autoConnect index Connecting to: ", n);
+  DEBUG_VAR("CoolWifi::autoConnect Connecting to: ",
+            String(conf["Wifi" + String(n)]["ssid"].asString()));
+  DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
+  WiFi.begin(conf["Wifi" + String(n)]["ssid"].asString(),
+             conf["Wifi" + String(n)]["pass"].asString());
+  while ((WiFi.status() != WL_CONNECTED)) {
+    delay(10);
+  }
+  DEBUG_VAR("CoolWifi::autoConnect Connected to: ", WiFi.SSID());
+  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+  return (true);
 }
 
-void CoolAsyncWiFiAction::setSaveConfigCallback(void (*func)(void)) {
-  _savecallback = func;
+uint8_t CoolWifi::getWifiCount() {
+  DynamicJsonBuffer config;
+  File f = SPIFFS.open("/wifiConfig.json", "r");
+  JsonObject &conf = config.parseObject(f.readString());
+  return (conf.get<uint8_t>("wifiCount"));
 }
-void CoolAsyncWiFiAction::setBreakAfterConfig(boolean shouldBreak) {
-  _shouldBreakAfterConfig = shouldBreak;
+int CoolWifi::getIndexOfMaximumValue(int16_t *array, int size) {
+  int16_t maxIndex = 0;
+  int16_t max = array[maxIndex];
+  for (int i = 0; i < size; i++) {
+    if (max < array[i]) {
+      max = array[i];
+      maxIndex = i;
+    }
+  }
+  return maxIndex;
+}
+
+bool CoolWifi::getPublicIp(String &ip) {
+  HTTPClient http;
+  http.begin("http://api.ipify.org/");
+  if (http.GET() == HTTP_CODE_OK) {
+    ip = http.getString();
+    return (true);
+  }
+  return (false);
+}
+
+void CoolWifi::printStatus(wl_status_t status) {
+  switch (status) {
+  case WL_NO_SHIELD:
+    ERROR_LOG("Wifi status: no shield");
+    break;
+  case WL_IDLE_STATUS:
+    WARN_LOG("Wifi status: idle");
+    break;
+  case WL_NO_SSID_AVAIL:
+    ERROR_LOG("Wifi status: no SSID available");
+    break;
+  case WL_SCAN_COMPLETED:
+    WARN_LOG("Wifi status: scan completed");
+    break;
+  case WL_CONNECTED:
+    INFO_LOG("Wifi status: connected");
+    break;
+  case WL_CONNECT_FAILED:
+    ERROR_LOG("Wifi status: connection failed");
+    break;
+  case WL_DISCONNECTED:
+    WARN_LOG("Wifi status: disconnected");
+    break;
+  default:
+    ERROR_LOG("Wifi status: unknown");
+    break;
+  }
+}
+
+void CoolWifi::setupHandlers() {
+  gotIpEventHandler =
+      WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP &event) {
+        INFO_VAR("Coolboard Connected, Local IP: ", WiFi.localIP());
+      });
+  disconnectedEventHandler = WiFi.onStationModeDisconnected(
+      [](const WiFiEventStationModeDisconnected &event) {
+        INFO_LOG("WiFi connection lost");
+      });
 }

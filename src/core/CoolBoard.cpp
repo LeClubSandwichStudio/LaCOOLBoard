@@ -32,6 +32,10 @@
 
 #define SEND_MSG_BATCH 10
 
+#ifdef DEBUG_ESP_PORT #define DEBUG_MSG(_1, ...) DEBUG_ESP_PORT.printf_P(      \
+    PSTR(_1), ##__VA_ARGS__) #else #define DEBUG_MSG(...)
+#endif
+
 void CoolBoard::begin() {
   this->powerCheck();
   WiFi.mode(WIFI_STA);
@@ -88,7 +92,6 @@ void CoolBoard::loop() {
   }
   if (!this->isConnected() && !this->coolWebServer.isRunning) {
     this->coolPubSubClient->disconnect();
-    INFO_LOG("Connecting...");
     this->connect();
   }
   INFO_LOG("Synchronizing RTC...");
@@ -131,14 +134,12 @@ void CoolBoard::loop() {
         this->coolPubSubClient->disconnect();
         this->coolWebServer.begin();
       } else {
-        CoolAsyncWiFiAction::getInstance().manageConnectionPortal();
+        CoolWifi::getInstance().manageConnectionPortal();
       }
     } else {
       if (this->coolWebServer.isRunning) {
         root["state"] = NULL;
         this->coolWebServer.end();
-        INFO_LOG("CooBoard is rebooting...");
-        // ESP.restart();
       }
     }
     INFO_LOG("Listening to update messages...");
@@ -165,11 +166,11 @@ bool CoolBoard::isConnected() {
 }
 
 void CoolBoard::connect() {
-  if (this->coolWifi->wifiCount > 0) {
+  if (CoolWifi::getInstance().getWifiCount() > 0) {
     this->coolBoardLed.write(BLUE);
-    INFO_VAR("WiFi.status", WiFi.status());
     if (WiFi.status() != WL_CONNECTED) {
-      this->coolWifi->connect();
+      INFO_LOG("WiFi not connected, connecting...");
+      CoolWifi::getInstance().autoConnect();
     }
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
@@ -177,7 +178,6 @@ void CoolBoard::connect() {
       this->coolWebServer.begin();
     }
   }
-  delay(100);
   if (WiFi.status() == WL_CONNECTED) {
     CoolTime::getInstance().begin();
     delay(100);
@@ -240,7 +240,6 @@ bool CoolBoard::shouldLog() {
 
 unsigned long CoolBoard::secondsToNextLog() {
   unsigned long seconds;
-
   seconds = this->logInterval - ((millis() - this->previousLogTime) / 1000);
   return (seconds > this->logInterval ? this->logInterval : seconds);
 }
@@ -256,7 +255,12 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
 bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
-  this->coolWifi->config();
+  INFO_LOG("Connecting to WiFi...");
+  CoolWifi::getInstance().setupHandlers();
+  if (!CoolWifi::getInstance().autoConnect()) {
+    WARN_LOG("No Network Disponible");
+    return false;
+  }
   this->tryFirmwareUpdate();
   CoolConfig config("/coolBoardConfig.json");
   if (!config.readFileAsJson()) {
@@ -447,7 +451,7 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 void CoolBoard::readPublicIP(JsonObject &reported) {
   if (WiFi.status() == WL_CONNECTED) {
     String ip;
-    if (this->coolWifi->getPublicIp(ip)) {
+    if (CoolWifi::getInstance().getPublicIp(ip)) {
       DEBUG_VAR("Public IP address:", ip);
       reported["publicIp"] = ip;
     }
@@ -456,7 +460,7 @@ void CoolBoard::readPublicIP(JsonObject &reported) {
 
 void CoolBoard::networkProblem() {
   WARN_LOG("Network unreachable");
-  CoolWifi::printStatus(WiFi.status());
+  CoolWifi::getInstance().printStatus(WiFi.status());
   this->printMqttState(this->coolPubSubClient->state());
   for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(ORANGE, 0.2);
@@ -537,7 +541,8 @@ void CoolBoard::mqttConnect() {
 
   INFO_LOG("MQTT connecting...");
   DEBUG_VAR("MQTT client id:", this->mqttId);
-  while (!this->coolPubSubClient->connected() && i < MQTT_RETRIES) {
+  while (!this->coolPubSubClient->connected() && i < MQTT_RETRIES &&
+         (WiFi.status() == WL_CONNECTED)) {
     this->mqttsConfig();
     if (this->coolPubSubClient->connect(this->mqttId.c_str())) {
       this->coolPubSubClient->subscribe(this->mqttInTopic.c_str());
@@ -671,11 +676,9 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
   SPIFFS.remove("/otaUpdateConfig.json");
   SPIFFS.end();
   delay(100);
-  this->coolWifi->connect();
   if (WiFi.status() == WL_CONNECTED) {
     Serial.flush();
     Serial.setDebugOutput(true);
-    delete this->coolWifi;
     INFO_LOG("Starting firmware update...");
     t_httpUpdate_return ret =
         ESPhttpUpdate.update(firmwareUrl, "", firmwareUrlFingerprint, true);
