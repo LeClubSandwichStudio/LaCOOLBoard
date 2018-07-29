@@ -67,6 +67,22 @@
   } while (0)
 #endif
 
+#ifdef COOL_WIFI_TRACE
+#define ADD_WIFI                                                               \
+  do {                                                                         \
+      Serial.print(WiFi.status());                                             \
+      Serial.print(F("["));                                                    \
+      Serial.print(WiFi.SSID());                                               \
+      Serial.print(F(" "));                                                    \
+      Serial.print(WiFi.RSSI());                                               \
+      Serial.print(F("]"));                                                    \
+  } while (0)
+#else
+#define ADD_WIFI                                                               \
+  do {                                                                         \
+  } while (0)
+#endif
+
 #ifdef COOL_FUNC_TRACE
 #define ADD_TRACE                                                              \
   do {                                                                         \
@@ -88,6 +104,7 @@
   do {                                                                         \
     ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
+    ADD_WIFI;                                                                  \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
@@ -97,6 +114,7 @@
   do {                                                                         \
     ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
+    ADD_WIFI;                                                                  \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
@@ -108,6 +126,7 @@
   do {                                                                         \
     ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
+    ADD_WIFI;                                                                  \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \
@@ -119,6 +138,7 @@
   do {                                                                         \
     ADD_TIMESTAMP;                                                             \
     ADD_TRACE;                                                                 \
+    ADD_WIFI;                                                                  \
     ADD_HEAP;                                                                  \
     Serial.print(F(level));                                                    \
     Serial.print(F(" "));                                                      \

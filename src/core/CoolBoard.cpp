@@ -32,10 +32,6 @@
 
 #define SEND_MSG_BATCH 10
 
-#ifdef DEBUG_ESP_PORT #define DEBUG_MSG(_1, ...) DEBUG_ESP_PORT.printf_P(      \
-    PSTR(_1), ##__VA_ARGS__) #else #define DEBUG_MSG(...)
-#endif
-
 void CoolBoard::begin() {
   this->powerCheck();
   WiFi.mode(WIFI_STA);
@@ -90,7 +86,7 @@ void CoolBoard::loop() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-  if (!this->isConnected() && !this->coolWebServer.isRunning) {
+    if (!this->isConnected() && !this->coolWebServer.isRunning) {
     this->coolPubSubClient->disconnect();
     this->connect();
   }
@@ -460,7 +456,7 @@ void CoolBoard::readPublicIP(JsonObject &reported) {
 
 void CoolBoard::networkProblem() {
   WARN_LOG("Network unreachable");
-  CoolWifi::getInstance().printStatus(WiFi.status());
+  WARN_VAR("Reason: ", CoolWifi::getInstance().StringStatus(WiFi.status()));
   this->printMqttState(this->coolPubSubClient->state());
   for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(ORANGE, 0.2);

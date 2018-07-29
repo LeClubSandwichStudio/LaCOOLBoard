@@ -25,7 +25,6 @@
 #define COOLBOARD_H
 
 #include <Arduino.h>
-
 #include "CoolBoardActuator.h"
 #include "CoolBoardLed.h"
 #include "CoolBoardSensors.h"

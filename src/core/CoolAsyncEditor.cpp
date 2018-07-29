@@ -151,8 +151,8 @@ bool CoolAsyncEditor::beginAdminCredential() {
   DynamicJsonBuffer json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/webServerCredentials.json").c_str());
-      if(jsonBuf["userName"].success() && jsonBuf["password"].success() ){
-      HTTPuserName = jsonBuf.get<String>("userName");
+      if(jsonBuf["username"].success() && jsonBuf["password"].success() ){
+      HTTPuserName = jsonBuf.get<String>("username");
       HTTPpassword = jsonBuf.get<String>("password");
       return true;
       } else{
@@ -166,7 +166,7 @@ bool CoolAsyncEditor::configureAdminCredential(String userName,
                                                String password) {
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
-  root["userName"] = userName;
+  root["username"] = userName;
   root["password"] = password;
   String tmp;
   root.printTo(tmp);
@@ -180,7 +180,7 @@ bool CoolAsyncEditor::configureAdminCredential(String userName,
 bool CoolAsyncEditor::resetAdminCredential(){
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
-  root["userName"] = "admin";
+  root["username"] = "admin";
   root["password"] = "admin";
   String tmp;
   root.printTo(tmp);

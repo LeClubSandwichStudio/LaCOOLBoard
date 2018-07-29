@@ -1,4 +1,3 @@
-// #include "AsyncJson.h"
 #include "CoolAsyncEditor.h"
 #include "WiFiUdp.h"
 #include <CoolLog.h>
@@ -8,97 +7,9 @@
 #include <user_interface.h>
 
 AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
 String handleMessageReceived;
-
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
-               AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  if (type == WS_EVT_CONNECT) {
-    Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-    client->printf("Hello Client %u :)", client->id());
-    client->ping();
-  } else if (type == WS_EVT_DISCONNECT) {
-    Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
-  } else if (type == WS_EVT_ERROR) {
-    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(),
-                  *((uint16_t *)arg), (char *)data);
-  } else if (type == WS_EVT_PONG) {
-    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len,
-                  (len) ? (char *)data : "");
-  } else if (type == WS_EVT_DATA) {
-    AwsFrameInfo *info = (AwsFrameInfo *)arg;
-    String msg = "";
-    if (info->final && info->index == 0 && info->len == len) {
-      // the whole message is in a single frame and we got all of it's data
-      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(),
-                    client->id(), (info->opcode == WS_TEXT) ? "text" : "binary",
-                    info->len);
-
-      if (info->opcode == WS_TEXT) {
-        for (size_t i = 0; i < info->len; i++) {
-          msg += (char)data[i];
-        }
-      } else {
-        char buff[3];
-        for (size_t i = 0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t)data[i]);
-          msg += buff;
-        }
-      }
-      Serial.printf("%s\n", msg.c_str());
-
-      if (info->opcode == WS_TEXT)
-        client->text("I got your text message");
-      else
-        client->binary("I got your binary message");
-    } else {
-      // message is comprised of multiple frames or the frame is split into
-      // multiple packets
-      if (info->index == 0) {
-        if (info->num == 0)
-          Serial.printf("ws[%s][%u] %s-message start\n", server->url(),
-                        client->id(),
-                        (info->message_opcode == WS_TEXT) ? "text" : "binary");
-        Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(),
-                      client->id(), info->num, info->len);
-      }
-
-      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(),
-                    client->id(), info->num,
-                    (info->message_opcode == WS_TEXT) ? "text" : "binary",
-                    info->index, info->index + len);
-
-      if (info->opcode == WS_TEXT) {
-        for (size_t i = 0; i < info->len; i++) {
-          msg += (char)data[i];
-        }
-      } else {
-        char buff[3];
-        for (size_t i = 0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t)data[i]);
-          msg += buff;
-        }
-      }
-      Serial.printf("%s\n", msg.c_str());
-
-      if ((info->index + len) == info->len) {
-        Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(),
-                      client->id(), info->num, info->len);
-        if (info->final) {
-          Serial.printf("ws[%s][%u] %s-message end\n", server->url(),
-                        client->id(),
-                        (info->message_opcode == WS_TEXT) ? "text" : "binary");
-          if (info->message_opcode == WS_TEXT)
-            client->text("I got your text message");
-          else
-            client->binary("I got your binary message");
-        }
-      }
-    }
-  }
-}
 
 bool CoolWebServer::begin() {
   DEBUG_LOG("AsyncWebServer begin");
@@ -113,27 +24,29 @@ bool CoolWebServer::begin() {
   if (!SPIFFS.begin()) {
     return (false);
   }
-  ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
   events.onConnect([](AsyncEventSourceClient *client) {
     client->send("hello!", NULL, millis(), 1000);
   });
   server.addHandler(&events);
   this->requestConfiguration();
-  // CoolAsyncEditor* coolAsyncEditor;
-  // if(coolAsyncEditor->beginAdminCredential()){
-  server.serveStatic("/", SPIFFS, "/")
-      .setDefaultFile("index.htm")
-      // .setAuthentication(coolAsyncEditor->HTTPuserName.c_str(),
-      // coolAsyncEditor->HTTPpassword.c_str());
-      .setAuthentication("admin", "admin");
-  // } else {
-  //       server.serveStatic("/", SPIFFS, "/")
-  //       .setDefaultFile("index.htm");
-  // }
-  // delete coolAsyncEditor;
+  CoolAsyncEditor coolAsyncEditor;
+  if (coolAsyncEditor.beginAdminCredential()) {
+    server.serveStatic("/", SPIFFS, "/")
+        .setDefaultFile("index.htm")
+        .setAuthentication(coolAsyncEditor.HTTPuserName.c_str(),
+                           coolAsyncEditor.HTTPpassword.c_str());
+  } else {
+    server.serveStatic("/", SPIFFS, "/")
+        .setDefaultFile("index.htm")
+        .setAuthentication(HTTP_USERNAME, HTTP_PASSWORD);
+  }
   this->onNotFoundConfig();
+#if ASYNC_TCP_SSL_ENABLED
+  server.beginSecure(coolAsyncEditor.read("/certificate.bin").c_str(),
+                     coolAsyncEditor.read("/privateKey.bin").c_str(), "admin");
+#else
   server.begin();
+#endif
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
   return (true);
 }
@@ -141,7 +54,6 @@ bool CoolWebServer::begin() {
 void CoolWebServer::end() {
   if (this->isRunning) {
     events.close();
-    ws.closeAll();
     WiFiUDP udp;
     udp.stopAll();
     WiFi.mode(WIFI_STA);
@@ -355,7 +267,8 @@ void CoolWebServer::requestConfiguration() {
   //     DEBUG_VAR("Json result:", buf);
   //     request->send(200, "text/json", buf);
   //   } else {
-  //     DEBUG_LOG("Bonjour Service never initialized, can't discover devices on "
+  //     DEBUG_LOG("Bonjour Service never initialized, can't discover devices on
+  //     "
   //               "network");
   //                request->send(404);
   //   }
@@ -426,18 +339,17 @@ void CoolWebServer::ssdpBegin() {
   SSDP.begin();
   String coolName = "CoolBoard-" + this->getCoolMac();
   SSDP.setDeviceType("upnp:rootdevice");
-  INFO_LOG("TCP server started");
-  MDNS.addService("smb", "tcp", 445);
-  MDNS.addService("http", "tcp", 80);
   MDNS.addService("cool-api", "tcp", 80);
   MDNS.addServiceTxt("cool-api", "tcp", "Firmware", COOL_FW_VERSION);
-  MDNS.addServiceTxt("http", "tcp", "Firmware", COOL_FW_VERSION);
-  MDNS.addServiceTxt("http", "tcp", "coreVersion", ESP.getCoreVersion());
-  MDNS.addServiceTxt("http", "tcp", "sdkVersion", ESP.getSdkVersion());
-  MDNS.addServiceTxt("http", "tcp", "firwmareMD5", ESP.getSketchMD5());
-  MDNS.addServiceTxt("http", "tcp", "fullVersion", ESP.getFullVersion());
-  CoolWifi::getInstance().mdnsState = MDNS.begin(coolName.c_str());
-  INFO_VAR("Bonjour service started at: ", coolName);
+  MDNS.addServiceTxt("cool-api", "tcp", "coreVersion", ESP.getCoreVersion());
+  MDNS.addServiceTxt("cool-api", "tcp", "sdkVersion", ESP.getSdkVersion());
+  MDNS.addServiceTxt("cool-api", "tcp", "firwmareMD5", ESP.getSketchMD5());
+  MDNS.addServiceTxt("cool-api", "tcp", "fullVersion", ESP.getFullVersion());
+  if (MDNS.begin(coolName.c_str())) {
+    INFO_VAR("Bonjour service started at: ", coolName);
+  } else {
+    WARN_LOG("Fail to start Bonjour service");
+  }
 }
 
 CoolWifi &CoolWifi::getInstance() {
@@ -453,19 +365,13 @@ bool CoolWifi::manageConnectionPortal() {
     if (this->SSID != WiFi.SSID() && this->isAvailable(this->SSID)) {
       DEBUG_VAR("CoolWifi: Connecting to new router", this->SSID);
       DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
-      ETS_UART_INTR_DISABLE();
-      wifi_station_disconnect();
-      ETS_UART_INTR_ENABLE();
-      WiFi.begin(this->SSID.c_str(), this->pass.c_str());
-      while ((WiFi.status() != WL_CONNECTED)) {
-        delay(10);
-      }
+      this->connect(this->SSID.c_str(), this->pass.c_str());
       DEBUG_VAR("CoolWifi: Connected to : ", WiFi.SSID());
       DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
     } else {
       root["desired"] = this->SSID;
       root["currentSSID"] = WiFi.SSID();
-      root["status"] = WL_NO_SSID_AVAIL;
+      root["status"] = this->StringStatus(WL_NO_SSID_AVAIL);
       root.printTo(tmp);
       events.send(tmp.c_str(), NULL, millis(), 1000);
       return false;
@@ -474,7 +380,7 @@ bool CoolWifi::manageConnectionPortal() {
     INFO_VAR("CoolWifi: wifi status", WiFi.status());
     root["desired"] = this->SSID;
     root["currentSSID"] = WiFi.SSID();
-    root["status"] = (uint8_t)WiFi.status();
+    root["status"] = this->StringStatus(WiFi.status());
     root.printTo(tmp);
     events.send(tmp.c_str(), NULL, millis(), 1000);
     this->SSID = "";
@@ -548,14 +454,45 @@ bool CoolWifi::autoConnect() {
   DEBUG_VAR("CoolWifi::autoConnect Connecting to: ",
             String(conf["Wifi" + String(n)]["ssid"].asString()));
   DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
-  WiFi.begin(conf["Wifi" + String(n)]["ssid"].asString(),
-             conf["Wifi" + String(n)]["pass"].asString());
-  while ((WiFi.status() != WL_CONNECTED)) {
-    delay(10);
+  if (this->connect(conf["Wifi" + String(n)]["ssid"].asString(),
+                    conf["Wifi" + String(n)]["pass"].asString()) !=
+      WL_CONNECTED) {
+    WARN_VAR("There's a problem, reconnecting, WiFiStatus: ", WiFi.status());
   }
   DEBUG_VAR("CoolWifi::autoConnect Connected to: ", WiFi.SSID());
   DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
   return (true);
+}
+
+uint8_t CoolWifi::connect(String ssid, String pass) {
+  ETS_UART_INTR_DISABLE();
+  wifi_station_disconnect();
+  ETS_UART_INTR_ENABLE();
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  int t = 0;
+  while ((WiFi.status() != WL_CONNECTED) &&
+         (t < WIFI_CONNECT_TIMEOUT_SECONDS)) {
+    t++;
+    delay(1000);
+  }
+  if ((WiFi.status() != WL_CONNECTED) && this->isAvailable(ssid)) {
+    WARN_LOG("Something goes wrong, SSID is available but impossible to "
+             "connect, please retry");
+    WARN_VAR("Reason: ", this->StringStatus(WiFi.status()));
+    WiFi.persistent(false);
+    wifi_station_disconnect();
+    WiFi.mode(WIFI_OFF);
+    delay(1000);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid.c_str(), pass.c_str());
+    int t = 0;
+    while ((WiFi.status() != WL_CONNECTED) &&
+           (t < WIFI_CONNECT_TIMEOUT_SECONDS)) {
+      t++;
+      delay(1000);
+    }
+  }
+  return WiFi.status();
 }
 
 uint8_t CoolWifi::getWifiCount() {
@@ -573,6 +510,10 @@ int CoolWifi::getIndexOfMaximumValue(int16_t *array, int size) {
       maxIndex = i;
     }
   }
+  if (array[maxIndex] < WIFI_POOR_SIGNAL_THREESHOLD) {
+    DEBUG_LOG("Best signal to low, enhance WiFi power");
+    WiFi.setOutputPower(WIFI_MAX_POWER);
+  }
   return maxIndex;
 }
 
@@ -586,31 +527,31 @@ bool CoolWifi::getPublicIp(String &ip) {
   return (false);
 }
 
-void CoolWifi::printStatus(wl_status_t status) {
+String CoolWifi::StringStatus(wl_status_t status) {
   switch (status) {
   case WL_NO_SHIELD:
-    ERROR_LOG("Wifi status: no shield");
+    return "Wifi status: no shield";
     break;
   case WL_IDLE_STATUS:
-    WARN_LOG("Wifi status: idle");
+    return "Wifi status: idle";
     break;
   case WL_NO_SSID_AVAIL:
-    ERROR_LOG("Wifi status: no SSID available");
+    return "Wifi status: no SSID available";
     break;
   case WL_SCAN_COMPLETED:
-    WARN_LOG("Wifi status: scan completed");
+    return "Wifi status: scan completed";
     break;
   case WL_CONNECTED:
-    INFO_LOG("Wifi status: connected");
+    return "Wifi status: connected";
     break;
   case WL_CONNECT_FAILED:
-    ERROR_LOG("Wifi status: connection failed");
+    return "Wifi status: connection failed";
     break;
   case WL_DISCONNECTED:
-    WARN_LOG("Wifi status: disconnected");
+    return "Wifi status: disconnected";
     break;
   default:
-    ERROR_LOG("Wifi status: unknown");
+    return "Wifi status: unknown";
     break;
   }
 }
@@ -619,9 +560,15 @@ void CoolWifi::setupHandlers() {
   gotIpEventHandler =
       WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP &event) {
         INFO_VAR("Coolboard Connected, Local IP: ", WiFi.localIP());
+        CoolWifi::getInstance().lostConnections = 0;
       });
   disconnectedEventHandler = WiFi.onStationModeDisconnected(
       [](const WiFiEventStationModeDisconnected &event) {
         INFO_LOG("WiFi connection lost");
+        CoolWifi::getInstance().lostConnections++;
+        if (CoolWifi::getInstance().lostConnections >= 10) {
+          ERROR_LOG("impossible to establish connection, need to reboot");
+          ESP.restart();
+        }
       });
 }

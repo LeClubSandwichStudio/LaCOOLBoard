@@ -9,7 +9,9 @@
 
 #define HTTP_USERNAME "admin"
 #define HTTP_PASSWORD "admin"
-
+#define WIFI_POOR_SIGNAL_THREESHOLD -75
+#define WIFI_MAX_POWER 0.25
+#define WIFI_CONNECT_TIMEOUT_SECONDS 25
 #define SSID_MAX_LENGHT 32
 
 class CoolWebServer {
@@ -43,12 +45,13 @@ public:
   void operator=(CoolWifi const &) = delete;
   uint8_t getWifiCount();
   bool getPublicIp(String &ip);
-  static void printStatus(wl_status_t status);
+  String StringStatus(wl_status_t status);
   WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
   int getIndexOfMaximumValue(int16_t *array, int size);
   void setupHandlers();
   bool mdnsState = false;
-  
+  uint8_t connect(String ssid, String pass);
+  int lostConnections = -1;
 private:
   CoolWifi() {}
 };
