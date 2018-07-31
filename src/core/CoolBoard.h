@@ -35,7 +35,7 @@
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
-#include "CoolPubSubClient.h"
+#include "PubSubClient.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 
@@ -95,7 +95,7 @@ private:
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;
   CoolBoardActuator coolBoardActuator;
-  CoolPubSubClient *coolPubSubClient = new CoolPubSubClient;
+  PubSubClient *coolPubSubClient = new PubSubClient;
   WiFiClientSecure *wifiClientSecure = new WiFiClientSecure;
   bool ireneActive = false;
   bool jetpackActive = false;
