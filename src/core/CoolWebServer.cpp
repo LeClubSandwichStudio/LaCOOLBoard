@@ -1,4 +1,5 @@
 #include "CoolAsyncEditor.h"
+#include "CoolConfig.h"
 #include "WiFiUdp.h"
 #include <CoolLog.h>
 #include <CoolWebServer.h>
@@ -13,7 +14,11 @@ String handleMessageReceived;
 
 bool CoolWebServer::begin() {
   DEBUG_LOG("AsyncWebServer begin");
+
+  CoolConfig config("/coolBoardConfig.json");
+  JsonObject &json = config.get();
   this->isRunning = true;
+  config.set<bool>(json, "webServer", isRunning, true);
   String tempMAC = WiFi.macAddress();
   tempMAC.replace(":", "");
   String name = "CoolBoard-" + tempMAC;
@@ -29,12 +34,11 @@ bool CoolWebServer::begin() {
   });
   server.addHandler(&events);
   this->requestConfiguration();
-  CoolAsyncEditor coolAsyncEditor;
-  if (coolAsyncEditor.beginAdminCredential()) {
+  if (CoolAsyncEditor::getInstance().beginAdminCredential()) {
     server.serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.htm")
-        .setAuthentication(coolAsyncEditor.HTTPuserName.c_str(),
-                           coolAsyncEditor.HTTPpassword.c_str());
+        .setAuthentication(CoolAsyncEditor::getInstance().HTTPuserName.c_str(),
+                           CoolAsyncEditor::getInstance().HTTPpassword.c_str());
   } else {
     server.serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.htm")
@@ -42,8 +46,8 @@ bool CoolWebServer::begin() {
   }
   this->onNotFoundConfig();
 #if ASYNC_TCP_SSL_ENABLED
-  server.beginSecure(coolAsyncEditor.read("/certificate.bin").c_str(),
-                     coolAsyncEditor.read("/privateKey.bin").c_str(), "admin");
+  server.beginSecure(CoolAsyncEditor::getInstance().read("/certificate.bin").c_str(),
+                     CoolAsyncEditor::getInstance().read("/privateKey.bin").c_str(), "admin");
 #else
   server.begin();
 #endif
@@ -58,6 +62,9 @@ void CoolWebServer::end() {
     udp.stopAll();
     WiFi.mode(WIFI_STA);
     this->isRunning = false;
+    CoolConfig config("/coolBoardConfig.json");
+    JsonObject &json = config.get();
+    config.set<bool>(json, "webServer", isRunning, true);
     DEBUG_LOG("AsyncWebServer disconnected!");
   } else {
     DEBUG_LOG("AsyncWebServer is already closed!");
@@ -102,8 +109,7 @@ void CoolWebServer::requestConfiguration() {
                 if (root["ssid"].success() && root["pass"].success()) {
                   INFO_VAR("New SSID received:", root.get<String>("ssid"));
                   DEBUG_VAR("pass: :", root.get<String>("pass"));
-                  CoolAsyncEditor coolAsyncEditor;
-                  if (coolAsyncEditor.addNewWifi(root.get<String>("ssid"),
+                  if (CoolAsyncEditor::getInstance().addNewWifi(root.get<String>("ssid"),
                                                  root.get<String>("pass"))) {
                     request->send(201);
                   } else {
@@ -147,9 +153,8 @@ void CoolWebServer::requestConfiguration() {
               }
               if (index + len == total) {
                 DEBUG_VAR("BodyEnd: ", total);
-                CoolAsyncEditor coolAsyncEditor;
                 DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
-                coolAsyncEditor.reWriteWifi(handleMessageReceived);
+                CoolAsyncEditor::getInstance().reWriteWifi(handleMessageReceived);
                 request->send(201);
                 handleMessageReceived = "";
               }
@@ -190,44 +195,40 @@ void CoolWebServer::requestConfiguration() {
   });
 
   server.on("/wifi/saved", HTTP_GET, [](AsyncWebServerRequest *request) {
-    CoolAsyncEditor coolAsyncEditor;
     int params = request->params();
     if (params == 0) {
-      request->send(200, "text/json", coolAsyncEditor.read("/wifiConfig.json"));
+      request->send(200, "text/json", CoolAsyncEditor::getInstance().read("/wifiConfig.json"));
     }
     for (int i = 0; i < params; i++) {
       AsyncWebParameter *p = request->getParam(i);
       if (!p->isFile() && !p->isPost()) {
         Serial.printf("GET[%s]: WiFi:%s\n", p->name().c_str(),
                       p->value().c_str());
-        CoolAsyncEditor coolAsyncEditor;
-        if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
+        if (CoolAsyncEditor::getInstance().getSavedWifi(p->value()) == "") {
           request->send(404);
         } else {
           request->send(200, "text/json",
-                        coolAsyncEditor.getSavedWifi(p->value()));
+                        CoolAsyncEditor::getInstance().getSavedWifi(p->value()));
         }
       }
     }
   });
-  // FIX ME:
+
   server.on("/wifi/connect", HTTP_GET, [](AsyncWebServerRequest *request) {
-    CoolAsyncEditor coolAsyncEditor;
     int params = request->params();
     for (int i = 0; i < params; i++) {
       AsyncWebParameter *p = request->getParam(i);
       if (!p->isFile() && !p->isPost()) {
         Serial.printf("GET[%s]: WiFi:%s\n", p->name().c_str(),
                       p->value().c_str());
-        CoolAsyncEditor coolAsyncEditor;
-        if (coolAsyncEditor.getSavedWifi(p->value()) == "") {
+        if (CoolAsyncEditor::getInstance().getSavedWifi(p->value()) == "") {
           request->send(404);
         } else {
           CoolWifi::getInstance().SSID =
-              coolAsyncEditor.getSavedCredentialFromIndex(
+              CoolAsyncEditor::getInstance().getSavedCredentialFromIndex(
                   atoi(p->value().c_str()), "ssid");
           CoolWifi::getInstance().pass =
-              coolAsyncEditor.getSavedCredentialFromIndex(
+              CoolAsyncEditor::getInstance().getSavedCredentialFromIndex(
                   atoi(p->value().c_str()), "pass");
           CoolWifi::getInstance().haveToDo = true;
         }
@@ -275,8 +276,7 @@ void CoolWebServer::requestConfiguration() {
   // });
 
   server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request) {
-    CoolAsyncEditor coolAsyncEditor;
-    String descriptor = coolAsyncEditor.getSdpConfig();
+    String descriptor = CoolAsyncEditor::getInstance().getSdpConfig();
     request->send(200, "text/xml", descriptor);
   });
 }

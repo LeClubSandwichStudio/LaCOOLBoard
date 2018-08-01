@@ -2,7 +2,7 @@
 patch_dir=$(dirname $0)
 set -e
 echo "Setting up esp8266 development Arduino SDK..."
-commit_sha1=ab7e109e4c1e30c190279cc877601789c62501ca
+commit_sha=ab7e109e4c1e30c190279cc877601789c62501ca1
 framework_dir=${patch_dir}/framework-arduinoespressif8266
 target_dir=${HOME}/.platformio/packages/framework-arduinoespressif8266
 if [ ! -d "${framework_dir}" ]; then

@@ -25,27 +25,22 @@
 
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "CoolAsyncEditor.h"
 
 CoolConfig::CoolConfig(const char *path) : path(path) {};
 
 bool CoolConfig::readFileAsJson() {
-  File file = SPIFFS.open(this->path, "r");
-
-  if (!file) {
-    ERROR_VAR("Failed to open file for reading:", path);
+  if (!CoolAsyncEditor::getInstance().exist(this->path)) {
+    ERROR_VAR("File does not exists:", path);
     return (false);
   }
-  String data = file.readString();
-  this->json = this->buffer.parse(data);
-
+  this->json = this->buffer.parse(CoolAsyncEditor::getInstance().read(this->path));
   if (!this->json.success()) {
-    file.close();
     ERROR_VAR("Failed to parse file as JSON:", this->path);
     return (false);
   }
   DEBUG_VAR("Reading configuration file as JSON:", this->path);
   DEBUG_JSON("Configuration JSON:", this->json);
-  file.close();
   return (true);
 }
 
@@ -54,13 +49,14 @@ JsonObject &CoolConfig::get() { return this->json; }
 void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
 
 bool CoolConfig::writeJsonToFile() {
-  File file = SPIFFS.open(this->path, "w");
-  if (!file) {
+  if (!CoolAsyncEditor::getInstance().exist(this->path)) {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
-  json.printTo(file);
-  file.close();
+  String tmpJson = CoolAsyncEditor::getInstance().read(this->path);
+  json.printTo(tmpJson);
+  CoolAsyncEditor::getInstance().write(this->path,tmpJson);
+  DEBUG_VAR("JSON config is:", tmpJson);
   DEBUG_VAR("Saved JSON config to:", this->path);
   return (true);
 }

@@ -26,6 +26,7 @@
 #include "CoolFileSystem.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "CoolAsyncEditor.h"
 
 #define JSON_FILE_EXT_SIZE 5
 
@@ -33,7 +34,7 @@ static constexpr ConfigFile CONFIG_FILES[] = {
       {"CoolBoard", "/coolBoardConfig.json"},
       {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
       {"CoolBoardActor", "/coolBoardActorConfig.json"},
-      {"rtc", "/rtcConfig.json"},
+      {"externalSensors", "/externalSensorsConfig.json"},
       {"led", "/coolBoardLedConfig.json"},
       {"jetPack", "/jetPackConfig.json"},
       {"irene3000", "/irene3000Config.json"},
@@ -60,14 +61,14 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
     return (false);
   }
   JsonObject &fileJson = config.get();
-  for (auto kv : fileJson) {
-    if (updateJson[kv.key].success()) {
+  for (auto kv : updateJson) {
       fileJson[kv.key] = updateJson[kv.key];
-    }
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
-  if (!config.writeJsonToFile()) {
+  String tmp;
+  fileJson.printTo(tmp);
+  if (!CoolAsyncEditor::getInstance().write(path,tmp)){
     ERROR_VAR("Failed to update configuration file:", path);
     return (false);
   }

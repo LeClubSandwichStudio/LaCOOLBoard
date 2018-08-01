@@ -86,7 +86,7 @@ void CoolBoard::loop() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-    if (!this->isConnected() && !this->coolWebServer.isRunning) {
+  if (!this->isConnected() && !this->coolWebServer.isRunning) {
     this->coolPubSubClient->disconnect();
     this->connect();
   }
@@ -121,8 +121,9 @@ void CoolBoard::loop() {
       root.printTo(data);
       this->mqttLog(data);
       this->previousLogTime = millis();
+      this->webServer = false;
     }
-    if (digitalRead(BOOTSTRAP_PIN) == LOW) {
+    if (digitalRead(BOOTSTRAP_PIN) == LOW || this->webServer) {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
                "configuration...");
       this->coolPubSubClient->disconnect();
@@ -134,12 +135,18 @@ void CoolBoard::loop() {
       }
     } else {
       if (this->coolWebServer.isRunning) {
-        root["state"] = NULL;
+        this->webServer = false;
+        this->configAsChanged = true;
         this->coolWebServer.end();
       }
     }
     INFO_LOG("Listening to update messages...");
     this->mqttListen();
+    // if (this->configAsChanged) {
+    //   this->configAsChanged = false;
+    //   INFO_LOG("Sending all configuration");
+    //   this->sendAllConfig();
+    // }
     if (CoolFileSystem::hasSavedLogs()) {
       INFO_LOG("Sending saved messages...");
     }
@@ -229,7 +236,6 @@ void CoolBoard::handleActuators(JsonObject &reported) {
 bool CoolBoard::shouldLog() {
   unsigned long logIntervalMillis = this->logInterval * 1000;
   unsigned long millisSinceLastLog = millis() - this->previousLogTime;
-
   return (millisSinceLastLog >= logIntervalMillis ||
           this->previousLogTime == 0);
 }
@@ -271,6 +277,7 @@ bool CoolBoard::config() {
   config.set<bool>(json, "externalSensorsActive", this->externalSensorsActive);
   config.set<bool>(json, "sleepActive", this->sleepActive);
   config.set<bool>(json, "manual", this->manual);
+  config.set<bool>(json, "webServer", this->webServer);
   config.set<String>(json, "mqttServer", this->mqttServer);
   INFO_LOG("Main configuration loaded");
   this->coolWebServer.ssdpBegin();
@@ -298,6 +305,10 @@ void CoolBoard::update(const char *answer) {
     if (stateDesired["CoolBoard"]["manual"].success()) {
       this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
+    }
+    if (stateDesired["CoolBoard"]["webServer"].success()) {
+      this->webServer = stateDesired["CoolBoard"]["webServer"].as<bool>();
+      INFO_VAR("WebServer flag received:", this->webServer);
     }
     JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
     if (firmwareJson.success()) {
@@ -352,7 +363,8 @@ void CoolBoard::update(const char *answer) {
         }
       }
     }
-
+    this->configAsChanged = true;
+    INFO_LOG("Configuration has changed... updating files");
     CoolFileSystem::updateConfigFiles(stateDesired);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
@@ -362,19 +374,10 @@ void CoolBoard::update(const char *answer) {
     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
     this->mqttLog(updateAnswer);
-    delay(10);
   } else {
     ERROR_LOG("Failed to parse update message");
   }
-  if (SPIFFS.exists("/configSent.flag")) {
-    if (SPIFFS.remove("/configSent.flag")) {
-      DEBUG_LOG("Delete /configSent.flag");
-    } else {
-      ERROR_LOG("Failed to delete /configSent.flag");
-    }
-  }
   SPIFFS.end();
-  ESP.restart();
 }
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
@@ -428,7 +431,6 @@ void CoolBoard::sendAllConfig() {
 
 void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
   CoolConfig config(filePath);
-
   if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file:", filePath);
     this->spiffsProblem();
@@ -609,10 +611,8 @@ void CoolBoard::mqttsConvert(String cert) {
 }
 
 void CoolBoard::mqttsConfig() {
-  if (SPIFFS.exists("/certificate.bin") && SPIFFS.exists("/privateKey.bin")) {
-    DEBUG_LOG("Loading X509 certificate");
+  if (CoolAsyncEditor::getInstance().exist("/certificate.bin") && CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
     this->mqttsConvert("/certificate.bin");
-    DEBUG_LOG("Loading X509 private key");
     this->mqttsConvert("/privateKey.bin");
     DEBUG_LOG("Configuring MQTT");
     this->coolPubSubClient->setClient(*this->wifiClientSecure);
@@ -672,6 +672,10 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
   SPIFFS.remove("/otaUpdateConfig.json");
   SPIFFS.end();
   delay(100);
+  if (WiFi.status() != WL_CONNECTED) {
+    INFO_LOG("WiFi not connected, connecting...");
+    CoolWifi::getInstance().autoConnect();
+  }
   if (WiFi.status() == WL_CONNECTED) {
     Serial.flush();
     Serial.setDebugOutput(true);

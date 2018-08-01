@@ -2,15 +2,37 @@
 #include "ArduinoJson.h"
 #include "CoolLog.h"
 #include <FS.h>
+#include <Stream.h>
 #include <avr/pgmspace.h>
 #include <user_interface.h>
 
 CoolAsyncEditor::CoolAsyncEditor(const fs::FS &fs) : _fs(fs) {}
 
-void CoolAsyncEditor::write(String patch, String data) {
+CoolAsyncEditor &CoolAsyncEditor::getInstance() {
+  static CoolAsyncEditor instance;
+  return instance;
+}
+
+bool CoolAsyncEditor::write(String patch, String data) {
   File tmp = _fs.open(patch, "w");
+  if (!tmp)
+    return false;
+  DEBUG_VAR("Writing on spiffs: ", data);
   tmp.write((const uint8_t *)data.c_str(), data.length());
   tmp.close();
+  return true;
+}
+
+File CoolAsyncEditor::loadFile(String file) {
+  File tmp = _fs.open(file, "r");
+  return (tmp);
+}
+
+uint32_t CoolAsyncEditor::size(String file) {
+  File tmp = _fs.open(file, "r");
+  uint32_t size = tmp.size();
+  tmp.close();
+  return (size);
 }
 
 bool CoolAsyncEditor::remove(String patch) { return (_fs.remove(patch)); }
@@ -151,15 +173,15 @@ bool CoolAsyncEditor::beginAdminCredential() {
   DynamicJsonBuffer json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/webServerCredentials.json").c_str());
-      if(jsonBuf["username"].success() && jsonBuf["password"].success() ){
-      HTTPuserName = jsonBuf.get<String>("username");
-      HTTPpassword = jsonBuf.get<String>("password");
-      return true;
-      } else{
-        ERROR_LOG("Impossible to get HTTP credential, need to reset.");
-        this->resetAdminCredential();
-        return false;
-      } 
+  if (jsonBuf["username"].success() && jsonBuf["password"].success()) {
+    HTTPuserName = jsonBuf.get<String>("username");
+    HTTPpassword = jsonBuf.get<String>("password");
+    return true;
+  } else {
+    ERROR_LOG("Impossible to get HTTP credential, need to reset.");
+    this->resetAdminCredential();
+    return false;
+  }
 }
 
 bool CoolAsyncEditor::configureAdminCredential(String userName,
@@ -177,7 +199,7 @@ bool CoolAsyncEditor::configureAdminCredential(String userName,
   return true;
 }
 
-bool CoolAsyncEditor::resetAdminCredential(){
+bool CoolAsyncEditor::resetAdminCredential() {
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
   root["username"] = "admin";

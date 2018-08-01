@@ -34,9 +34,10 @@
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
-#include "CoolPubSubClient.h"
+#include "PubSubClient.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include "CoolAsyncEditor.h"
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
@@ -44,6 +45,7 @@
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
 #define LOW_POWER_SLEEP 300
+#define MAX_ACTIVE_TIME_WEBSERVER 900
 
 class CoolBoard {
 
@@ -88,17 +90,20 @@ private:
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
   CoolWebServer coolWebServer;
+  CoolAsyncEditor coolAsyncEditor;
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;
   CoolBoardActuator coolBoardActuator;
-  CoolPubSubClient *coolPubSubClient = new CoolPubSubClient;
+  PubSubClient *coolPubSubClient = new PubSubClient;
   WiFiClientSecure *wifiClientSecure = new WiFiClientSecure;
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool webServer = false;
+  bool configAsChanged = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;

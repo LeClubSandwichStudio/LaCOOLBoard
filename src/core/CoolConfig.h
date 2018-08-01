@@ -33,7 +33,6 @@ private:
   const char *path;
   JsonVariant json;
   DynamicJsonBuffer buffer;
-
 public:
   CoolConfig(const char *path);
   bool readFileAsJson();

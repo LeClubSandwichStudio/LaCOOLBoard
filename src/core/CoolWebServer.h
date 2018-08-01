@@ -20,7 +20,6 @@ public:
   void end();
   bool isRunning = false;
   void ssdpBegin();
-
 private:
   void requestConfiguration();
   void onNotFoundConfig();
