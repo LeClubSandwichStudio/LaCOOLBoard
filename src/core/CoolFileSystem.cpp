@@ -22,26 +22,21 @@
  */
 
 #include <FS.h>
-
-#include "CoolFileSystem.h"
-#include "CoolConfig.h"
-#include "CoolLog.h"
 #include "CoolAsyncEditor.h"
+#include "CoolConfig.h"
+#include "CoolFileSystem.h"
+#include "CoolLog.h"
 
 #define JSON_FILE_EXT_SIZE 5
 
-static constexpr ConfigFile CONFIG_FILES[] = {
-      {"CoolBoard", "/coolBoardConfig.json"},
-      {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
-      {"CoolBoardActor", "/coolBoardActorConfig.json"},
-      {"externalSensors", "/externalSensorsConfig.json"},
-      {"led", "/coolBoardLedConfig.json"},
-      {"jetPack", "/jetPackConfig.json"},
-      {"irene3000", "/irene3000Config.json"},
-      {"mqtt", "/mqttConfig.json"},
-      {"wifi", "/wifiConfig.json"}};
+#define JSON_FILE_EXT_SIZE 5
 
-static const uint8_t CONFIG_FILES_COUNT = 9;
+static constexpr ConfigFile CONFIG_FILES[] = {{"general", "/general.json"},
+                                              {"sensors", "/sensors.json"},
+                                              {"actuators", "/actuators.json"},
+                                              {"wifi", "/wifiConfig.json"}};
+
+static const uint8_t CONFIG_FILES_COUNT = 4;
 
 void CoolFileSystem::updateConfigFiles(JsonObject &root) {
   for (uint8_t i = 0; i < CONFIG_FILES_COUNT; ++i) {
@@ -62,13 +57,13 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   }
   JsonObject &fileJson = config.get();
   for (auto kv : updateJson) {
-      fileJson[kv.key] = updateJson[kv.key];
+    fileJson[kv.key] = updateJson[kv.key];
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
   String tmp;
   fileJson.printTo(tmp);
-  if (!CoolAsyncEditor::getInstance().write(path,tmp)){
+  if (!CoolAsyncEditor::getInstance().write(path, tmp)) {
     ERROR_VAR("Failed to update configuration file:", path);
     return (false);
   }
@@ -154,7 +149,7 @@ bool CoolFileSystem::deleteSavedLog(int num) {
   char logName[32];
   snprintf(logName, 32, "/log/%d.json", num);
 
-  if (SPIFFS.remove(logName)){
+  if (SPIFFS.remove(logName)) {
     INFO_VAR("Deleted log file:", logName);
     return true;
   } else {

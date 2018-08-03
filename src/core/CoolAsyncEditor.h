@@ -16,7 +16,7 @@ public:
   String HTTPpassword;
   File loadFile(String file);
   CoolAsyncEditor(const fs::FS &fs = SPIFFS);
-  virtual bool write(String patch, String data);
+  virtual bool write(String patch, String &data);
   virtual String read(String patch);
   virtual char *readChars(String patch);
   virtual bool remove(String patch);

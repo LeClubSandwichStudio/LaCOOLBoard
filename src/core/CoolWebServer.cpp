@@ -46,8 +46,9 @@ bool CoolWebServer::begin() {
   }
   this->onNotFoundConfig();
 #if ASYNC_TCP_SSL_ENABLED
-  server.beginSecure(CoolAsyncEditor::getInstance().read("/certificate.bin").c_str(),
-                     CoolAsyncEditor::getInstance().read("/privateKey.bin").c_str(), "admin");
+  server.beginSecure(
+      CoolAsyncEditor::getInstance().read("/certificate.bin").c_str(),
+      CoolAsyncEditor::getInstance().read("/privateKey.bin").c_str(), "admin");
 #else
   server.begin();
 #endif
@@ -103,14 +104,14 @@ void CoolWebServer::requestConfiguration() {
               }
               if (index + len == total) {
                 DEBUG_VAR("BodyEnd: %u B\n", total);
-                DynamicJsonBuffer jsonBuffer;
+                StaticJsonBuffer<256> jsonBuffer;
                 JsonObject &root =
                     jsonBuffer.parseObject(handleMessageReceived);
                 if (root["ssid"].success() && root["pass"].success()) {
                   INFO_VAR("New SSID received:", root.get<String>("ssid"));
                   DEBUG_VAR("pass: :", root.get<String>("pass"));
-                  if (CoolAsyncEditor::getInstance().addNewWifi(root.get<String>("ssid"),
-                                                 root.get<String>("pass"))) {
+                  if (CoolAsyncEditor::getInstance().addNewWifi(
+                          root.get<String>("ssid"), root.get<String>("pass"))) {
                     request->send(201);
                   } else {
                     request->send(500);
@@ -154,7 +155,8 @@ void CoolWebServer::requestConfiguration() {
               if (index + len == total) {
                 DEBUG_VAR("BodyEnd: ", total);
                 DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
-                CoolAsyncEditor::getInstance().reWriteWifi(handleMessageReceived);
+                CoolAsyncEditor::getInstance().reWriteWifi(
+                    handleMessageReceived);
                 request->send(201);
                 handleMessageReceived = "";
               }
@@ -197,7 +199,8 @@ void CoolWebServer::requestConfiguration() {
   server.on("/wifi/saved", HTTP_GET, [](AsyncWebServerRequest *request) {
     int params = request->params();
     if (params == 0) {
-      request->send(200, "text/json", CoolAsyncEditor::getInstance().read("/wifiConfig.json"));
+      request->send(200, "text/json",
+                    CoolAsyncEditor::getInstance().read("/wifiConfig.json"));
     }
     for (int i = 0; i < params; i++) {
       AsyncWebParameter *p = request->getParam(i);
@@ -207,8 +210,9 @@ void CoolWebServer::requestConfiguration() {
         if (CoolAsyncEditor::getInstance().getSavedWifi(p->value()) == "") {
           request->send(404);
         } else {
-          request->send(200, "text/json",
-                        CoolAsyncEditor::getInstance().getSavedWifi(p->value()));
+          request->send(
+              200, "text/json",
+              CoolAsyncEditor::getInstance().getSavedWifi(p->value()));
         }
       }
     }
@@ -359,7 +363,7 @@ CoolWifi &CoolWifi::getInstance() {
 
 bool CoolWifi::manageConnectionPortal() {
   String tmp;
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<256> json;
   JsonObject &root = json.createObject();
   if (this->haveToDo) {
     if (this->SSID != WiFi.SSID() && this->isAvailable(this->SSID)) {

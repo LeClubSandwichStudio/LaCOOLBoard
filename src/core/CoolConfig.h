@@ -23,7 +23,7 @@
 
 #ifndef COOLCONFIG_H
 #define COOLCONFIG_H
-
+#define MAX_DESIRED_UPDATE_SIZE 1024
 #include "ArduinoJson.h"
 #include <Arduino.h>
 
@@ -36,7 +36,7 @@ private:
 public:
   CoolConfig(const char *path);
   bool readFileAsJson();
-  void setConfig(JsonVariant json);
+  void setConfig(JsonVariant &json);
   JsonObject &get();
   bool writeJsonToFile();
   template <typename T>

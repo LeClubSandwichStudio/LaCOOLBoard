@@ -34,7 +34,8 @@ bool CoolConfig::readFileAsJson() {
     ERROR_VAR("File does not exists:", path);
     return (false);
   }
-  this->json = this->buffer.parse(CoolAsyncEditor::getInstance().read(this->path));
+    File file = SPIFFS.open(this->path,"r");
+  this->json = this->buffer.parse(file);
   if (!this->json.success()) {
     ERROR_VAR("Failed to parse file as JSON:", this->path);
     return (false);
@@ -46,17 +47,19 @@ bool CoolConfig::readFileAsJson() {
 
 JsonObject &CoolConfig::get() { return this->json; }
 
-void CoolConfig::setConfig(JsonVariant json) { this->json = json; }
+void CoolConfig::setConfig(JsonVariant &json) { this->json = json; }
 
 bool CoolConfig::writeJsonToFile() {
   if (!CoolAsyncEditor::getInstance().exist(this->path)) {
     ERROR_VAR("Failed to open file for writing:", this->path);
     return (false);
   }
-  String tmpJson = CoolAsyncEditor::getInstance().read(this->path);
-  json.printTo(tmpJson);
-  CoolAsyncEditor::getInstance().write(this->path,tmpJson);
-  DEBUG_VAR("JSON config is:", tmpJson);
+  File file = SPIFFS.open(this->path,"r");
+  // String tmpJson = CoolAsyncEditor::getInstance().read(this->path);
+  json.printTo(file);
+  // CoolAsyncEditor::getInstance().write(this->path,tmpJson);
+  DEBUG_LOG("JSON config is:");
+  json.printTo(Serial);
   DEBUG_VAR("Saved JSON config to:", this->path);
   return (true);
 }

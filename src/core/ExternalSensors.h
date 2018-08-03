@@ -45,7 +45,7 @@ private:
     String kind1 = "";
     String kind2 = "";
     String kind3 = "";
-  } sensors[10];
+  } sensors[7];
   void printConf(Sensor sensors[]);
   uint8_t sensorsNumber = 0;
 };

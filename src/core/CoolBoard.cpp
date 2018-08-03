@@ -87,18 +87,18 @@ void CoolBoard::begin() {
   delay(100);
   this->mqttsConfig();
   delay(100);
-  if (!configG.writeJsonToFile()) {
-    INFO_LOG("failed to write /general.json");
-    this->spiffsProblem();
-  }
-  if (!configS.writeJsonToFile()) {
-    INFO_LOG("failed to write /sensors.json");
-    this->spiffsProblem();
-  }
-  if (!configA.writeJsonToFile()) {
-    INFO_LOG("failed to write /actuators.json");
-    this->spiffsProblem();
-  }
+  // if (!configG.writeJsonToFile()) {
+  //   INFO_LOG("failed to write /general.json");
+  //   this->spiffsProblem();
+  // }
+  // if (!configS.writeJsonToFile()) {
+  //   INFO_LOG("failed to write /sensors.json");
+  //   this->spiffsProblem();
+  // }
+  // if (!configA.writeJsonToFile()) {
+  //   INFO_LOG("failed to write /actuators.json");
+  //   this->spiffsProblem();
+  // }
   this->mqttsConfig();
   delay(100);
   SPIFFS.end();
@@ -118,15 +118,15 @@ void CoolBoard::loop() {
   if (!rtcSynced) {
     this->clockProblem();
   } else {
-    if (!SPIFFS.exists("/configSent.flag")) {
-      this->sendAllConfig();
-      File f;
-      if (!(f = SPIFFS.open("/configSent.flag", "w"))) {
-        ERROR_LOG("Can't create file configSent.flag in SPIFFS");
-      } else {
-        f.close();
-      }
-    }
+    // if (!SPIFFS.exists("/configSent.flag")) {
+    //   this->sendAllConfig();
+    //   File f;
+    //   if (!(f = SPIFFS.open("/configSent.flag", "w"))) {
+    //     ERROR_LOG("Can't create file configSent.flag in SPIFFS");
+    //   } else {
+    //     f.close();
+    //   }
+    // }
     DynamicJsonBuffer jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     JsonObject &state = root.createNestedObject("state");
@@ -145,6 +145,8 @@ void CoolBoard::loop() {
       this->mqttLog(data);
       this->previousLogTime = millis();
       this->webServer = false;
+    } else {
+      root.remove("state");
     }
     if (digitalRead(BOOTSTRAP_PIN) == LOW || this->webServer) {
       INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
@@ -162,13 +164,14 @@ void CoolBoard::loop() {
         this->configAsChanged = true;
         this->coolWebServer.end();
       }
-    }
-    INFO_LOG("Listening to update messages...");
-    this->mqttListen();
-    this->update(this->updateAnswer);
 
-    if (CoolFileSystem::hasSavedLogs()) {
-      INFO_LOG("Sending saved messages...");
+      INFO_LOG("Listening to update messages...");
+      this->mqttListen();
+      this->update(this->updateAnswer);
+      updateAnswer = "";
+      if (CoolFileSystem::hasSavedLogs()) {
+        INFO_LOG("Sending saved messages...");
+      }
     }
   }
   SPIFFS.end();
@@ -304,77 +307,92 @@ void CoolBoard::printConf() {
 }
 
 void CoolBoard::update(String &answer) {
+  delay(1000);
+  bool answerOversize = false;
+  if (answer.length() > MAX_DESIRED_UPDATE_SIZE) {
+    this->coolPubSubClient->disconnect();
+    delay(1000);
+    this->coolPubSubClient->disconnect();
+    delay(1000);
+    INFO_LOG(
+        "Coolboard is disconnected to get more Free memory to setup the new "
+        "Configuration");
+    answerOversize = true;
+    // disconnect to get more free heap to manage our json buffer
+  }
   INFO_LOG("Received new MQTT message");
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
-  answer = "";
   if (stateDesired.success()) {
     DEBUG_JSON("Desired state JSON:", stateDesired);
-    if (stateDesired["CoolBoard"]["manual"].success()) {
-      this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
-      INFO_VAR("Manual flag received:", this->manual);
-    }
-    if (stateDesired["CoolBoard"]["webServer"].success()) {
-      this->webServer = stateDesired["CoolBoard"]["webServer"].as<bool>();
-      INFO_VAR("WebServer flag received:", this->webServer);
-    }
-    JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
-    if (firmwareJson.success()) {
-      String firmwareVersion = firmwareJson.get<String>("firmwareVersion");
-      if (String(COOL_FW_VERSION) == firmwareVersion) {
-        INFO_LOG("You firmware version is up to date!");
-        stateDesired["CoolBoard"]["firmwareUpdate"] = NULL;
-      } else {
-        File otaUpdateConfig = SPIFFS.open("/otaUpdateConfig.json", "w");
-        if (!otaUpdateConfig) {
-          ERROR_LOG("Failed to create firmware update configuration file!");
-        } else {
-          DEBUG_VAR("Firmware update scheduled, target version:",
-                    firmwareVersion);
-          firmwareJson.printTo(otaUpdateConfig);
-          otaUpdateConfig.close();
-          DEBUG_JSON("Saved OTA HTTPS update configuration to: ", firmwareJson);
-          INFO_LOG("New firmware update received, your board will now reboot "
-                   "to apply...");
-          delay(100);
-          ESP.restart();
-        }
-      }
-    }
+    // if (stateDesired["CoolBoard"]["manual"].success()) {
+    //   this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
+    //   INFO_VAR("Manual flag received:", this->manual);
+    // }
+    // if (stateDesired["CoolBoard"]["webServer"].success()) {
+    //   this->webServer = stateDesired["CoolBoard"]["webServer"].as<bool>();
+    //   INFO_VAR("WebServer flag received:", this->webServer);
+    // }
+    // JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
+    // if (firmwareJson.success()) {
+    //   String firmwareVersion = firmwareJson.get<String>("firmwareVersion");
+    //   if (String(COOL_FW_VERSION) == firmwareVersion) {
+    //     INFO_LOG("You firmware version is up to date!");
+    //     stateDesired["CoolBoard"]["firmwareUpdate"] = NULL;
+    //   } else {
+    //     File otaUpdateConfig = SPIFFS.open("/otaUpdateConfig.json", "w");
+    //     if (!otaUpdateConfig) {
+    //       ERROR_LOG("Failed to create firmware update configuration file!");
+    //     } else {
+    //       DEBUG_VAR("Firmware update scheduled, target version:",
+    //                 firmwareVersion);
+    //       firmwareJson.printTo(otaUpdateConfig);
+    //       otaUpdateConfig.close();
+    //       DEBUG_JSON("Saved OTA HTTPS update configuration to: ",
+    //       firmwareJson); INFO_LOG("New firmware update received, your board
+    //       will now reboot "
+    //                "to apply...");
+    //       delay(100);
+    //       ESP.restart();
+    //     }
+    //   }
+    // }
 
     this->coolBoardLed.strobe(BLUE, 0.5);
 
-    if (this->manual) {
-      INFO_LOG("Entering actuators manual mode");
-      for (auto kv : stateDesired) {
-        DEBUG_VAR("Writing to:", kv.key);
-        DEBUG_VAR("State:", kv.value.as<bool>());
+    // if (this->manual) {
+    //   INFO_LOG("Entering actuators manual mode");
+    //   for (auto kv : stateDesired) {
+    //     DEBUG_VAR("Writing to:", kv.key);
+    //     DEBUG_VAR("State:", kv.value.as<bool>());
 
-        if (strcmp(kv.key, "Act0") == 0) {
-          this->jetPack.writeBit(0, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act1") == 0) {
-          this->jetPack.writeBit(1, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act2") == 0) {
-          this->jetPack.writeBit(2, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act3") == 0) {
-          this->jetPack.writeBit(3, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act4") == 0) {
-          this->jetPack.writeBit(4, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act5") == 0) {
-          this->jetPack.writeBit(5, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act6") == 0) {
-          this->jetPack.writeBit(6, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act7") == 0) {
-          this->jetPack.writeBit(7, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "ActB") == 0) {
-          this->coolBoardActuator.write(kv.value.as<bool>());
-        }
-      }
-    }
+    //     if (strcmp(kv.key, "Act0") == 0) {
+    //       this->jetPack.writeBit(0, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act1") == 0) {
+    //       this->jetPack.writeBit(1, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act2") == 0) {
+    //       this->jetPack.writeBit(2, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act3") == 0) {
+    //       this->jetPack.writeBit(3, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act4") == 0) {
+    //       this->jetPack.writeBit(4, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act5") == 0) {
+    //       this->jetPack.writeBit(5, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act6") == 0) {
+    //       this->jetPack.writeBit(6, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "Act7") == 0) {
+    //       this->jetPack.writeBit(7, kv.value.as<bool>());
+    //     } else if (strcmp(kv.key, "ActB") == 0) {
+    //       this->coolBoardActuator.write(kv.value.as<bool>());
+    //     }
+    //   }
+    // }
     this->configAsChanged = true;
     INFO_LOG("Configuration has changed... updating files");
     CoolFileSystem::updateConfigFiles(stateDesired);
+    root.remove("state");
+    root.remove("metadata");
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
     state["reported"] = stateDesired;
@@ -382,10 +400,16 @@ void CoolBoard::update(String &answer) {
     String updateAnswer;
     newRoot.printTo(updateAnswer);
     DEBUG_VAR("Preparing answer message: ", updateAnswer);
-    this->mqttLog(updateAnswer);
+    if (answerOversize) {
+      CoolFileSystem::saveLogToFile(updateAnswer.c_str());
+    } else {
+      this->mqttLog(updateAnswer);
+    }
   } else {
     ERROR_LOG("Failed to parse update message");
+    // }
   }
+  updateAnswer = "";
   SPIFFS.end();
 }
 
@@ -602,6 +626,8 @@ void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
     this->updateAnswer += (char)payload[i];
   }
   this->updateAnswer[length] = '\0';
+  DEBUG_VAR("mqttCallback size: ", length);
+  DEBUG_VAR("mqttCallback: ", updateAnswer);
 }
 
 void CoolBoard::mqttsConvert(String cert) {
@@ -619,6 +645,7 @@ void CoolBoard::mqttsConvert(String cert) {
 }
 
 void CoolBoard::mqttsConfig() {
+  updateAnswer = "";
   if (CoolAsyncEditor::getInstance().exist("/certificate.bin") &&
       CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
     this->mqttsConvert("/certificate.bin");
@@ -650,7 +677,7 @@ void CoolBoard::tryFirmwareUpdate() {
   File config = SPIFFS.open("/otaUpdateConfig.json", "r");
   if (config) {
     INFO_LOG("Parsing firmware update configuration...");
-    DynamicJsonBuffer buffer;
+    StaticJsonBuffer<256> buffer;
     JsonObject &json = buffer.parseObject(config.readString());
     DEBUG_JSON("Firmware update json:", json);
     INFO_VAR("Target version:", json.get<String>("firmwareVersion"));

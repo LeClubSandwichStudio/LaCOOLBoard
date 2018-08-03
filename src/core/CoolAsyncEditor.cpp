@@ -13,7 +13,7 @@ CoolAsyncEditor &CoolAsyncEditor::getInstance() {
   return instance;
 }
 
-bool CoolAsyncEditor::write(String patch, String data) {
+bool CoolAsyncEditor::write(String patch, String &data) {
   File tmp = _fs.open(patch, "w");
   if (!tmp)
     return false;
@@ -65,7 +65,7 @@ bool CoolAsyncEditor::addNewWifi(String ssid, String pass) {
 }
 
 String CoolAsyncEditor::getSavedWifi(String index) {
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<256> json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/wifiConfig.json").c_str());
   if (jsonBuf["Wifi" + index].success()) {
@@ -157,7 +157,7 @@ String CoolAsyncEditor::getUUID() {
 }
 
 String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<64> json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/wifiConfig.json").c_str());
   if (jsonBuf["Wifi" + String(i)].success()) {
@@ -170,7 +170,7 @@ String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
 }
 
 bool CoolAsyncEditor::beginAdminCredential() {
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<64> json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/webServerCredentials.json").c_str());
   if (jsonBuf["username"].success() && jsonBuf["password"].success()) {
@@ -186,7 +186,7 @@ bool CoolAsyncEditor::beginAdminCredential() {
 
 bool CoolAsyncEditor::configureAdminCredential(String userName,
                                                String password) {
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<64> json;
   JsonObject &root = json.createObject();
   root["username"] = userName;
   root["password"] = password;
@@ -200,7 +200,7 @@ bool CoolAsyncEditor::configureAdminCredential(String userName,
 }
 
 bool CoolAsyncEditor::resetAdminCredential() {
-  DynamicJsonBuffer json;
+  StaticJsonBuffer<64> json;
   JsonObject &root = json.createObject();
   root["username"] = "admin";
   root["password"] = "admin";
