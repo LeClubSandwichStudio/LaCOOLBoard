@@ -30,6 +30,7 @@
 #include "CoolBoardLed.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "CoolTime.h"
 #include "Irene3000.h"
 
 void Irene3000::begin() {
@@ -70,51 +71,67 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     led.write(RED);
     INFO_LOG("ph7 calibration finished, hold button to start pH4 calibration");
     this->waitForButtonPress();
-    led.write(FUCHSIA);
+    led.write(BRIGHT_RED);
     INFO_LOG("Starting pH 4 calibration for 30 seconds");
     delay(30000);
     this->calibratepH4();
-    this->config(true);
-    led.write(WHITE);
+    this->saveCalibrationDate();
+    CoolConfig config("coolConfig.json");
+    if (!config.readFileAsJson()) {
+      ERROR_LOG("Failed to read configuration");
+    }
+    JsonObject &root = config.get();
+    this->config(root["sensors"], true);
+    led.write(FUCHSIA);
     INFO_LOG("Calibration finished, hold button to exit calibration");
     this->waitForButtonPress();
+    led.write(OFF);
   }
 }
 
 void Irene3000::read(JsonObject &root) {
   if (waterTemp.active) {
-    readTemp(root);
+    root.createNestedObject("PT1000");
+    this->readTemp(root["PT1000"]);
     if (phProbe.active) {
-      readPh(root);
+      root.createNestedObject("phProbe");
+      this->readPh(root["phProbe"]);
+      // readLastCalibrationDate(root);
     }
   }
   if (adc2.active) {
-    root[adc2.type] = this->readADSChannel2();
+    root.createNestedObject("adc2");
+    if (this->adc2.type == "DFrobotEC") {
+      this->readEC(root["adc2"]);
+    } else {
+    root["adc2"][adc2.type] = this->readADSChannel2();
+    }
   }
   DEBUG_JSON("Irene data:", root);
 }
 
-bool Irene3000::config(bool overwrite) {
-  CoolConfig config("/irene3000Config.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to overwrite IRN3000 configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-
-  config.set<bool>(json["waterTemp"], "active", this->waterTemp.active, overwrite);
-  config.set<bool>(json["phProbe"], "active", this->phProbe.active, overwrite);
-  config.set<bool>(json["adc2"], "active", this->adc2.active, overwrite);
-  config.set<int>(json["adc2"], "gain", this->adc2.gain, overwrite);
-  config.set<String>(json["adc2"], "type", this->adc2.type, overwrite);
-  config.set<int>(json, "ph4Cal", this->params.pH4Cal, overwrite);
-  config.set<int>(json, "ph7Cal", this->params.pH7Cal, overwrite);
-  config.set<float>(json, "phStep", this->params.pHStep, overwrite);
-  if (overwrite) {
-    if (!config.writeJsonToFile()) {
-      ERROR_LOG("Failed to save IRN3000 configuration");
-      return (false);
+bool Irene3000::config(JsonArray &root, bool overwrite) {
+  for (auto kv : root) {
+    if (kv["key"] == "PT1000") {
+      CoolConfig::set<bool>(kv["measure"], "waterTemp", this->waterTemp.active,
+                            overwrite);
+    } else if (kv["key"] == "phProbe") {
+      CoolConfig::set<bool>(kv["measure"], "phProbe", this->phProbe.active,
+                            overwrite);
+      CoolConfig::set<int>(kv["measure"], "ph4Cal", this->params.pH4Cal,
+                           overwrite);
+      CoolConfig::set<int>(kv["measure"], "ph7Cal", this->params.pH7Cal,
+                           overwrite);
+      CoolConfig::set<float>(kv["measure"], "phStep", this->params.pHStep,
+                             overwrite);
+      CoolConfig::set<String>(kv["measure"], "calibrationDate",
+                              this->params.calibrationDate, overwrite);
+    } else if (kv["key"] == "adc2") {
+      CoolConfig::set<bool>(kv["measure"], "active", this->adc2.active,
+                            overwrite);
+      CoolConfig::set<int>(kv["measure"], "gain", this->adc2.gain, overwrite);
+      CoolConfig::set<String>(kv["measure"], "type", this->adc2.type,
+                              overwrite);
     }
   }
   DEBUG_LOG("IRN3000 configuration loaded");
@@ -127,6 +144,7 @@ void Irene3000::printConf() {
   DEBUG_NBR("  Temperature gain   :", waterTemp.gain, HEX);
   DEBUG_VAR("  pH probe enabled   :", phProbe.active);
   DEBUG_NBR("  pH probe gain      :", phProbe.gain, HEX);
+  DEBUG_VAR("  Last PH calibration:", params.calibrationDate);
   DEBUG_VAR("  ADC2 enabled       :", adc2.active);
   DEBUG_NBR("  ADC2 gain          :", adc2.gain, HEX);
   DEBUG_VAR("  ADC2 type          :", adc2.type);
@@ -157,11 +175,11 @@ void Irene3000::readPh(JsonObject &root) {
       OPAMP_GAIN;
   float phT = 7 - (temporary / params.pHStep);
 
-  DEBUG_VAR("pH value:", phT);
+  DEBUG_VAR("ph value:", phT);
   if (isnan(phT)) {
-    root["pH"] = RawJson("null");
-  }
-  root["pH"] = phT;
+    root["ph"] = RawJson("null");
+  } else
+    root["ph"] = phT;
 }
 
 void Irene3000::readTemp(JsonObject &root) {
@@ -178,22 +196,59 @@ void Irene3000::readTemp(JsonObject &root) {
   T += sqrt((A * A) - 4.0 * B * (1.0 - R));
   T /= (2.0 * B);
 
+  DEBUG_VAR("IRN3000 temperature in °C: ", T);
   if (T > 0 && T < 200) {
-    DEBUG_VAR("IRN3000 temperature in °C: ", T);
-    if (isnan(T)) {
-      root["waterTemp"] = RawJson("null");
-    }
     root["waterTemp"] = T;
   } else {
-    T = 0.0 - A;
-    T -= sqrt((A * A) - 4.0 * B * (1.0 - R));
-    T /= (2.0 * B);
-    DEBUG_VAR("IRN3000 temperature in °C:", T);
-    if (isnan(T)) {
-      root["waterTemp"] = RawJson("null");
-    }
-    root["waterTemp"] = T;
+    root["waterTemp"] = RawJson("null");
   }
+}
+
+float Irene3000::readTemp() {
+  const double A = 3.9083E-3;
+  const double B = -5.775E-7;
+  double T;
+
+  this->ads.setGain(GAIN_EIGHT);
+
+  double adc0 = ads.readADC_SingleEnded(TEMP_CHANNEL);
+  double R = ((adc0 * V_GAIN_8) / 0.095) / 1000;
+
+  T = 0.0 - A;
+  T += sqrt((A * A) - 4.0 * B * (1.0 - R));
+  T /= (2.0 * B);
+  DEBUG_VAR("IRN3000 temperature in °C:", T);
+  return T ;
+}
+
+void Irene3000::readEC(JsonObject &root) {
+  int overSample = 16;
+  float ecCurrent = 0;
+  unsigned long average = 0;
+  unsigned int averageVoltage = 0;
+  //Oversample 64 time to get a good reading
+  for (int i = 0; i<=64; i++) {
+    delay(20);
+    average += readADSChannel2();
+  }
+  average = average / 64;
+  // resolution for ADS1115 is 0.1875 uV per tick
+  averageVoltage = average * 0.1875;
+  DEBUG_VAR("Average RAW : ", average);
+  DEBUG_VAR("Average Voltage : ", averageVoltage);
+  //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
+  float TempCoefficient=1.0+0.0185*(readTemp()-25.0);
+  float CoefficientVolatge=(float)averageVoltage/TempCoefficient;   
+  //1ms/cm<EC<=3ms/cm
+  if(CoefficientVolatge<=448)ecCurrent=6.84*CoefficientVolatge-64.32;   
+  //3ms/cm<EC<=10ms/cm
+  else if(CoefficientVolatge<=1457)ecCurrent=6.98*CoefficientVolatge-127;  
+  //10ms/cm<EC<20ms/cm
+  else ecCurrent=5.3*CoefficientVolatge+2278;
+  //convert us/cm to ms/cm
+  ecCurrent/=1000;    
+  DEBUG_VAR("EC value",ecCurrent);
+  root["EC"] = ecCurrent;
 }
 
 void Irene3000::calibratepH7() {
@@ -210,6 +265,21 @@ void Irene3000::calibratepH4() {
   this->calcpHSlope();
 }
 
+void Irene3000::saveCalibrationDate() {
+  this->params.calibrationDate = CoolTime::getInstance().getIso8601DateTime();
+}
+
+void Irene3000::readLastCalibrationDate(JsonObject &root) {
+  String calibrationDate = params.calibrationDate;
+  DEBUG_VAR("laste calibration date: ", calibrationDate);
+  if (calibrationDate == "0000-00-00T00:00:00Z") {
+    ERROR_LOG("PH calibration date error");
+    root["calibrationDate"] = RawJson("null");
+  } else {
+    root["calibrationDate"] = calibrationDate;
+  }
+}
+
 void Irene3000::calcpHSlope() {
   params.pHStep =
       ((((REF_VOLTAGE * (float)(params.pH7Cal - params.pH4Cal)) / 32767) *
@@ -223,6 +293,7 @@ void Irene3000::resetParams(void) {
   params.pH4Cal = 8192;  // using ideal probe slope we end up this many 12bit
                          // units away on the 4 scale
   params.pHStep = 59.16; // ideal probe slope
+  params.calibrationDate = "0000-00-00T00:00:00Z";
 }
 
 adsGain_t Irene3000::gainConvert(uint16_t tempGain) {

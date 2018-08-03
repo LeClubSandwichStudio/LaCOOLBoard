@@ -52,47 +52,23 @@ void Jetpack::writeBit(byte pin, bool state) {
 
 void Jetpack::doAction(JsonObject &root, int hour, int minute) {
   bool state = false;
+  JsonArray &actuators = root.createNestedArray("actuators");
 
-  for (int pin = 0; pin < 8; pin++) {
-    state = this->actuatorList[pin].doAction(root, hour, minute);
-    root[String("Act") + String(pin)] = state;
-    bitWrite(this->action, pin, state);
+  for (int pin = 0; pin < 9; pin++) {
+    state = this->actuatorList[pin].doAction(root[this->actuatorList[pin].primaryType], hour, minute);
+    actuators.add(state);
+    if (pin == 0) {
+      this->actuatorList[pin].write(state);
+    } else {
+      bitWrite(this->action, pin - 1, state);
+    }
   }
   this->write(this->action);
 }
 
-bool Jetpack::config() {
-  CoolConfig config("/jetPackConfig.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read Jetpack configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-  for (int i = 0; i < 8; i++) {
-    String actuatorName = String("Act") + String(i);
-    JsonObject &act = json[actuatorName];
-    if (act.success()) {
-      // parsing actif key
-      config.set<bool>(act, "actif", this->actuatorList[i].actif);
-      // parsing temporal key
-      config.set<bool>(act, "temporal", this->actuatorList[i].temporal);
-      // parsing inverted key
-      config.set<bool>(act, "inverted", this->actuatorList[i].inverted);
-      // parsing low key
-      config.setArray<int>(act, "low", 0, this->actuatorList[i].rangeLow);
-      config.setArray<unsigned long>(act, "low", 1, this->actuatorList[i].timeLow);
-      config.setArray<uint8_t>(act, "low", 2, this->actuatorList[i].hourLow);
-      config.setArray<uint8_t>(act, "low", 3, this->actuatorList[i].minuteLow);
-      // parsing high key
-      config.setArray<int>(act, "high", 0, this->actuatorList[i].rangeHigh);
-      config.setArray<unsigned long>(act, "high", 1, this->actuatorList[i].timeHigh);
-      config.setArray<uint8_t>(act, "high", 2, this->actuatorList[i].hourHigh);
-      config.setArray<uint8_t>(act, "high", 3, this->actuatorList[i].minuteHigh);
-      // parsing type key
-      config.setArray<String>(act, "type", 0, this->actuatorList[i].primaryType);
-      config.setArray<String>(act, "type", 1, this->actuatorList[i].secondaryType);
-    }
+bool Jetpack::config(JsonArray &root) {
+  for (int i = 0; i < 9; i++) {
+    this->actuatorList[i].config(root[i]);
   }
   INFO_LOG("Jetpack configuration loaded");
   return (true);
@@ -101,7 +77,7 @@ bool Jetpack::config() {
 void Jetpack::printConf() {
   INFO_LOG("Jetpack configuration");
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 9; i++) {
     INFO_VAR("Actuator #", i);
     this->actuatorList[i].printConf();
   }

@@ -38,43 +38,66 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-
-  this->coolBoardLed.config();
+  CoolConfig configG("/general.json");
+  if (!configG.readFileAsJson()) {
+    ERROR_LOG("Failed to read /general.json");
+    this->spiffsProblem();
+  }
+  CoolConfig configS("/sensors.json");
+  if (!configS.readFileAsJson()) {
+    ERROR_LOG("Failed to read /sensors.json");
+    this->spiffsProblem();
+  }
+  CoolConfig configA("/actuators.json");
+  if (!configA.readFileAsJson()) {
+    ERROR_LOG("Failed to read /actuators.json");
+    this->spiffsProblem();
+  }
+  JsonObject &general = configG.get();
+  JsonObject &sensor = configS.get();
+  JsonObject &actuator = configA.get();
+  JsonArray &sensors = sensor["sensors"];
+  JsonArray &actuators = actuator["actuators"];
+  this->coolBoardLed.config(general);
   this->coolBoardLed.begin();
   delay(10);
   this->coolBoardLed.write(YELLOW);
-  this->config();
+  this->config(general);
   pinMode(ENABLE_I2C_PIN, OUTPUT);
   pinMode(BOOTSTRAP_PIN, INPUT);
   digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
-  this->coolBoardSensors.config();
+  this->coolBoardSensors.config(sensors);
   this->coolBoardSensors.begin();
-  delay(100);
-  this->coolBoardActuator.config();
-  this->coolBoardActuator.begin();
   delay(100);
   this->printConf();
   this->coolBoardLed.printConf();
   this->coolBoardSensors.printConf();
-  this->coolBoardActuator.printConf();
-  if (this->jetpackActive) {
-    this->jetPack.config();
-    this->jetPack.begin();
-    this->jetPack.printConf();
-    delay(100);
+  this->jetPack.config(actuators);
+  this->jetPack.begin();
+  this->jetPack.printConf();
+  delay(100);
+  this->irene3000.config(sensors);
+  this->irene3000.begin();
+  this->irene3000.calibrate(this->coolBoardLed);
+  this->irene3000.printConf();
+  delay(100);
+  this->externalSensors->config(sensors);
+  this->externalSensors->begin();
+  delay(100);
+  this->mqttsConfig();
+  delay(100);
+  if (!configG.writeJsonToFile()) {
+    INFO_LOG("failed to write /general.json");
+    this->spiffsProblem();
   }
-  if (this->ireneActive) {
-    this->irene3000.config();
-    this->irene3000.begin();
-    this->irene3000.calibrate(this->coolBoardLed);
-    this->irene3000.printConf();
-    delay(100);
+  if (!configS.writeJsonToFile()) {
+    INFO_LOG("failed to write /sensors.json");
+    this->spiffsProblem();
   }
-  if (this->externalSensorsActive) {
-    this->externalSensors->config();
-    this->externalSensors->begin();
-    delay(100);
+  if (!configA.writeJsonToFile()) {
+    INFO_LOG("failed to write /actuators.json");
+    this->spiffsProblem();
   }
   this->mqttsConfig();
   delay(100);
@@ -142,11 +165,8 @@ void CoolBoard::loop() {
     }
     INFO_LOG("Listening to update messages...");
     this->mqttListen();
-    // if (this->configAsChanged) {
-    //   this->configAsChanged = false;
-    //   INFO_LOG("Sending all configuration");
-    //   this->sendAllConfig();
-    // }
+    this->update(this->updateAnswer);
+
     if (CoolFileSystem::hasSavedLogs()) {
       INFO_LOG("Sending saved messages...");
     }
@@ -254,33 +274,21 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
   return cnt;
 }
 
-bool CoolBoard::config() {
+bool CoolBoard::config(JsonObject &root) {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
-  INFO_LOG("Connecting to WiFi...");
   CoolWifi::getInstance().setupHandlers();
   if (!CoolWifi::getInstance().autoConnect()) {
     WARN_LOG("No Network Disponible");
     return false;
   }
   this->tryFirmwareUpdate();
-  CoolConfig config("/coolBoardConfig.json");
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to parse main configuration");
-    this->spiffsProblem();
-    return (false);
-  }
-  JsonObject &json = config.get();
-  config.set<unsigned long>(json, "logInterval", this->logInterval);
-  config.set<bool>(json, "ireneActive", this->ireneActive);
-  config.set<bool>(json, "jetpackActive", this->jetpackActive);
-  config.set<bool>(json, "externalSensorsActive", this->externalSensorsActive);
-  config.set<bool>(json, "sleepActive", this->sleepActive);
-  config.set<bool>(json, "manual", this->manual);
-  config.set<bool>(json, "webServer", this->webServer);
-  config.set<String>(json, "mqttServer", this->mqttServer);
+  JsonObject &general = root["general"];
+  CoolConfig::set<unsigned long>(general, "logInterval", this->logInterval);
+  CoolConfig::set<bool>(general, "sleepActive", this->sleepActive);
+  CoolConfig::set<bool>(general, "manual", this->manual);
+  CoolConfig::set<String>(general, "mqttServer", this->mqttServer);
   INFO_LOG("Main configuration loaded");
-  this->coolWebServer.ssdpBegin();
   return (true);
 }
 
@@ -295,11 +303,12 @@ void CoolBoard::printConf() {
   INFO_VAR("  MQTT server:            =", this->mqttServer);
 }
 
-void CoolBoard::update(const char *answer) {
+void CoolBoard::update(String &answer) {
   INFO_LOG("Received new MQTT message");
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
+  answer = "";
   if (stateDesired.success()) {
     DEBUG_JSON("Desired state JSON:", stateDesired);
     if (stateDesired["CoolBoard"]["manual"].success()) {
@@ -588,12 +597,11 @@ bool CoolBoard::mqttListen() {
 }
 
 void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
-  char temp[length + 1];
-  for (unsigned int i = 0; i < length; i++) {
-    temp[i] = (char)payload[i];
+  this->updateAnswer = (char)payload[0];
+  for (unsigned int i = 1; i < length; i++) {
+    this->updateAnswer += (char)payload[i];
   }
-  temp[length] = '\0';
-  this->update(temp);
+  this->updateAnswer[length] = '\0';
 }
 
 void CoolBoard::mqttsConvert(String cert) {
@@ -611,7 +619,8 @@ void CoolBoard::mqttsConvert(String cert) {
 }
 
 void CoolBoard::mqttsConfig() {
-  if (CoolAsyncEditor::getInstance().exist("/certificate.bin") && CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
+  if (CoolAsyncEditor::getInstance().exist("/certificate.bin") &&
+      CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
     this->mqttsConvert("/certificate.bin");
     this->mqttsConvert("/privateKey.bin");
     DEBUG_LOG("Configuring MQTT");

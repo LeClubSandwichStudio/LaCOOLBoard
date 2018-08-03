@@ -51,8 +51,8 @@ class CoolBoard {
 
 public:
   void begin();
-  bool config();
-  void update(const char *answer);
+  bool config(JsonObject &root);
+  void update(String &answer);
   void loop();
   void connect();
   bool isConnected();
@@ -110,6 +110,7 @@ private:
   String mqttServer;
   String mqttInTopic;
   String mqttOutTopic;
+  String updateAnswer = "";
 };
 
 #endif

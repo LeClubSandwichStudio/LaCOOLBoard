@@ -28,7 +28,9 @@
 
 #include <NeoPixelBus.h>
 
+#define OFF 0, 0, 0
 #define RED 50, 0, 0
+#define BRIGHT_RED 255, 0, 0
 #define GREEN 0, 50, 0
 #define BRIGHT_GREEN 0, 255, 0
 #define WHITE 20, 20, 20
@@ -44,7 +46,7 @@ public:
   CoolBoardLed() : neoPixelLed(1, 2) {}
   void begin();
   void write(uint8_t R, uint8_t G, uint8_t B);
-  bool config();
+  bool config(JsonObject &root);
   void activate();
   void printConf();
   void fade(uint8_t R, uint8_t G, uint8_t B, float T);
