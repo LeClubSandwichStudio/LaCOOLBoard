@@ -108,6 +108,14 @@ void ExternalSensors::begin() {
           new ExternalSensor<MCP342X>(sensors[i].address));
       sensors[i].exSensor = analogI2C.release();
       sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
+    } else if ((sensors[i].reference) == "I2Cchirp") {
+      uint16_t A;
+      float B;
+
+      std::unique_ptr<ExternalSensor<I2CSoilMoistureSensor>> i2cSoilMoistureSensor(
+          new ExternalSensor<I2CSoilMoistureSensor>(sensors[i].address));
+      sensors[i].exSensor = i2cSoilMoistureSensor.release();
+      sensors[i].exSensor->read(&A, &B);
     }
   }
 }
@@ -181,6 +189,15 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("MCP342X Channel 2 Output:",channel1);
           DEBUG_VAR("MCP342X Channel 3 Output:",channel2);
           DEBUG_VAR("MCP342X Channel 4 Output:",channel3);
+        } else if (sensors[i].reference == "I2Cchirp") {
+          uint16_t A;
+          float B;
+          sensors[i].exSensor->read(&A, &B);
+          DEBUG_VAR("ChirpSoilMoisture Address:",sensors[i].address);
+          DEBUG_VAR("SoilMoisture RAW:", A);
+          DEBUG_VAR("SoilTemperature:", B);
+          root[sensors[i].kind0] = A; 
+          root[sensors[i].kind1] = B;
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
