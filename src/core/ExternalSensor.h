@@ -348,11 +348,6 @@ public:
 
   virtual uint8_t begin() {
     sensor.begin();
-    Serial.print("I2C Soil Moisture Sensor Address: ");
-    Serial.println(sensor.getAddress(),HEX);
-    Serial.print("Sensor Firmware version: ");
-    Serial.println(sensor.getVersion(),HEX);
-    Serial.println();
     return (true);
   }
 
