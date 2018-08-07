@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import time
 import serial
 import SerialTest
+import datetime
 
-serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10)
+resultFileName = ('CoolBoard-Test-' +
+                  datetime.datetime.now().strftime("%y-%m-%d-%H-%M") + ".txt")
+serialBus = serial.Serial('/dev/cu.usbserial-DN02PRAQ', 115200, timeout=10) # MAC
+#serialBus = serial.Serial('/dev/ttyAMA0', 115200, timeout=10) # Raspberry 1
+#serialBus = serial.Serial('/dev/ttyUSB0', 115200, timeout=10) # Raspberry 3 B+
 
 # global variable
 lineNumber = 0
@@ -92,16 +97,15 @@ def waitLine(resetLineList, lineNumber, resultFileName):
         return False
 
 
-def initReset():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(4, GPIO.OUT, initial=GPIO.LOW)
+#def initReset():
+#    GPIO.setmode(GPIO.BCM)
+#    GPIO.setup(4, GPIO.OUT, initial=GPIO.LOW)
 
 
 def waitSynchroAct(resultFileName):
-    timestamp = int(time.time())
-    while(not SerialTest.OTA_PUBLISHED(serialBus, resultFileName, False)):
-        if ((time.time() - timestamp) > 45):
-            resultFile = open(resultFileName, 'a')
-            resultFile.write("WARNING reached limit time for OTA to be published \n")
-            print("-------------------: WARNING reached limit time for OTA to be published\n")
-            resultFile.close()
+    if(not SerialTest.OTA_SYNCHRO(serialBus, resultFileName, False)):
+        resultFile = open(resultFileName, 'a')
+        resultFile.write("WARNING reached limit time for OTA to be published \n")
+        print("-------------------: WARNING reached limit time for OTA to be published\n")
+        resultFile.close()
+        

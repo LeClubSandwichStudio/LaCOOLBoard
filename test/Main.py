@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import SerialFonctions
+import SerialFunctions
 import SerialTest
 import time
 import os
@@ -12,11 +12,10 @@ import AwsMessage
 
 # --------------------------PRINCIPAL PROGRAMM-------------------------- #
 
-SerialFonctions.initReset()
+SerialFunctions.initReset()
 Jetpack.initJetpack()
 
-resultFileName = ('CoolBoard-Test-' +
-                  datetime.datetime.now().strftime("%y-%m-%d-%H-%M") + ".txt")
+SerialFunctions.resultFileName
 
 endOfTest = False
 resetLineList = ["INFO:  Builtin actuator configuration loaded"]#,
@@ -24,58 +23,61 @@ resetLineList = ["INFO:  Builtin actuator configuration loaded"]#,
                  #"INFO:  MQTT connecting...",
                  #"INFO:  Listening to update messages..."]
 resetLineNumber = 0
-SerialFonctions.resetBoard()
+SerialFunctions.resetBoard()
 
 while not endOfTest:
     # puts in the good order all the test functions
-    SerialTest.SPIFFS(SerialFonctions.serialBus, resultFileName, True)
-    SerialTest.MAIN_CONFIGURATION(SerialFonctions.serialBus, resultFileName, True)
-    SerialTest.MAC_STATUS_TEST(SerialFonctions.serialBus, resultFileName, True)
-    SerialTest.FIRMWARE_VERSION_TEST(SerialFonctions.serialBus, resultFileName, True)
+    SerialTest.SPIFFS(SerialFunctions.serialBus, resultFileName, True)
+    SerialTest.MAIN_CONFIGURATION(SerialFunctions.serialBus, resultFileName, True)
+    SerialTest.MAC_STATUS_TEST(SerialFunctions.serialBus, resultFileName, True)
+    SerialTest.FIRMWARE_VERSION_TEST(SerialFunctions.serialBus, resultFileName, True)
 
-    if (not SerialTest.REGISTERED_WIFI_TEST(SerialFonctions.serialBus, resultFileName, False)):
-        SerialTest.WIFI_ACCESS_POINT_OPENED(SerialFonctions.serialBus, resultFileName, True)
+    if (not SerialTest.REGISTERED_WIFI_TEST(SerialFunctions.serialBus, resultFileName, False)):
+        SerialTest.WIFI_ACCESS_POINT_OPENED(SerialFunctions.serialBus, resultFileName, True)
 
-    elif (SerialTest.WIFI_CONNECTION(SerialFonctions.serialBus, resultFileName, True)):
-        if (not SerialTest.MQTT_CONNECTION(SerialFonctions.serialBus, resultFileName, True)):
-            SerialTest.SLEEPMODE_ACTIVATE(SerialFonctions.serialBus, resultFileName, True)
-            SerialTest.RETRY_MQTT_CONNECTION(SerialFonctions.serialBus, resultFileName, True)
+    elif (SerialTest.WIFI_CONNECTION(SerialFunctions.serialBus, resultFileName, True)):
+        if (not SerialTest.MQTT_CONNECTION(SerialFunctions.serialBus, resultFileName, True)):
+            SerialTest.SLEEPMODE_ACTIVATE(SerialFunctions.serialBus, resultFileName, True)
+            SerialTest.RETRY_MQTT_CONNECTION(SerialFunctions.serialBus, resultFileName, True)
         else:
-            SerialTest.SEND_LOG(SerialFonctions.serialBus, resultFileName, True)
-            SerialTest.RTC_SYNCHRO(SerialFonctions.serialBus, resultFileName, True)
-            while(SerialTest.DATA_SAVED_JSON(SerialFonctions.serialBus, resultFileName, False)):
-                SerialTest.DATA_DELETING_JSON(SerialFonctions.serialBus, resultFileName, True)
-            if(SerialTest.EXTERNAL_SENSOR_ACTIVATED(SerialFonctions.serialBus, resultFileName, False)):
-                SerialTest.EXTERNAL_SENSOR_DATA_SEND(SerialFonctions.serialBus, resultFileName, True)
+            SerialTest.SEND_LOG(SerialFunctions.serialBus, resultFileName, True)
+            SerialTest.RTC_SYNCHRO(SerialFunctions.serialBus, resultFileName, True)
+            while(SerialTest.DATA_SAVED_JSON(SerialFunctions.serialBus, resultFileName, False)):
+                SerialTest.DATA_DELETING_JSON(SerialFunctions.serialBus, resultFileName, True)
+            if(SerialTest.EXTERNAL_SENSOR_ACTIVATED(SerialFunctions.serialBus, resultFileName, False)):
+                SerialTest.EXTERNAL_SENSOR_DATA_SEND(SerialFunctions.serialBus, resultFileName, True)
 
-            if (SerialTest.OTA_RECEIPTED(SerialFonctions.serialBus, resultFileName, False)):
-                SerialTest.OTA_PUBLISHED(SerialFonctions.serialBus, resultFileName, True)
-                # if(SerialTest.OTA_UPDATE_FIRMWARE(serialBus, resultFileName, True)):
-                # SerialTest.FIRMWARE_VERSION_TEST(serialBus, resultFileName, True)
+            if (SerialTest.OTA_RECEIPTED(SerialFunctions.serialBus, resultFileName, False)):
+                SerialTest.OTA_PUBLISHED(SerialFunctions.serialBus, resultFileName, True)
+                if(SerialTest.OTA_UPDATE_FIRMWARE(SerialFunctions.serialBus, resultFileName, True)):
+                    SerialTest.FIRMWARE_VERSION_TEST(SerialFunctions.serialBus, resultFileName, True)
     else:
-        # SerialTest.RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True)
+        #SerialTest.RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True)
         # passera a la suite que si succes
-        SerialTest.SAVE_LOG(SerialFonctions.serialBus, resultFileName, True)
-        SerialTest.DATA_SAVING_JSON(SerialFonctions.serialBus, resultFileName, True)
+        SerialTest.SAVE_LOG(SerialFunctions.serialBus, resultFileName, True)
+        SerialTest.DATA_SAVING_JSON(SerialFunctions.serialBus, resultFileName, True)
 
     time.sleep(1)
-    SerialFonctions.resetBoard()
+    SerialFunctions.resetBoard()
     time.sleep(1)
-    endOfTest = SerialFonctions.waitLine(resetLineList, resetLineNumber, resultFileName)
+    endOfTest = SerialFunctions.waitLine(resetLineList, resetLineNumber, resultFileName)
     resetLineNumber = resetLineNumber + 1
 
+SerialFunctions.resetBoard()
 AwsMessage.sendMessageLogInterval()
 # AwsMessage.sendMessageFirmwareVersion()
-# SerialFonctions.waitSynchroAct(resultFileName)
+# SerialFunctions.waitSynchroAct(resultFileName)
 AwsMessage.sendMessageAct0()
 AwsMessage.sendMessageAct1()
-SerialFonctions.waitSynchroAct(resultFileName)
-Jetpack.ACTUATOR_1_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
-Jetpack.ACTUATOR_2_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
-Jetpack.ACTUATOR_3_ACTIVATED(SerialFonctions.serialBus, resultFileName, True)
-Jetpack.ACTUATOR_4_DISACTIVATED(SerialFonctions.serialBus, resultFileName, True)
+#SerialFunctions.resetBoard()
+# SerialFunctions.waitSynchroAct(resultFileName)
+Jetpack.ACTUATOR_1_ACTIVATED(SerialFunctions.serialBus, resultFileName, True)
+Jetpack.ACTUATOR_2_DISACTIVATED(SerialFunctions.serialBus, resultFileName, True)
+Jetpack.ACTUATOR_3_ACTIVATED(SerialFunctions.serialBus, resultFileName, True)
+Jetpack.ACTUATOR_4_DISACTIVATED(SerialFunctions.serialBus, resultFileName, True)
+
 
 print("\n\n--------------------|END OF THE TEST|------------------------")
 
-SerialFonctions.serialBus.close()
+SerialFunctions.serialBus.close()
 GPIO.cleanup()

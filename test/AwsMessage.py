@@ -3,11 +3,16 @@ import json
 import boto3
 
 macAddress = '2C3AE84FBF4F'
-valueLogInterval = 320
-Act0 = False
+valueLogInterval = 300
+Act0 = True
 Act1 = True
-linkFirmware = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
-versionFirmware = "v0.2.7-14-gdc7c463"
+#linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
+linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-g07e5da3.bin"
+#versionFirmware_1 = "v0.2.7-14-gdc7c463"
+versionFirmware_1 = "v0.2.7-14-g07e5da3"
+
+linkFirmware_2 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c464.bin"
+versionFirmware_2 = "v0.2.7-14-gdc7c463"
 
 logInterval = {"state":
                 {"desired":
@@ -29,27 +34,39 @@ jsonActuator_0 = json.dumps(actuator_0)
 
 actuator_1 = {"state":
                 {"desired":
-                    {"jetPack":
-                        {"Act1": Act1
-                        }
+                    {"Act1": Act1
                     }
                 }
             }
 jsonActuator_1 = json.dumps(actuator_1)
 
-firmware = {"state":
+firmware_1 = {"state":
                 {"desired":
                     {"CoolBoard":
                         {"firmwareUpdate":
                             {"firmwareUrlFingerprint": "BC5445C5CE60988076FFFE5C83555949810370A1",
-                            "firmwareUrl": linkFirmware,
-                            "firmwareVersion": versionFirmware
+                            "firmwareUrl": linkFirmware_1,
+                            "firmwareVersion": versionFirmware_1
                             }
                         }
                     }
                 }
             }
-jsonFirmware = json.dumps(firmware)
+jsonFirmware_1 = json.dumps(firmware_1)
+
+firmware_2 = {"state":
+                {"desired":
+                    {"CoolBoard":
+                        {"firmwareUpdate":
+                            {"firmwareUrlFingerprint": "BC5445C5CE60988076FFFE5C83555949810370A1",
+                            "firmwareUrl": linkFirmware_2,
+                            "firmwareVersion": versionFirmware_2
+                            }
+                        }
+                    }
+                }
+            }
+jsonFirmware_2 = json.dumps(firmware_2)
 
 client = boto3.client('iot-data', region_name='eu-west-1')
 
@@ -99,11 +116,20 @@ def sendMessageAct1():
 
 
 def sendMessageFirmwareVersion():
-    global jsonFirmware
+    global jsonFirmware_1
     global macAddress
     client.update_thing_shadow(
         thingName=macAddress,
-        payload=jsonFirmware
+        payload=jsonFirmware_1
+        )
+
+
+def sendMessageWrongFirmware():
+    global jsonFirmware_2
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonFirmware_2
         )
 
 
@@ -115,3 +141,6 @@ def getShadow():
     rawDataString = rawDataBytes.decode('utf-8')
     jsonState = json.loads(rawDataString)
     return(jsonState)
+
+# sendMessageLogInterval()
+# sendMessageAct0()
