@@ -24,7 +24,7 @@
 #ifndef COOLBOARD_H
 #define COOLBOARD_H
 
-#include <Arduino.h>
+#include "CoolAsyncEditor.h"
 #include "CoolBoardActuator.h"
 #include "CoolBoardLed.h"
 #include "CoolBoardSensors.h"
@@ -35,24 +35,26 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 #include "PubSubClient.h"
+#include <Arduino.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
-#include "CoolAsyncEditor.h"
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
-#define MQTT_RETRIES 5
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
 #define LOW_POWER_SLEEP 300
+#define MQTT_RETRIES 5
+#define MAX_MQTT_RETRIES 15
+#define ANSWER_MAX_SIZE 1024
 #define MAX_ACTIVE_TIME_WEBSERVER 900
 
-class CoolBoard {
+    class CoolBoard {
 
 public:
   void begin();
   bool config(JsonObject &root);
-  void update(String &answer);
+  bool update(String &answer);
   void loop();
   void connect();
   bool isConnected();
@@ -60,11 +62,11 @@ public:
   void printConf();
   void sleep(unsigned long interval);
   void handleActuators(JsonObject &reported);
-  void readSensors(JsonObject &reported);
-  void readBoardData(JsonObject &reported);
+  void readSensors(JsonObject &root);
+  void readBoardData(JsonObject &root);
   void sendSavedMessages();
   void sendAllConfig();
-  void sendConfig(const char *moduleName, const char *filePath);
+  String parseJsonConfig(const char *filePath);
   void readPublicIP(JsonObject &reported);
   void clockProblem();
   void networkProblem();
@@ -82,11 +84,13 @@ public:
   void mqttsConfig();
   static int b64decode(String b64Text, uint8_t *output);
   void mqttsConvert(String cert);
-  void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
+  void updateFirmware(String firmwareVersion, String firmwareUrl,
+                      String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
   void mqttLog(String data);
 
 private:
+  uint8_t mqttRetries = 0;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
   CoolWebServer coolWebServer;
@@ -102,8 +106,10 @@ private:
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool mqtt = false;
   bool webServer = false;
   bool configAsChanged = false;
+  bool connection;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;

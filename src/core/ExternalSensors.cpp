@@ -104,16 +104,15 @@ void ExternalSensors::begin() {
     } else if ((sensors[i].reference) == "MCP342X_4-20mA") {
       int16_t channel0, channel1, channel2, channel3;
 
-      // std::unique_ptr<ExternalSensor<MCP342X>> analogI2C(
-      //     new ExternalSensor<MCP342X>(sensors[i].address));
-      // sensors[i].exSensor = analogI2C.release();
+      std::unique_ptr<ExternalSensor<MCP342X>> analogI2C(
+          new ExternalSensor<MCP342X>(sensors[i].address));
+      sensors[i].exSensor = analogI2C.release();
       sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
     }
   }
 }
 
 void ExternalSensors::read(JsonObject &root) {
-Serial.println("1");
   if (sensorsNumber > 0) {
     Serial.println("2");
     for (uint8_t i = 0; i < sensorsNumber; i++) {

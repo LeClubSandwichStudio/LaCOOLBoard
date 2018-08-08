@@ -348,7 +348,6 @@ void CoolWebServer::ssdpBegin() {
   MDNS.addServiceTxt("cool-api", "tcp", "coreVersion", ESP.getCoreVersion());
   MDNS.addServiceTxt("cool-api", "tcp", "sdkVersion", ESP.getSdkVersion());
   MDNS.addServiceTxt("cool-api", "tcp", "firwmareMD5", ESP.getSketchMD5());
-  MDNS.addServiceTxt("cool-api", "tcp", "fullVersion", ESP.getFullVersion());
   if (MDNS.begin(coolName.c_str())) {
     INFO_VAR("Bonjour service started at: ", coolName);
   } else {
@@ -435,7 +434,7 @@ bool CoolWifi::autoConnect() {
   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
   DynamicJsonBuffer config;
   File f = SPIFFS.open("/wifiConfig.json", "r");
-  JsonObject &conf = config.parseObject(f.readString());
+  JsonObject &conf = config.parseObject(f);
   uint8_t wifiCount = conf.get<uint8_t>("wifiCount");
   int16_t rssi[wifiCount];
   if (wifiCount == 0) {
@@ -502,7 +501,7 @@ uint8_t CoolWifi::connect(String ssid, String pass) {
 uint8_t CoolWifi::getWifiCount() {
   DynamicJsonBuffer config;
   File f = SPIFFS.open("/wifiConfig.json", "r");
-  JsonObject &conf = config.parseObject(f.readString());
+  JsonObject &conf = config.parseObject(f);
   return (conf.get<uint8_t>("wifiCount"));
 }
 int CoolWifi::getIndexOfMaximumValue(int16_t *array, int size) {

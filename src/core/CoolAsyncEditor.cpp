@@ -157,7 +157,7 @@ String CoolAsyncEditor::getUUID() {
 }
 
 String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
-  StaticJsonBuffer<64> json;
+  DynamicJsonBuffer json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/wifiConfig.json").c_str());
   if (jsonBuf["Wifi" + String(i)].success()) {
@@ -170,7 +170,7 @@ String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
 }
 
 bool CoolAsyncEditor::beginAdminCredential() {
-  StaticJsonBuffer<64> json;
+  StaticJsonBuffer<256> json;
   JsonObject &jsonBuf =
       json.parseObject(this->read("/webServerCredentials.json").c_str());
   if (jsonBuf["username"].success() && jsonBuf["password"].success()) {

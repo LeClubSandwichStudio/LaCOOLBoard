@@ -29,12 +29,11 @@
 
 #define JSON_FILE_EXT_SIZE 5
 
-#define JSON_FILE_EXT_SIZE 5
-
-static constexpr ConfigFile CONFIG_FILES[] = {{"general", "/general.json"},
-                                              {"sensors", "/sensors.json"},
-                                              {"actuators", "/actuators.json"},
-                                              {"wifi", "/wifiConfig.json"}};
+static constexpr ConfigFile CONFIG_FILES[] = {
+      {"general", "/general.json"},
+      {"sensors", "/sensors.json"},
+      {"actuators", "/actuators.json"},
+      {"wifi", "/wifiConfig.json"}};
 
 static const uint8_t CONFIG_FILES_COUNT = 4;
 
@@ -50,6 +49,7 @@ void CoolFileSystem::updateConfigFiles(JsonObject &root) {
 bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   CoolConfig config(path);
 
+  DEBUG_JSON("\n\n\n UpdateJson \n\n\n", updateJson);
   DEBUG_VAR("Updating config file:", path);
   if (!config.readFileAsJson()) {
     ERROR_VAR("Failed to read configuration file for updating:", path);
@@ -57,7 +57,7 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   }
   JsonObject &fileJson = config.get();
   for (auto kv : updateJson) {
-    fileJson[kv.key] = updateJson[kv.key];
+      fileJson[kv.key] = updateJson[kv.key];
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);

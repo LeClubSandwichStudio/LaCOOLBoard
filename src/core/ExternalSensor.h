@@ -29,10 +29,11 @@
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
 #include "CoolNDIR_I2C.h"
-#include "SHT1x.h"
 #include "CoolSDS011.h"
+#include "SHT1x.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
+#include <MCP342X.h>
 
 #include "CoolLog.h"
 
@@ -45,7 +46,7 @@ public:
   BaseExternalSensor() {}
   virtual uint8_t begin() { return (-2); }
   virtual float read() { return (-2); }
-  virtual float read(int16_t *a) { return (-42, 42); }
+  virtual float read(int16_t *a) { return (-42); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) { return (-42.42); }
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
@@ -74,7 +75,7 @@ private:
 
 template <> class ExternalSensor<NDIR_I2C> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) { sensor = NDIR_I2C(i2c_addr); }
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}
   virtual uint8_t begin() {
     if (sensor.begin()) {
       delay(10000);
@@ -93,7 +94,7 @@ public:
   }
 
 private:
-  NDIR_I2C sensor = NULL;
+  NDIR_I2C sensor;
 };
 
 template <>
@@ -169,23 +170,17 @@ public:
       ;
     float T = sensor.calculateTemperature();
     sensor.setTempOffset(T - 25.0);
+    return (0);
   }
 
   virtual float read(int16_t *a, int16_t *b, float *c) {
-    uint16_t internC, internV;
-    float internT;
-
     if (sensor.available()) {
-      internT = sensor.calculateTemperature();
+      *c = sensor.calculateTemperature();
       if (!sensor.readData()) {
-        internC = sensor.geteCO2();
-        internV = sensor.getTVOC();
+        *a = sensor.geteCO2();
+        *b = sensor.getTVOC();
       }
     }
-
-    *a = (int16_t)internC;
-    *b = (int16_t)internV;
-    *c = internT;
     return (0.0);
   }
 
@@ -204,25 +199,14 @@ public:
 
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d, int16_t *e,
                      int16_t *f, int16_t *g, int16_t *h) {
-    uint16_t channel0, channel1, channel2, channel3;
-    uint16_t gain0, gain1, gain2, gain3;
-
-    channel0 = sensor.readADC_SingleEnded(0);
-    gain0 = sensor.getGain();
-    channel1 = sensor.readADC_SingleEnded(1);
-    gain1 = sensor.getGain();
-    channel2 = sensor.readADC_SingleEnded(2);
-    gain2 = sensor.getGain();
-    channel3 = sensor.readADC_SingleEnded(3);
-    gain3 = sensor.getGain();
-    *a = (int16_t)channel0;
-    *b = (int16_t)gain0;
-    *c = (int16_t)channel1;
-    *d = (int16_t)gain1;
-    *e = (int16_t)channel2;
-    *f = (int16_t)gain2;
-    *g = (int16_t)channel3;
-    *h = (int16_t)gain3;
+    *a = sensor.readADC_SingleEnded(0);
+    *b = sensor.getGain();
+    *c = sensor.readADC_SingleEnded(1);
+    *d = sensor.getGain();
+    *e = sensor.readADC_SingleEnded(2);
+    *f = sensor.getGain();
+    *g = sensor.readADC_SingleEnded(3);
+    *h = sensor.getGain();
     return (0.0);
   }
 
@@ -241,25 +225,14 @@ public:
 
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d, int16_t *e,
                      int16_t *f, int16_t *g, int16_t *h) {
-    uint16_t channel0, channel1, channel2, channel3;
-    uint16_t gain0, gain1, gain2, gain3;
-
-    channel0 = sensor.readADC_SingleEnded(0);
-    gain0 = sensor.getGain();
-    channel1 = sensor.readADC_SingleEnded(1);
-    gain1 = sensor.getGain();
-    channel2 = sensor.readADC_SingleEnded(2);
-    gain2 = sensor.getGain();
-    channel3 = sensor.readADC_SingleEnded(3);
-    gain3 = sensor.getGain();
-    *a = (int16_t)channel0;
-    *b = (int16_t)gain0;
-    *c = (int16_t)channel1;
-    *d = (int16_t)gain1;
-    *e = (int16_t)channel2;
-    *f = (int16_t)gain2;
-    *g = (int16_t)channel3;
-    *h = (int16_t)gain3;
+    *a = sensor.readADC_SingleEnded(0);
+    *b = sensor.getGain();
+    *c = sensor.readADC_SingleEnded(1);
+    *d = sensor.getGain();
+    *e = sensor.readADC_SingleEnded(2);
+    *f = sensor.getGain();
+    *g = sensor.readADC_SingleEnded(3);
+    *h = sensor.getGain();
     return (0.0);
   }
 
@@ -271,18 +244,12 @@ template <> class ExternalSensor<Gauges> : public BaseExternalSensor {
 public:
   ExternalSensor() { sensor = Gauges(); }
 
-  virtual uint8_t begin() {}
+  virtual uint8_t begin() { return (0); }
 
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) {
-    uint32_t A, B, C;
-
-    A = sensor.readGauge1();
-    B = sensor.readGauge2();
-    C = sensor.readGauge3();
-
-    *a = A;
-    *b = B;
-    *c = C;
+    *a = sensor.readGauge1();
+    *b = sensor.readGauge2();
+    *c = sensor.readGauge3();
     return (0.0);
   }
 
@@ -293,13 +260,10 @@ private:
 template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
-  virtual uint8_t begin() {}
+  virtual uint8_t begin() { return (0); }
   virtual float read(float *a, float *b) {
-    float A, B, C;
-    A = sensor.readHumidity();
-    B = sensor.readTemperatureC();
-    *a = A;
-    *b = B;
+    *a = sensor.readHumidity();
+    *b = sensor.readTemperatureC();
     return (0.0);
   }
 
@@ -309,23 +273,71 @@ private:
 
 template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
 public:
-  ExternalSensor() :  sensor() {}
+  ExternalSensor() : sensor() {}
   virtual uint8_t begin() {
     sensor.start();
+    return (0);
   }
 
   virtual float read(float *a, float *b) {
-    float A, B;
-
     sensor.read();
-    A = sensor.pm10();
-    B = sensor.pm25();
-    *a = A;
-    *b = B;
+    *a = sensor.pm10();
+    *b = sensor.pm25();
+    ;
     return (0.0);
   }
 
 private:
   SDS011 sensor;
 };
+
+template <> class ExternalSensor<MCP342X> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2c_addr) { sensor = MCP342X(i2c_addr); }
+
+  virtual uint8_t begin() {
+    //sensor.testConnection();
+    Serial.println(sensor.testConnection() ? "MCP342X connection successful" : "MCP342X connection failed");
+    return (true);
+  }
+
+  virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_1 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*a);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_2 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*b);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_3 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*c);
+
+    sensor.configure( MCP342X_MODE_ONESHOT |
+      MCP342X_CHANNEL_4 |
+      MCP342X_SIZE_16BIT |
+      MCP342X_GAIN_2X
+    );
+    sensor.startConversion();
+    sensor.getResult(&*d);
+    return (0.0);
+  }
+
+private:
+  MCP342X sensor;
+};
+
 #endif
