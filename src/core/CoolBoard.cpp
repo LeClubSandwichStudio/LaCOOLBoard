@@ -22,6 +22,7 @@
  */
 
 #include <ArduinoJson.h>
+#include <EEPROM.h>
 #include <FS.h>
 #include <memory>
 
@@ -38,6 +39,7 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
+  this->sleep();
   this->coolBoardLed.config();
   this->coolBoardLed.begin();
   delay(10);
@@ -131,7 +133,7 @@ void CoolBoard::loop() {
   }
   SPIFFS.end();
   if (this->sleepActive && (!this->shouldLog() || !rtcSynced)) {
-    this->sleep(this->secondsToNextLog());
+    this->sleep();
   }
 }
 
@@ -215,7 +217,7 @@ bool CoolBoard::shouldLog() {
 }
 
 unsigned long CoolBoard::secondsToNextLog() {
-  unsigned long seconds;
+  uint32_t seconds;
 
   seconds = this->logInterval - ((millis() - this->previousLogTime) / 1000);
   return (seconds > this->logInterval ? this->logInterval : seconds);
@@ -377,11 +379,46 @@ void CoolBoard::readBoardData(JsonObject &reported) {
   }
 }
 
-void CoolBoard::sleep(unsigned long interval) {
-  if (interval > 0) {
-    INFO_VAR("Going to sleep for seconds:", interval);
-    ESP.deepSleep((uint64(interval) * 1000000ULL), WAKE_RF_DEFAULT);
+void CoolBoard::sleep() {
+  EEPROM.begin(5);
+  uint8_t val[4];
+  rst_info *resetInfo; 
+  resetInfo = ESP.getResetInfoPtr();
+  if (!EEPROM.read(0x04) ||
+      resetInfo->reason != REASON_DEEP_SLEEP_AWAKE) {
+    INFO_LOG("Reset of the logInterval");
+    for (int i = 0; i < 5; i++) {
+      EEPROM.write(i, 0);
+    }
+    EEPROM.write(0x04, 1);
   }
+  uint32_t value = ((uint32_t)EEPROM.read(0x00)) +
+          (((uint32_t)EEPROM.read(0x01)) << 8) +
+          (((uint32_t)EEPROM.read(0x02)) << 16) +
+          (((uint32_t)EEPROM.read(0x03)) << 24);
+  if ((value) || (!this->shouldLog())) {
+    if (!value) {
+      value = secondsToNextLog();
+    }
+    if (value > MAX_SLEEP_TIME) {
+      INFO_VAR("Going to sleep for:", MAX_SLEEP_TIME);
+      INFO_VAR("And need to sleep again for", value - MAX_SLEEP_TIME);
+      for (uint8_t i = 0; i < 4; i++) {
+        val[i] = ((value - MAX_SLEEP_TIME) >> i*8);
+        EEPROM.write(i, val[i]);
+      }
+      EEPROM.end();
+      ESP.deepSleep((uint64_t(MAX_SLEEP_TIME) * 1000000ULL), WAKE_RF_DEFAULT);
+    } else {
+      INFO_VAR("Going to sleep for:", value);
+      for (uint8_t i = 0; i < 4; i++) {
+        EEPROM.write(i, 0);
+      }
+      EEPROM.end();
+      ESP.deepSleep((uint64_t(value) * 1000000ULL), WAKE_RF_DEFAULT);
+    }
+  }
+  EEPROM.end();
 }
 
 void CoolBoard::sendAllConfig() {
