@@ -46,6 +46,7 @@
 #define LOW_POWER_SLEEP 300
 #define MQTT_RETRIES 5
 #define MAX_MQTT_RETRIES 15
+#define MAX_SLEEP_TIME 3600
 
 class CoolBoard {
 
@@ -58,7 +59,7 @@ public:
   bool isConnected();
   unsigned long getLogInterval();
   void printConf();
-  void sleep(unsigned long interval);
+  void sleep();
   void handleActuators(JsonObject &reported);
   void readSensors(JsonObject &reported);
   void readBoardData(JsonObject &reported);
