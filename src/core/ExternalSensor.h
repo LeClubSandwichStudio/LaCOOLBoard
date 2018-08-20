@@ -35,6 +35,7 @@
 #include <DallasTemperature.h>
 #include <MCP342X.h>
 #include <I2CSoilMoistureSensor.h>
+#include <SparkFunBME280.h>
 
 #include "CoolLog.h"
 
@@ -63,6 +64,7 @@ public:
   }
   virtual float read(float *a, float *b) { return (-42.42); }
   virtual float read(uint16_t *a, float *b) { return (-42.42); }
+  virtual float read(float *a, float *b, float *c) { return (-42.42); }
 };
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
@@ -361,4 +363,36 @@ public:
 private:
   I2CSoilMoistureSensor sensor;
 };
+
+template <> class ExternalSensor<BME280> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2c_addr) { sensor = BME280(); 
+    sensor.settings.I2CAddress = i2c_addr; 
+    sensor.settings.commInterface = I2C_MODE;
+    //just to configure some common presets
+    sensor.settings.runMode = 3;
+    sensor.settings.tStandby = 0;
+    sensor.settings.filter = 0;
+    sensor.settings.tempOverSample = 1;
+    sensor.settings.pressOverSample = 1;
+    sensor.settings.humidOverSample = 1;
+  }
+
+  virtual uint8_t begin() {
+    sensor.begin();
+    delay(100);
+    return (true);
+  }
+
+  virtual float read(float *a, float *b, float *c) {
+    *a = sensor.readTempC();
+    *b = sensor.readFloatPressure();
+    *c = sensor.readFloatHumidity();
+    return (0.0);
+  }
+
+private:
+  BME280 sensor;
+};
+
 #endif
