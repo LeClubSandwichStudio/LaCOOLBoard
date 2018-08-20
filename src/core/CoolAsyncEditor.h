@@ -20,11 +20,13 @@ public:
   virtual String read(String patch);
   virtual char *readChars(String patch);
   virtual bool remove(String patch);
-  virtual bool addNewWifi(String ssid, String pass);
+  virtual bool addNewWifi(String bssid, String ssid, String pass);
   virtual void reWriteWifi(String json);
   virtual String getSdpConfig();
-  virtual String getSavedWifi(String index);
-  virtual String getSavedCredentialFromIndex(uint8_t i, String type);
+  virtual String getSavedWifi(String bssid);
+  virtual bool removeSavedWifi(String bssid);
+  virtual bool removeAllWifi();
+  virtual String getSavedCredentialType(String bssid, String type);
   virtual bool beginAdminCredential();
   virtual bool configureAdminCredential(String userName, String password);
   virtual uint32_t size(String file);

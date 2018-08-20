@@ -43,39 +43,66 @@ void CoolAsyncEditor::reWriteWifi(String data) {
   INFO_LOG("wifi reset!");
 }
 
-bool CoolAsyncEditor::addNewWifi(String ssid, String pass) {
+bool CoolAsyncEditor::addNewWifi(String bssid, String ssid, String pass) {
   DynamicJsonBuffer json;
-  JsonObject &jsonBuf =
-      json.parseObject(this->read("/wifiConfig.json").c_str());
-  uint8_t wifiCount = jsonBuf.get<uint8_t>("wifiCount");
-  DEBUG_VAR("Number of recorded networks: ", wifiCount);
-  if (jsonBuf["wifiCount"].success()) {
-    JsonObject &newWifi =
-        jsonBuf.createNestedObject("Wifi" + String(wifiCount));
-    jsonBuf["wifiCount"] = wifiCount + 1;
-    newWifi["ssid"] = ssid;
-    newWifi["pass"] = pass;
-    String tmp;
-    jsonBuf.printTo(tmp);
-    DEBUG_VAR("New wifi Configuration: ", tmp);
-    this->write("/wifiConfig.json", tmp);
-    return (true);
+  JsonArray &jsonBuf = json.parseArray(this->read("/wifiConfig.json").c_str());
+  JsonObject &nested = jsonBuf.createNestedObject();
+  nested["bssid"] = bssid;
+  nested["ssid"] = ssid;
+  nested["psk"] = pass;
+  String tmp;
+  jsonBuf.printTo(tmp);
+  this->write("/wifiConfig.json", tmp);
+  return true;
+}
+
+String CoolAsyncEditor::getSavedWifi(String bssid) {
+  DynamicJsonBuffer json;
+  JsonArray &jsonBuf = json.parseArray(this->read("/wifiConfig.json").c_str());
+  uint8_t wifiSize = jsonBuf.size();
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    String tmp = jsonBuf.get<String>(i);
+    JsonObject &obj = json.parseObject(tmp.c_str());
+    if (obj.get<String>("bssid") == bssid) {
+      DEBUG_VAR("Saved Wifi Json obj requested: ", tmp);
+      return (tmp);
+    }
+  }
+  return ("{}");
+}
+
+bool CoolAsyncEditor::removeSavedWifi(String bssid) {
+  DynamicJsonBuffer json;
+  JsonArray &jsonBuf = json.parseArray(this->read("/wifiConfig.json").c_str());
+  uint8_t wifiSize = jsonBuf.size();
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    DynamicJsonBuffer tmpBuffer;
+    String tmpObj = jsonBuf.get<String>(i);
+    JsonObject &obj = tmpBuffer.parseObject(tmpObj.c_str());
+    if (obj.get<String>("bssid") == bssid) {
+      DEBUG_VAR("Removing WiFi: ", obj[bssid].asString());
+      jsonBuf.remove(i);
+      String tmp;
+      jsonBuf.printTo(tmp);
+      this->write("/wifiConfig.json", tmp);
+      return (true);
+    }
   }
   return (false);
 }
 
-String CoolAsyncEditor::getSavedWifi(String index) {
+bool CoolAsyncEditor::removeAllWifi() {
   DynamicJsonBuffer json;
-  JsonObject &jsonBuf =
-      json.parseObject(this->read("/wifiConfig.json").c_str());
-  if (jsonBuf["Wifi" + index].success()) {
-    String tmp;
-    JsonObject &jWifi = jsonBuf["Wifi" + String(index)];
-    jWifi.printTo(tmp);
-    DEBUG_VAR("Wifi requested: ", tmp);
-    return (tmp);
+  JsonArray &jsonBuf = json.parseArray(this->read("/wifiConfig.json").c_str());
+  INFO_LOG("Removing All Saved WiFi! ");
+  uint8_t wifiSize = jsonBuf.size();
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    jsonBuf.remove(i);
   }
-  return ("ERROR");
+  String tmp;
+  jsonBuf.printTo(tmp);
+  this->write("/wifiConfig.json", tmp);
+  return (true);
 }
 
 String CoolAsyncEditor::read(String patch) {
@@ -156,15 +183,20 @@ String CoolAsyncEditor::getUUID() {
   return (uuid);
 }
 
-String CoolAsyncEditor::getSavedCredentialFromIndex(uint8_t i, String type) {
+String CoolAsyncEditor::getSavedCredentialType(String bssid, String type) {
   DynamicJsonBuffer json;
-  JsonObject &jsonBuf =
-      json.parseObject(this->read("/wifiConfig.json").c_str());
-  if (jsonBuf["Wifi" + String(i)].success()) {
-    JsonObject &jWifi = jsonBuf["Wifi" + String(i)];
-    String tmp = jWifi.get<String>(type).c_str();
-    DEBUG_VAR("Credential request is: ", tmp);
-    return (tmp);
+  JsonArray &jsonBuf = json.parseArray(this->read("/wifiConfig.json"));
+  uint8_t wifiSize = jsonBuf.size();
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    if (jsonBuf[i][bssid].success()) {
+      if (type == "psk") {
+        DEBUG_VAR("Credential required: ", jsonBuf[i]["psk"].asString());
+        return (jsonBuf[i]["psk"].asString());
+      } else if (type == "ssid") {
+        DEBUG_VAR("Credential required: ", jsonBuf[i]["psk"].asString());
+        return (jsonBuf[i]["ssid"].asString());
+      }
+    }
   }
   return ("");
 }
