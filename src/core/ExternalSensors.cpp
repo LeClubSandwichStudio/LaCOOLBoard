@@ -116,7 +116,15 @@ void ExternalSensors::begin() {
           new ExternalSensor<I2CSoilMoistureSensor>(sensors[i].address));
       sensors[i].exSensor = i2cSoilMoistureSensor.release();
       sensors[i].exSensor->read(&A, &B);
-    }
+    } else if ((sensors[i].reference) == "BME280") {
+      float temp, humi, pres;
+
+      std::unique_ptr<ExternalSensor<BME280>> bme280(
+          new ExternalSensor<BME280>(sensors[i].address));
+      sensors[i].exSensor = bme280.release();
+      sensors[i].exSensor->begin();
+      sensors[i].exSensor->read(&temp, &humi, &pres);
+    } 
   }
 }
 
@@ -198,6 +206,16 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("SoilTemperature:", B);
           root[sensors[i].kind0] = A; 
           root[sensors[i].kind1] = B;
+        } else if (sensors[i].reference == "BME280") {
+          float A, B, C;
+          sensors[i].exSensor->read(&A, &B, &C);
+          root[sensors[i].kind0] = A; 
+          root[sensors[i].kind1] = B;
+          root[sensors[i].kind2] = C;
+          DEBUG_VAR("external BME280 @ I2C address:", sensors[i].address);
+          DEBUG_VAR("Temperature : ", A);
+          DEBUG_VAR("Pressure : ", B);
+          DEBUG_VAR("Humidity : ", C);
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
