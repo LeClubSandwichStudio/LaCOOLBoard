@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import SerialFunctions
 import SerialTest
 import time
@@ -12,21 +11,19 @@ import AwsMessage
 
 # --------------------------PRINCIPAL PROGRAMM-------------------------- #
 
-SerialFunctions.initReset()
 Jetpack.initJetpack()
-
-SerialFunctions.resultFileName
+resultFileName = ('CoolBoard-Test-' +
+                  datetime.datetime.now().strftime("%y-%m-%d-%H-%M") + ".txt")
 
 endOfTest = False
-resetLineList = ["INFO:  Builtin actuator configuration loaded"]#,
-                 #"INFO:  Wifi connecting...",
-                 #"INFO:  MQTT connecting...",
-                 #"INFO:  Listening to update messages..."]
+resetLineList = ["INFO:  Builtin actuator configuration loaded"],
+                 "INFO:  Wifi connecting...",
+                 "INFO:  MQTT connecting...",
+                 "INFO:  Listening to update messages..."]
 resetLineNumber = 0
 SerialFunctions.resetBoard()
 
 while not endOfTest:
-    # puts in the good order all the test functions
     SerialTest.SPIFFS(SerialFunctions.serialBus, resultFileName, True)
     SerialTest.MAIN_CONFIGURATION(SerialFunctions.serialBus, resultFileName, True)
     SerialTest.MAC_STATUS_TEST(SerialFunctions.serialBus, resultFileName, True)
@@ -52,8 +49,6 @@ while not endOfTest:
                 if(SerialTest.OTA_UPDATE_FIRMWARE(SerialFunctions.serialBus, resultFileName, True)):
                     SerialTest.FIRMWARE_VERSION_TEST(SerialFunctions.serialBus, resultFileName, True)
     else:
-        #SerialTest.RETRY_WIFI_CONNECTION(serialBus, resultFileName, giveResult=True)
-        # passera a la suite que si succes
         SerialTest.SAVE_LOG(SerialFunctions.serialBus, resultFileName, True)
         SerialTest.DATA_SAVING_JSON(SerialFunctions.serialBus, resultFileName, True)
 
@@ -69,7 +64,7 @@ AwsMessage.sendMessageLogInterval()
 # SerialFunctions.waitSynchroAct(resultFileName)
 AwsMessage.sendMessageAct0()
 AwsMessage.sendMessageAct1()
-#SerialFunctions.resetBoard()
+# SerialFunctions.resetBoard()
 # SerialFunctions.waitSynchroAct(resultFileName)
 Jetpack.ACTUATOR_1_ACTIVATED(SerialFunctions.serialBus, resultFileName, True)
 Jetpack.ACTUATOR_2_DISACTIVATED(SerialFunctions.serialBus, resultFileName, True)

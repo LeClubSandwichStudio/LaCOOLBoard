@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-
 import RPi.GPIO as GPIO
 
-listPin = [10,22,17,27,18,24,23,25]
+listPinJetpack = [10,22,17,27,18,24,23,25]
 
 def initJetpack():
     GPIO.setmode(GPIO.BCM)
-    for i in listPin:
+    for i in listPinJetpack:
         GPIO.setup(i, GPIO.IN)
+
 
 def ALL_ACTUATORS_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ALL ACTUATORS ACTIVATED"
-    testResult = not (0 in [GPIO.input(i) for i in listPin])
+    testResult = not (0 in [GPIO.input(i) for i in listPinJetpack])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -24,7 +24,7 @@ def ALL_ACTUATORS_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ALL_ACTUATORS_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ALL ACTUATORS DISACTIVATED"
-    testResult = not (1 in [GPIO.input(i) for i in listPin])
+    testResult = not (1 in [GPIO.input(i) for i in listPinJetpack])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -37,7 +37,7 @@ def ALL_ACTUATORS_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_1_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 1 ACTIVATED"
-    testResult = GPIO.input(listPin[0])
+    testResult = GPIO.input(listPinJetpack[0])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -51,7 +51,7 @@ def ACTUATOR_1_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_1_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 1 DISACTIVATED"
-    testResult = not GPIO.input(listPin[0])
+    testResult = not GPIO.input(listPinJetpack[0])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -64,7 +64,7 @@ def ACTUATOR_1_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_2_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 2 ACTIVATED"
-    testResult = GPIO.input(listPin[1])
+    testResult = GPIO.input(listPinJetpack[1])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -78,7 +78,7 @@ def ACTUATOR_2_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_2_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 2 DISACTIVATED"
-    testResult = not GPIO.input(listPin[1])
+    testResult = not GPIO.input(listPinJetpack[1])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -92,7 +92,7 @@ def ACTUATOR_2_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_3_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 3 ACTIVATED"
-    testResult = GPIO.input(listPin[2])
+    testResult = GPIO.input(listPinJetpack[2])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -106,7 +106,7 @@ def ACTUATOR_3_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_3_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 3 DISACTIVATED"
-    testResult = not GPIO.input(listPin[2])
+    testResult = not GPIO.input(listPinJetpack[2])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -120,7 +120,7 @@ def ACTUATOR_3_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_4_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 4 ACTIVATED"
-    testResult = GPIO.input(listPin[3])
+    testResult = GPIO.input(listPinJetpack[3])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -134,7 +134,7 @@ def ACTUATOR_4_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_4_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 4 DISACTIVATED"
-    testResult = not GPIO.input(listPin[3])
+    testResult = not GPIO.input(listPinJetpack[3])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -148,7 +148,7 @@ def ACTUATOR_4_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_5_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 5 ACTIVATED"
-    testResult = GPIO.input(listPin[4])
+    testResult = GPIO.input(listPinJetpack[4])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -162,7 +162,7 @@ def ACTUATOR_5_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_5_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 5 DISACTIVATED"
-    testResult = not GPIO.input(listPin[4])
+    testResult = not GPIO.input(listPinJetpack[4])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -176,7 +176,7 @@ def ACTUATOR_5_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_6_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 6 ACTIVATED"
-    testResult = GPIO.input(listPin[5])
+    testResult = GPIO.input(listPinJetpack[5])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -190,7 +190,7 @@ def ACTUATOR_6_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_6_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 6 DISACTIVATED"
-    testResult = not GPIO.input(listPin[5])
+    testResult = not GPIO.input(listPinJetpack[5])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -204,7 +204,7 @@ def ACTUATOR_6_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_7_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 7 ACTIVATED"
-    testResult = GPIO.input(listPin[6])
+    testResult = GPIO.input(listPinJetpack[6])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -218,7 +218,7 @@ def ACTUATOR_7_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_7_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 7 DISACTIVATED"
-    testResult = not GPIO.input(listPin[6])
+    testResult = not GPIO.input(listPinJetpack[6])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -232,7 +232,7 @@ def ACTUATOR_7_DISACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_8_ACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 8 ACTIVATED"
-    testResult = GPIO.input(listPin[7])
+    testResult = GPIO.input(listPinJetpack[7])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:
@@ -246,7 +246,7 @@ def ACTUATOR_8_ACTIVATED(serialBus, resultFileName, giveResult=True):
 
 def ACTUATOR_8_DISACTIVATED(serialBus, resultFileName, giveResult=True):
     TEST_NAME = "ACTUATOR 8 DISACTIVATED"
-    testResult = not GPIO.input(listPin[7])
+    testResult = not GPIO.input(listPinJetpack[7])
     if giveResult:
         resultFile = open(resultFileName, 'a')
         if testResult:

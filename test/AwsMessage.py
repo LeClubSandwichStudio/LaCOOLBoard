@@ -3,16 +3,23 @@ import json
 import boto3
 
 macAddress = '2C3AE84FBF4F'
-valueLogInterval = 300
+valueLogInterval = 315
 Act0 = True
 Act1 = True
-#linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
-linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-g07e5da3.bin"
-#versionFirmware_1 = "v0.2.7-14-gdc7c463"
-versionFirmware_1 = "v0.2.7-14-g07e5da3"
+Act2 = True
+Act3 = True
+Act4 = True
+Act5 = True
+Act6 = True
+Act7 = True
+fingerPrint = "1C8ABE2E0203E4093085DAD910D1265C0E07A9B4"
+#linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-34-g701ca6e.bin"
+linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-32-gdf1915e.bin"
+#versionFirmware_1 = "v0.2.7-34-g701ca6e"
+versionFirmware_1 = "v0.2.7-32-gdf1915e"
 
-linkFirmware_2 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c464.bin"
-versionFirmware_2 = "v0.2.7-14-gdc7c463"
+linkFirmware_2 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
+versionFirmware_2 = "v0.2.7-14-gdc7c464"
 
 logInterval = {"state":
                 {"desired":
@@ -23,6 +30,16 @@ logInterval = {"state":
                 }
             }
 jsonLogInterval = json.dumps(logInterval)
+
+jetPack = {"state":
+                {"desired":
+                    {"CoolBoard":
+                        {"jetpackActive": True
+                        }
+                    }
+                }
+            }
+jsonJetPack = json.dumps(jetPack)
 
 actuator_0 = {"state":
                 {"desired":
@@ -40,11 +57,59 @@ actuator_1 = {"state":
             }
 jsonActuator_1 = json.dumps(actuator_1)
 
+actuator_2 = {"state":
+                {"desired":
+                    {"Act2": Act2
+                    }
+                }
+            }
+jsonActuator_2 = json.dumps(actuator_2)
+
+actuator_3 = {"state":
+                {"desired":
+                    {"Act2": Act3
+                    }
+                }
+            }
+jsonActuator_3 = json.dumps(actuator_3)
+
+actuator_4 = {"state":
+                {"desired":
+                    {"Act4": Act4
+                    }
+                }
+            }
+jsonActuator_4 = json.dumps(actuator_4)
+
+actuator_5 = {"state":
+                {"desired":
+                    {"Act5": Act5
+                    }
+                }
+            }
+jsonActuator_5 = json.dumps(actuator_5)
+
+actuator_6 = {"state":
+                {"desired":
+                    {"Act6": Act6
+                    }
+                }
+            }
+jsonActuator_6 = json.dumps(actuator_6)
+
+actuator_7 = {"state":
+                {"desired":
+                    {"Act7": Act7
+                    }
+                }
+            }
+jsonActuator_7 = json.dumps(actuator_7)
+
 firmware_1 = {"state":
                 {"desired":
                     {"CoolBoard":
                         {"firmwareUpdate":
-                            {"firmwareUrlFingerprint": "BC5445C5CE60988076FFFE5C83555949810370A1",
+                            {"firmwareUrlFingerprint": fingerPrint,
                             "firmwareUrl": linkFirmware_1,
                             "firmwareVersion": versionFirmware_1
                             }
@@ -58,7 +123,7 @@ firmware_2 = {"state":
                 {"desired":
                     {"CoolBoard":
                         {"firmwareUpdate":
-                            {"firmwareUrlFingerprint": "BC5445C5CE60988076FFFE5C83555949810370A1",
+                            {"firmwareUrlFingerprint": fingerPrint,
                             "firmwareUrl": linkFirmware_2,
                             "firmwareVersion": versionFirmware_2
                             }
@@ -97,6 +162,15 @@ def sendMessageLogInterval():
     )
 
 
+def sendMessageJetPack():
+    global jsonLogInterval
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonJetPack
+    )
+
+
 def sendMessageAct0():
     global jsonActuator_0
     global macAddress
@@ -112,6 +186,60 @@ def sendMessageAct1():
     client.update_thing_shadow(
         thingName=macAddress,
         payload=jsonActuator_1
+    )
+
+
+def sendMessageAct2():
+    global jsonActuator_2
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_2
+    )
+
+
+def sendMessageAct3():
+    global jsonActuator_3
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_3
+    )
+
+
+def sendMessageAct4():
+    global jsonActuator_4
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_4
+    )
+
+
+def sendMessageAct5():
+    global jsonActuator_5
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_5
+    )
+
+
+def sendMessageAct6():
+    global jsonActuator_6
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_6
+    )
+
+
+def sendMessageAct7():
+    global jsonActuator_7
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonActuator_7
     )
 
 
@@ -141,6 +269,3 @@ def getShadow():
     rawDataString = rawDataBytes.decode('utf-8')
     jsonState = json.loads(rawDataString)
     return(jsonState)
-
-# sendMessageLogInterval()
-# sendMessageAct0()
