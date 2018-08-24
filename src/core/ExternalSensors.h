@@ -27,13 +27,14 @@
 #include <ArduinoJson.h>
 
 #include "ExternalSensor.h"
+#include "CoolMessagePack.h"
 
 class ExternalSensors {
 
 public:
   void begin();
-  void read(JsonObject &root);
-  bool config(JsonArray &root);
+  void read(PrintAdapter streamer);
+  bool config();
 
 private:
   struct Sensor {

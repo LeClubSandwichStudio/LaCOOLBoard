@@ -29,6 +29,7 @@
 #include <SparkFunBME280.h>
 
 #include "CoolSI114X.h"
+#include "CoolMessagePack.h"
 
 #define MOISTURE_SENSOR_PIN 13
 #define ANALOG_MULTIPLEXER_PIN 12
@@ -43,10 +44,10 @@ class CoolBoardSensors {
 public:
   CoolBoardSensors();
   void begin();
-  void read(JsonObject &root);
+  void read(PrintAdapter streamer);
   void allActive();
   void end();
-  bool config(JsonArray &root);
+  bool config();
   void printConf();
   void setEnvSensorSettings(uint8_t commInterface = I2C_MODE,
                             uint8_t I2CAddress = 0x76, uint8_t runMode = 3,

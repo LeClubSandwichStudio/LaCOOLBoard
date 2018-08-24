@@ -140,8 +140,14 @@ void CoolBoardLed::write(uint8_t r, uint8_t g, uint8_t b) {
   }
 }
 
-bool CoolBoardLed::config(JsonObject &root) {
-  CoolConfig::set<bool>(root, "ledActive", this->ledActive);
+bool CoolBoardLed::config() {
+  CoolConfig config("/general.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read /general.json");
+    return (false);
+  }
+  JsonObject &root = config.get();
+  CoolConfig::set<bool>(root["general"], "ledActive", this->ledActive);
   INFO_LOG("LED configuration loaded");
   return (true);
 }

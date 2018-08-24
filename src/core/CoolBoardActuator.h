@@ -35,7 +35,7 @@ public:
   void begin();
   bool getStatus();
   void write(bool action);
-  bool doAction(JsonObject &data, uint8_t hour, uint8_t minute);
+  bool doAction(uint8_t hour, uint8_t minute);
   void normalAction(float measurment);
   void invertedAction(float measurment);
   void temporalActionOff();

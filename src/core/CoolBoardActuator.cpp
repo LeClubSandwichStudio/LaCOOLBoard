@@ -38,7 +38,7 @@ bool CoolBoardActuator::getStatus() {
   return digitalRead(ONBOARD_ACTUATOR_PIN);
 }
 
-bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour,
+bool CoolBoardActuator::doAction(uint8_t hour,
                                  uint8_t minute) {
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
@@ -51,64 +51,30 @@ bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour,
       // normal actor
       if (this->inverted == 0) {
         // not inverted actor
-        this->normalAction(root[this->primaryType].as<float>());
       } else if (this->inverted == 1) {
         // inverted actor
-        this->invertedAction(root[this->primaryType].as<float>());
       }
     } else if (this->temporal == 1) {
       // temporal actor
       if (this->secondaryType == "hour") {
         // hour actor
-        // if (root[this->primaryType].success()) {
-        //   // mixed hour actor
-        //   this->mixedHourAction(hour, root[this->primaryType].as<float>());
-        // } else {
-          // normal hour actor
           this->hourAction(hour);
-          // root[this->secondaryType].as<int>());
-        // }
       } else if (this->secondaryType == "minute") {
         // minute actor
-        // if (root[this->primaryType].success()) {
-        //   // mixed minute actor
-        //   this->mixedMinuteAction(minute, root[this->primaryType].as<float>());
-        // } else {
-          // normal minute actor
           this->minuteAction(minute);
-        // }
       } else if (this->secondaryType == "hourMinute") {
         // hourMinute actor
-        // if (root[this->primaryType].success()) {
-        //   // mixed hourMinute actor
-        //   this->mixedHourMinuteAction(hour, minute,
-                                      // root[this->primaryType].as<float>());
-        // } else {
-          // normal hourMinute actor
           this->hourMinuteAction(hour, minute);
-        // }
       } else if (this->secondaryType == "time") {
         // normal temporal actor
-        // if (root[this->primaryType].success()) {
-        //   // mixed temporal actor
-        //   this->mixedTemporalActionOn(root[this->primaryType].as<float>());
-        // } else {
-          // normal temporal actor
           this->temporalActionOff();
-        // }
       }
     }
   } else if (this->actif == 0) {
     // disabled actor
     if (this->temporal == 1) {
       // temporal actor
-      // if (root[this->primaryType].success()) {
-      //   // mixed temporal actor
-      //   this->mixedTemporalActionOff(root[this->primaryType].as<float>());
-      // } else {
-        // normal temporal actor
         this->temporalActionOn();
-      // }
     }
   }
   return (this->state);
@@ -134,7 +100,6 @@ bool CoolBoardActuator::config(JsonObject &root) {
   CoolConfig::set<unsigned long>(root["high"], "time", this->timeHigh);
   CoolConfig::set<uint8_t>(root["high"], "hour", this->hourHigh);
   CoolConfig::set<uint8_t>(root["high"], "minute", this->minuteHigh);
-  INFO_LOG("Builtin actuator configuration loaded");
   return (true);
 }
 

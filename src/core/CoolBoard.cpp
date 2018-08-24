@@ -38,49 +38,43 @@ void CoolBoard::begin() {
     this->spiffsProblem();
   }
   this->sleep();
-  CoolConfig configG("/general.json");
-  if (!configG.readFileAsJson()) {
-    ERROR_LOG("Failed to read /general.json");
+  if (!this->coolBoardLed.config()) {
     this->spiffsProblem();
   }
-  CoolConfig configS("/sensors.json");
-  if (!configS.readFileAsJson()) {
-    ERROR_LOG("Failed to read /sensors.json");
-    this->spiffsProblem();
-  }
-  CoolConfig configA("/actuators.json");
-  if (!configA.readFileAsJson()) {
-    ERROR_LOG("Failed to read /actuators.json");
-    this->spiffsProblem();
-  }
-  JsonObject &general = configG.get();
-  JsonObject &sensors = configS.get();
-  JsonObject &actuators = configA.get();
-  this->coolBoardLed.config(general);
   this->coolBoardLed.begin();
   delay(10);
   this->coolBoardLed.write(YELLOW);
-  this->config(general);
+  if (!this->config()) {
+    this->spiffsProblem();
+  }
   pinMode(ENABLE_I2C_PIN, OUTPUT);
   pinMode(BOOTSTRAP_PIN, INPUT);
   digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
-  this->coolBoardSensors.config(sensors["sensors"]);
+  if (!this->coolBoardSensors.config()) {
+    this->spiffsProblem();
+  }
   this->coolBoardSensors.begin();
   delay(100);
   this->printConf();
   this->coolBoardLed.printConf();
   this->coolBoardSensors.printConf();
-  this->jetPack.config(actuators["actuators"]);
+  if (!this->jetPack.config()) {
+    this->spiffsProblem();
+  }
   this->jetPack.begin();
   this->jetPack.printConf();
   delay(100);
-  this->irene3000.config(sensors["sensors"]);
+  if (!this->irene3000.config()) {
+    this->spiffsProblem();
+  }
   this->irene3000.begin();
   this->irene3000.calibrate(this->coolBoardLed);
   this->irene3000.printConf();
   delay(100);
-  this->externalSensors->config(sensors["sensors"]);
+  if (!this->externalSensors->config()) {
+    this->spiffsProblem();
+  }
   this->externalSensors->begin();
   delay(100);
   this->mqttsConfig();
@@ -104,9 +98,6 @@ void CoolBoard::loop() {
     this->clockProblem();
   } else {
     DynamicJsonBuffer jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
-    JsonObject &state = root.createNestedObject("state");
-    JsonObject &reported = state.createNestedObject("reported");
     INFO_LOG("Listening to update messages...");
     this->mqttListen();
     if (this->updateAnswer != "") {
@@ -116,6 +107,17 @@ void CoolBoard::loop() {
           this->connect();
           mqttLog(this->updateAnswer.c_str());
           this->updateAnswer = "";
+          this->coolBoardLed.config();
+          this->coolBoardLed.begin();
+          this->config();
+          this->coolBoardSensors.config();
+          this->coolBoardSensors.begin();
+          this->jetPack.config();
+          this->jetPack.begin();
+          this->irene3000.config();
+          this->irene3000.begin();
+          this->externalSensors->config();
+          this->externalSensors->begin();
         } else {
           mqttLog(this->updateAnswer.c_str());
           this->updateAnswer = "";
@@ -125,16 +127,12 @@ void CoolBoard::loop() {
       }
     }
     INFO_LOG("Collecting board and sensor data...");
-    this->readBoardData(reported);
-    this->readSensors(reported);
-    INFO_LOG("Setting actuators and reporting their state...");
-    this->handleActuators(reported);
+    String logLoop = this->createLog();
     delay(50);
     if (this->shouldLog()) {
       INFO_LOG("Sending log over MQTT...");
       String data;
-      root.printTo(data);
-      this->mqttLog(data);
+      this->mqttLog(logLoop);
       this->previousLogTime = millis();
     }
     if (CoolFileSystem::hasSavedLogs()) {
@@ -146,6 +144,65 @@ void CoolBoard::loop() {
   if (this->sleepActive && (!this->shouldLog() || !rtcSynced)) {
     this->sleep();
   }
+}
+const char PROGMEM b64_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                    "abcdefghijklmnopqrstuvwxyz"
+                                    "0123456789+/";
+inline void a3_to_a4(unsigned char *a4, unsigned char *a3) {
+  a4[0] = (a3[0] & 0xfc) >> 2;
+  a4[1] = ((a3[0] & 0x03) << 4) + ((a3[1] & 0xf0) >> 4);
+  a4[2] = ((a3[1] & 0x0f) << 2) + ((a3[2] & 0xc0) >> 6);
+  a4[3] = (a3[2] & 0x3f);
+}
+
+int base64_encode(char *output, char *input, int inputLen) {
+  int i = 0, j = 0;
+  int encLen = 0;
+  unsigned char a3[3];
+  unsigned char a4[4];
+
+  while (inputLen--) {
+    a3[i++] = *(input++);
+    if (i == 3) {
+      a3_to_a4(a4, a3);
+      for (i = 0; i < 4; i++) {
+        output[encLen++] = pgm_read_byte(&b64_alphabet[a4[i]]);
+      }
+      i = 0;
+    }
+  }
+  if (i) {
+    for (j = i; j < 3; j++) {
+      a3[j] = '\0';
+    }
+    a3_to_a4(a4, a3);
+    for (j = 0; j < i + 1; j++) {
+      output[encLen++] = pgm_read_byte(&b64_alphabet[a4[j]]);
+    }
+    while ((i++ < 3)) {
+      output[encLen++] = '=';
+    }
+  }
+  output[encLen] = '\0';
+  return encLen;
+}
+
+String CoolBoard::createLog() {
+  char buffer[600];
+  char base64[600];
+  bzero(buffer, 600);
+  bzero(base64, 600);
+  GString str = buffer;
+  PrintAdapter streamer = str;
+  msgpck_write_map_header(&streamer, 1);
+  CoolMessagePack::msgpckMap(streamer, 1, "state");
+  CoolMessagePack::msgpckMap(streamer, 5, "reported");
+  this->readBoardData(streamer);
+  this->readSensors(streamer);
+  this->handleActuators(streamer);
+  base64_encode(base64, buffer, 600);
+  Serial.print(base64);
+  return (String(base64));
 }
 
 bool CoolBoard::isConnected() {
@@ -196,14 +253,13 @@ void CoolBoard::sendSavedMessages() {
   }
 }
 
-void CoolBoard::handleActuators(JsonObject &root) {
+void CoolBoard::handleActuators(PrintAdapter streamer) {
   if (this->manual == 0) {
     Date date = CoolTime::getInstance().rtc.getDate();
-    JsonObject &sample = root["sample"];
-    JsonArray &actuators = sample.createNestedArray("actuators");
+    CoolMessagePack::msgpckArray(streamer, 9, "actuators");
     INFO_LOG("Actuators configuration: automatic");
     DEBUG_LOG("Updating and recording Jetpack state...");
-    this->jetPack.doAction(sample, date.getHour(), date.getMinutes());
+    this->jetPack.doAction(streamer, date.getHour(), date.getMinutes());
     DEBUG_LOG("Updating and recording onboard actuator state...");
   } else {
     INFO_LOG("Actuators configuration: manual");
@@ -233,9 +289,16 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
   return cnt;
 }
 
-bool CoolBoard::config(JsonObject &root) {
+bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
+  CoolConfig config("/general.json");
+
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read /general.json");
+    this->spiffsProblem();
+  }
+  JsonObject &root = config.get();
   this->coolWifi->config();
   this->tryFirmwareUpdate();
   JsonObject &general = root["general"];
@@ -347,31 +410,39 @@ int CoolBoard::update(String &answer) {
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
-void CoolBoard::readSensors(JsonObject &root) {
-  JsonObject &sample = root.createNestedObject("sample");
+void CoolBoard::readSensors(PrintAdapter streamer) {
   digitalWrite(ENABLE_I2C_PIN, HIGH);
-  this->coolBoardSensors.read(sample);
-  this->externalSensors->read(sample);
-  this->irene3000.read(sample);
+  CoolMessagePack::msgpckMap(streamer, this->count_sensors() - 1, "sample");
+  this->coolBoardSensors.read(streamer);
+  this->externalSensors->read(streamer);
+  this->irene3000.read(streamer);
   this->coolBoardLed.blink(GREEN, 0.5);
 }
 
-void CoolBoard::readBoardData(JsonObject &root) {
-  root["timestamp"] = CoolTime::getInstance().getIso8601DateTime();
-  JsonObject &stat = root.createNestedObject("static");
-  JsonObject &general = root.createNestedObject("system");
-  if (WiFi.status() == WL_CONNECTED) {
-    String ip;
-    if (this->coolWifi->getPublicIp(ip)) {
-      DEBUG_VAR("Public IP address:", ip);
-      general["publicIp"] = ip;
-    }
+size_t CoolBoard::count_sensors() {
+  CoolConfig configuration("/sensors.json");
+
+  if (!configuration.readFileAsJson()) {
+    ERROR_LOG("Failed to read /general.json");
+    this->spiffsProblem();
   }
-  general["fwVersion"] = COOL_FW_VERSION;
-  if (WiFi.status() == WL_CONNECTED) {
-    general["wifiSignal"] = WiFi.RSSI();
-  }
-  stat["macAddress"] = this->mqttId;
+  JsonObject &sensors = configuration.get();
+  JsonArray &sensor = sensors["sensors"];
+  return (sensor.size());
+}
+
+void CoolBoard::readBoardData(PrintAdapter streamer) {
+  CoolMessagePack::msgpckString(
+      streamer, CoolTime::getInstance().getIso8601DateTime(), "timestamp");
+  CoolMessagePack::msgpckMap(streamer, 1, "static");
+  CoolMessagePack::msgpckString(streamer, this->mqttId, "macAddress");
+  CoolMessagePack::msgpckMap(streamer, 3, "system");
+  String ip = "";
+  this->coolWifi->getPublicIp(ip);
+  CoolMessagePack::msgpckString(streamer, ip, "publicIp");
+  DEBUG_VAR("Public IP address:", ip);
+  CoolMessagePack::msgpckString(streamer, COOL_FW_VERSION, "fwVersion");
+  CoolMessagePack::msgpckInt(streamer, WiFi.RSSI(), "wifiSignal");
 }
 
 void CoolBoard::sleep() {
@@ -415,26 +486,40 @@ void CoolBoard::sleep() {
   EEPROM.end();
 }
 
-String CoolBoard::parseJsonConfig(const char *filePath) {
-  DynamicJsonBuffer buffer;
-  String message;
-  JsonObject &send = buffer.createObject();
-  JsonObject &config = send.createNestedObject("config");
+void CoolBoard::parseJsonConfig(const char *filePath, JsonObject &send) {
+  JsonObject &state = send.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+  JsonObject &config = reported.createNestedObject("config");
   CoolConfig configuration(filePath);
 
   if (!configuration.readFileAsJson()) {
     ERROR_VAR("Failed to read ", filePath);
     this->spiffsProblem();
   }
-  send["config"] = configuration.get();
-  send.printTo(message);
-  return (message);
+  reported["config"] = configuration.get();
+}
+
+void CoolBoard::sendConfig(const char *path) {
+  DynamicJsonBuffer buffer;
+  JsonObject &json = buffer.createObject();
+  parseJsonConfig(path, json);
+  size_t size = json.measureLength();
+  char buf[size];
+  bzero(buf, size);
+  GString str = buf;
+  PrintAdapter streamer = str;
+
+  CoolMessagePack::jsonToMsgpck(streamer, json);
+  char out[size];
+  bzero(out, size);
+  base64_encode(out, buf, size);
+  this->mqttLog(out);
 }
 
 void CoolBoard::sendAllConfig() {
-  this->mqttLog(parseJsonConfig("/general.json"));
-  this->mqttLog(parseJsonConfig("/sensors.json"));
-  this->mqttLog(parseJsonConfig("/actuators.json"));
+  this->sendConfig("/general.json");
+  this->sendConfig("/sensors.json");
+  this->sendConfig("/actuators.json");
 }
 
 void CoolBoard::networkProblem() {

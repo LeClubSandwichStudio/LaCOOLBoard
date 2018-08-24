@@ -25,10 +25,9 @@
 #define IRENE3000_H
 
 #include <Arduino.h>
-
 #include "CoolAdafruit_ADS1015.h"
-
 #include "CoolBoardLed.h"
+#include "CoolMessagePack.h"
 
 #define ADC_MAXIMUM_VALUE 32767
 #define REFERENCE_VOLTAGE_GAIN_4 1.024
@@ -48,14 +47,14 @@ class Irene3000 {
 
 public:
   void begin();
-  bool config(JsonArray &root, bool overWrite = false);
+  bool config(bool overWrite = false);
   void printConf();
-  void read(JsonObject &root);
+  void read(PrintAdapter streamer);
   int readButton();
   int readADSChannel2();
-  void readPh(JsonObject &root);
-  void readTemp(JsonObject &root);
-  void readEC(JsonObject &root);
+  void readPh(PrintAdapter streamer);
+  void readTemp(PrintAdapter streamer);
+  void readEC(PrintAdapter streamer);
   float readTemp();
   void resetParams();
   void calibratepH7();

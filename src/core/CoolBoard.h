@@ -38,6 +38,8 @@
 #include "PubSubClient.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include "CoolMessagePack.h"
+#include "base64.h"
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
@@ -53,7 +55,7 @@ class CoolBoard {
 
 public:
   void begin();
-  bool config(JsonObject &root);
+  bool config();
   int update(String &answer);
   void loop();
   void connect();
@@ -61,12 +63,13 @@ public:
   unsigned long getLogInterval();
   void printConf();
   void sleep();
-  void handleActuators(JsonObject &reported);
-  void readSensors(JsonObject &root);
-  void readBoardData(JsonObject &root);
+  void handleActuators(PrintAdapter streamer);
+  void readSensors(PrintAdapter streamer);
+  void readBoardData(PrintAdapter streamer);
   void sendSavedMessages();
+  void sendConfig(const char *path);
   void sendAllConfig();
-  String parseJsonConfig(const char *filePath);
+  void parseJsonConfig(const char *filePath, JsonObject &send);
   void readPublicIP(JsonObject &reported);
   void clockProblem();
   void networkProblem();
@@ -87,6 +90,8 @@ public:
   void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
   void mqttLog(String data);
+  String createLog();
+  size_t count_sensors();
 
 private:
   uint8_t mqttRetries = 0;

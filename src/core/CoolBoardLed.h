@@ -46,7 +46,7 @@ public:
   CoolBoardLed() : neoPixelLed(1, 2) {}
   void begin();
   void write(uint8_t R, uint8_t G, uint8_t B);
-  bool config(JsonObject &root);
+  bool config();
   void activate();
   void printConf();
   void fade(uint8_t R, uint8_t G, uint8_t B, float T);

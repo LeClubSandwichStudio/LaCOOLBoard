@@ -50,13 +50,12 @@ void Jetpack::writeBit(byte pin, bool state) {
   digitalWrite(JETPACK_I2C_ENABLE_PIN, HIGH);
 }
 
-void Jetpack::doAction(JsonObject &root, int hour, int minute) {
+void Jetpack::doAction(PrintAdapter streamer, int hour, int minute) {
   bool state = false;
-  JsonArray &actuators = root.createNestedArray("actuators");
 
   for (int pin = 0; pin < 9; pin++) {
-    state = this->actuatorList[pin].doAction(root[this->actuatorList[pin].primaryType], hour, minute);
-    actuators.add(state);
+    state = this->actuatorList[pin].doAction(hour, minute);
+    CoolMessagePack::msgpckBool(streamer, state);
     if (pin == 0) {
       this->actuatorList[pin].write(state);
     } else {
@@ -66,8 +65,16 @@ void Jetpack::doAction(JsonObject &root, int hour, int minute) {
   this->write(this->action);
 }
 
-bool Jetpack::config(JsonArray &root) {
+bool Jetpack::config() {
+  CoolConfig config("/actuators.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read /actuators.json");
+    return (false);
+  }
+  JsonObject &actuators = config.get();
+  JsonArray &root = actuators["actuators"];
   for (int i = 0; i < 9; i++) {
+    INFO_VAR("configuration loaded for actuator #", i);
     this->actuatorList[i].config(root[i]);
   }
   INFO_LOG("Jetpack configuration loaded");

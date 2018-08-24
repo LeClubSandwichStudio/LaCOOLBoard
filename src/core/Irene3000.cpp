@@ -76,12 +76,7 @@ void Irene3000::calibrate(CoolBoardLed &led) {
     delay(30000);
     this->calibratepH4();
     this->saveCalibrationDate();
-    CoolConfig config("coolConfig.json");
-    if (!config.readFileAsJson()) {
-      ERROR_LOG("Failed to read configuration");
-    }
-    JsonObject &root = config.get();
-    this->config(root["sensors"], true);
+    this->config(true);
     led.write(FUCHSIA);
     INFO_LOG("Calibration finished, hold button to exit calibration");
     this->waitForButtonPress();
@@ -89,28 +84,34 @@ void Irene3000::calibrate(CoolBoardLed &led) {
   }
 }
 
-void Irene3000::read(JsonObject &root) {
+void Irene3000::read(PrintAdapter streamer) {
   if (waterTemp.active) {
-    root.createNestedObject("PT1000");
-    this->readTemp(root["PT1000"]);
+    CoolMessagePack::msgpckMap(streamer, 1, "PT1000");
+    this->readTemp(streamer);
     if (phProbe.active) {
-      root.createNestedObject("phProbe");
-      this->readPh(root["phProbe"]);
+      CoolMessagePack::msgpckMap(streamer, 1, "phProbe");
+      this->readPh(streamer);
       // readLastCalibrationDate(root);
     }
   }
   if (adc2.active) {
-    root.createNestedObject("adc2");
+    CoolMessagePack::msgpckMap(streamer, 1, "adc2");
     if (this->adc2.type == "DFrobotEC") {
-      this->readEC(root["adc2"]);
+      this->readEC(streamer);
     } else {
-    root["adc2"][adc2.type] = this->readADSChannel2();
+    CoolMessagePack::msgpckInt(streamer, this->readADSChannel2(), "adc2");
     }
   }
-  DEBUG_JSON("Irene data:", root);
 }
 
-bool Irene3000::config(JsonArray &root, bool overwrite) {
+bool Irene3000::config(bool overwrite) {
+  CoolConfig config("/sensors.json");
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to read /sensors.json");
+    return (false);
+  }
+  JsonObject &sensors = config.get();
+  JsonArray &root = sensors["sensors"];
   for (auto kv : root) {
     if (kv["key"] == "PT1000") {
       CoolConfig::set<bool>(kv["measures"], "waterTemp", this->waterTemp.active,
@@ -164,7 +165,7 @@ int Irene3000::readADSChannel2() {
   return (result);
 }
 
-void Irene3000::readPh(JsonObject &root) {
+void Irene3000::readPh(PrintAdapter streamer) {
   this->ads.setGain(GAIN_FOUR);
 
   int adcR = ads.readADC_SingleEnded(PH_CHANNEL);
@@ -177,12 +178,12 @@ void Irene3000::readPh(JsonObject &root) {
 
   DEBUG_VAR("ph value:", phT);
   if (isnan(phT)) {
-    root["ph"] = RawJson("null");
+    CoolMessagePack::msgpckNil(streamer, "ph");
   } else
-    root["ph"] = phT;
+    CoolMessagePack::msgpckFloat(streamer, phT, "ph");
 }
 
-void Irene3000::readTemp(JsonObject &root) {
+void Irene3000::readTemp(PrintAdapter streamer) {
   const double A = 3.9083E-3;
   const double B = -5.775E-7;
   double T;
@@ -198,9 +199,9 @@ void Irene3000::readTemp(JsonObject &root) {
 
   DEBUG_VAR("IRN3000 temperature in °C: ", T);
   if (T > 0 && T < 200) {
-    root["waterTemp"] = T;
+    CoolMessagePack::msgpckFloat(streamer, T, "waterTemp");
   } else {
-    root["waterTemp"] = RawJson("null");
+    CoolMessagePack::msgpckNil(streamer, "waterTemp");
   }
 }
 
@@ -221,7 +222,7 @@ float Irene3000::readTemp() {
   return T ;
 }
 
-void Irene3000::readEC(JsonObject &root) {
+void Irene3000::readEC(PrintAdapter streamer) {
   int overSample = 16;
   float ecCurrent = 0;
   unsigned long average = 0;
@@ -248,7 +249,7 @@ void Irene3000::readEC(JsonObject &root) {
   //convert us/cm to ms/cm
   ecCurrent/=1000;    
   DEBUG_VAR("EC value",ecCurrent);
-  root["EC"] = ecCurrent;
+  CoolMessagePack::msgpckFloat(streamer, ecCurrent, "EC");
 }
 
 void Irene3000::calibratepH7() {

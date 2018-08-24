@@ -28,6 +28,7 @@
 #include <ArduinoJson.h>
 
 #include "CoolBoardActuator.h"
+#include "CoolMessagePack.h"
 
 #define JETPACK_CLOCK_PIN 4
 #define JETPACK_DATA_PIN 15
@@ -39,8 +40,8 @@ public:
   void begin();
   void write(byte action);
   void writeBit(byte pin, bool state);
-  void doAction(JsonObject &root, int hour, int minute);
-  bool config(JsonArray &root);
+  void doAction(PrintAdapter streamer, int hour, int minute);
+  bool config();
   void printConf();
 
 private:
