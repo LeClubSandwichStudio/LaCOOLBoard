@@ -492,7 +492,7 @@ void CoolBoard::spiffsProblem() {
 void CoolBoard::lowBattery() {
   WiFi.mode(WIFI_OFF);
   SPIFFS.end();
-  ESP.deepSleep(LOW_POWER_SLEEP);
+  ESP.deepSleep((uint64_t(LOW_POWER_SLEEP) * 1000000ULL), WAKE_RF_DEFAULT);
 }
 
 void CoolBoard::powerCheck() {
