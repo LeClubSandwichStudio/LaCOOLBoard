@@ -12,6 +12,9 @@ serialBus = serial.Serial('/dev/ttyUSB0', 115200, timeout=10) # Raspberry pi 3 B
 
 listPinJetpack = [10,22,17,27,18,24,23,25]
 pinPWM = 13
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(pinPWM, GPIO.OUT)
+levelBattery = GPIO.PWM(pinPWM, 10000)
 
 def quit(fn_name):
     print('{0} took too long'.format(fn_name), file==sys.stderr)
@@ -205,7 +208,7 @@ def endLoop():
         while (True):
             line = serialBus.readline()
             lineReturned = str(serialBus.readline())
-            if (lineReturned[34:68] == "INFO:  Going to sleep for seconds:"):
+            if (lineReturned[34:60] == "INFO:  Going to sleep for:"):
                 print(lineReturned[34:])
                 return False
             else:
@@ -225,11 +228,13 @@ def batteryLowLevel():
 
 
 def changeLevelBattery(dutyCycle):
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pinPWM, GPIO.OUT)
-    pinPWM = GPIO.PWM(pinPWM, 10000)
-    pinPWM.start(0)
-    pinPWM.ChangeDutyCycle(dutyCycle)
+    levelBattery.start(dutyCycle)
+    time.sleep(20)
+
+
+def cleanPWM():
+    levelBattery.stop()
+    GPIO.cleanup()
 
 
 def actuator_1_activated():

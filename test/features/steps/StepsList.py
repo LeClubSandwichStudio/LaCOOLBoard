@@ -88,15 +88,20 @@ def step_impl(context):
 @when('the battery of the CoolBoard reaches a low level')
 def step_impl(context):
     StepsFunctions.changeLevelBattery(50)
+    time.sleep(20)
+    SerialFunctions.resetBoard()
     StepsFunctions.batteryLowLevel()
 
 @when('I replug the CoolBoard on DC')
 def step_impl(context):
+    time.sleep(20)
     StepsFunctions.changeLevelBattery(100)
+    SerialFunctions.resetBoard()
+    StepsFunctions.cleanPWM()
 
 # ----------- THEN -----------
 @then('it connects to the WiFi')
-@StepsFunctions.exit_after(3)
+@StepsFunctions.exit_after(60)
 def step_impl(context):
     StepsFunctions.hotspotActivated()
     try:

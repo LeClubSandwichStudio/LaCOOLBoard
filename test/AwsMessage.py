@@ -14,9 +14,9 @@ Act6 = True
 Act7 = True
 fingerPrint = "1C8ABE2E0203E4093085DAD910D1265C0E07A9B4"
 #linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-34-g701ca6e.bin"
-linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-32-gdf1915e.bin"
+linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-36-ga65e3ed.bin"
 #versionFirmware_1 = "v0.2.7-34-g701ca6e"
-versionFirmware_1 = "v0.2.7-32-gdf1915e"
+versionFirmware_1 = "v0.2.7-36-ga65e3ed"
 
 linkFirmware_2 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
 versionFirmware_2 = "v0.2.7-14-gdc7c464"
