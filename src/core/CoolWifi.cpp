@@ -107,7 +107,27 @@ void CoolWifi::startAccessPoint(CoolBoardLed &led) {
   yield();
 }
 
+bool CoolWifi::createSimpleWifiJson() {
+  File f = SPIFFS.open("/wifiConfig.json", "w");
+    if (!f) {
+      ERROR_VAR("Failed to open file for writing:", "/wifiConfig.json");
+      return (false);
+    }
+    DynamicJsonBuffer buffer;
+    JsonObject &root = buffer.createObject();
+    root["wifiCount"] = 0;
+    root["timeout"] = 180;
+    root.printTo(f);
+    f.close();
+    return (true);
+}
+
 bool CoolWifi::config() {
+  if (!SPIFFS.exists("/wifiConfig.json")) {
+    if (!this->createSimpleWifiJson()) {
+      return (false);
+    }
+  }
   CoolConfig config("/wifiConfig.json");
 
   if (!config.readFileAsJson()) {

@@ -40,14 +40,15 @@ public:
   void begin();
   void write(byte action);
   void writeBit(byte pin, bool state);
-  void doAction(PrintAdapter streamer, int hour, int minute);
+  void doAction(JsonObject &root, int hour, int minute);
   bool config();
   void printConf();
 
+  uint8_t sizeList;
 private:
 
   uint8_t action = B00000000;
-  CoolBoardActuator actuatorList[9];
+  CoolBoardActuator *actuatorList;
 };
 
 #endif

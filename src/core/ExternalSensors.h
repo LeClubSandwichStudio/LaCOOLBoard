@@ -33,7 +33,7 @@ class ExternalSensors {
 
 public:
   void begin();
-  void read(PrintAdapter streamer);
+  void read(JsonObject &root);
   bool config();
 
 private:

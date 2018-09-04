@@ -91,7 +91,7 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
-    } else if ((sensors[i].reference) == "SHT1x") {
+    } else if ((sensors[i].reference) == "SHT1X") {
       std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
           new ExternalSensor<SHT1x>());
       sensors[i].exSensor = CoolSHT1x.release();
@@ -128,80 +128,71 @@ void ExternalSensors::begin() {
   }
 }
 
-void ExternalSensors::read(PrintAdapter streamer) {
+void ExternalSensors::read(JsonObject &root) {
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
       if (sensors[i].exSensor != NULL) {
+        root.createNestedObject(sensors[i].key);
         if (sensors[i].reference == "Adafruit_TCS34725") {
           int16_t r, g, b, c, colorTemp, lux;
 
-          CoolMessagePack::msgpckMap(streamer, 4, sensors[i].key);
           sensors[i].exSensor->read(&r, &g, &b, &c, &colorTemp, &lux);
-          CoolMessagePack::msgpckInt(streamer, r, sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, g, sensors[i].kind1);
-          CoolMessagePack::msgpckInt(streamer, b, sensors[i].kind2);
-          CoolMessagePack::msgpckInt(streamer, c, sensors[i].kind3);
+          root[sensors[i].key][sensors[i].kind0] = r;
+          root[sensors[i].key][sensors[i].kind1] = g;
+          root[sensors[i].key][sensors[i].kind2] = b;
+          root[sensors[i].key][sensors[i].kind3] = c;
         } else if (sensors[i].reference == "Adafruit_CCS811") {
           int16_t C, V;
           float T;
 
-          CoolMessagePack::msgpckMap(streamer, 3, sensors[i].key);
           sensors[i].exSensor->read(&C, &V, &T);
-          CoolMessagePack::msgpckInt(streamer, C, sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, V, sensors[i].kind1);
-          CoolMessagePack::msgpckFloat(streamer, T, sensors[i].kind2);
+          root[sensors[i].key][sensors[i].kind0] = C;
+          root[sensors[i].key][sensors[i].kind1] = V;
+          root[sensors[i].key][sensors[i].kind2] = T;
         } else if ((sensors[i].reference == "Adafruit_ADS1015") ||
                    (sensors[i].reference == "Adafruit_ADS1115")) {
           int16_t channel0, channel1, channel2, channel3;
           int16_t gain0, gain1, gain2, gain3;
 
-          CoolMessagePack::msgpckMap(streamer, 8, sensors[i].key);
           sensors[i].exSensor->read(&channel0, &gain0, &channel1, &gain1,
                                     &channel2, &gain2, &channel3, &gain3);
           gain0 = gain0 / 512;
           gain1 = gain1 / 512;
           gain2 = gain2 / 512;
           gain3 = gain3 / 512;
-          CoolMessagePack::msgpckInt(streamer, channel0, "0_" + sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, gain0, "G0_" + sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, channel1, "1_" + sensors[i].kind1);
-          CoolMessagePack::msgpckInt(streamer, gain1, "G1_" + sensors[i].kind1);
-          CoolMessagePack::msgpckInt(streamer, channel2, "2_" + sensors[i].kind2);
-          CoolMessagePack::msgpckInt(streamer, gain2, "G2_" + sensors[i].kind2);
-          CoolMessagePack::msgpckInt(streamer, channel3, "3_" + sensors[i].kind3);
-          CoolMessagePack::msgpckInt(streamer, gain3, "G3_" + sensors[i].kind3);
+          root[sensors[i].key]["0_" + sensors[i].kind0] = channel0;
+          root[sensors[i].key]["G0_" + sensors[i].kind0] = gain0;
+          root[sensors[i].key]["1_" + sensors[i].kind1] = channel1;
+          root[sensors[i].key]["G1_" + sensors[i].kind1] = gain1;
+          root[sensors[i].key]["2_" + sensors[i].kind2] = channel2;
+          root[sensors[i].key]["G2_" + sensors[i].kind2] = gain2;
+          root[sensors[i].key]["3_" + sensors[i].kind3] = channel3;
+          root[sensors[i].key]["G3_" + sensors[i].kind3] = gain3;
         } else if (sensors[i].reference == "CoolGauge") {
           uint32_t A, B, C;
-
-          CoolMessagePack::msgpckMap(streamer, 3, sensors[i].key);
           sensors[i].exSensor->read(&A, &B, &C);
-          CoolMessagePack::msgpckInt(streamer, A, sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, B, sensors[i].kind1);
-          CoolMessagePack::msgpckInt(streamer, C, sensors[i].kind2);
-        } else if (sensors[i].reference == "SHT1x") {
+          root[sensors[i].key][sensors[i].kind0] = A;
+          root[sensors[i].key][sensors[i].kind1] = B;
+          root[sensors[i].key][sensors[i].kind2] = C;
+        } else if (sensors[i].reference == "SHT1X") {
           float A, B;
-
-          CoolMessagePack::msgpckMap(streamer, 2, sensors[i].key);
           sensors[i].exSensor->read(&A, &B);
-          CoolMessagePack::msgpckFloat(streamer, A, sensors[i].kind0);
-          CoolMessagePack::msgpckFloat(streamer, B, sensors[i].kind1);
+          root[sensors[i].key][sensors[i].kind0] = A;
+          root[sensors[i].key][sensors[i].kind1] = B;
         } else if (sensors[i].reference == "SDS011") {
           float A, B;
-
-          CoolMessagePack::msgpckMap(streamer, 2, sensors[i].key);
           sensors[i].exSensor->read(&A, &B);
           delay(200);
-          CoolMessagePack::msgpckFloat(streamer, A, sensors[i].kind0);
-          CoolMessagePack::msgpckFloat(streamer, B, sensors[i].kind1);
+          root[sensors[i].key][sensors[i].kind0] = A; //PM10
+          root[sensors[i].key][sensors[i].kind1] = B; //PM2.5
         } else if (sensors[i].reference == "MCP342X_4-20mA") {
           int16_t channel0, channel1, channel2, channel3;
 
-          CoolMessagePack::msgpckMap(streamer, 4, sensors[i].key);
           sensors[i].exSensor->read(&channel0, &channel1, &channel2, &channel3);
-          CoolMessagePack::msgpckInt(streamer, channel0, sensors[i].kind0);
-          CoolMessagePack::msgpckInt(streamer, channel1, sensors[i].kind1);
-          CoolMessagePack::msgpckInt(streamer, channel2, sensors[i].kind2);
-          CoolMessagePack::msgpckInt(streamer, channel3, sensors[i].kind3);
+          root[sensors[i].kind0] = channel0;
+          root[sensors[i].kind1] = channel1;
+          root[sensors[i].kind2] = channel2;
+          root[sensors[i].kind3] = channel3;
           DEBUG_VAR("MCP342X Channel 1 Output:",channel0);
           DEBUG_VAR("MCP342X Channel 2 Output:",channel1);
           DEBUG_VAR("MCP342X Channel 3 Output:",channel2);
@@ -226,14 +217,14 @@ void ExternalSensors::read(PrintAdapter streamer) {
           DEBUG_VAR("Pressure : ", B);
           DEBUG_VAR("Humidity : ", C);
         } else {
-          CoolMessagePack::msgpckMap(streamer, 1, sensors[i].key);
-          CoolMessagePack::msgpckFloat(streamer, sensors[i].exSensor->read(), sensors[i].kind0);
+          root[sensors[i].key][sensors[i].kind0] = sensors[i].exSensor->read();
         }
       } else {
-        ERROR_VAR("Undefined (NULL) external sensor at index #", i);
-      }
-    }
+        ERROR_VAR("Undefined (NULL) external sensor at index #", i); 
+      }   
+    }   
   }
+  DEBUG_JSON("External sensors data:", root);
 }
 
 bool ExternalSensors::config() {
@@ -246,7 +237,7 @@ bool ExternalSensors::config() {
   JsonArray &root = sensors["sensors"];
   for (auto kv : root) {
     if (kv["support"] == "external") {
-      JsonObject &tryed = kv["measures"];
+      JsonArray &measures = kv["measures"];
 
       CoolConfig::set<String>(kv, "reference",
                               this->sensors[this->sensorsNumber].reference);
@@ -255,17 +246,18 @@ bool ExternalSensors::config() {
       if (kv["utils"]["address"].success()) {
         CoolConfig::set<uint8_t>(kv["utils"], "address", this->sensors[this->sensorsNumber].address);
       }
-      for (JsonObject::iterator it = tryed.begin(); it != tryed.end(); ++it) {
-        String test = it->key;
+      int i = 0;
+      for (auto kv : measures) {
         if (this->sensors[this->sensorsNumber].kind0 == "") {
-          this->sensors[this->sensorsNumber].kind0 = it->key;
+          this->sensors[this->sensorsNumber].kind0 = measures.get<String>(i);
         } else if (this->sensors[this->sensorsNumber].kind1 == "") {
-          this->sensors[this->sensorsNumber].kind1 = it->key;
+          this->sensors[this->sensorsNumber].kind1 = measures.get<String>(i);
         } else if (this->sensors[this->sensorsNumber].kind2 == "") {
-          this->sensors[this->sensorsNumber].kind2 = it->key;
+          this->sensors[this->sensorsNumber].kind2 = measures.get<String>(i);
         } else if (this->sensors[this->sensorsNumber].kind3 == "") {
-          this->sensors[this->sensorsNumber].kind3 = it->key;
+          this->sensors[this->sensorsNumber].kind3 = measures.get<String>(i);
         }
+        i++;
       }
       this->sensorsNumber++;
     }

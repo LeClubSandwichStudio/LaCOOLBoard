@@ -38,42 +38,31 @@ bool CoolBoardActuator::getStatus() {
   return digitalRead(ONBOARD_ACTUATOR_PIN);
 }
 
-bool CoolBoardActuator::doAction(uint8_t hour,
+bool CoolBoardActuator::doAction(JsonObject &root, uint8_t hour,
                                  uint8_t minute) {
   DEBUG_VAR("Hour value:", hour);
   DEBUG_VAR("Minute value:", minute);
 
-  // invert the current action state for the actor
-  // if the value is outside the limits
   if (this->actif == 1) {
-    // check if actor is active
     if (this->temporal == 0) {
-      // normal actor
       if (this->inverted == 0) {
-        // not inverted actor
+        this->normalAction(root[this->primaryType].as<float>());
       } else if (this->inverted == 1) {
-        // inverted actor
+        this->invertedAction(root[this->primaryType].as<float>());
       }
     } else if (this->temporal == 1) {
-      // temporal actor
       if (this->secondaryType == "hour") {
-        // hour actor
           this->hourAction(hour);
       } else if (this->secondaryType == "minute") {
-        // minute actor
           this->minuteAction(minute);
       } else if (this->secondaryType == "hourMinute") {
-        // hourMinute actor
           this->hourMinuteAction(hour, minute);
       } else if (this->secondaryType == "time") {
-        // normal temporal actor
           this->temporalActionOff();
       }
     }
   } else if (this->actif == 0) {
-    // disabled actor
     if (this->temporal == 1) {
-      // temporal actor
         this->temporalActionOn();
     }
   }
@@ -81,25 +70,20 @@ bool CoolBoardActuator::doAction(uint8_t hour,
 }
 
 bool CoolBoardActuator::config(JsonObject &root) {
-  // parsing actif key
   CoolConfig::set<bool>(root, "actif", this->actif);
-  // parsing temporal key
   CoolConfig::set<bool>(root, "temporal", this->temporal);
-  // parsing inverted key
   CoolConfig::set<bool>(root, "inverted", this->inverted);
-  // parsing type key
   CoolConfig::set<String>(root, "sensor", this->primaryType);
   CoolConfig::set<String>(root, "type", this->secondaryType);
-  // parsing low key
   CoolConfig::set<float>(root["low"], "range", this->rangeLow);
   CoolConfig::set<unsigned long>(root["low"], "time", this->timeLow);
   CoolConfig::set<uint8_t>(root["low"], "hour", this->hourLow);
   CoolConfig::set<uint8_t>(root["low"], "minute", this->minuteLow);
-  // parsing high key
   CoolConfig::set<float>(root["high"], "range", this->rangeHigh);
   CoolConfig::set<unsigned long>(root["high"], "time", this->timeHigh);
   CoolConfig::set<uint8_t>(root["high"], "hour", this->hourHigh);
   CoolConfig::set<uint8_t>(root["high"], "minute", this->minuteHigh);
+  INFO_LOG("Builtin actuator configuration loaded");
   return (true);
 }
 
@@ -315,8 +299,6 @@ void CoolBoardActuator::minuteAction(uint8_t minute) {
   DEBUG_VAR("Current minute:", minute);
   DEBUG_VAR("Minute HIGH:", this->minuteHigh);
   DEBUG_VAR("Minute LOW:", this->minuteLow);
-  // FIXME: no inverted logic
-  // FIXME: what if minuteHigh < minuteLow ?
   if (minute <= this->minuteLow) {
     this->state = 0;
     DEBUG_LOG("Turned OFF actuator (minute <= minute LOW)");
@@ -334,8 +316,6 @@ void CoolBoardActuator::mixedMinuteAction(uint8_t minute, float measurment) {
   DEBUG_VAR("Sensor value:", measurment);
   DEBUG_VAR("Range LOW:", this->rangeLow);
   DEBUG_VAR("Range HIGH:", this->rangeHigh);
-  // FIXME: no inverted logic
-  // FIXME: what if minuteHigh < minuteLow ?
   if (minute <= this->minuteLow) {
     if (measurment > this->rangeHigh) {
       this->state = 0;
@@ -363,8 +343,6 @@ void CoolBoardActuator::hourMinuteAction(uint8_t hour, uint8_t minute) {
   DEBUG_VAR("Current minute:", minute);
   DEBUG_VAR("Minute HIGH:", this->minuteHigh);
   DEBUG_VAR("Minute LOW:", this->minuteLow);
-  // FIXME: no inverted logic
-  // FIXME: what if hourHigh/minuteHigh < hourLow/minuteLow ?
   if (hour == this->hourLow) {
     if (minute >= this->minuteLow) {
       this->state = 0;

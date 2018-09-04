@@ -39,7 +39,7 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 #include "CoolMessagePack.h"
-#include "base64.h"
+#include "z85.h"
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
@@ -49,23 +49,23 @@
 #define MQTT_RETRIES 5
 #define MAX_MQTT_RETRIES 15
 #define MAX_SLEEP_TIME 3600
-#define ANSWER_MAX_SIZE 1024
+#define LITTLE_ANSWER_MAX_SIZE 1024
 
 class CoolBoard {
 
 public:
   void begin();
   bool config();
-  int update(String &answer);
+  bool update(String &answer);
   void loop();
   void connect();
   bool isConnected();
   unsigned long getLogInterval();
   void printConf();
   void sleep();
-  void handleActuators(PrintAdapter streamer);
-  void readSensors(PrintAdapter streamer);
-  void readBoardData(PrintAdapter streamer);
+  void handleActuators(JsonObject &root);
+  void readSensors(JsonObject &root);
+  void readBoardData(JsonObject &root);
   void sendSavedMessages();
   void sendConfig(const char *path);
   void sendAllConfig();
@@ -81,7 +81,7 @@ public:
   bool shouldLog();
   void printMqttState(int state);
   void mqttConnect();
-  bool mqttPublish(String data);
+  bool mqttPublish(String data, bool mpack = false);
   bool mqttListen();
   void mqttCallback(char *topic, byte *payload, unsigned int length);
   void mqttsConfig();
@@ -89,9 +89,8 @@ public:
   void mqttsConvert(String cert);
   void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
-  void mqttLog(String data);
-  String createLog();
-  size_t count_sensors();
+  void mqttLog(String data, bool mpack = false);
+  char *createLog();
 
 private:
   uint8_t mqttRetries = 0;
@@ -104,19 +103,17 @@ private:
   CoolBoardActuator coolBoardActuator;
   PubSubClient *coolPubSubClient = new PubSubClient;
   WiFiClientSecure *wifiClientSecure = new WiFiClientSecure;
-  bool ireneActive = false;
-  bool jetpackActive = false;
-  bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  bool connection = false;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId = "";
   String mqttServer = "";
   String mqttInTopic = "";
   String mqttOutTopic = "";
+  String mqttOutMpackTopic = "";
   String updateAnswer = "";
-  bool connection = 0;
 };
 
 #endif

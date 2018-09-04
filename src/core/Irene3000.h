@@ -49,12 +49,12 @@ public:
   void begin();
   bool config(bool overWrite = false);
   void printConf();
-  void read(PrintAdapter streamer);
+  void read(JsonObject &root);
   int readButton();
   int readADSChannel2();
-  void readPh(PrintAdapter streamer);
-  void readTemp(PrintAdapter streamer);
-  void readEC(PrintAdapter streamer);
+  void readPh(JsonObject &root);
+  void readTemp(JsonObject &root);
+  void readEC(JsonObject &root);
   float readTemp();
   void resetParams();
   void calibratepH7();

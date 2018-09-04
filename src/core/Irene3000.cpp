@@ -84,24 +84,25 @@ void Irene3000::calibrate(CoolBoardLed &led) {
   }
 }
 
-void Irene3000::read(PrintAdapter streamer) {
+void Irene3000::read(JsonObject &root) {
   if (waterTemp.active) {
-    CoolMessagePack::msgpckMap(streamer, 1, "PT1000");
-    this->readTemp(streamer);
+    root.createNestedObject("PT1000");
+    this->readTemp(root["PT1000"]);
     if (phProbe.active) {
-      CoolMessagePack::msgpckMap(streamer, 1, "phProbe");
-      this->readPh(streamer);
+      root.createNestedObject("phProbe");
+      this->readPh(root["phProbe"]);
       // readLastCalibrationDate(root);
     }
   }
   if (adc2.active) {
-    CoolMessagePack::msgpckMap(streamer, 1, "adc2");
+    root.createNestedObject("adc2");
     if (this->adc2.type == "DFrobotEC") {
-      this->readEC(streamer);
+      this->readEC(root["adc2"]);
     } else {
-    CoolMessagePack::msgpckInt(streamer, this->readADSChannel2(), "adc2");
+      root["adc2"][adc2.type] = this->readADSChannel2();
     }
   }
+  DEBUG_JSON("Irene data:", root);
 }
 
 bool Irene3000::config(bool overwrite) {
@@ -112,28 +113,59 @@ bool Irene3000::config(bool overwrite) {
   }
   JsonObject &sensors = config.get();
   JsonArray &root = sensors["sensors"];
+  int i = 0;
   for (auto kv : root) {
+    JsonArray &measures = kv["measures"];
+    JsonArray &utils = kv["utils"];
     if (kv["key"] == "PT1000") {
-      CoolConfig::set<bool>(kv["measures"], "waterTemp", this->waterTemp.active,
-                            overwrite);
+      for (auto measure : measures) {
+        if (measure == "waterTemp") {
+          if (overwrite) {
+            CoolConfig::setArray<bool>(kv, "measures", i,
+                                       this->waterTemp.active, overwrite);
+          } else {
+            this->waterTemp.active = 1;
+          }
+        }
+      }
     } else if (kv["key"] == "phProbe") {
-      CoolConfig::set<bool>(kv["measures"], "phProbe", this->phProbe.active,
-                            overwrite);
-      CoolConfig::set<int>(kv["measures"], "ph4Cal", this->params.pH4Cal,
-                           overwrite);
-      CoolConfig::set<int>(kv["measures"], "ph7Cal", this->params.pH7Cal,
-                           overwrite);
-      CoolConfig::set<float>(kv["measures"], "phStep", this->params.pHStep,
-                             overwrite);
-      CoolConfig::set<String>(kv["measures"], "calibrationDate",
-                              this->params.calibrationDate, overwrite);
+      for (auto measure : measures) {
+        if (measure == "phProbe") {
+          if (overwrite) {
+            CoolConfig::setArray<bool>(kv, "measures", i, this->phProbe.active,
+                                       overwrite);
+          } else {
+            this->phProbe.active = 1;
+          }
+        }
+        for (auto util : utils) {
+          if (util == "ph4Cal") {
+            CoolConfig::set<int>(kv["utils"], "ph4Cal", this->params.pH4Cal,
+                                 overwrite);
+          } else if (util == "ph7Cal") {
+            CoolConfig::set<int>(kv["utils"], "ph7Cal", this->params.pH7Cal,
+                                 overwrite);
+          } else if (util == "phStep") {
+            CoolConfig::set<float>(kv["utils"], "phStep",
+                                   this->params.pHStep, overwrite);
+          } else if (util == "calibrationDate") {
+            CoolConfig::set<String>(kv["utils"], "calbrationDate",
+                                    this->params.calibrationDate, overwrite);
+          }
+        }
+      }
     } else if (kv["key"] == "adc2") {
-      CoolConfig::set<bool>(kv["measures"], "active", this->adc2.active,
-                            overwrite);
-      CoolConfig::set<int>(kv["utils"], "gain", this->adc2.gain, overwrite);
-      CoolConfig::set<String>(kv["measures"], "type", this->adc2.type,
-                              overwrite);
+      for (auto measure : measures) {
+          CoolConfig::setArray<String>(kv, "measures", 0, this->adc2.type, overwrite);
+          this->adc2.active = 1;
+      }
+      for (auto util : utils) {
+        if (util == "gain") {
+          CoolConfig::set<int>(kv["utils"], "gain", this->adc2.gain, overwrite);
+        }
+      }
     }
+    i++;
   }
   DEBUG_LOG("IRN3000 configuration loaded");
   return (true);
@@ -165,7 +197,7 @@ int Irene3000::readADSChannel2() {
   return (result);
 }
 
-void Irene3000::readPh(PrintAdapter streamer) {
+void Irene3000::readPh(JsonObject &root) {
   this->ads.setGain(GAIN_FOUR);
 
   int adcR = ads.readADC_SingleEnded(PH_CHANNEL);
@@ -178,12 +210,12 @@ void Irene3000::readPh(PrintAdapter streamer) {
 
   DEBUG_VAR("ph value:", phT);
   if (isnan(phT)) {
-    CoolMessagePack::msgpckNil(streamer, "ph");
+    root["ph"] = RawJson("null");
   } else
-    CoolMessagePack::msgpckFloat(streamer, phT, "ph");
+    root["ph"] = phT;
 }
 
-void Irene3000::readTemp(PrintAdapter streamer) {
+void Irene3000::readTemp(JsonObject &root) {
   const double A = 3.9083E-3;
   const double B = -5.775E-7;
   double T;
@@ -199,9 +231,9 @@ void Irene3000::readTemp(PrintAdapter streamer) {
 
   DEBUG_VAR("IRN3000 temperature in °C: ", T);
   if (T > 0 && T < 200) {
-    CoolMessagePack::msgpckFloat(streamer, T, "waterTemp");
+    root["waterTemp"] = T;
   } else {
-    CoolMessagePack::msgpckNil(streamer, "waterTemp");
+    root["waterTemp"] = RawJson("null");
   }
 }
 
@@ -219,16 +251,16 @@ float Irene3000::readTemp() {
   T += sqrt((A * A) - 4.0 * B * (1.0 - R));
   T /= (2.0 * B);
   DEBUG_VAR("IRN3000 temperature in °C:", T);
-  return T ;
+  return T;
 }
 
-void Irene3000::readEC(PrintAdapter streamer) {
+void Irene3000::readEC(JsonObject &root) {
   int overSample = 16;
   float ecCurrent = 0;
   unsigned long average = 0;
   unsigned int averageVoltage = 0;
-  //Oversample 64 time to get a good reading
-  for (int i = 0; i<=64; i++) {
+  // Oversample 64 time to get a good reading
+  for (int i = 0; i <= 64; i++) {
     delay(20);
     average += readADSChannel2();
   }
@@ -237,19 +269,23 @@ void Irene3000::readEC(PrintAdapter streamer) {
   averageVoltage = average * 0.1875;
   DEBUG_VAR("Average RAW : ", average);
   DEBUG_VAR("Average Voltage : ", averageVoltage);
-  //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
-  float TempCoefficient=1.0+0.0185*(readTemp()-25.0);
-  float CoefficientVolatge=(float)averageVoltage/TempCoefficient;   
-  //1ms/cm<EC<=3ms/cm
-  if(CoefficientVolatge<=448)ecCurrent=6.84*CoefficientVolatge-64.32;   
-  //3ms/cm<EC<=10ms/cm
-  else if(CoefficientVolatge<=1457)ecCurrent=6.98*CoefficientVolatge-127;  
-  //10ms/cm<EC<20ms/cm
-  else ecCurrent=5.3*CoefficientVolatge+2278;
-  //convert us/cm to ms/cm
-  ecCurrent/=1000;    
-  DEBUG_VAR("EC value",ecCurrent);
-  CoolMessagePack::msgpckFloat(streamer, ecCurrent, "EC");
+  // temperature compensation formula: fFinalResult(25^C) =
+  // fFinalResult(current)/(1.0+0.0185*(fTP-25.0));
+  float TempCoefficient = 1.0 + 0.0185 * (readTemp() - 25.0);
+  float CoefficientVolatge = (float)averageVoltage / TempCoefficient;
+  // 1ms/cm<EC<=3ms/cm
+  if (CoefficientVolatge <= 448)
+    ecCurrent = 6.84 * CoefficientVolatge - 64.32;
+  // 3ms/cm<EC<=10ms/cm
+  else if (CoefficientVolatge <= 1457)
+    ecCurrent = 6.98 * CoefficientVolatge - 127;
+  // 10ms/cm<EC<20ms/cm
+  else
+    ecCurrent = 5.3 * CoefficientVolatge + 2278;
+  // convert us/cm to ms/cm
+  ecCurrent /= 1000;
+  DEBUG_VAR("EC value", ecCurrent);
+  root["EC"] = ecCurrent;
 }
 
 void Irene3000::calibratepH7() {

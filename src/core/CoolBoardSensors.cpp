@@ -68,74 +68,86 @@ void CoolBoardSensors::begin() {
 
 void CoolBoardSensors::end() { this->lightSensor.DeInit(); }
 
-void CoolBoardSensors::read(PrintAdapter streamer) {
+void CoolBoardSensors::read(JsonObject &root) {
   delay(100);
 
   if (this->lightDataActive.visible) {
-    CoolMessagePack::msgpckMap(streamer, 3, "SI114X");
-    msgpck_write_string(&streamer, "visibleLight");
+    root.createNestedObject("SI114X_1");
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
-      msgpck_write_nil(&streamer);
+      root["SI114X_1"]["visibleLight"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      msgpck_write_integer(&streamer, this->lightSensor.ReadVisible());
+      root["SI114X_1"]["visibleLight"] = this->lightSensor.ReadVisible();
     }
   }
   if (this->lightDataActive.ir) {
-    msgpck_write_string(&streamer, "infrared");
+    if (!root["SI114X_1"].success()) {
+      root.createNestedObject("SI114X_1");
+    }
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_IR_OVERFLOW) {
-      msgpck_write_nil(&streamer);
+      root["SI114X_1"]["infrared"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      msgpck_write_integer(&streamer, this->lightSensor.ReadIR());
+      root["SI114X_1"]["infrared"] = this->lightSensor.ReadIR();
     }
   }
+
   if (this->lightDataActive.uv) {
-    msgpck_write_string(&streamer, "ultraviolet");
+    if (!root["SI114X_1"].success()) {
+      root.createNestedObject("SI114X_1");
+    }
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_UV_OVERFLOW) {
-      msgpck_write_nil(&streamer);
+      root["SI114X_1"]["ultraviolet"] = RawJson("null");
       // send NOOP command to SI1145 to clear overflow value
       this->lightSensor.WriteParamData(CoolSI114X_COMMAND, CoolSI114X_NOP);
     } else {
-      msgpck_write_float(&streamer, (float)this->lightSensor.ReadUV() / 100);
+      root["SI114X_1"]["ultraviolet"] = (float)this->lightSensor.ReadUV() / 100;
     }
   }
+
   if (this->airDataActive.temperature) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
     while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    CoolMessagePack::msgpckMap(streamer, 3, "BME280");
-    CoolMessagePack::msgpckFloat(streamer, this->envSensor.readTempC(), "temperature");
+    root.createNestedObject("BME280_1");
+    root["BME280_1"]["temperature"] = this->envSensor.readTempC();
   }
+
   if (this->airDataActive.pressure) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
     while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    CoolMessagePack::msgpckFloat(streamer, this->envSensor.readFloatPressure(), "pressure");
+    if (!root["BME280_1"].success()) {
+      root.createNestedObject("BME280_1");
+    }
+    root["BME280_1"]["pressure"] = this->envSensor.readFloatPressure();
   }
+
   if (this->airDataActive.humidity) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
     while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
       yield();
     }
-    CoolMessagePack::msgpckFloat(streamer, this->envSensor.readFloatHumidity(), "humidity");
-  }
-  if (this->vbatActive) {
-    CoolMessagePack::msgpckMap(streamer, 1, "Vbat");
-    CoolMessagePack::msgpckFloat(streamer, this->readVBat(), "batteryV");
+    if (!root["BME280_1"].success()) {
+      root.createNestedObject("BME280_1");
+    }
+    root["BME280_1"]["humidity"] = this->envSensor.readFloatHumidity();
   }
   if (this->soilMoistureActive) {
-    CoolMessagePack::msgpckMap(streamer, 1, "soilMoisture");
-    CoolMessagePack::msgpckFloat(streamer, this->readSoilMoisture(), "soilMoisture");
+    root.createNestedObject("soilMoisture_1");
+    root["soilMoisture_1"]["soilMoisture"] = this->readSoilMoisture();
   }
   if (this->wallMoistureActive) {
-    CoolMessagePack::msgpckMap(streamer, 1, "wallMoisture");
-    CoolMessagePack::msgpckFloat(streamer, this->readWallMoisture(), "wallMoisture");
+    root.createNestedObject("wallMoisture_1");
+    root["wallMoisture_1"]["wallMoisture"] = this->readWallMoisture();
   }
+  root.createNestedObject("battery");
+  root["battery"]["voltage"] = this->readVBat();
+  DEBUG_JSON("Builtin sensors data:", root);
 }
 
 bool CoolBoardSensors::config() {
@@ -147,29 +159,43 @@ bool CoolBoardSensors::config() {
   JsonObject &sensors = config.get();
   JsonArray &root = sensors["sensors"];
   for (auto kv : root) {
-    String data = kv["reference"];
-    if (data == "BME280") {
-      CoolConfig::set<bool>(kv["measures"], "temperature",
-                            this->airDataActive.temperature);
-      CoolConfig::set<bool>(kv["measures"], "humidity",
-                            this->airDataActive.humidity);
-      CoolConfig::set<bool>(kv["measures"], "pressure",
-                            this->airDataActive.pressure);
-    } else if (data == "SI114X") {
-      CoolConfig::set<bool>(kv["measures"], "visibleLight",
-                            this->lightDataActive.visible);
-      CoolConfig::set<bool>(kv["measures"], "infrared",
-                            this->lightDataActive.ir);
-      CoolConfig::set<bool>(kv["measures"], "ultraviolet",
-                            this->lightDataActive.uv);
-    } else if (data == "vbat") {
-      CoolConfig::set<bool>(kv["measures"], "batteryV", this->vbatActive);
-    } else if (data == "soilMoisture") {
-      CoolConfig::set<bool>(kv["measures"], "soilMoisture",
-                            this->soilMoistureActive);
-    } else if (data == "wallMoisture") {
-      CoolConfig::set<bool>(kv["measures"], "wallMoisture",
-                            this->wallMoistureActive);
+    JsonArray &measures = kv["measures"];
+    if (kv["reference"] == "BME280") {
+      for (auto measure : measures) {
+        if (measure == "temperature") {
+          this->airDataActive.temperature = 1;
+        }
+        if (measure == "humidity") {
+          this->airDataActive.humidity = 1;
+        }
+        if (measure == "pressure") {
+          this->airDataActive.pressure = 1;
+        }
+      }
+    } else if (kv["reference"] == "SI114X") {
+      for (auto measure : measures) {
+        if (measure == "visibleLight") {
+          this->lightDataActive.visible = 1;
+        }
+        if (measure == "infrared") {
+          this->lightDataActive.ir = 1;
+        }
+        if (measure == "ultraviolet") {
+          this->lightDataActive.uv = 1;
+        }
+      }
+    } else if (kv["reference"] == "soilMoisture") {
+      for (auto measure : measures) {
+        if (measure == "soilMoisture") {
+          this->soilMoistureActive = 1;
+        }
+      }
+    } else if (kv["reference"] == "wallMoisture") {
+      for (auto measure : measures) {
+        if (measure == "wallMoisture") {
+          this->wallMoistureActive = 1;
+        }
+      }
     }
   }
   DEBUG_LOG("Builtin sensors configuration loaded");

@@ -50,12 +50,15 @@ void Jetpack::writeBit(byte pin, bool state) {
   digitalWrite(JETPACK_I2C_ENABLE_PIN, HIGH);
 }
 
-void Jetpack::doAction(PrintAdapter streamer, int hour, int minute) {
+void Jetpack::doAction(JsonObject &root, int hour, int minute) {
   bool state = false;
+  JsonArray &actuators =
+      root.createNestedObject("actuators").createNestedArray("enabled");
 
-  for (int pin = 0; pin < 9; pin++) {
-    state = this->actuatorList[pin].doAction(hour, minute);
-    CoolMessagePack::msgpckBool(streamer, state);
+  for (int pin = 0; pin < this->sizeList; pin++) {
+    state = this->actuatorList[pin].doAction(
+        root[this->actuatorList[pin].primaryType], hour, minute);
+    actuators.add(state);
     if (pin == 0) {
       this->actuatorList[pin].write(state);
     } else {
@@ -66,6 +69,14 @@ void Jetpack::doAction(PrintAdapter streamer, int hour, int minute) {
 }
 
 bool Jetpack::config() {
+  if (!SPIFFS.exists("/actuators.json")) {
+    File f = SPIFFS.open("/actuators.json", "w");
+    if (!f) {
+      ERROR_VAR("Failed to open file for writing:", "/actuators.json");
+      return (false);
+    }
+    f.close();
+  }
   CoolConfig config("/actuators.json");
   if (!config.readFileAsJson()) {
     ERROR_LOG("Failed to read /actuators.json");
@@ -73,7 +84,9 @@ bool Jetpack::config() {
   }
   JsonObject &actuators = config.get();
   JsonArray &root = actuators["actuators"];
-  for (int i = 0; i < 9; i++) {
+  this->sizeList = root.size();
+  this->actuatorList = new CoolBoardActuator[this->sizeList];
+  for (int i = 0; i < this->sizeList; i++) {
     INFO_VAR("configuration loaded for actuator #", i);
     this->actuatorList[i].config(root[i]);
   }
@@ -84,7 +97,7 @@ bool Jetpack::config() {
 void Jetpack::printConf() {
   INFO_LOG("Jetpack configuration");
 
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < this->sizeList; i++) {
     INFO_VAR("Actuator #", i);
     this->actuatorList[i].printConf();
   }

@@ -44,7 +44,7 @@ class CoolBoardSensors {
 public:
   CoolBoardSensors();
   void begin();
-  void read(PrintAdapter streamer);
+  void read(JsonObject &root);
   void allActive();
   void end();
   bool config();
@@ -64,19 +64,19 @@ public:
 
 private:
   struct {
-    bool visible = true;
-    bool ir = true;
-    bool uv = true;
+    bool visible = false;
+    bool ir = false;
+    bool uv = false;
   } lightDataActive;
 
   struct {
-    bool temperature = true;
-    bool humidity = true;
-    bool pressure = true;
+    bool temperature = false;
+    bool humidity = false;
+    bool pressure = false;
   } airDataActive;
 
   bool vbatActive = true;
-  bool soilMoistureActive = true;
+  bool soilMoistureActive = false;
   bool wallMoistureActive = false;
 };
 

@@ -25,6 +25,7 @@
 #define COOLMESSAGEPACK_H
 
 #include "msgpck.h"
+#include "CoolLog.h"
 #include "PrintEx.h"
 #include "ArduinoJson.h"
 
@@ -44,6 +45,11 @@ public:
   static void msgpckInt(PrintAdapter streamer, uint16_t data, String str = "");
   static void msgpckInt(PrintAdapter streamer, uint32_t data, String str = "");
 
+  static int8_t isNull(JsonObject &json, const char *key);
+  static int8_t isNullA(JsonArray &json, uint8_t index);
+  static uint32_t sizeJsonToMsgpck(JsonObject &json);
+  static uint32_t sizeArrayToMsgpck(JsonArray &json);
+  static uint32_t sizeIs(JsonObject &json, const char *key);
   static bool jsonToMsgpck(PrintAdapter streamer, JsonObject &json);
   static void is(PrintAdapter streamer, JsonObject &json, const char *key);
   static void jsonArrayToMP(PrintAdapter streamer, JsonArray &json, String key = "");
