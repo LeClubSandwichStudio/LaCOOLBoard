@@ -36,6 +36,7 @@
 #include <MCP342X.h>
 #include <I2CSoilMoistureSensor.h>
 #include <SparkFunBME280.h>
+#include <MCP3221.h>
 
 #include "CoolLog.h"
 
@@ -65,6 +66,8 @@ public:
   virtual float read(float *a, float *b) { return (-42.42); }
   virtual float read(uint16_t *a, float *b) { return (-42.42); }
   virtual float read(float *a, float *b, float *c) { return (-42.42); }
+  virtual float read(uin16_t *a) { return (42); }
+  }
 };
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
@@ -393,6 +396,31 @@ public:
 
 private:
   BME280 sensor;
+};
+
+template <> class ExternalSensor<MCP3221> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}
+
+  virtual uint8_t begin() {
+    sensor.begin();
+    Serial.print(F("\nSearching for device...Device "));
+    Serial.print(mcp3221.ping() ? (F("Not Found\n")) : (F("Found!\n")));
+    delay(10);
+    unsigned int reading = mcp3221.getVoltage();
+    Serial.print(F("\n\nVoltage:  "));
+    Serial.print(reading);
+    Serial.print(F("mV\n\n"));
+    return (true);
+  }
+
+  virtual float read(uint16_t *a, float *b) {
+    uint16_t A = sensor.getData();
+    *a = A;
+    return (0.0);
+  }
+private:
+  MCP3221;
 };
 
 #endif

@@ -124,6 +124,14 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = bme280.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&temp, &humi, &pres);
+    } else if ((sensors[i].reference) == "coolGas") {
+      uint16_t A;
+
+      std::unique_ptr<ExternalSensor<MCP3221>> MCP3221(
+          new ExternalSensor<MCP3221>(sensors[i].address));
+      sensors[i].exSensor = MCP3221.release();
+      sensors[i].exSensor->begin();
+      sensors[i].exSensor->read(&A);
     } 
   }
 }
@@ -216,6 +224,12 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("Temperature : ", A);
           DEBUG_VAR("Pressure : ", B);
           DEBUG_VAR("Humidity : ", C);
+        } else if (sensors[i].reference == "CoolGas") {
+          uint16_t A;
+          sensors[i].exSensor->read(&A);
+          DEBUG_VAR("CoolGas Interface Address:",sensors[i].address);
+          DEBUG_VAR("RAW:", A);
+          root[sensors[i].kind0] = A;
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
