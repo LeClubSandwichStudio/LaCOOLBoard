@@ -58,9 +58,14 @@ def step_impl(context):
     while (AwsMessage.sendMessageWrongFirmware()):
         StepsFunctions.updateOTAWrongLink()
 
-@when('the loginterval is updated by OTA')
+@when('the loginterval is updated by OTA (less than 3600)')
 def step_impl(context):
-    while (AwsMessage.sendMessageLogInterval()):
+    while (AwsMessage.sendMessageLogIntervalLower()):
+        StepsFunctions.updateOTA()
+
+@when('the logInterval is updated by OTA (more than 3600)')
+def step_impl(context):
+    while (AwsMessage.sendMessageLogIntervalHigher()):
         StepsFunctions.updateOTA()
 
 @when('it does not connect to the Wifi')
@@ -140,21 +145,26 @@ def step_impl(context):
 def step_impl(context): 
     StepsFunctions.wifiRetry()
 
+@then('it needs to sleep again')
+def step_impl(context): 
+    StepsFunctions.sleepAgain()
+
 @then ('I wait for the synchro')
 def step_impl(context): 
     time.sleep(60)
-    #if(StepsFunctions.actuator_1_activated() and StepsFunctions.actuator_2_activated()
-    #    and StepsFunctions.actuator_3_activated() and StepsFunctions.actuator_4_activated()
-    #    and StepsFunctions.actuator_5_activated() and StepsFunctions.actuator_6_activated()
-    #    and StepsFunctions.actuator_7_activated() and StepsFunctions.actuator_8_activated()):
-    #    assert True is not False
-    #else:
-    #    assert False is not True
 
 @then('messages saved on SPIFFS are sended')
 @StepsFunctions.exit_after(60)
 def step_impl(context):
     try:
         StepsFunctions.messageSend()
+    except KeyboardInterrupt:
+        StepsFunctions.step_failed()
+
+@then('the timestamp is true')
+@StepsFunctions.exit_after(60)
+def step_impl(context):
+    try:
+        StepsFunctions.timestamp()
     except KeyboardInterrupt:
         StepsFunctions.step_failed()

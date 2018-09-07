@@ -3,7 +3,13 @@ import json
 import boto3
 
 macAddress = '2C3AE84FBF4F'
-valueLogInterval = 315
+fingerPrint = "1C8ABE2E0203E4093085DAD910D1265C0E07A9B4"
+
+# --- Loginterval less than 3600 ---
+valueLogInterval_1 = 315
+# --- Loginterval more than 3600 ---
+valueLogInterval_2 = 10500
+# --- Jetpack configuration ---
 Act0 = True
 Act1 = True
 Act2 = True
@@ -12,24 +18,35 @@ Act4 = True
 Act5 = True
 Act6 = True
 Act7 = True
-fingerPrint = "1C8ABE2E0203E4093085DAD910D1265C0E07A9B4"
+
+# --- True version of firmware ---
 #linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-34-g701ca6e.bin"
 linkFirmware_1 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/master/debug-v0.2.7-36-ga65e3ed.bin"
 #versionFirmware_1 = "v0.2.7-34-g701ca6e"
 versionFirmware_1 = "v0.2.7-36-ga65e3ed"
-
+# --- Wrong version of firmware ---
 linkFirmware_2 = "https://s3-eu-west-1.amazonaws.com/cool-firmware-releases/feature/test-bench/debug-v0.2.7-14-gdc7c463.bin"
 versionFirmware_2 = "v0.2.7-14-gdc7c464"
 
-logInterval = {"state":
+logInterval_1 = {"state":
                 {"desired":
                     {"CoolBoard":
-                        {"logInterval": valueLogInterval
+                        {"logInterval": valueLogInterval_1
                         }
                     }
                 }
             }
-jsonLogInterval = json.dumps(logInterval)
+jsonLogInterval_1 = json.dumps(logInterval_1)
+
+logInterval_2 = {"state":
+                {"desired":
+                    {"CoolBoard":
+                        {"logInterval": valueLogInterval_2
+                        }
+                    }
+                }
+            }
+jsonLogInterval_2 = json.dumps(logInterval_2)
 
 jetPack = {"state":
                 {"desired":
@@ -153,12 +170,21 @@ def printjson(jsonmessage):
     print(printableMessage)
 
 
-def sendMessageLogInterval():
+def sendMessageLogIntervalLower():
     global jsonLogInterval
     global macAddress
     client.update_thing_shadow(
         thingName=macAddress,
-        payload=jsonLogInterval
+        payload=jsonLogInterval_1
+    )
+
+
+def sendMessageLogIntervalHigher():
+    global jsonLogInterval
+    global macAddress
+    client.update_thing_shadow(
+        thingName=macAddress,
+        payload=jsonLogInterval_2
     )
 
 

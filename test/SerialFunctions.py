@@ -72,6 +72,8 @@ def readLine(serialBus):
 
 
 def resetBoard():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(4, GPIO.OUT, initial=GPIO.LOW)
     GPIO.output(4, True)
     time.sleep(2)
     GPIO.output(4, False)

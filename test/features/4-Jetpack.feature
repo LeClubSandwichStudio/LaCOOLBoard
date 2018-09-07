@@ -1,7 +1,7 @@
 Feature: CoolBoard
 
 # ------- JETPACK -------
-#Scenario: Activate all actuators of the JetPack
+#Scenario: Activate actuators of the JetPack
 #    Given I reset the CoolBoard
 #    And I activate the JetPack
 #    And  I initialize the JetPack

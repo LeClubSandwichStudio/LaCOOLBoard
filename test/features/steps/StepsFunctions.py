@@ -5,11 +5,13 @@ import subprocess
 import threading
 import thread
 import sys
+import datetime
 import RPi.GPIO as GPIO
 
 #serialBus = serial.Serial('/dev/cu.usbserial-DN02PRAQ', 115200, timeout=10) # MAC
 serialBus = serial.Serial('/dev/ttyUSB0', 115200, timeout=10) # Raspberry pi 3 B+
 
+timestampValue = datetime.datetime.now().strftime("%y-%m-%d")
 listPinJetpack = [10,22,17,27,18,24,23,25]
 pinPWM = 13
 GPIO.setmode(GPIO.BCM)
@@ -37,8 +39,7 @@ def exit_after(s):
 
 
 def step_failed():
-    p = subprocess.call(["behave", "-f", "plain", "-T",
-        "features/pass_and_fail.feature"])
+    p = subprocess.call(["behave", "-f", "plain", "-T", " ------------------    FAILED"])
 
 
 def hotspotActivated():
@@ -190,19 +191,6 @@ def wifiConnectionFailed():
                 print(line)
 
 
-def allActuatorsActivated():
-    if serialBus.isOpen():
-        while (True):
-            line = serialBus.readline()
-            lineReturned = str(line)
-            #if (not (0 in [GPIO.input(i) for i in listPinJetpack])):
-            if (lineReturned[34:84] == "INFO:  Setting actuators and reporting their state"):
-                print(lineReturned[34:])
-                return False
-            else:
-                print(line)
-
-
 def endLoop():
     if serialBus.isOpen():
         while (True):
@@ -227,6 +215,18 @@ def batteryLowLevel():
                 print(line)
 
 
+def sleepAgain():
+    if serialBus.isOpen():
+        while (True):
+            line = serialBus.readline()
+            lineReturned = str(serialBus.readline())
+            if (lineReturned[34:68] == "INFO:  And need to sleep again for"):
+                print(lineReturned[34:])
+                return False
+            else:
+                print(line)
+
+
 def changeLevelBattery(dutyCycle):
     levelBattery.start(dutyCycle)
     time.sleep(20)
@@ -237,41 +237,69 @@ def cleanPWM():
     GPIO.cleanup()
 
 
+def timestamp():
+    if serialBus.isOpen():
+        while (True):
+            line = serialBus.readline()
+            lineReturned = str(serialBus.readline())
+            if (lineReturned[1:11] == "20" + timestampValue):
+                print(lineReturned[0:])
+                return False
+            else:
+                print(lineReturned[1:11])
+
+
 def actuator_1_activated():
     if (GPIO.input(listPinJetpack[0]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_2_activated():
     if (GPIO.input(listPinJetpack[1]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_3_activated():
     if (GPIO.input(listPinJetpack[2]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_4_activated():
     if (GPIO.input(listPinJetpack[3]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_5_activated():
     if (GPIO.input(listPinJetpack[4]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_6_activated():
     if (GPIO.input(listPinJetpack[5]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_7_activated():
     if (GPIO.input(listPinJetpack[6]) == 1):
         return False
+    else:
+        return KeyboardInterrupt
 
 
 def actuator_8_activated():
     if (GPIO.input(listPinJetpack[7]) == 1):
         return False
+    else:
+        return KeyboardInterrupt

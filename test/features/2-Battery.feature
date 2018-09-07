@@ -1,7 +1,7 @@
 Feature: CoolBoard
 
 # ------- BATTERY -------
-Scenario: Low level and then plug on DC
+Scenario: Low level of battery reaches
     Given the CoolBoard is ON
     And I reset the CoolBoard
     When the battery of the CoolBoard reaches a low level
