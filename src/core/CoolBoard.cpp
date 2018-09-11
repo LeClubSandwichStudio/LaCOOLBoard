@@ -267,6 +267,7 @@ void CoolBoard::printConf() {
 
 void CoolBoard::update(const char *answer) {
   INFO_LOG("Received new MQTT message");
+  bool manual = 0;
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
   JsonObject &stateDesired = root["state"];
@@ -275,6 +276,7 @@ void CoolBoard::update(const char *answer) {
     if (stateDesired["CoolBoard"]["manual"].success()) {
       this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
+      manual = 1;
     }
     JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
     if (firmwareJson.success()) {
@@ -303,6 +305,7 @@ void CoolBoard::update(const char *answer) {
     this->coolBoardLed.strobe(BLUE, 0.5);
 
     if (this->manual) {
+      manual = 1;
       INFO_LOG("Entering actuators manual mode");
       for (auto kv : stateDesired) {
         DEBUG_VAR("Writing to:", kv.key);
@@ -343,15 +346,17 @@ void CoolBoard::update(const char *answer) {
   } else {
     ERROR_LOG("Failed to parse update message");
   }
-  if (SPIFFS.exists("/configSent.flag")) {
-    if (SPIFFS.remove("/configSent.flag")) {
-      DEBUG_LOG("Delete /configSent.flag");
-    } else {
-      ERROR_LOG("Failed to delete /configSent.flag");
+  if (!manual) {
+    if (SPIFFS.exists("/configSent.flag")) {
+      if (SPIFFS.remove("/configSent.flag")) {
+        DEBUG_LOG("Delete /configSent.flag");
+      } else {
+        ERROR_LOG("Failed to delete /configSent.flag");
+      }
     }
+    SPIFFS.end();
+    ESP.restart();
   }
-  SPIFFS.end();
-  ESP.restart();
 }
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
@@ -382,10 +387,9 @@ void CoolBoard::readBoardData(JsonObject &reported) {
 void CoolBoard::sleep() {
   EEPROM.begin(5);
   uint8_t val[4];
-  rst_info *resetInfo; 
+  rst_info *resetInfo;
   resetInfo = ESP.getResetInfoPtr();
-  if (!EEPROM.read(0x04) ||
-      resetInfo->reason != REASON_DEEP_SLEEP_AWAKE) {
+  if (!EEPROM.read(0x04) || resetInfo->reason != REASON_DEEP_SLEEP_AWAKE) {
     INFO_LOG("Reset of the logInterval");
     for (int i = 0; i < 5; i++) {
       EEPROM.write(i, 0);
@@ -393,9 +397,9 @@ void CoolBoard::sleep() {
     EEPROM.write(0x04, 1);
   }
   uint32_t value = ((uint32_t)EEPROM.read(0x00)) +
-          (((uint32_t)EEPROM.read(0x01)) << 8) +
-          (((uint32_t)EEPROM.read(0x02)) << 16) +
-          (((uint32_t)EEPROM.read(0x03)) << 24);
+                   (((uint32_t)EEPROM.read(0x01)) << 8) +
+                   (((uint32_t)EEPROM.read(0x02)) << 16) +
+                   (((uint32_t)EEPROM.read(0x03)) << 24);
   if ((value) || (!this->shouldLog())) {
     if (!value) {
       value = secondsToNextLog();
@@ -404,7 +408,7 @@ void CoolBoard::sleep() {
       INFO_VAR("Going to sleep for:", MAX_SLEEP_TIME);
       INFO_VAR("And need to sleep again for", value - MAX_SLEEP_TIME);
       for (uint8_t i = 0; i < 4; i++) {
-        val[i] = ((value - MAX_SLEEP_TIME) >> i*8);
+        val[i] = ((value - MAX_SLEEP_TIME) >> i * 8);
         EEPROM.write(i, val[i]);
       }
       EEPROM.end();
