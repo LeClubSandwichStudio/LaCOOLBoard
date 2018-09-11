@@ -66,8 +66,7 @@ public:
   virtual float read(float *a, float *b) { return (-42.42); }
   virtual float read(uint16_t *a, float *b) { return (-42.42); }
   virtual float read(float *a, float *b, float *c) { return (-42.42); }
-  virtual float read(uin16_t *a) { return (42); }
-  }
+  virtual float read(uint16_t *a) { return (42); }
 };
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
@@ -400,27 +399,22 @@ private:
 
 template <> class ExternalSensor<MCP3221> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}
+  ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {};
 
   virtual uint8_t begin() {
-    sensor.begin();
-    Serial.print(F("\nSearching for device...Device "));
-    Serial.print(mcp3221.ping() ? (F("Not Found\n")) : (F("Found!\n")));
-    delay(10);
-    unsigned int reading = mcp3221.getVoltage();
-    Serial.print(F("\n\nVoltage:  "));
-    Serial.print(reading);
-    Serial.print(F("mV\n\n"));
+    //sensor.begin();
+    //delay(10);
+    uint16_t reading = sensor.getData();
     return (true);
   }
 
-  virtual float read(uint16_t *a, float *b) {
+  virtual float read(uint16_t *a) {
     uint16_t A = sensor.getData();
     *a = A;
     return (0.0);
   }
 private:
-  MCP3221;
+  MCP3221 sensor;
 };
 
 #endif

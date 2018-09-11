@@ -124,12 +124,12 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = bme280.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&temp, &humi, &pres);
-    } else if ((sensors[i].reference) == "coolGas") {
+    } else if ((sensors[i].reference) == "CoolGas") {
       uint16_t A;
 
-      std::unique_ptr<ExternalSensor<MCP3221>> MCP3221(
+      std::unique_ptr<ExternalSensor<MCP3221>> mcp3221(
           new ExternalSensor<MCP3221>(sensors[i].address));
-      sensors[i].exSensor = MCP3221.release();
+      sensors[i].exSensor = mcp3221.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&A);
     } 
