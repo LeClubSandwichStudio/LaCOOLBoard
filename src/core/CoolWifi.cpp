@@ -28,145 +28,245 @@
 #include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolWifi.h"
-#include "WiFiManagerReadFileButton.h"
-#include <ESP8266HTTPClient.h>
 
-#define MAX_WIFI_NETWORKS 10
-#define WIFI_CONNECT_TIMEOUT_DECISECONDS 300
-
-void CoolWifi::connect() {
-  this->config();
-  INFO_LOG("Wifi connecting...");
-  int i = 0;
-  DEBUG_VAR("Entry time to Wifi connection attempt:", millis());
-  while ((this->wifiMulti.run() != WL_CONNECTED) &&
-         (i < WIFI_CONNECT_TIMEOUT_DECISECONDS)) {
-    i++;
-    delay(100);
-  }
-  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
-
-  printStatus(WiFi.status());
+CoolWifi &CoolWifi::getInstance() {
+  static CoolWifi instance;
+  return instance;
 }
 
-void CoolWifi::printStatus(wl_status_t status) {
-  switch (status) {
-  case WL_NO_SHIELD:
-    ERROR_LOG("Wifi status: no shield");
-    break;
-  case WL_IDLE_STATUS:
-    WARN_LOG("Wifi status: idle");
-    break;
-  case WL_NO_SSID_AVAIL:
-    ERROR_LOG("Wifi status: no SSID available");
-    break;
-  case WL_SCAN_COMPLETED:
-    WARN_LOG("Wifi status: scan completed");
-    break;
-  case WL_CONNECTED:
-    INFO_LOG("Wifi status: connected");
-    break;
-  case WL_CONNECT_FAILED:
-    ERROR_LOG("Wifi status: connection failed");
-    break;
-  case WL_DISCONNECTED:
-    WARN_LOG("Wifi status: disconnected");
-    break;
-  default:
-    ERROR_LOG("Wifi status: unknown");
-    break;
+// bool CoolWifi::manageConnectionPortal() {
+//   String tmp;
+//   DynamicJsonBuffer json;
+//   JsonObject &root = json.createObject();
+//   if (this->haveToDo) {
+//     if (this->isAvailable(this->BSSID)) {
+//       DEBUG_VAR("CoolWifi: Connecting to new router", this->SSID);
+//       DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:",
+//       millis()); this->connect(this->SSID.c_str(), this->pass.c_str());
+//       DEBUG_VAR("CoolWifi: Connected to : ", WiFi.SSID());
+//       DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+//     } else {
+//       root["desired"] = this->SSID;
+//       root["currentSSID"] = WiFi.SSID();
+//       root["status"] = this->StringStatus(WL_NO_SSID_AVAIL);
+//       root.printTo(tmp);
+//       events.send(tmp.c_str(), NULL, millis(), 1000);
+//       return false;
+//     }
+//     this->haveToDo = false;
+//     INFO_VAR("CoolWifi: wifi status", WiFi.status());
+//     root["desired"] = this->SSID;
+//     root["currentSSID"] = WiFi.SSID();
+//     root["status"] = this->StringStatus(WiFi.status());
+//     root.printTo(tmp);
+//     events.send(tmp.c_str(), NULL, millis(), 1000);
+//     this->SSID = "";
+//     return true;
+//   }
+//   return false;
+// }
+
+String CoolWifi::jsonStringWiFiScan() {
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  uint8_t n = WiFi.scanNetworks();
+  while (WiFi.scanComplete() < 0) {
+    delay(10);
   }
-}
 
-void CoolWifi::startAccessPoint(CoolBoardLed &led) {
-  WiFi.disconnect();
-  delay(200);
-  led.write(FUCHSIA);
-  delay(500);
-  WiFiManager wifiManager;
-  String tempMAC = WiFi.macAddress();
-
-  wifiManager.setRemoveDuplicateAPs(true);
-  wifiManager.setTimeout(this->timeOut);
-  tempMAC.replace(":", "");
-
-  String name = "CoolBoard-" + tempMAC;
-
-  wifiManager.autoConnect(name.c_str());
-  wl_status_t status = WiFi.status();
-
-  if (status == WL_CONNECTED) {
-    led.blink(GREEN, 5);
-    INFO_VAR("Wifi network selected:", WiFi.SSID());
-    this->addWifi(WiFi.SSID(), WiFi.psk());
-  } else {
-    led.blink(RED, 10);
-    ERROR_LOG("No Wifi network was configured.");
-  }
-  printStatus(status);
-  yield();
-}
-
-bool CoolWifi::config() {
-  CoolConfig config("/wifiConfig.json");
-
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read Wifi configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
-  config.set<uint8_t>(json, "wifiCount", this->wifiCount);
-  config.set<uint8_t>(json, "timeOut", this->timeOut);
-
-  String ssidList[this->wifiCount];
-  String passList[this->wifiCount];
-  for (int i = 0; i < this->wifiCount; i++) {
-    String key = "Wifi" + String(i);
-    if (!json[key].success()) {
-      json.createNestedObject(key);
+  INFO_VAR("Scan status: ", n);
+  if (n) {
+    for (uint8_t i = 0; i < n; ++i) {
+      root.createNestedObject(WiFi.BSSIDstr(i));
+      JsonObject &obj = root[WiFi.BSSIDstr(i)];
+      obj["bssid"] = WiFi.BSSIDstr(i);
+      obj["ssid"] = WiFi.SSID(i);
+      obj["rssi"] = WiFi.RSSI(i);
+      obj["channel"] = String(WiFi.channel(i));
+      obj["secure"] = String(WiFi.encryptionType(i));
+      obj["hidden"] = String(WiFi.isHidden(i) ? "true" : "false");
     }
-    config.set<String>(json[key], "ssid", ssidList[i]);
-    config.set<String>(json[key], "pass", passList[i]);
-    this->wifiMulti.addAP(ssidList[i].c_str(), passList[i].c_str());
   }
-  INFO_LOG("Wifi configuration loaded");
-  this->printConf(ssidList);
+  WiFi.scanDelete();
+  String tmp;
+  root.printTo(tmp);
+  DEBUG_VAR("CoolWifi::jsonStringWiFiScan: ", tmp);
+  return (tmp);
+}
+
+bool CoolWifi::isAvailable(String bssid) {
+  // enhancement: need to verify also the BSSID
+  DynamicJsonBuffer json;
+  JsonObject &root = json.parseObject(this->jsonStringWiFiScan());
+  if (root[bssid].success()) {
+    return (true);
+  }
+  return (false);
+}
+
+// bool CoolWifi::autoConnect() {
+//   DynamicJsonBuffer json;
+//   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
+//   DynamicJsonBuffer config;
+//   File f = SPIFFS.open("/wifiConfig.json", "r");
+//   JsonObject &conf = config.parseObject(f.readString());
+//   uint8_t wifiCount = conf.get<uint8_t>("wifiCount");
+//   int8_t rssi[wifiCount];
+//   if (wifiCount == 0) {
+//     return false;
+//   }
+//   for (uint8_t i = 0; i < wifiCount; ++i) {
+//     rssi[i] = -127;
+//     if (scan[conf["Wifi" + String(i)]["ssid"].asString()].success()) {
+//       DEBUG_VAR("Saved network found on scan:",
+//                 String(conf["Wifi" + String(i)]["ssid"].asString()));
+//       String obj = scan[conf["Wifi" + String(i)]["ssid"].asString()];
+//       JsonObject &network = json.parseObject(obj);
+//       int8_t pwr = network.get<int8_t>("rssi");
+//       DEBUG_VAR("Signal Power:", pwr);
+//       rssi[i] = pwr;
+//     }
+//   }
+//   uint8_t n = this->getIndexOfMaximumValue(rssi, wifiCount);
+//   DEBUG_VAR("CoolWifi::autoConnect index Connecting to: ", n);
+//   DEBUG_VAR("CoolWifi::autoConnect Connecting to: ",
+//             String(conf["Wifi" + String(n)]["ssid"].asString()));
+//   DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
+//   if (this->connect(conf["Wifi" + String(n)]["ssid"].asString(),
+//                     conf["Wifi" + String(n)]["pass"].asString()) !=
+//       WL_CONNECTED) {
+//     WARN_VAR("There's a problem, reconnecting, WiFiStatus: ", WiFi.status());
+//   }
+//   DEBUG_VAR("CoolWifi::autoConnect Connected to: ", WiFi.SSID());
+//   DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
+//   return (true);
+// }
+
+bool CoolWifi::autoConnect() {
+  DynamicJsonBuffer json;
+  JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
+  DynamicJsonBuffer config;
+  File f = SPIFFS.open("/wifiConfig.json", "r");
+  JsonArray &conf = config.parseArray(f.readString());
+  uint8_t wifiSize = conf.size();
+  int8_t rssi[wifiSize];
+  if (wifiSize == 0) {
+    return false;
+  }
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    rssi[i] = -127;
+    if (scan[conf[i]["bssid"].asString()].success()) {
+      DEBUG_VAR("Saved network found on scan:", conf[i]["bssid"].asString());
+      DEBUG_VAR("With SSID:", conf[i]["ssid"].asString());
+      DEBUG_VAR("With PSK:", conf[i]["psk"].asString());
+      String obj = scan[conf[i]["bssid"].asString()];
+      JsonObject &network = json.parseObject(obj);
+      int16_t pwr = network.get<int16_t>("rssi");
+      DEBUG_VAR("Signal Power:", pwr);
+      rssi[i] = pwr;
+    }
+  }
+  uint8_t n = this->getIndexOfMaximumValue(rssi, wifiSize);
+  DEBUG_VAR("CoolWifi::autoConnect index Connecting to: ", n);
+  DEBUG_VAR("CoolWifi::autoConnect Connecting to: ",
+            String(conf[n]["ssid"].asString()));
+  DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
+  DEBUG_VAR("With SSID:", conf[n]["ssid"].asString());
+  DEBUG_VAR("With Psk:", conf[n]["psk"].asString());
+  if (this->connect(conf[n]["ssid"].asString(), conf[n]["psk"].asString()) !=
+      WL_CONNECTED) {
+    WARN_VAR("There's a problem, reconnecting, WiFiStatus: ", WiFi.status());
+    return (false);
+  }
+  DEBUG_VAR("CoolWifi::autoConnect Connected to: ", WiFi.SSID());
+  DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
   return (true);
 }
 
-bool CoolWifi::addWifi(String ssid, String pass) {
-  INFO_VAR("Adding new Wifi network:", ssid + String(F("/")) + pass);
-  CoolConfig config("/wifiConfig.json");
+uint8_t CoolWifi::connect(String ssid, String pass) {
+#ifdef ESP8266
+  ETS_UART_INTR_DISABLE();
+  wifi_station_disconnect();
+  ETS_UART_INTR_ENABLE();
+#elif ESP32
+  esp_wifi_disconnect();
+#endif
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  int t = 0;
+  while ((WiFi.status() != WL_CONNECTED) &&
+         (t < WIFI_CONNECT_TIMEOUT_SECONDS)) {
+    t++;
+    delay(1000);
+  }
+  if ((WiFi.status() != WL_CONNECTED) && this->isAvailable(ssid)) {
+    WARN_LOG("Something goes wrong, SSID is available but impossible to "
+             "connect, please retry");
+    WARN_VAR("Reason: ", this->StringStatus(WiFi.status()));
+    WiFi.persistent(false);
+    wifi_station_disconnect();
+    WiFi.mode(WIFI_OFF);
+    delay(1000);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid.c_str(), pass.c_str());
+    int t = 0;
+    while ((WiFi.status() != WL_CONNECTED) &&
+           (t < WIFI_CONNECT_TIMEOUT_SECONDS)) {
+      t++;
+      delay(1000);
+    }
+  }
+  return WiFi.status();
+}
 
-  if (this->wifiCount >= MAX_WIFI_NETWORKS) {
-    ERROR_LOG("Cannot add new network, you have reached the limit of saved "
-              "networks");
-    return (false);
+bool CoolWifi::connectToSavedBssidAsync(String bssid) {
+  DynamicJsonBuffer config;
+  File f = SPIFFS.open("/wifiConfig.json", "r");
+  if (!f)
+    return false;
+  JsonArray &conf = config.parseArray(f.readString());
+  uint8_t wifiSize = conf.size();
+  DEBUG_VAR("Config Size: ", wifiSize);
+  for (uint8_t i = 0; i < wifiSize; ++i) {
+    String tmp = conf.get<String>(i);
+    JsonObject &obj = config.parseObject(tmp.c_str());
+    if (obj.get<String>("bssid") == bssid) {
+      this->SSID = obj["ssid"].asString();
+      this->pass = obj["psk"].asString();
+      this->BSSID = bssid;
+      DEBUG_VAR("Setting connection by based BSSID, SSID: ", this->SSID);
+      DEBUG_VAR("Setting connection by based BSSID, psk: ", this->pass);
+      this->haveToDo = true;
+      return true;
+    }
   }
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Cannot add new network, failed to read Wifi configuration");
-    return (false);
-  }
-  JsonObject &json = config.get();
+  return false;
+}
 
-  json["wifiCount"] = this->wifiCount + 1;
-  JsonObject &newWifi =
-      json.createNestedObject("Wifi" + String(this->wifiCount));
-  newWifi["ssid"] = ssid;
-  newWifi["pass"] = pass;
-  if (!config.writeJsonToFile()) {
-    ERROR_LOG("Cannot add new network, failed to save Wifi configuration");
-    return (false);
+uint8_t CoolWifi::getWifiCount() {
+  DynamicJsonBuffer config;
+  File f = SPIFFS.open("/wifiConfig.json", "r");
+  JsonArray &conf = config.parseArray(f.readString());
+  f.close();
+  return (conf.size());
+}
+uint8_t CoolWifi::getIndexOfMaximumValue(int8_t *array, int size) {
+  int8_t maxIndex = 0;
+  int8_t max = array[maxIndex];
+  for (int i = 0; i < size; i++) {
+    if (max < array[i]) {
+      max = array[i];
+      maxIndex = i;
+    }
   }
-  ++this->wifiCount;
-  INFO_VAR("Added new network to Wifi configuration:",
-           String(F("SSID:")) + ssid + String(F("PSK:")) + pass);
-  return (true);
+  if (array[maxIndex] < WIFI_POOR_SIGNAL_THREESHOLD) {
+    DEBUG_LOG("Best signal to low, enhance WiFi power");
+    WiFi.setOutputPower(WIFI_MAX_POWER);
+  }
+  return maxIndex;
 }
 
 bool CoolWifi::getPublicIp(String &ip) {
   HTTPClient http;
-
   http.begin("http://api.ipify.org/");
   if (http.GET() == HTTP_CODE_OK) {
     ip = http.getString();
@@ -175,13 +275,105 @@ bool CoolWifi::getPublicIp(String &ip) {
   return (false);
 }
 
-void CoolWifi::printConf(String ssidList[]) {
-  INFO_LOG("Wifi configuration");
-  INFO_VAR("  Wifi count  =", this->wifiCount);
-  INFO_VAR("  Timeout     =", this->timeOut);
+String CoolWifi::getStatusAsjsonString() {
+  DynamicJsonBuffer json;
+  JsonObject &root = json.createObject();
+  root["state"] = this->StringStatus(WiFi.status());
+  root.createNestedObject("network");
+  JsonObject &network = root["network"];
+  network["ssid"] = WiFi.SSID();
+  network["bssid"] = WiFi.BSSIDstr();
+  network["rssi"] = WiFi.RSSI();
+  // network["security"] = WiFi.encryptionType();
+  // network["hidden"] = String(WiFi.isHidden() ? "true" : "false");
+  String tmp;
+  root.printTo(tmp);
+  return tmp;
+}
 
-  for (int i = 0; i < this->wifiCount; i++) {
-    INFO_VAR(" Network #", i);
-    INFO_VAR("    SSID    =", ssidList[i]);
+String CoolWifi::StringStatus(wl_status_t status) {
+  switch (status) {
+  case WL_NO_SHIELD:
+    return "Wifi status: no shield";
+    break;
+  case WL_IDLE_STATUS:
+    return "Wifi status: idle";
+    break;
+  case WL_NO_SSID_AVAIL:
+    return "Wifi status: no SSID available";
+    break;
+  case WL_SCAN_COMPLETED:
+    return "Wifi status: scan completed";
+    break;
+  case WL_CONNECTED:
+    return "Wifi status: connected";
+    break;
+  case WL_CONNECT_FAILED:
+    return "Wifi status: connection failed";
+    break;
+  case WL_DISCONNECTED:
+    return "Wifi status: disconnected";
+    break;
+  default:
+    return "Wifi status: unknown";
+    break;
   }
 }
+
+void CoolWifi::setupHandlers() {
+#ifdef ESP8266
+  gotIpEventHandler =
+      WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP &event) {
+        INFO_VAR("Coolboard Connected, Local IP: ", WiFi.localIP());
+        CoolWifi::getInstance().lostConnections = 0;
+      });
+  disconnectedEventHandler = WiFi.onStationModeDisconnected(
+      [](const WiFiEventStationModeDisconnected &event) {
+        INFO_LOG("WiFi connection lost");
+        CoolWifi::getInstance().lostConnections++;
+        if (CoolWifi::getInstance().lostConnections >= 10) {
+          ERROR_LOG("impossible to establish connection, need to reboot");
+          ESP.restart();
+        }
+      });
+#elif ESP32
+  WiFi.onEvent(this->WiFiEthEvent);
+#endif
+}
+
+#ifdef ESP32
+void WiFiEthEvent(WiFiEvent_t event) {
+  switch (event) {
+  case SYSTEM_EVENT_ETH_START:
+    Serial.println("ETH Started");
+    ETH.setHostname("esp32-ethernet");
+    break;
+  case SYSTEM_EVENT_ETH_CONNECTED:
+    Serial.println("ETH Connected");
+    break;
+  case SYSTEM_EVENT_ETH_GOT_IP:
+    Serial.print("ETH MAC: ");
+    Serial.print(ETH.macAddress());
+    Serial.print(", IPv4: ");
+    Serial.print(ETH.localIP());
+    if (ETH.fullDuplex()) {
+      Serial.print(", FULL_DUPLEX");
+    }
+    Serial.print(", ");
+    Serial.print(ETH.linkSpeed());
+    Serial.println("Mbps");
+    eth_connected = true;
+    break;
+  case SYSTEM_EVENT_ETH_DISCONNECTED:
+    Serial.println("ETH Disconnected");
+    eth_connected = false;
+    break;
+  case SYSTEM_EVENT_ETH_STOP:
+    Serial.println("ETH Stopped");
+    eth_connected = false;
+    break;
+  default:
+    break;
+  }
+}
+#endif

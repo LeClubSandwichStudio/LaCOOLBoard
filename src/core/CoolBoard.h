@@ -36,18 +36,25 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 #include "PubSubClient.h"
+#ifdef ESP8266
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
-
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
+#elif ESP32
+#include <rom/rtc.h>
+// #define ENABLE_I2C_PIN 5  // Need To be Defined on HW Specs
+#define BOOTSTRAP_PIN 37 // // Need To be Defined on HW Specs
+// #include <HTTPClient.h>
+#include <ESP32httpUpdate.h> // Need Third part Update: https://github.com/suculent/esp32-http-update
+// 
+#endif
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
 #define LOW_POWER_SLEEP 900
 #define MQTT_RETRIES 5
 #define MAX_MQTT_RETRIES 15
 #define MAX_SLEEP_TIME 3600
-
 class CoolBoard {
 
 public:
@@ -83,7 +90,8 @@ public:
   void mqttsConfig();
   static int b64decode(String b64Text, uint8_t *output);
   void mqttsConvert(String cert);
-  void updateFirmware(String firmwareVersion, String firmwareUrl, String firmwareUrlFingerprint);
+  void updateFirmware(String firmwareVersion, String firmwareUrl,
+                      String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
   void mqttLog(String data);
 
@@ -91,7 +99,6 @@ private:
   uint8_t mqttRetries = 0;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
-  CoolWifi *coolWifi = new CoolWifi;
   Jetpack jetPack;
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;

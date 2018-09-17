@@ -21,6 +21,7 @@
  *
  */
 
+#define COOL_FW_VERSION "TEST"
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 #include <FS.h>
@@ -45,9 +46,11 @@ void CoolBoard::begin() {
   delay(10);
   this->coolBoardLed.write(YELLOW);
   this->config();
+#ifdef ESP8266
   pinMode(ENABLE_I2C_PIN, OUTPUT);
-  pinMode(BOOTSTRAP_PIN, INPUT);
   digitalWrite(ENABLE_I2C_PIN, HIGH);
+#endif
+  pinMode(BOOTSTRAP_PIN, INPUT);
   delay(100);
   this->coolBoardSensors.config();
   this->coolBoardSensors.begin();
@@ -148,14 +151,18 @@ bool CoolBoard::isConnected() {
 }
 
 void CoolBoard::connect() {
-  if (this->coolWifi->wifiCount > 0 && digitalRead(BOOTSTRAP_PIN) == HIGH) {
+  if (CoolWifi::getInstance().getWifiCount() > 0) {
     this->coolBoardLed.write(BLUE);
-    this->coolWifi->connect();
+    if (WiFi.status() != WL_CONNECTED) {
+      INFO_LOG("WiFi not connected, connecting...");
+      CoolWifi::getInstance().autoConnect();
+    }
   } else {
-    INFO_LOG("Starting Wifi access point and configuration portal");
-    this->coolWifi->startAccessPoint(this->coolBoardLed);
+    INFO_LOG("No configured Wifi access point, launching configuration portal");
+    // if (!this->coolWebServer.isRunning) {
+    //   this->coolWebServer.begin();
+    // }
   }
-  delay(100);
   if (WiFi.status() == WL_CONNECTED) {
     CoolTime::getInstance().begin();
     delay(100);
@@ -234,7 +241,11 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
 bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
-  this->coolWifi->config();
+  CoolWifi::getInstance().setupHandlers();
+  if (!CoolWifi::getInstance().autoConnect()) {
+    WARN_LOG("No Network Disponible");
+    return false;
+  }
   this->tryFirmwareUpdate();
   CoolConfig config("/coolBoardConfig.json");
   if (!config.readFileAsJson()) {
@@ -362,8 +373,9 @@ void CoolBoard::update(const char *answer) {
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
 void CoolBoard::readSensors(JsonObject &reported) {
-
+#ifdef ESP8266
   digitalWrite(ENABLE_I2C_PIN, HIGH);
+#endif
   this->coolBoardSensors.read(reported);
 
   if (this->externalSensorsActive) {
@@ -387,9 +399,13 @@ void CoolBoard::readBoardData(JsonObject &reported) {
 void CoolBoard::sleep() {
   EEPROM.begin(5);
   uint8_t val[4];
+#ifdef ESP8266
   rst_info *resetInfo;
   resetInfo = ESP.getResetInfoPtr();
   if (!EEPROM.read(0x04) || resetInfo->reason != REASON_DEEP_SLEEP_AWAKE) {
+#elif ESP32
+  if (!EEPROM.read(0x04) || (int)rtc_get_reset_reason(0) == 12) {
+#endif
     INFO_LOG("Reset of the logInterval");
     for (int i = 0; i < 5; i++) {
       EEPROM.write(i, 0);
@@ -462,7 +478,7 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 void CoolBoard::readPublicIP(JsonObject &reported) {
   if (WiFi.status() == WL_CONNECTED) {
     String ip;
-    if (this->coolWifi->getPublicIp(ip)) {
+    if (CoolWifi::getInstance().getPublicIp(ip)) {
       DEBUG_VAR("Public IP address:", ip);
       reported["publicIp"] = ip;
     }
@@ -471,13 +487,12 @@ void CoolBoard::readPublicIP(JsonObject &reported) {
 
 void CoolBoard::networkProblem() {
   WARN_LOG("Network unreachable");
-  CoolWifi::printStatus(WiFi.status());
+  WARN_VAR("Reason: ", CoolWifi::getInstance().StringStatus(WiFi.status()));
   this->printMqttState(this->coolPubSubClient->state());
   for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(ORANGE, 0.2);
   }
 }
-
 void CoolBoard::clockProblem() {
   ERROR_LOG("NTP failed and RTC has stopped, not doing anything!");
   for (uint8_t i = 0; i < 8; i++) {
@@ -692,11 +707,13 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
   SPIFFS.remove("/otaUpdateConfig.json");
   SPIFFS.end();
   delay(100);
-  this->coolWifi->connect();
+  if (WiFi.status() != WL_CONNECTED) {
+    INFO_LOG("WiFi not connected, connecting...");
+    CoolWifi::getInstance().autoConnect();
+  }
   if (WiFi.status() == WL_CONNECTED) {
     Serial.flush();
     Serial.setDebugOutput(true);
-    delete this->coolWifi;
     INFO_LOG("Starting firmware update...");
     t_httpUpdate_return ret =
         ESPhttpUpdate.update(firmwareUrl, "", firmwareUrlFingerprint);

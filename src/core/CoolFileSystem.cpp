@@ -21,24 +21,26 @@
  *
  */
 
-#include <FS.h>
-
-#include "CoolFileSystem.h"
+#ifdef ESP32
+#include <SPIFFS.H>
+#endif
 #include "CoolConfig.h"
+#include "CoolFileSystem.h"
 #include "CoolLog.h"
+#include <FS.h>
 
 #define JSON_FILE_EXT_SIZE 5
 
 static constexpr ConfigFile CONFIG_FILES[] = {
-      {"CoolBoard", "/coolBoardConfig.json"},
-      {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
-      {"CoolBoardActor", "/coolBoardActorConfig.json"},
-      {"externalSensors", "/externalSensorsConfig.json"},
-      {"led", "/coolBoardLedConfig.json"},
-      {"jetPack", "/jetPackConfig.json"},
-      {"irene3000", "/irene3000Config.json"},
-      {"mqtt", "/mqttConfig.json"},
-      {"wifi", "/wifiConfig.json"}};
+    {"CoolBoard", "/coolBoardConfig.json"},
+    {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
+    {"CoolBoardActor", "/coolBoardActorConfig.json"},
+    {"externalSensors", "/externalSensorsConfig.json"},
+    {"led", "/coolBoardLedConfig.json"},
+    {"jetPack", "/jetPackConfig.json"},
+    {"irene3000", "/irene3000Config.json"},
+    {"mqtt", "/mqttConfig.json"},
+    {"wifi", "/wifiConfig.json"}};
 
 static const uint8_t CONFIG_FILES_COUNT = 9;
 
@@ -61,7 +63,7 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   }
   JsonObject &fileJson = config.get();
   for (auto kv : updateJson) {
-      fileJson[kv.key] = updateJson[kv.key];
+    fileJson[kv.key] = updateJson[kv.key];
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
@@ -75,13 +77,18 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
 
 bool CoolFileSystem::saveLogToFile(const char *data) {
   String lastName = "0";
+#ifdef ESP8266
   FSInfo fs_info;
-
   if (SPIFFS.info(fs_info) == true) {
     DEBUG_LOG("SPIFFS status before saving:");
     DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
     DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
   }
+#elif ESP32
+  DEBUG_LOG("SPIFFS status before saving:");
+  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
+#endif
 
   int nextLog = lastSavedLogNumber();
   nextLog++;
@@ -98,26 +105,45 @@ bool CoolFileSystem::saveLogToFile(const char *data) {
     DEBUG_VAR("Could not save data file (already exists):", nextName);
     return false;
   }
+#ifdef ESP8266
+  FSInfo fs_info;
   if (SPIFFS.info(fs_info) == true) {
-    DEBUG_LOG("SPIFFS status after saving:");
+    DEBUG_LOG("SPIFFS status before saving:");
     DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
     DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
   }
+#elif ESP32
+  DEBUG_LOG("SPIFFS status before saving:");
+  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
+#endif
   return true;
 }
 
 bool CoolFileSystem::hasSavedLogs() {
+#ifdef ESP8266
   Dir dir = SPIFFS.openDir("/log");
   if (dir.next()) {
     return true;
   } else {
     return false;
   }
+#elif ESP32
+  File dir = SPIFFS.open("/log");
+  if (dir.isDirectory()) {
+    if (dir.openNextFile()) {
+      return true;
+    }
+  } else {
+    return false;
+  }
+#endif
 }
 
 int CoolFileSystem::lastSavedLogNumber() {
   int next = 0;
   int temp = 0;
+#ifdef ESP8266
   Dir dir = SPIFFS.openDir("/log");
   while (dir.next()) {
     temp = dir.fileName().substring(JSON_FILE_EXT_SIZE).toInt();
@@ -126,6 +152,18 @@ int CoolFileSystem::lastSavedLogNumber() {
       next = temp;
     }
   }
+#elif ESP32
+  File dir = SPIFFS.open("/log");
+  if (dir.isDirectory()) {
+    while (dir.openNextFile()) {
+      temp = dir.name().substring(JSON_FILE_EXT_SIZE).toInt();
+      DEBUG_VAR("Saved file data name: ", dir.name());
+      if (temp >= next) {
+        next = temp;
+      }
+    }
+  }
+#endif
   return next;
 }
 
@@ -151,7 +189,7 @@ bool CoolFileSystem::deleteSavedLog(int num) {
   char logName[32];
   snprintf(logName, 32, "/log/%d.json", num);
 
-  if (SPIFFS.remove(logName)){
+  if (SPIFFS.remove(logName)) {
     INFO_VAR("Deleted log file:", logName);
     return true;
   } else {

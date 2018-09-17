@@ -20,9 +20,10 @@
  *  IN THE SOFTWARE.
  *
  */
-
+#ifdef ESP32
+#include <SPIFFS.H>
+#endif
 #include <FS.h>
-
 #include "CoolConfig.h"
 #include "CoolLog.h"
 

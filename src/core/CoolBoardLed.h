@@ -39,11 +39,15 @@
 #define BLUE 0, 0, 50
 #define FUCHSIA 30, 0, 30
 #define ORANGE 50, 25, 0
-
+#ifdef ESP8266
+#define PIXEL_GPIO 1
+#elif ESP32
+#define PIXEL_GPIO 17
+#endif
 class CoolBoardLed {
 
 public:
-  CoolBoardLed() : neoPixelLed(1, 2) {}
+  CoolBoardLed() : neoPixelLed(PIXEL_GPIO, 2) {}
   void begin();
   void write(uint8_t R, uint8_t G, uint8_t B);
   bool config();
@@ -56,7 +60,11 @@ public:
   void strobe(uint8_t R, uint8_t G, uint8_t B, float T);
 
 private:
+#ifdef ESP8266
   NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> neoPixelLed;
+#elif ESP32
+  NeoPixelBus<NeoGrbFeature, NeoEsp32BitBang800KbpsMethod> neoPixelLed;
+#endif
   bool ledActive = 1;
 };
 

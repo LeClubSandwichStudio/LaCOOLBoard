@@ -35,11 +35,12 @@ CoolTime &CoolTime::getInstance() {
 
   return instance;
 }
-
+#ifdef ESP8266
 void timeSet(void) {
   CoolTime::ntpSync = true;
   DEBUG_LOG("Received response from NTP server");
 }
+#endif
 
 void CoolTime::printStatus() {
   INFO_VAR("RTC ISO8601 timestamp:", this->getIso8601DateTime());
@@ -51,7 +52,9 @@ void CoolTime::begin() {
   if (this->rtc.hasStopped()) {
     WARN_LOG("RTC has stopped, need to resync");
   }
+#ifdef ESP8266
   settimeofday_cb(timeSet);
+#endif
   configTime(0, 0, "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org");
 }
 
@@ -63,8 +66,15 @@ bool CoolTime::sync() {
   while (!CoolTime::ntpSync && millis() < waitUntil) {
     delay(100);
   }
+#ifdef ESP8266
   if (CoolTime::ntpSync) {
     this->rtc.setDateTime(time(nullptr));
+#elif ESP32
+  if (getLocalTime(&timeinfo)) {
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+    unsigned long time_mk = mktime(&timeinfo);
+    this->rtc.setDateTime(time_mk);
+#endif
     this->rtc.clearOSF();
     INFO_LOG("RTC was synchronized with NTP");
     this->printStatus();

@@ -25,12 +25,14 @@
 #define COOLTIME_H
 
 #include <Arduino.h>
-
 #include <DS1337.h>
+#include <time.h>
+#ifdef ESP8266
 #include <ESP8266WiFi.h>
 #include <coredecls.h>
-#include <time.h>
-
+#elif ESP32
+#include "apps/sntp/sntp.h"
+#endif
 #define NTP_TIMEOUT_MS 15000
 #define YEAR_2K 2000
 
@@ -51,6 +53,9 @@ public:
   void operator=(CoolTime const &) = delete;
 
 private:
+#ifdef ESP32
+  struct tm timeinfo;
+#endif
   CoolTime() {}
 };
 

@@ -50,7 +50,7 @@ void CoolBoardSensors::allActive() {
 }
 
 void CoolBoardSensors::begin() {
-  Wire.begin(2, 14);
+  Wire.begin(SDA,SCL);
   while (!this->lightSensor.Begin()) {
     DEBUG_LOG("SI1145 light sensor is not ready, waiting for 1 second...");
     delay(1000);
@@ -188,9 +188,7 @@ void CoolBoardSensors::setEnvSensorSettings(uint8_t commInterface,
 float CoolBoardSensors::readVBat() {
   digitalWrite(ANALOG_MULTIPLEXER_PIN, LOW);
   delay(200);
-
-  // read battery voltage
-  int raw = analogRead(A0);
+  int raw = analogRead(BATT_VOLTAGE_PIN);
   float voltage = (raw * MAX_BATTERY_VOLTAGE) / ADC_MAX_VAL;
   DEBUG_VAR("Raw value:", raw);
   DEBUG_VAR("Battery voltage:", voltage);

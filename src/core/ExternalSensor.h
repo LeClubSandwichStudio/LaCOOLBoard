@@ -33,15 +33,15 @@
 #include "SHT1x.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
-#include <MCP342X.h>
 #include <I2CSoilMoistureSensor.h>
+#include <MCP342X.h>
 #include <SparkFunBME280.h>
 
 #include "CoolLog.h"
-
+#ifdef ESP8266
 #define SHT1X_DATA_PIN 0
 #define SHT1X_CLOCK_PIN 12
-
+#endif
 class BaseExternalSensor {
 
 public:
@@ -260,7 +260,7 @@ public:
 private:
   Gauges sensor;
 };
-
+#ifdef ESP8266
 template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
@@ -274,7 +274,7 @@ public:
 private:
   SHT1x sensor;
 };
-
+#endif
 template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor() {}
@@ -300,41 +300,30 @@ public:
   ExternalSensor(uint8_t i2c_addr) { sensor = MCP342X(i2c_addr); }
 
   virtual uint8_t begin() {
-    //sensor.testConnection();
-    Serial.println(sensor.testConnection() ? "MCP342X connection successful" : "MCP342X connection failed");
+    // sensor.testConnection();
+    Serial.println(sensor.testConnection() ? "MCP342X connection successful"
+                                           : "MCP342X connection failed");
     return (true);
   }
 
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
-    sensor.configure( MCP342X_MODE_ONESHOT |
-      MCP342X_CHANNEL_1 |
-      MCP342X_SIZE_16BIT |
-      MCP342X_GAIN_2X
-    );
+    sensor.configure(MCP342X_MODE_ONESHOT | MCP342X_CHANNEL_1 |
+                     MCP342X_SIZE_16BIT | MCP342X_GAIN_2X);
     sensor.startConversion();
     sensor.getResult(&*a);
 
-    sensor.configure( MCP342X_MODE_ONESHOT |
-      MCP342X_CHANNEL_2 |
-      MCP342X_SIZE_16BIT |
-      MCP342X_GAIN_2X
-    );
+    sensor.configure(MCP342X_MODE_ONESHOT | MCP342X_CHANNEL_2 |
+                     MCP342X_SIZE_16BIT | MCP342X_GAIN_2X);
     sensor.startConversion();
     sensor.getResult(&*b);
 
-    sensor.configure( MCP342X_MODE_ONESHOT |
-      MCP342X_CHANNEL_3 |
-      MCP342X_SIZE_16BIT |
-      MCP342X_GAIN_2X
-    );
+    sensor.configure(MCP342X_MODE_ONESHOT | MCP342X_CHANNEL_3 |
+                     MCP342X_SIZE_16BIT | MCP342X_GAIN_2X);
     sensor.startConversion();
     sensor.getResult(&*c);
 
-    sensor.configure( MCP342X_MODE_ONESHOT |
-      MCP342X_CHANNEL_4 |
-      MCP342X_SIZE_16BIT |
-      MCP342X_GAIN_2X
-    );
+    sensor.configure(MCP342X_MODE_ONESHOT | MCP342X_CHANNEL_4 |
+                     MCP342X_SIZE_16BIT | MCP342X_GAIN_2X);
     sensor.startConversion();
     sensor.getResult(&*d);
     return (0.0);
@@ -344,7 +333,8 @@ private:
   MCP342X sensor;
 };
 
-template <> class ExternalSensor<I2CSoilMoistureSensor> : public BaseExternalSensor {
+template <>
+class ExternalSensor<I2CSoilMoistureSensor> : public BaseExternalSensor {
 public:
   ExternalSensor(uint8_t i2c_addr) : sensor(i2c_addr) {}
 
@@ -355,21 +345,23 @@ public:
 
   virtual float read(uint16_t *a, float *b) {
     uint16_t A = sensor.getCapacitance();
-    float B = sensor.getTemperature()/(float)10;
+    float B = sensor.getTemperature() / (float)10;
     *a = A;
     *b = B;
     return (0.0);
   }
+
 private:
   I2CSoilMoistureSensor sensor;
 };
 
 template <> class ExternalSensor<BME280> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) { sensor = BME280(); 
-    sensor.settings.I2CAddress = i2c_addr; 
+  ExternalSensor(uint8_t i2c_addr) {
+    sensor = BME280();
+    sensor.settings.I2CAddress = i2c_addr;
     sensor.settings.commInterface = I2C_MODE;
-    //just to configure some common presets
+    // just to configure some common presets
     sensor.settings.runMode = 3;
     sensor.settings.tStandby = 0;
     sensor.settings.filter = 0;

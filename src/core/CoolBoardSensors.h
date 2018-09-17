@@ -27,17 +27,26 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <SparkFunBME280.h>
-
 #include "CoolSI114X.h"
-
-#define MOISTURE_SENSOR_PIN 13
-#define ANALOG_MULTIPLEXER_PIN 12
 #define ADC_MAX_VAL 1023.
 #define MAX_BATTERY_VOLTAGE 5.6
 #define LINEARISATION_MOISTURE_100 100.
 #define LINEARISATION_MOISTURE_A 0.157
 #define MOISTURE_SAMPLES 64
 #define SOIL_MOISTURE_SAMPLES 10
+#ifdef ESP8266
+#define SDA 2
+#define SCL 14
+#define BATT_VOLTAGE_PIN A0
+#define MOISTURE_SENSOR_PIN 13
+#define ANALOG_MULTIPLEXER_PIN 12
+#elif ESP32
+#define SDA 33
+#define SCL 32
+#define BATT_VOLTAGE_PIN 36 // is here because probably being changed, not sure
+#define MOISTURE_SENSOR_PIN 38
+#define ANALOG_MULTIPLEXER_PIN 12 // ATTENTION: NEED TO BE DEFINIED IN SPECS
+#endif
 class CoolBoardSensors {
 
 public:

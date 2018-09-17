@@ -24,24 +24,59 @@
 #ifndef COOLWIFI_H
 #define COOLWIFI_H
 
+#define WIFI_POOR_SIGNAL_THREESHOLD -75
+#define WIFI_MAX_POWER 20.5
+#define WIFI_CONNECT_TIMEOUT_SECONDS 25
+#define SSID_MAX_LENGHT 32
+
 #include <Arduino.h>
+#ifdef ESP8266
+extern "C" {
+#include "user_interface.h"
+}
+#include <ESP8266HTTPClient.h>
 #include <ESP8266WiFiMulti.h>
-#include "CoolBoardLed.h"
+#define BOOTSTRAP_PIN 0
+#elif ESP32
+#include <HTTPClient.h>
+#include <SPIFFS.H>
+#include <WiFiMulti.h>
+#include <esp_wifi.h>
+#define BOOTSTRAP_PIN A0 // need to nefine in HW specs
+#endif
+// #include "CoolBoardLed.h"
 
 class CoolWifi {
-
 public:
-  ESP8266WiFiMulti wifiMulti;
-  static void printStatus(wl_status_t status);
-  bool config();
-  void connect();
-  void startAccessPoint(CoolBoardLed &led);
+  static CoolWifi &getInstance();
+  bool manageConnectionPortal();
+  bool haveToDo = false;
+  String SSID;
+  String pass;
+  String BSSID;
+  CoolWifi(CoolWifi const &) = delete;
+  String jsonStringWiFiScan();
+  bool isAvailable(String bssid);
+  bool autoConnect();
+  void operator=(CoolWifi const &) = delete;
+  uint8_t getWifiCount();
   bool getPublicIp(String &ip);
-  uint8_t wifiCount = 0;
+  String StringStatus(wl_status_t status);
+#ifdef ESP8266
+  WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
+#elif ESP32
+  void WiFiEthEvent(WiFiEvent_t event);
+#endif
+  uint8_t getIndexOfMaximumValue(int8_t *array, int size);
+  void setupHandlers();
+  bool mdnsState = false;
+  uint8_t connect(String ssid, String pass);
+  bool connectToSavedBssidAsync(String bssid);
+  int lostConnections = -1;
+  String getStatusAsjsonString();
+
 private:
-  bool addWifi(String ssid, String pass);
-  void printConf(String ssid[]);
-  uint8_t timeOut = 180;
+  CoolWifi() {}
 };
 
 #endif
