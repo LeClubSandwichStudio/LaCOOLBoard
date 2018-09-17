@@ -25,17 +25,27 @@
 #define COOLWIFI_H
 
 #include <Arduino.h>
+#ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266WiFiMulti.h>
+#else
+#include <WiFiMulti.h>
+#endif
 #include "CoolBoardLed.h"
 
 class CoolWifi {
 
 public:
+#ifndef ARDUINO_ARCH_ESP32
   ESP8266WiFiMulti wifiMulti;
+#else
+  WiFiMulti wifiMulti;
+#endif
   static void printStatus(wl_status_t status);
   bool config();
   void connect();
+#ifndef ARDUINO_ARCH_ESP32
   void startAccessPoint(CoolBoardLed &led);
+#endif
   bool getPublicIp(String &ip);
   uint8_t wifiCount = 0;
 private:

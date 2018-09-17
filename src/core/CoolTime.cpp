@@ -51,7 +51,10 @@ void CoolTime::begin() {
   if (this->rtc.hasStopped()) {
     WARN_LOG("RTC has stopped, need to resync");
   }
+
+#ifndef ARDUINO_ARCH_ESP32
   settimeofday_cb(timeSet);
+#endif
   configTime(0, 0, "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org");
 }
 
@@ -61,9 +64,22 @@ bool CoolTime::sync() {
   INFO_LOG("Waiting for NTP...");
 
   while (!CoolTime::ntpSync && millis() < waitUntil) {
+#ifdef ARDUINO_ARCH_ESP32
+    time_t now = 0;
+    struct tm timeinfo = {0};
+    int retry = 0;
+    const int retry_count = 10;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    if (timeinfo.tm_year > (2017 - 1900)) {
+      timeSet();
+    }
+#endif
     delay(100);
   }
+
   if (CoolTime::ntpSync) {
+
     this->rtc.setDateTime(time(nullptr));
     this->rtc.clearOSF();
     INFO_LOG("RTC was synchronized with NTP");

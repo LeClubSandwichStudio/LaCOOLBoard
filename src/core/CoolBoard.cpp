@@ -150,8 +150,12 @@ void CoolBoard::connect() {
     this->coolBoardLed.write(BLUE);
     this->coolWifi->connect();
   } else {
+#ifndef ARDUINO_ARCH_ESP32
     INFO_LOG("Starting Wifi access point and configuration portal");
     this->coolWifi->startAccessPoint(this->coolBoardLed);
+#else
+    INFO_LOG("No Wifi configured");
+#endif
   }
   delay(100);
   if (WiFi.status() == WL_CONNECTED) {
@@ -380,7 +384,11 @@ void CoolBoard::readBoardData(JsonObject &reported) {
 void CoolBoard::sleep(unsigned long interval) {
   if (interval > 0) {
     INFO_VAR("Going to sleep for seconds:", interval);
+#ifndef ARDUINO_ARCH_ESP32
     ESP.deepSleep((uint64(interval) * 1000000ULL), WAKE_RF_DEFAULT);
+#else
+    ESP.deepSleep(interval);
+#endif
   }
 }
 
@@ -566,7 +574,7 @@ void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
   temp[length] = '\0';
   this->update(temp);
 }
-
+#ifndef ARDUINO_ARCH_ESP32
 void CoolBoard::mqttsConvert(String cert) {
   File bin = SPIFFS.open(cert, "r");
   String certficateString = bin.readString();
@@ -580,6 +588,19 @@ void CoolBoard::mqttsConvert(String cert) {
     this->wifiClientSecure->setPrivateKey(binaryCert, len);
   }
 }
+#else
+void CoolBoard::mqttsConvert(String cert) {
+  File bin = SPIFFS.open(cert, "r");
+  String certficateString = bin.readString();
+  bin.close();
+  DEBUG_LOG("Closing bin file");
+  if (strstr(cert.c_str(), "certificate")) {
+    this->wifiClientSecure->setCertificate(certficateString.c_str());
+  } else {
+    this->wifiClientSecure->setPrivateKey(certficateString.c_str());
+  }
+}
+#endif
 
 void CoolBoard::mqttsConfig() {
   if (SPIFFS.exists("/certificate.bin") && SPIFFS.exists("/privateKey.bin")) {
@@ -590,10 +611,11 @@ void CoolBoard::mqttsConfig() {
     DEBUG_LOG("Configuring MQTT");
     this->coolPubSubClient->setClient(*this->wifiClientSecure);
     this->coolPubSubClient->setServer(this->mqttServer.c_str(), 8883);
-    this->coolPubSubClient->setCallback(
+    std::function<void(char *, byte *, unsigned int)> callback =
         [this](char *topic, byte *payload, unsigned int length) {
           this->mqttCallback(topic, payload, length);
-        });
+        };
+    this->coolPubSubClient->setCallback(callback);
     this->mqttId = WiFi.macAddress();
     this->mqttId.replace(F(":"), F(""));
     this->mqttOutTopic =

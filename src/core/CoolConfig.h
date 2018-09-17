@@ -24,8 +24,9 @@
 #ifndef COOLCONFIG_H
 #define COOLCONFIG_H
 
-#include "ArduinoJson.h"
+#include <ArduinoJson.h>
 #include <Arduino.h>
+#include <SPIFFS.h>
 
 class CoolConfig {
 

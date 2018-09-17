@@ -13,8 +13,13 @@
 #ifndef WiFiManager_h
 #define WiFiManager_h
 
+#ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#else
+#include <WiFi.h>
+#include <WebServer.h>
+#endif
 #include <memory>
 
 
@@ -22,7 +27,7 @@ const char HTTP_HEAD[] PROGMEM            = "<!DOCTYPE html><html lang=\"en\"><h
 const char HTTP_STYLE[] PROGMEM           = "<style>.c{text-align: center;} div,input{padding:5px;font-size:1em;} input{width:95%;} body{text-align: center;font-family:verdana;} button{border:0;border-radius:2rem;background-color:#280059;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;} .q{float: right;width: 64px;text-align: right;}</style>";
 const char HTTP_SCRIPT[] PROGMEM          = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
 const char HTTP_HEAD_END[] PROGMEM        = "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
-//const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"get\"><button>Configure WiFi</button></form><br/><form action=\"/0wifi\" method=\"get\"><button>Configure WiFi (No Scan)</button></form><br/><form action=\"/i\" method=\"get\"><button>Info</button></form><br/><form action=\"/sensorsData.csv\" method=\"get\"><button>Read Sensors File</button></form><br><form action=\"/r\" method=\"post\"><button>Reset</button></form>"; 
+//const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"get\"><button>Configure WiFi</button></form><br/><form action=\"/0wifi\" method=\"get\"><button>Configure WiFi (No Scan)</button></form><br/><form action=\"/i\" method=\"get\"><button>Info</button></form><br/><form action=\"/sensorsData.csv\" method=\"get\"><button>Read Sensors File</button></form><br><form action=\"/r\" method=\"post\"><button>Reset</button></form>";
 const char HTTP_PORTAL_OPTIONS[] PROGMEM  = "<form action=\"/wifi\" method=\"get\"><button>Configure WiFi</button></form><br/><form action=\"/0wifi\" method=\"get\"><button>Configure WiFi (No Scan)</button></form><br/><form action=\"/rW\" method=\"post\"><button>Reset WiFi settings</button></form><br/><form action=\"/r\" method=\"post\"><button>Reboot</button></form><br/><form action=\"/i\" method=\"get\"><button>Info</button></form><br/><form action=\"/sensorsData.csv\" method=\"get\"><button>Read Sensors File</button></form><br/><form action=\"/e\" method=\"post\"><button>!!! Erase Data !!!</button></form><br/>";
 const char HTTP_ITEM[] PROGMEM            = "<div><a href='#p' onclick='c(this)'>{v}</a>&nbsp;<span class='q {i}'>{r}%</span></div>";
 const char HTTP_FORM_START[] PROGMEM      = "<form method='get' action='wifisave'><input id='s' name='s' length=32 placeholder='SSID'><br/><input id='p' name='p' length=64 type='password' placeholder='password'><br/>";
@@ -38,7 +43,7 @@ const char HTTP_END[] PROGMEM             = "</div></body></html>";
 
 class WiFiManagerParameter {
   public:
-    /** 
+    /**
         Create custom parameters that can be added to the WiFiManager setup web page
         @id is used for HTTP queries and must not contain spaces nor other special characters
     */
@@ -117,7 +122,11 @@ class WiFiManager
 
   private:
 
+    #ifndef ARDUINO_ARCH_ESP32
     std::unique_ptr<ESP8266WebServer> server;
+    #else
+    std::unique_ptr<WebServer> server;
+    #endif
     void          setupConfigPortal();
     void          startWPS();
 

@@ -27,8 +27,14 @@
 #include <Arduino.h>
 
 #include <DS1337.h>
+
+#ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266WiFi.h>
 #include <coredecls.h>
+#else
+#include <WiFi.h>
+#endif
+
 #include <time.h>
 
 #define NTP_TIMEOUT_MS 15000

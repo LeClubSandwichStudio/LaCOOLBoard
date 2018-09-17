@@ -21,24 +21,58 @@
  *
  */
 
-#include <FS.h>
-
 #include "CoolFileSystem.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#ifdef  ARDUINO_ARCH_ESP32
+
+File open_dir(const char * path) {
+  File root = SPIFFS.open(path);
+
+  if (!root.isDirectory()) {
+    return (File)NULL;
+  }
+  return root;
+}
+
+File next_file(File file) {
+  return file.openNextFile();
+}
+
+String file_name(File file) {
+  return file.name();
+}
+
+#else
+#include <SPIFFS.h>
+#include <FS.h>
+
+File open_dir(char *path) {
+  return SPIFFS.openDir(path);
+}
+
+File next_file(Dir root) {
+  return root.next();
+}
+
+String file_name(File file) {
+  return file.fileName();
+}
+
+#endif
 
 #define JSON_FILE_EXT_SIZE 5
 
 static constexpr ConfigFile CONFIG_FILES[] = {
-      {"CoolBoard", "/coolBoardConfig.json"},
-      {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
-      {"CoolBoardActor", "/coolBoardActorConfig.json"},
-      {"externalSensors", "/externalSensorsConfig.json"},
-      {"led", "/coolBoardLedConfig.json"},
-      {"jetPack", "/jetPackConfig.json"},
-      {"irene3000", "/irene3000Config.json"},
-      {"mqtt", "/mqttConfig.json"},
-      {"wifi", "/wifiConfig.json"}};
+    {"CoolBoard", "/coolBoardConfig.json"},
+    {"CoolSensorsBoard", "/coolBoardSensorsConfig.json"},
+    {"CoolBoardActor", "/coolBoardActorConfig.json"},
+    {"externalSensors", "/externalSensorsConfig.json"},
+    {"led", "/coolBoardLedConfig.json"},
+    {"jetPack", "/jetPackConfig.json"},
+    {"irene3000", "/irene3000Config.json"},
+    {"mqtt", "/mqttConfig.json"},
+    {"wifi", "/wifiConfig.json"}};
 
 static const uint8_t CONFIG_FILES_COUNT = 9;
 
@@ -61,7 +95,7 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
   }
   JsonObject &fileJson = config.get();
   for (auto kv : updateJson) {
-      fileJson[kv.key] = updateJson[kv.key];
+    fileJson[kv.key] = updateJson[kv.key];
   }
   DEBUG_VAR("Preparing to update config file:", path);
   DEBUG_JSON("With new JSON:", fileJson);
@@ -75,13 +109,10 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
 
 bool CoolFileSystem::saveLogToFile(const char *data) {
   String lastName = "0";
-  FSInfo fs_info;
 
-  if (SPIFFS.info(fs_info) == true) {
-    DEBUG_LOG("SPIFFS status before saving:");
-    DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
-    DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
-  }
+  DEBUG_LOG("SPIFFS status before saving:");
+  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
 
   int nextLog = lastSavedLogNumber();
   nextLog++;
@@ -98,17 +129,15 @@ bool CoolFileSystem::saveLogToFile(const char *data) {
     DEBUG_VAR("Could not save data file (already exists):", nextName);
     return false;
   }
-  if (SPIFFS.info(fs_info) == true) {
-    DEBUG_LOG("SPIFFS status after saving:");
-    DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
-    DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
-  }
+  DEBUG_LOG("SPIFFS status after saving:");
+  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
   return true;
 }
 
 bool CoolFileSystem::hasSavedLogs() {
-  Dir dir = SPIFFS.openDir("/log");
-  if (dir.next()) {
+  File dir = open_dir("/log");
+  if (next_file(dir)) {
     return true;
   } else {
     return false;
@@ -118,12 +147,16 @@ bool CoolFileSystem::hasSavedLogs() {
 int CoolFileSystem::lastSavedLogNumber() {
   int next = 0;
   int temp = 0;
-  Dir dir = SPIFFS.openDir("/log");
-  while (dir.next()) {
-    temp = dir.fileName().substring(JSON_FILE_EXT_SIZE).toInt();
-    DEBUG_VAR("Saved file data name: ", dir.fileName());
-    if (temp >= next) {
-      next = temp;
+  File dir = open_dir("/log");
+  if (dir) {
+    File entry;
+
+    while (entry = next_file(dir)) {
+      temp = file_name(dir).substring(JSON_FILE_EXT_SIZE).toInt();
+      DEBUG_VAR("Saved file data name: ", file_name(entry));
+      if (temp >= next) {
+        next = temp;
+      }
     }
   }
   return next;
@@ -151,7 +184,7 @@ bool CoolFileSystem::deleteSavedLog(int num) {
   char logName[32];
   snprintf(logName, 32, "/log/%d.json", num);
 
-  if (SPIFFS.remove(logName)){
+  if (SPIFFS.remove(logName)) {
     INFO_VAR("Deleted log file:", logName);
     return true;
   } else {

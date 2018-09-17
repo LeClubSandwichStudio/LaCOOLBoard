@@ -36,8 +36,13 @@
 #include "Irene3000.h"
 #include "Jetpack.h"
 #include "CoolPubSubClient.h"
+#ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#else
+#include <HTTPClient.h>
+#include <ESP32httpUpdate.h>
+#endif
 
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0

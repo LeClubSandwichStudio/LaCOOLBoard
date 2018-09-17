@@ -28,8 +28,12 @@
 #include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolWifi.h"
-#include "WiFiManagerReadFileButton.h"
+// #include "WiFiManagerReadFileButton.h"
+#ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266HTTPClient.h>
+#else
+#include <HTTPClient.h>
+#endif
 
 #define MAX_WIFI_NETWORKS 10
 #define WIFI_CONNECT_TIMEOUT_DECISECONDS 300
@@ -77,7 +81,7 @@ void CoolWifi::printStatus(wl_status_t status) {
     break;
   }
 }
-
+#ifndef ARDUINO_ARCH_ESP32
 void CoolWifi::startAccessPoint(CoolBoardLed &led) {
   WiFi.disconnect();
   delay(200);
@@ -106,6 +110,7 @@ void CoolWifi::startAccessPoint(CoolBoardLed &led) {
   printStatus(status);
   yield();
 }
+#endif
 
 bool CoolWifi::config() {
   CoolConfig config("/wifiConfig.json");

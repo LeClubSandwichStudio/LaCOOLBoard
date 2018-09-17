@@ -73,7 +73,10 @@
 #define MQTTQOS1        (1 << 1)
 #define MQTTQOS2        (2 << 1)
 
-#ifdef ESP8266
+#ifdef ARDUINO_ARCH_ESP32
+#include <functional>
+#define MQTT_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, unsigned int)> callback
+#elif ARDUINO_ARCH_ESP8266
 #include <functional>
 #define MQTT_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, unsigned int)> callback
 #else

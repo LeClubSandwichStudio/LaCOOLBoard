@@ -10,11 +10,10 @@
    Licensed under MIT license
  **************************************************************/
 
+#ifndef ARDUINO_ARCH_ESP32
 #include "FS.h"
 #include "WiFiManagerReadFileButton.h"
 #include "ArduinoJson.h"
-#include <ESP8266WebServer.h>
-
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -93,7 +92,11 @@ bool WiFiManager::addParameter(WiFiManagerParameter *p) {
 }
 
 void WiFiManager::setupConfigPortal() {
+  #ifndef ARDUINO_ARCH_ESP32
   server.reset(new ESP8266WebServer(80));
+  #else
+  server.reset(new WebServer);
+  #endif
 
   DEBUG_WM(F(""));
   _configPortalStart = millis();
@@ -645,7 +648,7 @@ void WiFiManager::handleEraseData() {
   server->send(200, "text/html", page);
 
   DEBUG_WM(F("Sent erase Data page"));
-  if(SPIFFS.exists("/sensorsData.csv"))
+  if (SPIFFS.exists("/sensorsData.csv"))
   {
     Serial.println("/sensorsData.csv EXISTS!");
     while( SPIFFS.remove("/sensorsData.csv") == 0 )
@@ -655,7 +658,7 @@ void WiFiManager::handleEraseData() {
     Serial.println(F("File erased!"));
   }
   else Serial.println(F("sensorsData.csv does not exist!"));
-  
+
   delay(500);
   ESP.restart();
   delay(2000);
@@ -697,7 +700,7 @@ void WiFiManager::handleWifiReset() {
 
   DEBUG_WM(F("Sent reset page"));
   delay(5000);
-  
+
   DEBUG_WM(F("reset ESP and Wifi configuration file"));
 
  //create json wifi count = 0 ,timeout=300
@@ -710,9 +713,9 @@ void WiFiManager::handleWifiReset() {
 
  //open wifi file in w : delete contents
  File configFile = SPIFFS.open("/wifiConfig.json", "w");
- //write json in file 
+ //write json in file
  root.printTo(configFile);
- //close file 
+ //close file
  configFile.close();
  delay(500);
  ESP.restart();
@@ -862,3 +865,5 @@ String WiFiManager::getContentType(String filename){
   else if (filename.endsWith(".csv")) return "text/csv";
   return "text/plain";
 }
+
+#endif
