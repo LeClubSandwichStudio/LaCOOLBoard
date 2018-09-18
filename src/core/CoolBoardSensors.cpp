@@ -53,10 +53,12 @@ void CoolBoardSensors::allActive() {
 
 void CoolBoardSensors::begin() {
   Wire.begin(SDA, SCL);
+#ifdef ESP8266
   while (!this->lightSensor.Begin()) {
     DEBUG_LOG("SI1145 light sensor is not ready, waiting for 1 second...");
     delay(1000);
   }
+#endif
   this->setEnvSensorSettings();
   delay(100);
   // Make sure sensors had enough time to turn on.
@@ -72,7 +74,7 @@ void CoolBoardSensors::end() { this->lightSensor.DeInit(); }
 
 void CoolBoardSensors::read(JsonObject &root) {
   delay(100);
-
+#ifdef ESP8266
   if (this->lightDataActive.visible) {
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
       root["visibleLight"] = RawJson("null");
@@ -101,7 +103,7 @@ void CoolBoardSensors::read(JsonObject &root) {
       root["ultraViolet"] = (float)this->lightSensor.ReadUV() / 100;
     }
   }
-
+#endif
   if (this->airDataActive.temperature) {
     // wait for BME280 to finish data conversion (status reg bit3 == 0)
     while ((this->envSensor.readRegister(BME280_STAT_REG) & 0x10) != 0) {
@@ -125,7 +127,7 @@ void CoolBoardSensors::read(JsonObject &root) {
     }
     root["Humidity"] = this->envSensor.readFloatHumidity();
   }
-  #ifdef ESP8266
+#ifdef ESP8266
   if (this->vbatActive) {
     root["Vbat"] = this->readVBat();
   }
@@ -135,7 +137,7 @@ void CoolBoardSensors::read(JsonObject &root) {
   if (this->wallMoistureActive) {
     root["wallMoisture"] = this->readWallMoisture();
   }
-  #endif
+#endif
   DEBUG_JSON("Builtin sensors data:", root);
 }
 
@@ -215,7 +217,7 @@ float CoolBoardSensors::soilMoistureLinearisation(float rawMoistureValue) {
 }
 
 float CoolBoardSensors::readSoilMoisture() {
-  #ifdef ESP8266
+#ifdef ESP8266
   digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
   delay(200);
   int rawVal = 0;
@@ -233,12 +235,12 @@ float CoolBoardSensors::readSoilMoisture() {
   DEBUG_VAR("Raw soil moisture sensor value:", rawVal / SOIL_MOISTURE_SAMPLES);
   DEBUG_VAR("Computed soil moisture:", result);
   return (result);
-  #endif
+#endif
   return 0;
 }
 
 float CoolBoardSensors::readWallMoisture() {
-  #ifdef ESP8266
+#ifdef ESP8266
   float val = 0;
   digitalWrite(ANALOG_MULTIPLEXER_PIN, HIGH);
   delay(200);
@@ -252,6 +254,6 @@ float CoolBoardSensors::readWallMoisture() {
   val = val / MOISTURE_SAMPLES;
   DEBUG_VAR("Raw wall moisture sensor value:", val);
   return (float(val));
-   #endif
+#endif
   return 0;
 }

@@ -246,8 +246,8 @@ bool CoolWifi::connectToSavedBssidAsync(String bssid) {
     String tmp = conf.get<String>(i);
     JsonObject &obj = config.parseObject(tmp.c_str());
     if (obj.get<String>("bssid") == bssid) {
-      this->SSID = obj["ssid"].asString();
-      this->pass = obj["psk"].asString();
+      this->SSID = obj.get<String>("ssid");
+      this->pass = obj.get<String>("psk");
       this->BSSID = bssid;
       DEBUG_VAR("Setting connection by based BSSID, SSID: ", this->SSID);
       DEBUG_VAR("Setting connection by based BSSID, psk: ", this->pass);

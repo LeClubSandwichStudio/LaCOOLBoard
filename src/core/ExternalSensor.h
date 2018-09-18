@@ -32,14 +32,17 @@
 #include "CoolNDIR_I2C.h"
 #include "CoolSDS011.h"
 #include <Arduino.h>
-#include <DallasTemperature.h>
 #include <I2CSoilMoistureSensor.h>
 #include <MCP342X.h>
 #include <SparkFunBME280.h>
 #ifdef ESP8266
 #include "SHT1x.h"
+#include <DallasTemperature.h>
 #define SHT1X_DATA_PIN 0
 #define SHT1X_CLOCK_PIN 12
+#elif ESP32
+#include <Adafruit_MCP23017.h>
+#include <Adafruit_PWMServoDriver.h>
 #endif
 class BaseExternalSensor {
 
@@ -68,7 +71,7 @@ public:
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
 public:
-  ExternalSensor() { sensor(); }
+  ExternalSensor() { sensor(); } 
   virtual uint8_t begin() { return (sensor.begin()); }
   virtual float read() { return (sensor.read()); }
 
@@ -99,7 +102,7 @@ public:
 private:
   NDIR_I2C sensor;
 };
-
+#ifdef ESP8266
 template <>
 class ExternalSensor<DallasTemperature> : public BaseExternalSensor {
 public:
@@ -122,7 +125,7 @@ private:
   DallasTemperature sensor;
   DeviceAddress dallasAddress;
 };
-
+#endif
 template <>
 class ExternalSensor<Adafruit_TCS34725> : public BaseExternalSensor {
 public:
@@ -385,5 +388,9 @@ public:
 private:
   BME280 sensor;
 };
+
+#ifdef ESP32
+// dedicated external Sensors for ESP32
+#endif
 
 #endif

@@ -23,13 +23,12 @@
 
 #include <FS.h>
 
-#include <OneWire.h>
-
 #include "CoolConfig.h"
 #include "ExternalSensors.h"
-
+#ifdef ESP8266
 OneWire oneWire(0);
-
+#include <OneWire.h>
+#endif
 void ExternalSensors::begin() {
 
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
@@ -40,14 +39,18 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = sensorCO2.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read();
-    } else if ((sensors[i].reference) == "DallasTemperature") {
+    }
+#ifdef ESP8266
+    else if ((sensors[i].reference) == "DallasTemperature") {
       std::unique_ptr<ExternalSensor<DallasTemperature>> dallasTemp(
           new ExternalSensor<DallasTemperature>(&oneWire));
 
       sensors[i].exSensor = dallasTemp.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read();
-    } else if ((sensors[i].reference) == "Adafruit_TCS34725") {
+    }
+#endif
+    else if ((sensors[i].reference) == "Adafruit_TCS34725") {
       int16_t r, g, b, c, colorTemp, lux;
       std::unique_ptr<ExternalSensor<Adafruit_TCS34725>> rgbSensor(
           new ExternalSensor<Adafruit_TCS34725>());

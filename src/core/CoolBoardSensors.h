@@ -41,8 +41,8 @@
 #define MOISTURE_SENSOR_PIN 13
 #define ANALOG_MULTIPLEXER_PIN 12
 #elif ESP32
-#define SDA 33
-#define SCL 32
+#define SDA 32
+#define SCL 33
 #endif
 class CoolBoardSensors {
 

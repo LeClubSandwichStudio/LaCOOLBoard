@@ -34,9 +34,9 @@
 #include "CoolWifi.h"
 #include "ExternalSensors.h"
 #include "Irene3000.h"
-#include "Jetpack.h"
 #include "PubSubClient.h"
 #ifdef ESP8266
+#include "Jetpack.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 #define ENABLE_I2C_PIN 5
@@ -44,7 +44,6 @@
 #elif ESP32
 #include <ESP32httpUpdate.h> // Need Third part Update: https://github.com/suculent/esp32-http-updates
 #include <rom/rtc.h>
-#define BOOTSTRAP_PIN 37 // // Need To be Defined on HW Specs
 #endif
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
@@ -96,7 +95,11 @@ private:
   uint8_t mqttRetries = 0;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
+#ifdef ESP8266
   Jetpack jetPack;
+#elif ESP32
+//
+#endif
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;
   CoolBoardActuator coolBoardActuator;

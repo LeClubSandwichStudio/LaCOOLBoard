@@ -39,7 +39,7 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-  this->sleep();
+  // this->sleep();
   this->coolBoardLed.config();
   this->coolBoardLed.begin();
   delay(10);
@@ -61,12 +61,16 @@ void CoolBoard::begin() {
   this->coolBoardLed.printConf();
   this->coolBoardSensors.printConf();
   this->coolBoardActuator.printConf();
+#ifdef ESP8266
   if (this->jetpackActive) {
     this->jetPack.config();
     this->jetPack.begin();
     this->jetPack.printConf();
     delay(100);
   }
+#elif ESP32
+
+#endif
   if (this->ireneActive) {
     this->irene3000.config();
     this->irene3000.begin();
@@ -213,7 +217,7 @@ void CoolBoard::sendSavedMessages() {
 void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
     Date date = CoolTime::getInstance().rtc.getDate();
-
+#ifdef ESP8266
     INFO_LOG("Actuators configuration: automatic");
     if (this->jetpackActive) {
       DEBUG_LOG("Updating and recording Jetpack state...");
@@ -228,6 +232,7 @@ void CoolBoard::handleActuators(JsonObject &reported) {
       this->coolBoardActuator.write(0);
       reported["ActB"] = 0;
     }
+#endif
   } else {
     INFO_LOG("Actuators configuration: manual");
   }
@@ -339,7 +344,7 @@ void CoolBoard::update(const char *answer) {
       for (auto kv : stateDesired) {
         DEBUG_VAR("Writing to:", kv.key);
         DEBUG_VAR("State:", kv.value.as<bool>());
-
+#ifdef ESP8266
         if (strcmp(kv.key, "Act0") == 0) {
           this->jetPack.writeBit(0, kv.value.as<bool>());
         } else if (strcmp(kv.key, "Act1") == 0) {
@@ -359,6 +364,9 @@ void CoolBoard::update(const char *answer) {
         } else if (strcmp(kv.key, "ActB") == 0) {
           this->coolBoardActuator.write(kv.value.as<bool>());
         }
+#elif ESP32
+//
+#endif
       }
     }
 
@@ -480,9 +488,12 @@ void CoolBoard::sendAllConfig() {
   this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
   this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
   this->sendConfig("led", "/coolBoardLedConfig.json");
+#ifdef ESP8266
   if (this->jetpackActive) {
     this->sendConfig("jetPack", "/jetPackConfig.json");
   }
+#elif ESP32
+#endif
   if (this->ireneActive) {
     this->sendConfig("irene3000", "/irene3000Config.json");
   }
@@ -554,12 +565,14 @@ void CoolBoard::lowBattery() {
 }
 
 void CoolBoard::powerCheck() {
+#ifdef ESP8266
   float batteryVoltage = this->coolBoardSensors.readVBat();
   if (!(batteryVoltage < NOT_IN_CHARGING || batteryVoltage > MIN_BAT_VOLTAGE)) {
     DEBUG_VAR("Battery voltage:", batteryVoltage);
     WARN_LOG("Battery Power is low! Need to charge!");
     this->lowBattery();
   }
+#endif
 }
 
 void CoolBoard::messageSent() { this->coolBoardLed.strobe(WHITE, 0.3); }
@@ -682,30 +695,35 @@ void CoolBoard::mqttsConvert(String cert) {
     this->wifiClientSecure->setPrivateKey(binaryCert, len);
   }
 #elif ESP32
-  char *certBuf[certFile.size()];
-  uint32_t siz = certFile.size();
-  while (siz > 0) {
-    size_t len = std::min((uint32_t)(sizeof(certBuf) - 1), siz);
-    certFile.read((uint8_t *)certBuf, len);
-    certBuf[len] = 0;
-    siz -= sizeof(certBuf) - 1;
-  }
+  DEBUG_VAR("Certificate Size: ", certFile.size());
+  // char *certBuf[certFile.size()];
+  String certBuf = certFile.readString();
+  Serial.println(certBuf);
   certFile.close();
-  if (strstr(cert.c_str(), "certificate")) {
-    this->wifiClientSecure->setCertificate(*certBuf);
+  if (strstr(cert.c_str(), "certificate32")) {
+    this->wifiClientSecure->setCertificate(certBuf.c_str());
   } else {
-    this->wifiClientSecure->setPrivateKey(*certBuf);
+    this->wifiClientSecure->setPrivateKey(certBuf.c_str());
   }
 #endif
 }
 
 void CoolBoard::mqttsConfig() {
+
+#ifdef ESP8266
   if (SPIFFS.exists("/certificate.bin") && SPIFFS.exists("/privateKey.bin")) {
     DEBUG_LOG("Loading X509 certificate");
     this->mqttsConvert("/certificate.bin");
     DEBUG_LOG("Loading X509 private key");
     this->mqttsConvert("/privateKey.bin");
-
+#elif ESP32
+  if (SPIFFS.exists("/certificate32.bin") &&
+      SPIFFS.exists("/privateKey32.bin")) {
+    DEBUG_LOG("Loading X509 certificate");
+    this->mqttsConvert("/certificate32.bin");
+    DEBUG_LOG("Loading X509 private key");
+    this->mqttsConvert("/privateKey32.bin");
+#endif
     DEBUG_LOG("Configuring MQTT");
     this->coolPubSubClient->setClient(*this->wifiClientSecure);
     this->coolPubSubClient->setServer(this->mqttServer.c_str(), 8883);

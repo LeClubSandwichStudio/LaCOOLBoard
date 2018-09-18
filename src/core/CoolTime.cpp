@@ -62,17 +62,17 @@ bool CoolTime::sync() {
   uint32_t waitUntil = millis() + NTP_TIMEOUT_MS;
 
   INFO_LOG("Waiting for NTP...");
-
+#ifdef ESP8266
   while (!CoolTime::ntpSync && millis() < waitUntil) {
     delay(100);
   }
-#ifdef ESP8266
+
   if (CoolTime::ntpSync) {
     this->rtc.setDateTime(time(nullptr));
 #elif ESP32
   if (getLocalTime(&timeinfo)) {
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
     unsigned long time_mk = mktime(&timeinfo);
+    DEBUG_VAR("time_mk: ", time_mk);
     this->rtc.setDateTime(time_mk);
 #endif
     this->rtc.clearOSF();

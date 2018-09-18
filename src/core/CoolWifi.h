@@ -40,7 +40,7 @@ extern "C" {
 #elif ESP32
 #include <ETH.h>
 #include <HTTPClient.h>
-#include <SPIFFS.H>
+#include <SPIFFS.h>
 #include <WiFiMulti.h>
 #include <esp_wifi.h>
 #define BOOTSTRAP_PIN A0 // need to nefine in HW specs

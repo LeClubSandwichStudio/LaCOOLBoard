@@ -106,7 +106,6 @@ bool CoolFileSystem::saveLogToFile(const char *data) {
     return false;
   }
 #ifdef ESP8266
-  FSInfo fs_info;
   if (SPIFFS.info(fs_info) == true) {
     DEBUG_LOG("SPIFFS status before saving:");
     DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
