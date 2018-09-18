@@ -31,8 +31,6 @@
 #include "CoolLog.h"
 #include "libb64/cdecode.h"
 
-#define SEND_MSG_BATCH 10
-
 void CoolBoard::begin() {
   this->powerCheck();
   WiFi.mode(WIFI_STA);
@@ -40,43 +38,45 @@ void CoolBoard::begin() {
     this->spiffsProblem();
   }
   this->sleep();
-  this->coolBoardLed.config();
+  if (!this->coolBoardLed.config()) {
+    this->spiffsProblem();
+  }
   this->coolBoardLed.begin();
   delay(10);
   this->coolBoardLed.write(YELLOW);
-  this->config();
+  if (!this->config()) {
+    this->spiffsProblem();
+  }
   pinMode(ENABLE_I2C_PIN, OUTPUT);
   pinMode(BOOTSTRAP_PIN, INPUT);
   digitalWrite(ENABLE_I2C_PIN, HIGH);
   delay(100);
-  this->coolBoardSensors.config();
+  if (!this->coolBoardSensors.config()) {
+    this->spiffsProblem();
+  }
   this->coolBoardSensors.begin();
-  delay(100);
-  this->coolBoardActuator.config();
-  this->coolBoardActuator.begin();
   delay(100);
   this->printConf();
   this->coolBoardLed.printConf();
   this->coolBoardSensors.printConf();
-  this->coolBoardActuator.printConf();
-  if (this->jetpackActive) {
-    this->jetPack.config();
-    this->jetPack.begin();
-    this->jetPack.printConf();
-    delay(100);
+  if (!this->jetPack.config()) {
+    this->spiffsProblem();
   }
-  if (this->ireneActive) {
-    this->irene3000.config();
-    this->irene3000.begin();
-    this->irene3000.calibrate(this->coolBoardLed);
-    this->irene3000.printConf();
-    delay(100);
+  this->jetPack.begin();
+  this->jetPack.printConf();
+  delay(100);
+  if (!this->irene3000.config()) {
+    this->spiffsProblem();
   }
-  if (this->externalSensorsActive) {
-    this->externalSensors->config();
-    this->externalSensors->begin();
-    delay(100);
+  this->irene3000.begin();
+  this->irene3000.calibrate(this->coolBoardLed);
+  this->irene3000.printConf();
+  delay(100);
+  if (!this->externalSensors->config()) {
+    this->spiffsProblem();
   }
+  this->externalSensors->begin();
+  delay(100);
   this->mqttsConfig();
   delay(100);
   SPIFFS.end();
@@ -97,44 +97,66 @@ void CoolBoard::loop() {
   if (!rtcSynced) {
     this->clockProblem();
   } else {
-    if (!SPIFFS.exists("/configSent.flag")) {
-      this->sendAllConfig();
-      File f;
-      if (!(f = SPIFFS.open("/configSent.flag", "w"))) {
-        ERROR_LOG("Can't create file configSent.flag in SPIFFS");
-      } else {
-        f.close();
-      }
-    }
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
-    JsonObject &state = root.createNestedObject("state");
-    JsonObject &reported = state.createNestedObject("reported");
     INFO_LOG("Collecting board and sensor data...");
-    this->readPublicIP(reported);
-    this->readBoardData(reported);
-    this->readSensors(reported);
-    INFO_LOG("Setting actuators and reporting their state...");
-    this->handleActuators(reported);
+    char *logLoop = this->createLog();
     delay(50);
     if (this->shouldLog()) {
       INFO_LOG("Sending log over MQTT...");
-      String data;
-      root.printTo(data);
-      this->mqttLog(data);
+      this->mqttLog(logLoop, 1);
       this->previousLogTime = millis();
     }
-    INFO_LOG("Listening to update messages...");
-    this->mqttListen();
+    free(logLoop);
     if (CoolFileSystem::hasSavedLogs()) {
       INFO_LOG("Sending saved messages...");
       this->sendSavedMessages();
+    }
+    INFO_LOG("Listening to update messages...");
+    this->mqttListen();
+    if (this->updateAnswer != "") {
+      if (this->update(this->updateAnswer)) {
+        if (this->connection) {
+          mqttLog(this->updateAnswer.c_str());
+          this->updateAnswer = "";
+        } else {
+          mqttLog(this->updateAnswer.c_str());
+          this->updateAnswer = "";
+          SPIFFS.end();
+          ESP.restart();
+        }
+      }
     }
   }
   SPIFFS.end();
   if (this->sleepActive && (!this->shouldLog() || !rtcSynced)) {
     this->sleep();
   }
+}
+
+char *CoolBoard::createLog() {
+  DynamicJsonBuffer buffer;
+  JsonObject &root = buffer.createObject();
+  JsonObject &state = root.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+  this->readBoardData(reported);
+  this->readSensors(reported);
+  this->handleActuators(reported);
+  uint32_t size = CoolMessagePack::sizeJsonToMsgpck(root);
+  size = size + (size % 4 == 0 ? 0 : 4 - size % 4);
+  DEBUG_VAR("message size format in mpack", size);
+  char buf[size];
+  bzero(buf, size);
+  GString str = buf;
+  PrintAdapter streamer = str;
+  CoolMessagePack::jsonToMsgpck(streamer, root);
+  char *output;
+  if (!(output = (char *)malloc((size_t)size * 1.25 + 3))) {
+    ERROR_LOG("malloc return null");
+  }
+  output[0] = '"';
+  size_t index = Z85_encode(buf, &output[1], size);
+  output[index + 1] = '"';
+  output[index + 2] = '\0';
+  return (output);
 }
 
 bool CoolBoard::isConnected() {
@@ -185,24 +207,14 @@ void CoolBoard::sendSavedMessages() {
   }
 }
 
-void CoolBoard::handleActuators(JsonObject &reported) {
+void CoolBoard::handleActuators(JsonObject &root) {
   if (this->manual == 0) {
     Date date = CoolTime::getInstance().rtc.getDate();
-
+    root.createNestedArray("actuators");
     INFO_LOG("Actuators configuration: automatic");
-    if (this->jetpackActive) {
-      DEBUG_LOG("Updating and recording Jetpack state...");
-      this->jetPack.doAction(reported, date.getHour(), date.getMinutes());
-    }
+    DEBUG_LOG("Updating and recording Jetpack state...");
+    this->jetPack.doAction(root, date.getHour(), date.getMinutes());
     DEBUG_LOG("Updating and recording onboard actuator state...");
-    if (this->coolBoardActuator.doAction(reported, date.getHour(),
-                                         date.getMinutes())) {
-      this->coolBoardActuator.write(1);
-      reported["ActB"] = 1;
-    } else {
-      this->coolBoardActuator.write(0);
-      reported["ActB"] = 0;
-    }
   } else {
     INFO_LOG("Actuators configuration: manual");
   }
@@ -234,22 +246,20 @@ int CoolBoard::b64decode(String b64Text, uint8_t *output) {
 bool CoolBoard::config() {
   INFO_VAR("MAC address is:", WiFi.macAddress());
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
+  CoolConfig config("/general.json");
+
+  if (!config.readFileAsJson()) {
+    ERROR_LOG("Failed to parse /general.json");
+    this->spiffsProblem();
+  }
+  JsonObject &root = config.get();
   this->coolWifi->config();
   this->tryFirmwareUpdate();
-  CoolConfig config("/coolBoardConfig.json");
-  if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to parse main configuration");
-    this->spiffsProblem();
-    return (false);
-  }
-  JsonObject &json = config.get();
-  config.set<unsigned long>(json, "logInterval", this->logInterval);
-  config.set<bool>(json, "ireneActive", this->ireneActive);
-  config.set<bool>(json, "jetpackActive", this->jetpackActive);
-  config.set<bool>(json, "externalSensorsActive", this->externalSensorsActive);
-  config.set<bool>(json, "sleepActive", this->sleepActive);
-  config.set<bool>(json, "manual", this->manual);
-  config.set<String>(json, "mqttServer", this->mqttServer);
+  JsonObject &general = root["general"];
+  CoolConfig::set<unsigned long>(general, "logInterval", this->logInterval);
+  CoolConfig::set<bool>(general, "sleepActive", this->sleepActive);
+  CoolConfig::set<bool>(general, "manual", this->manual);
+  CoolConfig::set<String>(general, "mqttServer", this->mqttServer);
   INFO_LOG("Main configuration loaded");
   return (true);
 }
@@ -257,33 +267,34 @@ bool CoolBoard::config() {
 void CoolBoard::printConf() {
   INFO_LOG("General configuration");
   INFO_VAR("  Log interval            =", this->logInterval);
-  INFO_VAR("  Irene active            =", this->ireneActive);
-  INFO_VAR("  Jetpack active          =", this->jetpackActive);
-  INFO_VAR("  External sensors active =", this->externalSensorsActive);
   INFO_VAR("  Sleep active            =", this->sleepActive);
   INFO_VAR("  Manual active           =", this->manual);
   INFO_VAR("  MQTT server:            =", this->mqttServer);
 }
 
-void CoolBoard::update(const char *answer) {
+bool CoolBoard::update(String &answer) {
   INFO_LOG("Received new MQTT message");
-  bool manual = 0;
+  if (answer.length() > LITTLE_ANSWER_MAX_SIZE) {
+    this->coolPubSubClient->disconnect();
+    delay(100);
+    this->coolPubSubClient->disconnect();
+  }
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(answer);
-  JsonObject &stateDesired = root["state"];
-  if (stateDesired.success()) {
-    DEBUG_JSON("Desired state JSON:", stateDesired);
-    if (stateDesired["CoolBoard"]["manual"].success()) {
-      this->manual = stateDesired["CoolBoard"]["manual"].as<bool>();
+  answer = "";
+  if (root.success()) {
+    DEBUG_JSON("Desired state JSON:", root);
+    if (root["actuators"]["manual"].success()) {
+      this->manual = root["actuators"]["manual"].as<bool>();
       INFO_VAR("Manual flag received:", this->manual);
-      manual = 1;
+      this->connection = 1;
     }
-    JsonObject &firmwareJson = stateDesired["CoolBoard"]["firmwareUpdate"];
+    JsonObject &firmwareJson = root["CoolBoard"]["firmwareUpdate"];
     if (firmwareJson.success()) {
       String firmwareVersion = firmwareJson.get<String>("firmwareVersion");
       if (String(COOL_FW_VERSION) == firmwareVersion) {
         INFO_LOG("You firmware version is up to date!");
-        stateDesired["CoolBoard"]["firmwareUpdate"] = NULL;
+        root["CoolBoard"]["firmwareUpdate"] = NULL;
       } else {
         File otaUpdateConfig = SPIFFS.open("/otaUpdateConfig.json", "w");
         if (!otaUpdateConfig) {
@@ -301,52 +312,49 @@ void CoolBoard::update(const char *answer) {
         }
       }
     }
-
     this->coolBoardLed.strobe(BLUE, 0.5);
-
     if (this->manual) {
-      manual = 1;
+      this->connection = 1;
       INFO_LOG("Entering actuators manual mode");
-      for (auto kv : stateDesired) {
-        DEBUG_VAR("Writing to:", kv.key);
-        DEBUG_VAR("State:", kv.value.as<bool>());
-
-        if (strcmp(kv.key, "Act0") == 0) {
-          this->jetPack.writeBit(0, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act1") == 0) {
-          this->jetPack.writeBit(1, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act2") == 0) {
-          this->jetPack.writeBit(2, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act3") == 0) {
-          this->jetPack.writeBit(3, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act4") == 0) {
-          this->jetPack.writeBit(4, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act5") == 0) {
-          this->jetPack.writeBit(5, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act6") == 0) {
-          this->jetPack.writeBit(6, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "Act7") == 0) {
-          this->jetPack.writeBit(7, kv.value.as<bool>());
-        } else if (strcmp(kv.key, "ActB") == 0) {
-          this->coolBoardActuator.write(kv.value.as<bool>());
+      JsonArray &actuators = root["actuators"]["enabled"];
+      if (actuators.success()) {
+        uint8_t i = 0;
+        for (auto kv : actuators) {
+          DEBUG_VAR("Actuator #", i);
+          DEBUG_VAR("State:", actuators.get<bool>(i));
+          if (i == 0) {
+            this->coolBoardActuator.write(kv);
+          } else if (i == 1) {
+            this->jetPack.writeBit(0, kv);
+          } else if (i == 2) {
+            this->jetPack.writeBit(1, kv);
+          } else if (i == 3) {
+            this->jetPack.writeBit(2, kv);
+          } else if (i == 4) {
+            this->jetPack.writeBit(3, kv);
+          } else if (i == 5) {
+            this->jetPack.writeBit(4, kv);
+          } else if (i == 6) {
+            this->jetPack.writeBit(5, kv);
+          } else if (i == 7) {
+            this->jetPack.writeBit(6, kv);
+          } else if (i == 8) {
+            this->jetPack.writeBit(7, kv);
+          }
+          i++;
         }
       }
     }
-
-    CoolFileSystem::updateConfigFiles(stateDesired);
+    CoolFileSystem::updateConfigFiles(root);
     JsonObject &newRoot = jsonBuffer.createObject();
     JsonObject &state = newRoot.createNestedObject("state");
-    state["reported"] = stateDesired;
     state["desired"] = RawJson("null");
-    String updateAnswer;
-    newRoot.printTo(updateAnswer);
-    DEBUG_VAR("Preparing answer message: ", updateAnswer);
-    this->mqttLog(updateAnswer);
+    if (this->connection) {
+      state["reported"] = root;
+    }
+    newRoot.printTo(answer);
+    DEBUG_VAR("Preparing answer message: ", answer);
     delay(10);
-  } else {
-    ERROR_LOG("Failed to parse update message");
-  }
-  if (!manual) {
     if (SPIFFS.exists("/configSent.flag")) {
       if (SPIFFS.remove("/configSent.flag")) {
         DEBUG_LOG("Delete /configSent.flag");
@@ -354,34 +362,40 @@ void CoolBoard::update(const char *answer) {
         ERROR_LOG("Failed to delete /configSent.flag");
       }
     }
-    SPIFFS.end();
-    ESP.restart();
+    return (1);
+  } else {
+    ERROR_LOG("Failed to parse update message");
+    return (0);
   }
 }
 
 unsigned long CoolBoard::getLogInterval() { return (this->logInterval); }
 
-void CoolBoard::readSensors(JsonObject &reported) {
-
+void CoolBoard::readSensors(JsonObject &root) {
+  JsonObject &sample = root.createNestedObject("sample");
   digitalWrite(ENABLE_I2C_PIN, HIGH);
-  this->coolBoardSensors.read(reported);
-
-  if (this->externalSensorsActive) {
-    this->externalSensors->read(reported);
-  }
-  if (this->ireneActive) {
-    this->irene3000.read(reported);
-  }
+  this->coolBoardSensors.read(sample);
+  this->externalSensors->read(sample);
+  this->irene3000.read(sample);
   this->coolBoardLed.blink(GREEN, 0.5);
 }
 
-void CoolBoard::readBoardData(JsonObject &reported) {
-  reported["timestamp"] = CoolTime::getInstance().getIso8601DateTime();
-  reported["mac"] = this->mqttId;
-  reported["firmwareVersion"] = COOL_FW_VERSION;
+void CoolBoard::readBoardData(JsonObject &root) {
+  root["timestamp"] = CoolTime::getInstance().getIso8601DateTime();
+  JsonObject &stat = root.createNestedObject("static");
+  JsonObject &general = root.createNestedObject("system");
   if (WiFi.status() == WL_CONNECTED) {
-    reported["wifiSignal"] = WiFi.RSSI();
+    String ip;
+    if (this->coolWifi->getPublicIp(ip)) {
+      DEBUG_VAR("Public IP address:", ip);
+      general["publicIp"] = ip;
+    }
   }
+  general["fwVersion"] = COOL_FW_VERSION;
+  if (WiFi.status() == WL_CONNECTED) {
+    general["wifiSignal"] = WiFi.RSSI();
+  }
+  stat["macAddress"] = this->mqttId;
 }
 
 void CoolBoard::sleep() {
@@ -425,48 +439,44 @@ void CoolBoard::sleep() {
   EEPROM.end();
 }
 
-void CoolBoard::sendAllConfig() {
-  this->sendConfig("CoolBoard", "/coolBoardConfig.json");
-  this->sendConfig("CoolSensorsBoard", "/coolBoardSensorsConfig.json");
-  this->sendConfig("CoolBoardActor", "/coolBoardActorConfig.json");
-  this->sendConfig("led", "/coolBoardLedConfig.json");
-  if (this->jetpackActive) {
-    this->sendConfig("jetPack", "/jetPackConfig.json");
-  }
-  if (this->ireneActive) {
-    this->sendConfig("irene3000", "/irene3000Config.json");
-  }
-  if (this->externalSensorsActive) {
-    this->sendConfig("externalSensors", "/externalSensorsConfig.json");
-  }
-}
+void CoolBoard::parseJsonConfig(const char *filePath, JsonObject &send) {
+  JsonObject &state = send.createNestedObject("state");
+  JsonObject &reported = state.createNestedObject("reported");
+  reported.createNestedObject("config");
+  CoolConfig configuration(filePath);
 
-void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
-  CoolConfig config(filePath);
-
-  if (!config.readFileAsJson()) {
-    ERROR_VAR("Failed to read configuration file:", filePath);
+  if (!configuration.readFileAsJson()) {
+    ERROR_VAR("Failed to read ", filePath);
     this->spiffsProblem();
   }
-  String message;
-  DynamicJsonBuffer buffer;
-  JsonObject &root = buffer.createObject();
-  JsonObject &state = root.createNestedObject("state");
-  JsonObject &reported = state.createNestedObject("reported");
-  reported[moduleName] = config.get();
-  root.printTo(message);
-  DEBUG_VAR("JSON configuration message:", message);
-  mqttLog(message);
+  reported["config"] = configuration.get();
 }
 
-void CoolBoard::readPublicIP(JsonObject &reported) {
-  if (WiFi.status() == WL_CONNECTED) {
-    String ip;
-    if (this->coolWifi->getPublicIp(ip)) {
-      DEBUG_VAR("Public IP address:", ip);
-      reported["publicIp"] = ip;
-    }
-  }
+void CoolBoard::sendConfig(const char *path) {
+  DynamicJsonBuffer buffer;
+  JsonObject &json = buffer.createObject();
+  parseJsonConfig(path, json);
+  size_t size = CoolMessagePack::sizeJsonToMsgpck(json);
+  size = size + (size % 4 == 0 ? 0 : 4 - size % 4);
+  DEBUG_VAR("message size format in mpack", size);
+  char buf[size];
+  GString str = buf;
+  PrintAdapter streamer = str;
+  CoolMessagePack::jsonToMsgpck(streamer, json);
+  char output[(size_t)(size * 1.25 + 3)];
+  output[0] = '"';
+  int index = Z85_encode(buf, &output[1], size);
+  output[index + 1] = '"';
+  output[index + 2] = '\0';
+  this->mqttLog(output, 1);
+}
+
+void CoolBoard::sendAllConfig() {
+  this->sendConfig("/general.json");
+  delay(50);
+  this->sendConfig("/sensors.json");
+  delay(50);
+  this->sendConfig("/actuators.json");
 }
 
 void CoolBoard::networkProblem() {
@@ -554,6 +564,7 @@ void CoolBoard::mqttConnect() {
   DEBUG_VAR("MQTT client id:", this->mqttId);
   while (!this->coolPubSubClient->connected() && i < MQTT_RETRIES) {
     this->mqttsConfig();
+    INFO_LOG("start mqtt connection");
     if (this->coolPubSubClient->connect(this->mqttId.c_str())) {
       this->coolPubSubClient->subscribe(this->mqttInTopic.c_str());
       INFO_LOG("Subscribed to MQTT input topic");
@@ -571,13 +582,13 @@ void CoolBoard::mqttConnect() {
   }
 }
 
-void CoolBoard::mqttLog(String data) {
+void CoolBoard::mqttLog(String data, bool mpack) {
   bool messageSent = false;
 
   DEBUG_VAR("Message to log:", data);
   DEBUG_VAR("Message size:", data.length());
   if (this->isConnected()) {
-    messageSent = this->mqttPublish(data);
+    messageSent = this->mqttPublish(data, mpack);
   }
   if (!messageSent) {
     CoolFileSystem::saveLogToFile(data.c_str());
@@ -589,8 +600,13 @@ void CoolBoard::mqttLog(String data) {
   }
 }
 
-bool CoolBoard::mqttPublish(String data) {
-  return (this->coolPubSubClient->publish(this->mqttOutTopic.c_str(),
+bool CoolBoard::mqttPublish(String data, bool mpack) {
+  if (!mpack) {
+    return (this->coolPubSubClient->publish(this->mqttOutTopic.c_str(),
+                                            (byte *)(data.c_str()),
+                                            data.length(), false));
+  }
+  return (this->coolPubSubClient->publish(this->mqttOutMpackTopic.c_str(),
                                           (byte *)(data.c_str()), data.length(),
                                           false));
 }
@@ -606,12 +622,11 @@ bool CoolBoard::mqttListen() {
 }
 
 void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
-  char temp[length + 1];
-  for (unsigned int i = 0; i < length; i++) {
-    temp[i] = (char)payload[i];
+  this->updateAnswer = (char)payload[0];
+  for (unsigned int i = 1; i < length; i++) {
+    this->updateAnswer += (char)payload[i];
   }
-  temp[length] = '\0';
-  this->update(temp);
+  this->updateAnswer += '\0';
 }
 
 void CoolBoard::mqttsConvert(String cert) {
@@ -645,8 +660,9 @@ void CoolBoard::mqttsConfig() {
     this->mqttId.replace(F(":"), F(""));
     this->mqttOutTopic =
         String(F("$aws/things/")) + this->mqttId + String(F("/shadow/update"));
-    this->mqttInTopic = String(F("$aws/things/")) + this->mqttId +
-                        String(F("/shadow/update/delta"));
+    this->mqttInTopic =
+        String(F("things/")) + this->mqttId + String(F("/shadow/update/delta"));
+    this->mqttOutMpackTopic = String(F("BoardMessage/record"));
   } else {
     ERROR_LOG("Certificate & Key binaries not found");
     DEBUG_VAR("/certificate.bin exist return: ",
@@ -655,6 +671,7 @@ void CoolBoard::mqttsConfig() {
               SPIFFS.exists("/privateKey.bin"));
     this->spiffsProblem();
   }
+  DEBUG_LOG("end mqtt config");
 }
 
 void CoolBoard::tryFirmwareUpdate() {
@@ -694,8 +711,6 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
   delay(100);
   this->coolWifi->connect();
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.flush();
-    Serial.setDebugOutput(true);
     delete this->coolWifi;
     INFO_LOG("Starting firmware update...");
     t_httpUpdate_return ret =

@@ -91,7 +91,7 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
-    } else if ((sensors[i].reference) == "SHT1x") {
+    } else if ((sensors[i].reference) == "SHT1X") {
       std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
           new ExternalSensor<SHT1x>());
       sensors[i].exSensor = CoolSHT1x.release();
@@ -129,26 +129,26 @@ void ExternalSensors::begin() {
 }
 
 void ExternalSensors::read(JsonObject &root) {
-
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
       if (sensors[i].exSensor != NULL) {
+        root.createNestedObject(sensors[i].key);
         if (sensors[i].reference == "Adafruit_TCS34725") {
           int16_t r, g, b, c, colorTemp, lux;
 
           sensors[i].exSensor->read(&r, &g, &b, &c, &colorTemp, &lux);
-          root[sensors[i].kind0] = r;
-          root[sensors[i].kind1] = g;
-          root[sensors[i].kind2] = b;
-          root[sensors[i].kind3] = c;
+          root[sensors[i].key][sensors[i].kind0] = r;
+          root[sensors[i].key][sensors[i].kind1] = g;
+          root[sensors[i].key][sensors[i].kind2] = b;
+          root[sensors[i].key][sensors[i].kind3] = c;
         } else if (sensors[i].reference == "Adafruit_CCS811") {
           int16_t C, V;
           float T;
 
           sensors[i].exSensor->read(&C, &V, &T);
-          root[sensors[i].kind0] = C;
-          root[sensors[i].kind1] = V;
-          root[sensors[i].kind2] = T;
+          root[sensors[i].key][sensors[i].kind0] = C;
+          root[sensors[i].key][sensors[i].kind1] = V;
+          root[sensors[i].key][sensors[i].kind2] = T;
         } else if ((sensors[i].reference == "Adafruit_ADS1015") ||
                    (sensors[i].reference == "Adafruit_ADS1115")) {
           int16_t channel0, channel1, channel2, channel3;
@@ -160,31 +160,31 @@ void ExternalSensors::read(JsonObject &root) {
           gain1 = gain1 / 512;
           gain2 = gain2 / 512;
           gain3 = gain3 / 512;
-          root["0_" + sensors[i].kind0] = channel0;
-          root["G0_" + sensors[i].kind0] = gain0;
-          root["1_" + sensors[i].kind1] = channel1;
-          root["G1_" + sensors[i].kind1] = gain1;
-          root["2_" + sensors[i].kind2] = channel2;
-          root["G2_" + sensors[i].kind2] = gain2;
-          root["3_" + sensors[i].kind3] = channel3;
-          root["G3_" + sensors[i].kind3] = gain3;
+          root[sensors[i].key]["0_" + sensors[i].kind0] = channel0;
+          root[sensors[i].key]["G0_" + sensors[i].kind0] = gain0;
+          root[sensors[i].key]["1_" + sensors[i].kind1] = channel1;
+          root[sensors[i].key]["G1_" + sensors[i].kind1] = gain1;
+          root[sensors[i].key]["2_" + sensors[i].kind2] = channel2;
+          root[sensors[i].key]["G2_" + sensors[i].kind2] = gain2;
+          root[sensors[i].key]["3_" + sensors[i].kind3] = channel3;
+          root[sensors[i].key]["G3_" + sensors[i].kind3] = gain3;
         } else if (sensors[i].reference == "CoolGauge") {
           uint32_t A, B, C;
           sensors[i].exSensor->read(&A, &B, &C);
-          root[sensors[i].kind0] = A;
-          root[sensors[i].kind1] = B;
-          root[sensors[i].kind2] = C;
-        } else if (sensors[i].reference == "SHT1x") {
+          root[sensors[i].key][sensors[i].kind0] = A;
+          root[sensors[i].key][sensors[i].kind1] = B;
+          root[sensors[i].key][sensors[i].kind2] = C;
+        } else if (sensors[i].reference == "SHT1X") {
           float A, B;
           sensors[i].exSensor->read(&A, &B);
-          root[sensors[i].kind0] = A;
-          root[sensors[i].kind1] = B;
+          root[sensors[i].key][sensors[i].kind0] = A;
+          root[sensors[i].key][sensors[i].kind1] = B;
         } else if (sensors[i].reference == "SDS011") {
           float A, B;
           sensors[i].exSensor->read(&A, &B);
           delay(200);
-          root[sensors[i].kind0] = A; //PM10
-          root[sensors[i].kind1] = B; //PM2.5
+          root[sensors[i].key][sensors[i].kind0] = A; //PM10
+          root[sensors[i].key][sensors[i].kind1] = B; //PM2.5
         } else if (sensors[i].reference == "MCP342X_4-20mA") {
           int16_t channel0, channel1, channel2, channel3;
 
@@ -217,42 +217,53 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("Pressure : ", B);
           DEBUG_VAR("Humidity : ", C);
         } else {
-          root[sensors[i].type] = sensors[i].exSensor->read();
+          root[sensors[i].key][sensors[i].kind0] = sensors[i].exSensor->read();
         }
       } else {
-        ERROR_VAR("Undefined (NULL) external sensor at index #", i);
-      }
-    }
+        ERROR_VAR("Undefined (NULL) external sensor at index #", i); 
+      }   
+    }   
   }
   DEBUG_JSON("External sensors data:", root);
 }
 
 bool ExternalSensors::config() {
-  CoolConfig config("/externalSensorsConfig.json");
-
+  CoolConfig config("/sensors.json");
   if (!config.readFileAsJson()) {
-    ERROR_LOG("Failed to read external sensors configuration");
+    ERROR_LOG("Failed to read /sensors.json");
     return (false);
   }
-  JsonObject &json = config.get();
-  config.set<uint8_t>(json, "sensorsNumber", this->sensorsNumber);
-  for (uint8_t i = 0; i < sensorsNumber; i++) {
-    String name = "sensor" + String(i);
+  JsonObject &sensors = config.get();
+  JsonArray &root = sensors["sensors"];
+  for (auto kv : root) {
+    if (kv["support"] == "external") {
+      JsonArray &measures = kv["measures"];
 
-    if (!json[name].success()) {
-      json.createNestedObject(name);
+      CoolConfig::set<String>(kv, "reference",
+                              this->sensors[this->sensorsNumber].reference);
+      CoolConfig::set<String>(kv, "key",
+                              this->sensors[this->sensorsNumber].key);
+      if (kv["utils"]["address"].success()) {
+        CoolConfig::set<uint8_t>(kv["utils"], "address", this->sensors[this->sensorsNumber].address);
+      }
+      int i = 0;
+      for (auto kv : measures) {
+        if (this->sensors[this->sensorsNumber].kind0 == "") {
+          this->sensors[this->sensorsNumber].kind0 = measures.get<String>(i);
+        } else if (this->sensors[this->sensorsNumber].kind1 == "") {
+          this->sensors[this->sensorsNumber].kind1 = measures.get<String>(i);
+        } else if (this->sensors[this->sensorsNumber].kind2 == "") {
+          this->sensors[this->sensorsNumber].kind2 = measures.get<String>(i);
+        } else if (this->sensors[this->sensorsNumber].kind3 == "") {
+          this->sensors[this->sensorsNumber].kind3 = measures.get<String>(i);
+        }
+        i++;
+      }
+      this->sensorsNumber++;
     }
-    JsonObject &sensor = json[name];
-    config.set<String>(sensor, "reference", sensors[i].reference);
-    config.set<String>(sensor, "type", sensors[i].type);
-    config.set<uint8_t>(sensor, "address", sensors[i].address);
-    config.set<String>(sensor, "kind0", sensors[i].kind0);
-    config.set<String>(sensor, "kind1", sensors[i].kind1);
-    config.set<String>(sensor, "kind2", sensors[i].kind2);
-    config.set<String>(sensor, "kind3", sensors[i].kind3);
   }
   DEBUG_LOG("External sensors configuration loaded");
-  this->printConf(sensors);
+  this->printConf(this->sensors);
   return (true);
 }
 
@@ -263,7 +274,7 @@ void ExternalSensors::printConf(Sensor sensors[]) {
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
     INFO_VAR("Sensor #", i);
     INFO_VAR("  Reference =", sensors[i].reference);
-    DEBUG_VAR("  Type     =", sensors[i].type);
+    DEBUG_VAR("  Key      =", sensors[i].key);
     DEBUG_VAR("  Address  =", sensors[i].address);
     DEBUG_VAR("  Kind (0) =", sensors[i].kind0);
     DEBUG_VAR("  Kind (1) =", sensors[i].kind1);

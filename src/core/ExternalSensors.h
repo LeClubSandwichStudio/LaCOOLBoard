@@ -27,6 +27,7 @@
 #include <ArduinoJson.h>
 
 #include "ExternalSensor.h"
+#include "CoolMessagePack.h"
 
 class ExternalSensors {
 
@@ -38,13 +39,13 @@ public:
 private:
   struct Sensor {
     String reference = "";
-    String type = "";
+    String key = "";
     uint8_t address = 0;
     BaseExternalSensor *exSensor = NULL;
-    String kind0 = "0";
-    String kind1 = "0";
-    String kind2 = "0";
-    String kind3 = "0";
+    String kind0 = "";
+    String kind1 = "";
+    String kind2 = "";
+    String kind3 = "";
   } sensors[10];
   void printConf(Sensor sensors[]);
   uint8_t sensorsNumber = 0;

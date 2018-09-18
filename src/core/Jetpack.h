@@ -28,6 +28,7 @@
 #include <ArduinoJson.h>
 
 #include "CoolBoardActuator.h"
+#include "CoolMessagePack.h"
 
 #define JETPACK_CLOCK_PIN 4
 #define JETPACK_DATA_PIN 15
@@ -43,10 +44,11 @@ public:
   bool config();
   void printConf();
 
+  uint8_t sizeList;
 private:
 
   uint8_t action = B00000000;
-  CoolBoardActuator actuatorList[8];
+  CoolBoardActuator *actuatorList;
 };
 
 #endif

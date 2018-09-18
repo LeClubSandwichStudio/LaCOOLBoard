@@ -25,10 +25,9 @@
 #define IRENE3000_H
 
 #include <Arduino.h>
-
 #include "CoolAdafruit_ADS1015.h"
-
 #include "CoolBoardLed.h"
+#include "CoolMessagePack.h"
 
 #define ADC_MAXIMUM_VALUE 32767
 #define REFERENCE_VOLTAGE_GAIN_4 1.024

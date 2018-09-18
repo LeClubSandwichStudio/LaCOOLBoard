@@ -48,7 +48,7 @@ public:
   void mixedMinuteAction(uint8_t minute, float measurment);
   void hourMinuteAction(uint8_t hour, uint8_t minute);
   void mixedHourMinuteAction(uint8_t hour, uint8_t minute, float measurment);
-  bool config();
+  bool config(JsonObject &root);
   void printConf();
 
   bool state = 0;

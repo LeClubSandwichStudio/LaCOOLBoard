@@ -34,6 +34,7 @@ public:
   ESP8266WiFiMulti wifiMulti;
   static void printStatus(wl_status_t status);
   bool config();
+  bool createSimpleWifiJson();
   void connect();
   void startAccessPoint(CoolBoardLed &led);
   bool getPublicIp(String &ip);
