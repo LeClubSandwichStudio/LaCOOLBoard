@@ -43,9 +43,6 @@
 #elif ESP32
 #define SDA 33
 #define SCL 32
-#define BATT_VOLTAGE_PIN 36 // is here because probably being changed, not sure
-#define MOISTURE_SENSOR_PIN 38
-#define ANALOG_MULTIPLEXER_PIN 12 // ATTENTION: NEED TO BE DEFINIED IN SPECS
 #endif
 class CoolBoardSensors {
 

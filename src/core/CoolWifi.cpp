@@ -22,9 +22,7 @@
  */
 
 #include <FS.h>
-
 #include <ArduinoJson.h>
-
 #include "CoolConfig.h"
 #include "CoolLog.h"
 #include "CoolWifi.h"
@@ -66,6 +64,13 @@ CoolWifi &CoolWifi::getInstance() {
 //   return false;
 // }
 
+#ifdef ESP32
+bool CoolWifi::ethernetConnect() {
+  return (ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN,
+                    ETH_TYPE, ETH_CLK_MODE));
+}
+#endif
+
 String CoolWifi::jsonStringWiFiScan() {
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
@@ -84,7 +89,9 @@ String CoolWifi::jsonStringWiFiScan() {
       obj["rssi"] = WiFi.RSSI(i);
       obj["channel"] = String(WiFi.channel(i));
       obj["secure"] = String(WiFi.encryptionType(i));
+#ifdef ESP8266
       obj["hidden"] = String(WiFi.isHidden(i) ? "true" : "false");
+#endif
     }
   }
   WiFi.scanDelete();
@@ -143,6 +150,11 @@ bool CoolWifi::isAvailable(String bssid) {
 // }
 
 bool CoolWifi::autoConnect() {
+#ifdef ESP32
+  if (this->ethernetConnect()) {
+    return true;
+  }
+#endif
   DynamicJsonBuffer json;
   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
   DynamicJsonBuffer config;
@@ -203,7 +215,11 @@ uint8_t CoolWifi::connect(String ssid, String pass) {
              "connect, please retry");
     WARN_VAR("Reason: ", this->StringStatus(WiFi.status()));
     WiFi.persistent(false);
+#ifdef ESP8266
     wifi_station_disconnect();
+#elif ESP32
+    esp_wifi_disconnect();
+#endif
     WiFi.mode(WIFI_OFF);
     delay(1000);
     WiFi.mode(WIFI_STA);
@@ -258,10 +274,12 @@ uint8_t CoolWifi::getIndexOfMaximumValue(int8_t *array, int size) {
       maxIndex = i;
     }
   }
+#ifdef ESP8266
   if (array[maxIndex] < WIFI_POOR_SIGNAL_THREESHOLD) {
     DEBUG_LOG("Best signal to low, enhance WiFi power");
     WiFi.setOutputPower(WIFI_MAX_POWER);
   }
+#endif
   return maxIndex;
 }
 
@@ -340,9 +358,8 @@ void CoolWifi::setupHandlers() {
   WiFi.onEvent(this->WiFiEthEvent);
 #endif
 }
-
 #ifdef ESP32
-void WiFiEthEvent(WiFiEvent_t event) {
+void CoolWifi::WiFiEthEvent(WiFiEvent_t event) {
   switch (event) {
   case SYSTEM_EVENT_ETH_START:
     Serial.println("ETH Started");
@@ -362,15 +379,15 @@ void WiFiEthEvent(WiFiEvent_t event) {
     Serial.print(", ");
     Serial.print(ETH.linkSpeed());
     Serial.println("Mbps");
-    eth_connected = true;
+    CoolWifi::getInstance().ethConnected = true;
     break;
   case SYSTEM_EVENT_ETH_DISCONNECTED:
     Serial.println("ETH Disconnected");
-    eth_connected = false;
+    CoolWifi::getInstance().ethConnected = false;
     break;
   case SYSTEM_EVENT_ETH_STOP:
     Serial.println("ETH Stopped");
-    eth_connected = false;
+    CoolWifi::getInstance().ethConnected = false;
     break;
   default:
     break;

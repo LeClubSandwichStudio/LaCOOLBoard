@@ -91,16 +91,20 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
-    } else if ((sensors[i].reference) == "SHT1x") {
+    }
+#ifdef ESP8266
+    else if ((sensors[i].reference) == "SHT1x") {
       std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
           new ExternalSensor<SHT1x>());
       sensors[i].exSensor = CoolSHT1x.release();
       sensors[i].exSensor->begin();
-    } else if ((sensors[i].reference) == "SDS011") {
+    }
+#endif
+    else if ((sensors[i].reference) == "SDS011") {
       std::unique_ptr<ExternalSensor<SDS011>> sds011(
           new ExternalSensor<SDS011>());
       sensors[i].exSensor = sds011.release();
-      sensors[i].exSensor-> begin();
+      sensors[i].exSensor->begin();
     } else if ((sensors[i].reference) == "MCP342X_4-20mA") {
       int16_t channel0, channel1, channel2, channel3;
 
@@ -112,8 +116,9 @@ void ExternalSensors::begin() {
       uint16_t A;
       float B;
 
-      std::unique_ptr<ExternalSensor<I2CSoilMoistureSensor>> i2cSoilMoistureSensor(
-          new ExternalSensor<I2CSoilMoistureSensor>(sensors[i].address));
+      std::unique_ptr<ExternalSensor<I2CSoilMoistureSensor>>
+          i2cSoilMoistureSensor(
+              new ExternalSensor<I2CSoilMoistureSensor>(sensors[i].address));
       sensors[i].exSensor = i2cSoilMoistureSensor.release();
       sensors[i].exSensor->read(&A, &B);
     } else if ((sensors[i].reference) == "BME280") {
@@ -124,7 +129,7 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = bme280.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&temp, &humi, &pres);
-    } 
+    }
   }
 }
 
@@ -183,8 +188,8 @@ void ExternalSensors::read(JsonObject &root) {
           float A, B;
           sensors[i].exSensor->read(&A, &B);
           delay(200);
-          root[sensors[i].kind0] = A; //PM10
-          root[sensors[i].kind1] = B; //PM2.5
+          root[sensors[i].kind0] = A; // PM10
+          root[sensors[i].kind1] = B; // PM2.5
         } else if (sensors[i].reference == "MCP342X_4-20mA") {
           int16_t channel0, channel1, channel2, channel3;
 
@@ -193,23 +198,23 @@ void ExternalSensors::read(JsonObject &root) {
           root[sensors[i].kind1] = channel1;
           root[sensors[i].kind2] = channel2;
           root[sensors[i].kind3] = channel3;
-          DEBUG_VAR("MCP342X Channel 1 Output:",channel0);
-          DEBUG_VAR("MCP342X Channel 2 Output:",channel1);
-          DEBUG_VAR("MCP342X Channel 3 Output:",channel2);
-          DEBUG_VAR("MCP342X Channel 4 Output:",channel3);
+          DEBUG_VAR("MCP342X Channel 1 Output:", channel0);
+          DEBUG_VAR("MCP342X Channel 2 Output:", channel1);
+          DEBUG_VAR("MCP342X Channel 3 Output:", channel2);
+          DEBUG_VAR("MCP342X Channel 4 Output:", channel3);
         } else if (sensors[i].reference == "I2Cchirp") {
           uint16_t A;
           float B;
           sensors[i].exSensor->read(&A, &B);
-          DEBUG_VAR("ChirpSoilMoisture Address:",sensors[i].address);
+          DEBUG_VAR("ChirpSoilMoisture Address:", sensors[i].address);
           DEBUG_VAR("SoilMoisture RAW:", A);
           DEBUG_VAR("SoilTemperature:", B);
-          root[sensors[i].kind0] = A; 
+          root[sensors[i].kind0] = A;
           root[sensors[i].kind1] = B;
         } else if (sensors[i].reference == "BME280") {
           float A, B, C;
           sensors[i].exSensor->read(&A, &B, &C);
-          root[sensors[i].kind0] = A; 
+          root[sensors[i].kind0] = A;
           root[sensors[i].kind1] = B;
           root[sensors[i].kind2] = C;
           DEBUG_VAR("external BME280 @ I2C address:", sensors[i].address);

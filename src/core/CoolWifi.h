@@ -38,11 +38,19 @@ extern "C" {
 #include <ESP8266WiFiMulti.h>
 #define BOOTSTRAP_PIN 0
 #elif ESP32
+#include <ETH.h>
 #include <HTTPClient.h>
 #include <SPIFFS.H>
 #include <WiFiMulti.h>
 #include <esp_wifi.h>
 #define BOOTSTRAP_PIN A0 // need to nefine in HW specs
+
+#define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN
+#define ETH_POWER_PIN 5
+#define ETH_TYPE ETH_PHY_LAN8720
+#define ETH_ADDR PHY1
+#define ETH_MDC_PIN 23
+#define ETH_MDIO_PIN 18
 #endif
 // #include "CoolBoardLed.h"
 
@@ -65,8 +73,9 @@ public:
 #ifdef ESP8266
   WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
 #elif ESP32
-  void WiFiEthEvent(WiFiEvent_t event);
+  static void WiFiEthEvent(WiFiEvent_t event);
 #endif
+  bool ethConnected = false;
   uint8_t getIndexOfMaximumValue(int8_t *array, int size);
   void setupHandlers();
   bool mdnsState = false;
@@ -74,7 +83,9 @@ public:
   bool connectToSavedBssidAsync(String bssid);
   int lostConnections = -1;
   String getStatusAsjsonString();
-
+#ifdef ESP32
+  bool ethernetConnect();
+#endif
 private:
   CoolWifi() {}
 };

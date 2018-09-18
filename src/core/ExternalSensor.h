@@ -28,17 +28,16 @@
 #include "CoolAdafruit_CCS811.h"
 #include "CoolAdafruit_TCS34725.h"
 #include "CoolGauge.h"
+#include "CoolLog.h"
 #include "CoolNDIR_I2C.h"
 #include "CoolSDS011.h"
-#include "SHT1x.h"
 #include <Arduino.h>
 #include <DallasTemperature.h>
 #include <I2CSoilMoistureSensor.h>
 #include <MCP342X.h>
 #include <SparkFunBME280.h>
-
-#include "CoolLog.h"
 #ifdef ESP8266
+#include "SHT1x.h"
 #define SHT1X_DATA_PIN 0
 #define SHT1X_CLOCK_PIN 12
 #endif

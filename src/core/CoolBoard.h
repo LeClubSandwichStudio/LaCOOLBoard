@@ -42,12 +42,9 @@
 #define ENABLE_I2C_PIN 5
 #define BOOTSTRAP_PIN 0
 #elif ESP32
+#include <ESP32httpUpdate.h> // Need Third part Update: https://github.com/suculent/esp32-http-updates
 #include <rom/rtc.h>
-// #define ENABLE_I2C_PIN 5  // Need To be Defined on HW Specs
 #define BOOTSTRAP_PIN 37 // // Need To be Defined on HW Specs
-// #include <HTTPClient.h>
-#include <ESP32httpUpdate.h> // Need Third part Update: https://github.com/suculent/esp32-http-update
-// 
 #endif
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8

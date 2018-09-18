@@ -131,9 +131,7 @@ bool CoolFileSystem::hasSavedLogs() {
 #elif ESP32
   File dir = SPIFFS.open("/log");
   if (dir.isDirectory()) {
-    if (dir.openNextFile()) {
-      return true;
-    }
+    return dir.openNextFile();
   } else {
     return false;
   }
@@ -156,7 +154,7 @@ int CoolFileSystem::lastSavedLogNumber() {
   File dir = SPIFFS.open("/log");
   if (dir.isDirectory()) {
     while (dir.openNextFile()) {
-      temp = dir.name().substring(JSON_FILE_EXT_SIZE).toInt();
+      temp = String(dir.name()).substring(JSON_FILE_EXT_SIZE).toInt();
       DEBUG_VAR("Saved file data name: ", dir.name());
       if (temp >= next) {
         next = temp;
