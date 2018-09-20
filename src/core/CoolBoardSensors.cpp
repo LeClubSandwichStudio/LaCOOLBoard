@@ -30,10 +30,14 @@
 #include "CoolLog.h"
 
 CoolBoardSensors::CoolBoardSensors() {
+#ifndef ARDUINO_ARCH_ESP32
   pinMode(ANALOG_MULTIPLEXER_PIN, OUTPUT);
   pinMode(MOISTURE_SENSOR_PIN, OUTPUT);
   // prevents wear on the soil moisture fork
   digitalWrite(MOISTURE_SENSOR_PIN, HIGH);
+#else
+  // then what ?
+#endif
 }
 
 void CoolBoardSensors::allActive() {
@@ -50,7 +54,7 @@ void CoolBoardSensors::allActive() {
 }
 
 void CoolBoardSensors::begin() {
-  Wire.begin(2, 14);
+  Wire.begin(SDA_I2C_PIN, SCL_I2C_PIN);
   while (!this->lightSensor.Begin()) {
     DEBUG_LOG("SI1145 light sensor is not ready, waiting for 1 second...");
     delay(1000);

@@ -35,6 +35,7 @@
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
+#include "Pins.h"
 #include "CoolPubSubClient.h"
 #ifndef ARDUINO_ARCH_ESP32
 #include <ESP8266HTTPClient.h>
@@ -44,8 +45,6 @@
 #include <ESP32httpUpdate.h>
 #endif
 
-#define ENABLE_I2C_PIN 5
-#define BOOTSTRAP_PIN 0
 #define MQTT_RETRIES 5
 #define MIN_BAT_VOLTAGE 3.5
 #define NOT_IN_CHARGING 1.8
