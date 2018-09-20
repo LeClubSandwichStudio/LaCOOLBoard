@@ -676,7 +676,7 @@ bool CoolBoard::mqttListen() {
 void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
   char temp[length + 1];
   for (unsigned int i = 0; i < length; i++) {
-    temp[i] = (char)payload[i];
+    temp[i] = payload[i];
   }
   temp[length] = '\0';
   this->update(temp);
@@ -697,15 +697,15 @@ void CoolBoard::mqttsConvert(String cert) {
   }
 #elif ESP32
   DEBUG_VAR("Certificate Size: ", certFile.size());
-  // char *certBuf[certFile.size()];
-  String certBuf = certFile.readString();
-  Serial.println(certBuf);
-  certFile.close();
-  if (strstr(cert.c_str(), "certificate32")) {
-    this->wifiClientSecure->setCertificate(certBuf.c_str());
+  if (strstr(cert.c_str(), "public.pem.key")) {
+    this->wifiClientSecure->setCertificate(
+        (certFile.readString() + "\n").c_str());
+
   } else {
-    this->wifiClientSecure->setPrivateKey(certBuf.c_str());
+    this->wifiClientSecure->setPrivateKey(
+        (certFile.readString() + "\n").c_str());
   }
+  certFile.close();
 #endif
 }
 
@@ -718,12 +718,11 @@ void CoolBoard::mqttsConfig() {
     DEBUG_LOG("Loading X509 private key");
     this->mqttsConvert("/privateKey.bin");
 #elif ESP32
-  if (SPIFFS.exists("/certificate32.bin") &&
-      SPIFFS.exists("/privateKey32.bin")) {
+  if (SPIFFS.exists("/public.pem.key") && SPIFFS.exists("/private.pem.key")) {
     DEBUG_LOG("Loading X509 certificate");
-    this->mqttsConvert("/certificate32.bin");
+    this->mqttsConvert("/public.pem.key");
     DEBUG_LOG("Loading X509 private key");
-    this->mqttsConvert("/privateKey32.bin");
+    this->mqttsConvert("/private.pem.key");
 #endif
     DEBUG_LOG("Configuring MQTT");
     this->coolPubSubClient->setClient(*this->wifiClientSecure);

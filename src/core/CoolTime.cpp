@@ -66,13 +66,11 @@ bool CoolTime::sync() {
   while (!CoolTime::ntpSync && millis() < waitUntil) {
     delay(100);
   }
-
   if (CoolTime::ntpSync) {
     this->rtc.setDateTime(time(nullptr));
 #elif ESP32
   if (getLocalTime(&timeinfo)) {
     unsigned long time_mk = mktime(&timeinfo);
-    DEBUG_VAR("time_mk: ", time_mk);
     this->rtc.setDateTime(time_mk);
 #endif
     this->rtc.clearOSF();
