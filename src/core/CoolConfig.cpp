@@ -21,7 +21,7 @@
  *
  */
 #ifdef ESP32
-#include <SPIFFS.H>
+#include <SPIFFS.h>
 #endif
 #include <FS.h>
 #include "CoolConfig.h"

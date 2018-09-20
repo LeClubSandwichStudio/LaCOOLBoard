@@ -22,7 +22,7 @@
  */
 
 #ifdef ESP32
-#include <SPIFFS.H>
+#include <SPIFFS.h>
 #endif
 #include "CoolConfig.h"
 #include "CoolFileSystem.h"
