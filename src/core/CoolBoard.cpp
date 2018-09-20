@@ -83,6 +83,7 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
+  CoolWifi::getInstance().autoConnect();
   this->mqttsConfig();
   delay(100);
   SPIFFS.end();
