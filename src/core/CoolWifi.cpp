@@ -211,9 +211,8 @@ uint8_t CoolWifi::connect(String ssid, String pass) {
     delay(1000);
   }
   if ((WiFi.status() != WL_CONNECTED) && this->isAvailable(ssid)) {
-    WARN_LOG("Something goes wrong, SSID is available but impossible to "
-             "connect, please retry");
-    WARN_VAR("Reason: ", this->StringStatus(WiFi.status()));
+    WARN_LOG("Something goes wrong, SSID is available but impossible to connect, please retry");
+    WARN_VAR("Reason: ", this->stringStatus(WiFi.status()));
     WiFi.persistent(false);
 #ifdef ESP8266
     wifi_station_disconnect();
@@ -296,7 +295,7 @@ bool CoolWifi::getPublicIp(String &ip) {
 String CoolWifi::getStatusAsjsonString() {
   DynamicJsonBuffer json;
   JsonObject &root = json.createObject();
-  root["state"] = this->StringStatus(WiFi.status());
+  root["state"] = this->stringStatus(WiFi.status());
   root.createNestedObject("network");
   JsonObject &network = root["network"];
   network["ssid"] = WiFi.SSID();
@@ -309,7 +308,7 @@ String CoolWifi::getStatusAsjsonString() {
   return tmp;
 }
 
-String CoolWifi::StringStatus(wl_status_t status) {
+String CoolWifi::stringStatus(wl_status_t status) {
   switch (status) {
   case WL_NO_SHIELD:
     return "Wifi status: no shield";
@@ -355,11 +354,11 @@ void CoolWifi::setupHandlers() {
         }
       });
 #elif ESP32
-  WiFi.onEvent(this->WiFiEthEvent);
+  WiFi.onEvent(this->onNetworkEvent);
 #endif
 }
 #ifdef ESP32
-void CoolWifi::WiFiEthEvent(WiFiEvent_t event) {
+void CoolWifi::onNetworkEvent(WiFiEvent_t event) {
   switch (event) {
   case SYSTEM_EVENT_ETH_START:
     Serial.println("ETH Started");
@@ -394,3 +393,7 @@ void CoolWifi::WiFiEthEvent(WiFiEvent_t event) {
   }
 }
 #endif
+
+bool CoolWifi::isConnected() {
+  return WiFi.status() == WL_CONNECTED || this->ethConnected;
+}

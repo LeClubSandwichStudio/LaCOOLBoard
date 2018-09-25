@@ -20,6 +20,11 @@
  *  IN THE SOFTWARE.
  *
  */
+#define BEGIN_CERT "-----BEGIN CERTIFICATE-----\n"
+#define END_CERT "\n-----END CERTIFICATE-----\n"
+
+#define BEGIN_PKEY "-----BEGIN RSA PRIVATE KEY-----\n"
+#define END_PKEY "\n-----END RSA PRIVATE KEY-----\n"
 
 #include <ArduinoJson.h>
 #include <EEPROM.h>
@@ -39,7 +44,6 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
-  // this->sleep();
   this->coolBoardLed.config();
   this->coolBoardLed.begin();
   delay(10);
@@ -84,6 +88,12 @@ void CoolBoard::begin() {
     delay(100);
   }
   CoolWifi::getInstance().autoConnect();
+#ifdef ESP32
+  DEBUG_LOG("Loading X509 certificate");
+  this->mqttsConvert("/certificate.bin");
+  DEBUG_LOG("Loading X509 private key");
+  this->mqttsConvert("/privateKey.bin");
+#endif
   this->mqttsConfig();
   delay(100);
   SPIFFS.end();
@@ -145,7 +155,7 @@ void CoolBoard::loop() {
 }
 
 bool CoolBoard::isConnected() {
-  if (WiFi.status() != WL_CONNECTED || !CoolWifi::getInstance().ethConnected) {
+  if (!CoolWifi::getInstance().isConnected()) {
     return false;
   }
   if (this->coolPubSubClient->state() != MQTT_CONNECTED) {
@@ -158,7 +168,7 @@ void CoolBoard::connect() {
 #ifdef ESP8266
   if (CoolWifi::getInstance().getWifiCount() > 0) {
     this->coolBoardLed.write(BLUE);
-    if (WiFi.status() != WL_CONNECTED) {
+    if (!CoolWifi::getInstance().isConnected()) {
       INFO_LOG("WiFi not connected, connecting...");
       CoolWifi::getInstance().autoConnect();
     }
@@ -172,8 +182,7 @@ void CoolBoard::connect() {
   if (!CoolWifi::getInstance().ethernetConnect()) {
     if (CoolWifi::getInstance().getWifiCount() > 0) {
       this->coolBoardLed.write(BLUE);
-      if (WiFi.status() != WL_CONNECTED &&
-          !CoolWifi::getInstance().ethConnected) {
+      if (!CoolWifi::getInstance().isConnected()) {
         INFO_LOG("WiFi not connected, connecting...");
         CoolWifi::getInstance().autoConnect();
       }
@@ -186,7 +195,7 @@ void CoolBoard::connect() {
     }
   }
 #endif
-  if (WiFi.status() == WL_CONNECTED || CoolWifi::getInstance().ethConnected) {
+  if (CoolWifi::getInstance().isConnected()) {
     CoolTime::getInstance().begin();
     delay(100);
     this->mqttConnect();
@@ -422,7 +431,7 @@ void CoolBoard::readBoardData(JsonObject &reported) {
     reported["wifiSignal"] = WiFi.RSSI();
   }
 #ifdef ESP32
-  if (CoolWifi::getInstance().ethConnected) {
+  if (CoolWifi::getInstance().isConnected()) {
     reported["ethernetStatus"] = CoolWifi::getInstance().ethConnected;
   }
 #endif
@@ -522,7 +531,7 @@ void CoolBoard::sendConfig(const char *moduleName, const char *filePath) {
 }
 
 void CoolBoard::readPublicIP(JsonObject &reported) {
-  if (WiFi.status() == WL_CONNECTED || CoolWifi::getInstance().ethConnected) {
+  if (CoolWifi::getInstance().isConnected()) {
     String ip;
     if (CoolWifi::getInstance().getPublicIp(ip)) {
       DEBUG_VAR("Public IP address:", ip);
@@ -533,7 +542,7 @@ void CoolBoard::readPublicIP(JsonObject &reported) {
 
 void CoolBoard::networkProblem() {
   WARN_LOG("Network unreachable");
-  WARN_VAR("Reason: ", CoolWifi::getInstance().StringStatus(WiFi.status()));
+  WARN_VAR("Reason: ", CoolWifi::getInstance().stringStatus(WiFi.status()));
   this->printMqttState(this->coolPubSubClient->state());
   for (uint8_t i = 0; i < 8; i++) {
     this->coolBoardLed.blink(ORANGE, 0.2);
@@ -684,51 +693,46 @@ void CoolBoard::mqttCallback(char *topic, byte *payload, unsigned int length) {
 
 void CoolBoard::mqttsConvert(String cert) {
   File certFile = SPIFFS.open(cert, "r");
-#ifdef ESP8266
-  String certficateString = certFile.readString();
+  String certificateString = certFile.readString();
+  DEBUG_VAR("Certificate size:", certFile.size());
   certFile.close();
-  DEBUG_LOG("Closing bin file");
-  uint8_t binaryCert[certficateString.length()];
-  uint16_t len = this->b64decode(certficateString, binaryCert);
+#ifdef ESP8266
+  uint8_t binaryCert[certificateString.length()];
+  uint16_t len = this->b64decode(certificateString, binaryCert);
   if (strstr(cert.c_str(), "certificate")) {
     this->wifiClientSecure->setCertificate(binaryCert, len);
   } else {
     this->wifiClientSecure->setPrivateKey(binaryCert, len);
   }
-#elif ESP32
-  DEBUG_VAR("Certificate Size: ", certFile.size());
-  if (strstr(cert.c_str(), "public.pem.key")) {
-    this->wifiClientSecure->setCertificate(
-        (certFile.readString() + "\n").c_str());
-
+#else
+  certificateString.replace("\n", "");
+  if (strstr(cert.c_str(), "certificate")) {
+    this->x509Certificate =
+        strdup((BEGIN_CERT + certificateString + END_CERT).c_str());
   } else {
-    this->wifiClientSecure->setPrivateKey(
-        (certFile.readString() + "\n").c_str());
+    this->x509PrivateKey =
+        strdup((BEGIN_PKEY + certificateString + END_PKEY).c_str());
   }
-  certFile.close();
 #endif
 }
 
 void CoolBoard::mqttsConfig() {
 
-#ifdef ESP8266
   if (SPIFFS.exists("/certificate.bin") && SPIFFS.exists("/privateKey.bin")) {
+#ifdef ESP8266
     DEBUG_LOG("Loading X509 certificate");
     this->mqttsConvert("/certificate.bin");
     DEBUG_LOG("Loading X509 private key");
     this->mqttsConvert("/privateKey.bin");
-#elif ESP32
-  if (SPIFFS.exists("/public.pem.key") && SPIFFS.exists("/private.pem.key")) {
-    DEBUG_LOG("Loading X509 certificate");
-    this->mqttsConvert("/public.pem.key");
-    DEBUG_LOG("Loading X509 private key");
-    this->mqttsConvert("/private.pem.key");
+#else
+    DEBUG_LOG("Setting X509 certificate");
+    this->wifiClientSecure->setCertificate(this->x509Certificate);
+    DEBUG_LOG("Setting X509 private key");
+    this->wifiClientSecure->setPrivateKey(this->x509PrivateKey);
 #endif
     DEBUG_LOG("Configuring MQTT");
     this->coolPubSubClient->setClient(*this->wifiClientSecure);
     this->coolPubSubClient->setServer(this->mqttServer.c_str(), 8883);
-    // line 76 in PubSubClient.h: change into '#if defined (ESP8266) ||
-    // defined(ESP32)'
     this->coolPubSubClient->setCallback(
         [this](char *topic, byte *payload, unsigned int length) {
           this->mqttCallback(topic, payload, length);
@@ -785,11 +789,11 @@ void CoolBoard::updateFirmware(String firmwareVersion, String firmwareUrl,
   SPIFFS.remove("/otaUpdateConfig.json");
   SPIFFS.end();
   delay(100);
-  if (WiFi.status() != WL_CONNECTED || !CoolWifi::getInstance().ethConnected) {
+  if (!CoolWifi::getInstance().isConnected()) {
     INFO_LOG("WiFi not connected, connecting...");
     CoolWifi::getInstance().autoConnect();
   }
-  if (WiFi.status() == WL_CONNECTED || CoolWifi::getInstance().ethConnected) {
+  if (CoolWifi::getInstance().isConnected()) {
     Serial.flush();
     Serial.setDebugOutput(true);
     INFO_LOG("Starting firmware update...");

@@ -69,11 +69,11 @@ public:
   void operator=(CoolWifi const &) = delete;
   uint8_t getWifiCount();
   bool getPublicIp(String &ip);
-  String StringStatus(wl_status_t status);
+  String stringStatus(wl_status_t status);
 #ifdef ESP8266
   WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
 #elif ESP32
-  static void WiFiEthEvent(WiFiEvent_t event);
+  static void onNetworkEvent(WiFiEvent_t event);
 #endif
   bool ethConnected = false;
   uint8_t getIndexOfMaximumValue(int8_t *array, int size);
@@ -83,6 +83,7 @@ public:
   bool connectToSavedBssidAsync(String bssid);
   int lostConnections = -1;
   String getStatusAsjsonString();
+  bool isConnected();
 #ifdef ESP32
   bool ethernetConnect();
 #endif

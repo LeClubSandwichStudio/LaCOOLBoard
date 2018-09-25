@@ -110,6 +110,8 @@ private:
   bool externalSensorsActive = false;
   bool sleepActive = true;
   bool manual = false;
+  const char *x509PrivateKey = NULL;
+  const char *x509Certificate = NULL;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
   String mqttId;
