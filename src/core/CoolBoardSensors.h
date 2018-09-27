@@ -24,10 +24,10 @@
 #ifndef COOLBOARDSENSORS_H
 #define COOLBOARDSENSORS_H
 
+#include "CoolSI114X.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <SparkFunBME280.h>
-#include "CoolSI114X.h"
 #define ADC_MAX_VAL 1023.
 #define MAX_BATTERY_VOLTAGE 5.6
 #define LINEARISATION_MOISTURE_100 100.

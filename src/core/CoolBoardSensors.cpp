@@ -29,6 +29,8 @@
 #include "CoolConfig.h"
 #include "CoolLog.h"
 
+#define SENSOR_STARTUP_TIMEOUT 5000
+
 CoolBoardSensors::CoolBoardSensors() {
 #ifdef ESP8266
   pinMode(ANALOG_MULTIPLEXER_PIN, OUTPUT);
@@ -52,21 +54,30 @@ void CoolBoardSensors::allActive() {
 }
 
 void CoolBoardSensors::begin() {
+  INFO_LOG("Starting I2C bus");
   Wire.begin(SDA, SCL);
+  unsigned long maxStartMillis;
 #ifdef ESP8266
-  while (!this->lightSensor.Begin()) {
+  maxStartMillis = millis() + SENSOR_STARTUP_TIMEOUT;
+  while (!this->lightSensor.Begin() && millis() < maxStartMillis) {
     DEBUG_LOG("SI1145 light sensor is not ready, waiting for 1 second...");
     delay(1000);
+  }
+  if (!this->lightSensor.Begin()) {
+    ERROR_LOG("SI1145 did not start!");
   }
 #endif
   this->setEnvSensorSettings();
   delay(100);
   // Make sure sensors had enough time to turn on.
   // BME280 requires 2ms to start up.
-  if (this->envSensor.begin()) {
-    DEBUG_LOG("Builtin sensors started");
-  } else {
-    DEBUG_LOG("BME280 fail to begin");
+  maxStartMillis = millis() + SENSOR_STARTUP_TIMEOUT;
+  while (!this->envSensor.begin() && millis() < maxStartMillis) {
+    DEBUG_LOG("BME280 is not ready, waiting for 1 second...");
+    delay(1000);
+  }
+  if (!this->envSensor.begin()) {
+    ERROR_LOG("BME280 did not start!");
   }
 }
 
