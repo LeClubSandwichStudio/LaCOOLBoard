@@ -87,7 +87,6 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
-  CoolWifi::getInstance().autoConnect();
 #ifdef ESP32
   DEBUG_LOG("Loading X509 certificate");
   this->mqttsConvert("/certificate.bin");
@@ -107,6 +106,7 @@ void CoolBoard::loop() {
   if (!this->isConnected()) {
     this->coolPubSubClient->disconnect();
     INFO_LOG("Connecting...");
+    CoolWifi::getInstance().autoConnect();
     this->connect();
   }
   INFO_LOG("Synchronizing RTC...");
@@ -163,7 +163,7 @@ bool CoolBoard::isConnected() {
   }
   return true;
 }
-/// CLEANUP:
+
 void CoolBoard::connect() {
 #ifdef ESP8266
   if (CoolWifi::getInstance().getWifiCount() > 0) {
@@ -174,9 +174,6 @@ void CoolBoard::connect() {
     }
   } else {
     INFO_LOG("No configured Wifi access point, launching configuration portal");
-    // if (!this->coolWebServer.isRunning) {
-    //   this->coolWebServer.begin();
-    // }
   }
 #elif ESP32
   if (!CoolWifi::getInstance().ethernetConnect()) {
@@ -189,9 +186,6 @@ void CoolBoard::connect() {
     } else {
       INFO_LOG(
           "No configured Wifi access point, launching configuration portal");
-      // if (!this->coolWebServer.isRunning) {
-      //   this->coolWebServer.begin();
-      // }
     }
   }
 #endif
@@ -375,7 +369,7 @@ void CoolBoard::update(const char *answer) {
           this->coolBoardActuator.write(kv.value.as<bool>());
         }
 #elif ESP32
-//
+
 #endif
       }
     }
@@ -463,7 +457,7 @@ void CoolBoard::sleep() {
     }
     if (value > MAX_SLEEP_TIME) {
       INFO_VAR("Going to sleep for:", MAX_SLEEP_TIME);
-      INFO_VAR("And need to sleep again for", value - MAX_SLEEP_TIME);
+      INFO_VAR("And need to sleep again for:", value - MAX_SLEEP_TIME);
       for (uint8_t i = 0; i < 4; i++) {
         val[i] = ((value - MAX_SLEEP_TIME) >> i * 8);
         EEPROM.write(i, val[i]);
@@ -579,7 +573,7 @@ void CoolBoard::powerCheck() {
   float batteryVoltage = this->coolBoardSensors.readVBat();
   if (!(batteryVoltage < NOT_IN_CHARGING || batteryVoltage > MIN_BAT_VOLTAGE)) {
     DEBUG_VAR("Battery voltage:", batteryVoltage);
-    WARN_LOG("Battery Power is low! Need to charge!");
+    WARN_LOG("Battery power is low! Need to charge!");
     this->lowBattery();
   }
 #endif
@@ -746,9 +740,9 @@ void CoolBoard::mqttsConfig() {
                         String(F("/shadow/update/delta"));
   } else {
     ERROR_LOG("Certificate & Key binaries not found");
-    DEBUG_VAR("/certificate.bin exist return: ",
+    DEBUG_VAR("/certificate.bin exist return:",
               SPIFFS.exists("/certificate.bin"));
-    DEBUG_VAR("/privateKey.bin exist return: ",
+    DEBUG_VAR("/privateKey.bin exist return:",
               SPIFFS.exists("/privateKey.bin"));
     this->spiffsProblem();
   }
