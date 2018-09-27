@@ -32,18 +32,17 @@ bool CoolTime::ntpSync = false;
 
 CoolTime &CoolTime::getInstance() {
   static CoolTime instance;
-
   return instance;
 }
-#ifdef ESP8266
+
 void timeSet(void) {
   CoolTime::ntpSync = true;
   DEBUG_LOG("Received response from NTP server");
 }
-#endif
 
 void CoolTime::printStatus() {
   INFO_VAR("RTC ISO8601 timestamp:", this->getIso8601DateTime());
+  DEBUG_VAR("NTP UNIX timestamp:", time(nullptr));
   DEBUG_VAR("RTC UNIX timestamp:", this->rtc.getTimestamp());
 }
 
@@ -62,17 +61,17 @@ bool CoolTime::sync() {
   uint32_t waitUntil = millis() + NTP_TIMEOUT_MS;
 
   INFO_LOG("Waiting for NTP...");
-#ifdef ESP8266
   while (!CoolTime::ntpSync && millis() < waitUntil) {
+#ifdef ESP32
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+      timeSet();
+    }
+#endif
     delay(100);
   }
   if (CoolTime::ntpSync) {
     this->rtc.setDateTime(time(nullptr));
-#elif ESP32
-  if (getLocalTime(&timeinfo)) {
-    unsigned long time_mk = mktime(&timeinfo);
-    this->rtc.setDateTime(time_mk);
-#endif
     this->rtc.clearOSF();
     INFO_LOG("RTC was synchronized with NTP");
     this->printStatus();

@@ -53,9 +53,6 @@ public:
   void operator=(CoolTime const &) = delete;
 
 private:
-#ifdef ESP32
-  struct tm timeinfo;
-#endif
   CoolTime() {}
 };
 
