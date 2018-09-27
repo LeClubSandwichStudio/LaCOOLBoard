@@ -43,7 +43,7 @@ extern "C" {
 #include <SPIFFS.h>
 #include <WiFiMulti.h>
 #include <esp_wifi.h>
-#define BOOTSTRAP_PIN A0 // need to nefine in HW specs
+#define BOOTSTRAP_PIN A0
 
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN
 #define ETH_POWER_PIN 5
@@ -52,7 +52,6 @@ extern "C" {
 #define ETH_MDC_PIN 23
 #define ETH_MDIO_PIN 18
 #endif
-// #include "CoolBoardLed.h"
 
 class CoolWifi {
 public:

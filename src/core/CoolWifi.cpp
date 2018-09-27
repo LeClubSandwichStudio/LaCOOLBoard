@@ -32,38 +32,6 @@ CoolWifi &CoolWifi::getInstance() {
   return instance;
 }
 
-// bool CoolWifi::manageConnectionPortal() {
-//   String tmp;
-//   DynamicJsonBuffer json;
-//   JsonObject &root = json.createObject();
-//   if (this->haveToDo) {
-//     if (this->isAvailable(this->BSSID)) {
-//       DEBUG_VAR("CoolWifi: Connecting to new router", this->SSID);
-//       DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:",
-//       millis()); this->connect(this->SSID.c_str(), this->pass.c_str());
-//       DEBUG_VAR("CoolWifi: Connected to : ", WiFi.SSID());
-//       DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
-//     } else {
-//       root["desired"] = this->SSID;
-//       root["currentSSID"] = WiFi.SSID();
-//       root["status"] = this->StringStatus(WL_NO_SSID_AVAIL);
-//       root.printTo(tmp);
-//       events.send(tmp.c_str(), NULL, millis(), 1000);
-//       return false;
-//     }
-//     this->haveToDo = false;
-//     INFO_VAR("CoolWifi: wifi status", WiFi.status());
-//     root["desired"] = this->SSID;
-//     root["currentSSID"] = WiFi.SSID();
-//     root["status"] = this->StringStatus(WiFi.status());
-//     root.printTo(tmp);
-//     events.send(tmp.c_str(), NULL, millis(), 1000);
-//     this->SSID = "";
-//     return true;
-//   }
-//   return false;
-// }
-
 #ifdef ESP32
 bool CoolWifi::ethernetConnect() {
   return (ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN,
@@ -102,7 +70,6 @@ String CoolWifi::jsonStringWiFiScan() {
 }
 
 bool CoolWifi::isAvailable(String bssid) {
-  // enhancement: need to verify also the BSSID
   DynamicJsonBuffer json;
   JsonObject &root = json.parseObject(this->jsonStringWiFiScan());
   if (root[bssid].success()) {
@@ -110,44 +77,6 @@ bool CoolWifi::isAvailable(String bssid) {
   }
   return (false);
 }
-
-// bool CoolWifi::autoConnect() {
-//   DynamicJsonBuffer json;
-//   JsonObject &scan = json.parseObject(this->jsonStringWiFiScan());
-//   DynamicJsonBuffer config;
-//   File f = SPIFFS.open("/wifiConfig.json", "r");
-//   JsonObject &conf = config.parseObject(f.readString());
-//   uint8_t wifiCount = conf.get<uint8_t>("wifiCount");
-//   int8_t rssi[wifiCount];
-//   if (wifiCount == 0) {
-//     return false;
-//   }
-//   for (uint8_t i = 0; i < wifiCount; ++i) {
-//     rssi[i] = -127;
-//     if (scan[conf["Wifi" + String(i)]["ssid"].asString()].success()) {
-//       DEBUG_VAR("Saved network found on scan:",
-//                 String(conf["Wifi" + String(i)]["ssid"].asString()));
-//       String obj = scan[conf["Wifi" + String(i)]["ssid"].asString()];
-//       JsonObject &network = json.parseObject(obj);
-//       int8_t pwr = network.get<int8_t>("rssi");
-//       DEBUG_VAR("Signal Power:", pwr);
-//       rssi[i] = pwr;
-//     }
-//   }
-//   uint8_t n = this->getIndexOfMaximumValue(rssi, wifiCount);
-//   DEBUG_VAR("CoolWifi::autoConnect index Connecting to: ", n);
-//   DEBUG_VAR("CoolWifi::autoConnect Connecting to: ",
-//             String(conf["Wifi" + String(n)]["ssid"].asString()));
-//   DEBUG_VAR("CoolWifi: Entry time to Wifi connection attempt:", millis());
-//   if (this->connect(conf["Wifi" + String(n)]["ssid"].asString(),
-//                     conf["Wifi" + String(n)]["pass"].asString()) !=
-//       WL_CONNECTED) {
-//     WARN_VAR("There's a problem, reconnecting, WiFiStatus: ", WiFi.status());
-//   }
-//   DEBUG_VAR("CoolWifi::autoConnect Connected to: ", WiFi.SSID());
-//   DEBUG_VAR("Exit time from Wifi connection attempt:", millis());
-//   return (true);
-// }
 
 bool CoolWifi::autoConnect() {
 #ifdef ESP32
@@ -301,8 +230,6 @@ String CoolWifi::getStatusAsjsonString() {
   network["ssid"] = WiFi.SSID();
   network["bssid"] = WiFi.BSSIDstr();
   network["rssi"] = WiFi.RSSI();
-  // network["security"] = WiFi.encryptionType();
-  // network["hidden"] = String(WiFi.isHidden() ? "true" : "false");
   String tmp;
   root.printTo(tmp);
   return tmp;
@@ -361,31 +288,22 @@ void CoolWifi::setupHandlers() {
 void CoolWifi::onNetworkEvent(WiFiEvent_t event) {
   switch (event) {
   case SYSTEM_EVENT_ETH_START:
-    Serial.println("ETH Started");
+    INFO_LOG("Ethernet started");
     ETH.setHostname("esp32-ethernet");
     break;
   case SYSTEM_EVENT_ETH_CONNECTED:
-    Serial.println("ETH Connected");
+    INFO_LOG("Ethernet connected");
     break;
   case SYSTEM_EVENT_ETH_GOT_IP:
-    Serial.print("ETH MAC: ");
-    Serial.print(ETH.macAddress());
-    Serial.print(", IPv4: ");
-    Serial.print(ETH.localIP());
-    if (ETH.fullDuplex()) {
-      Serial.print(", FULL_DUPLEX");
-    }
-    Serial.print(", ");
-    Serial.print(ETH.linkSpeed());
-    Serial.println("Mbps");
+    INFO_VAR("Ethernet interface IP address:", ETH.localIP());
     CoolWifi::getInstance().ethConnected = true;
     break;
   case SYSTEM_EVENT_ETH_DISCONNECTED:
-    Serial.println("ETH Disconnected");
+    INFO_LOG("Ethernet disconnected");
     CoolWifi::getInstance().ethConnected = false;
     break;
   case SYSTEM_EVENT_ETH_STOP:
-    Serial.println("ETH Stopped");
+    INFO_LOG("Ethernet stopped");
     CoolWifi::getInstance().ethConnected = false;
     break;
   default:
