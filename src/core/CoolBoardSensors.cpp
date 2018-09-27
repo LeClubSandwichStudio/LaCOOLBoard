@@ -53,9 +53,30 @@ void CoolBoardSensors::allActive() {
   this->soilMoistureActive = 1;
 }
 
+void scanI2c() {
+  uint8_t error = 0;
+  int nDevices = 0;
+
+  for (uint8_t address = 1; address < 128; address++) {
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0) {
+      DEBUG_VAR("I2C device found at address:", address);
+      nDevices++;
+    } else if (error == 4) {
+      ERROR_VAR("Unknow I2C failure at address:", address);
+    }
+  }
+  if (nDevices == 0) {
+    INFO_LOG("No I2C devices found");
+  }
+}
+
 void CoolBoardSensors::begin() {
   INFO_LOG("Starting I2C bus");
   Wire.begin(SDA, SCL);
+  scanI2c();
   unsigned long maxStartMillis;
 #ifdef ESP8266
   maxStartMillis = millis() + SENSOR_STARTUP_TIMEOUT;
