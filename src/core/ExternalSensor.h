@@ -71,13 +71,81 @@ public:
 
 template <class T> class ExternalSensor : public BaseExternalSensor {
 public:
-  ExternalSensor() { sensor(); } 
+  ExternalSensor() { sensor(); }
   virtual uint8_t begin() { return (sensor.begin()); }
   virtual float read() { return (sensor.read()); }
 
 private:
   T sensor;
 };
+
+#ifdef ESP32
+template <>
+class ExternalSensor<Adafruit_MCP23017> : public BaseExternalSensor {
+public:
+  ExternalSensor(uint8_t i2cAddr) : i2cAddr(i2cAddr) {}
+  virtual uint8_t begin() {
+    this->mcp.begin(this->i2cAddr);
+    for (uint8_t i = 0; i < 16; i++) {
+      this->mcp.pinMode(i, INPUT);
+    }
+    return 1;
+  }
+
+  virtual float read(int16_t *value) {
+    uint16_t result = 0;
+
+    for (uint8_t i = 0; i < 16; i++) {
+      uint8_t value = this->mcp.digitalRead(i);
+      result |= (value << i);
+    }
+
+    *value = result;
+    return 0.0;
+  }
+
+private:
+  uint8_t i2cAddr;
+  Adafruit_MCP23017 mcp;
+};
+#else
+template <>
+class ExternalSensor<DallasTemperature> : public BaseExternalSensor {
+public:
+  ExternalSensor(OneWire *oneWire) { sensor = DallasTemperature(oneWire); }
+
+  virtual uint8_t begin() {
+    sensor.begin();
+    delay(5);
+    sensor.getAddress(this->dallasAddress, 0);
+    return (true);
+  }
+
+  virtual float read() {
+    sensor.requestTemperatures();
+    float result = (float)sensor.getTempCByIndex(0);
+    return (result);
+  }
+
+private:
+  DallasTemperature sensor;
+  DeviceAddress dallasAddress;
+};
+
+template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
+public:
+  ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
+  virtual uint8_t begin() { return (0); }
+  virtual float read(float *a, float *b) {
+    *a = sensor.readHumidity();
+    *b = sensor.readTemperatureC();
+    return (0.0);
+  }
+
+private:
+  SHT1x sensor;
+};
+#endif
 
 template <> class ExternalSensor<NDIR_I2C> : public BaseExternalSensor {
 public:
@@ -102,30 +170,6 @@ public:
 private:
   NDIR_I2C sensor;
 };
-#ifdef ESP8266
-template <>
-class ExternalSensor<DallasTemperature> : public BaseExternalSensor {
-public:
-  ExternalSensor(OneWire *oneWire) { sensor = DallasTemperature(oneWire); }
-
-  virtual uint8_t begin() {
-    sensor.begin();
-    delay(5);
-    sensor.getAddress(this->dallasAddress, 0);
-    return (true);
-  }
-
-  virtual float read() {
-    sensor.requestTemperatures();
-    float result = (float)sensor.getTempCByIndex(0);
-    return (result);
-  }
-
-private:
-  DallasTemperature sensor;
-  DeviceAddress dallasAddress;
-};
-#endif
 template <>
 class ExternalSensor<Adafruit_TCS34725> : public BaseExternalSensor {
 public:
@@ -262,21 +306,7 @@ public:
 private:
   Gauges sensor;
 };
-#ifdef ESP8266
-template <> class ExternalSensor<SHT1x> : public BaseExternalSensor {
-public:
-  ExternalSensor() : sensor(SHT1X_DATA_PIN, SHT1X_CLOCK_PIN) {}
-  virtual uint8_t begin() { return (0); }
-  virtual float read(float *a, float *b) {
-    *a = sensor.readHumidity();
-    *b = sensor.readTemperatureC();
-    return (0.0);
-  }
 
-private:
-  SHT1x sensor;
-};
-#endif
 template <> class ExternalSensor<SDS011> : public BaseExternalSensor {
 public:
   ExternalSensor() : sensor() {}
@@ -388,9 +418,5 @@ public:
 private:
   BME280 sensor;
 };
-
-#ifdef ESP32
-// dedicated external Sensors for ESP32
-#endif
 
 #endif

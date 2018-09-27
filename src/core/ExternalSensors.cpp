@@ -29,6 +29,7 @@
 OneWire oneWire(0);
 #include <OneWire.h>
 #endif
+
 void ExternalSensors::begin() {
 
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
@@ -39,18 +40,7 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = sensorCO2.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read();
-    }
-#ifdef ESP8266
-    else if ((sensors[i].reference) == "DallasTemperature") {
-      std::unique_ptr<ExternalSensor<DallasTemperature>> dallasTemp(
-          new ExternalSensor<DallasTemperature>(&oneWire));
-
-      sensors[i].exSensor = dallasTemp.release();
-      sensors[i].exSensor->begin();
-      sensors[i].exSensor->read();
-    }
-#endif
-    else if ((sensors[i].reference) == "Adafruit_TCS34725") {
+    } else if ((sensors[i].reference) == "Adafruit_TCS34725") {
       int16_t r, g, b, c, colorTemp, lux;
       std::unique_ptr<ExternalSensor<Adafruit_TCS34725>> rgbSensor(
           new ExternalSensor<Adafruit_TCS34725>());
@@ -94,16 +84,7 @@ void ExternalSensors::begin() {
 
       sensors[i].exSensor = gauge.release();
       sensors[i].exSensor->read(&A, &B, &C);
-    }
-#ifdef ESP8266
-    else if ((sensors[i].reference) == "SHT1x") {
-      std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
-          new ExternalSensor<SHT1x>());
-      sensors[i].exSensor = CoolSHT1x.release();
-      sensors[i].exSensor->begin();
-    }
-#endif
-    else if ((sensors[i].reference) == "SDS011") {
+    } else if ((sensors[i].reference) == "SDS011") {
       std::unique_ptr<ExternalSensor<SDS011>> sds011(
           new ExternalSensor<SDS011>());
       sensors[i].exSensor = sds011.release();
@@ -132,7 +113,29 @@ void ExternalSensors::begin() {
       sensors[i].exSensor = bme280.release();
       sensors[i].exSensor->begin();
       sensors[i].exSensor->read(&temp, &humi, &pres);
+#ifdef ESP8266
+    } else if ((sensors[i].reference) == "DallasTemperature") {
+      std::unique_ptr<ExternalSensor<DallasTemperature>> dallasTemp(
+          new ExternalSensor<DallasTemperature>(&oneWire));
+
+      sensors[i].exSensor = dallasTemp.release();
+      sensors[i].exSensor->begin();
+      sensors[i].exSensor->read();
+    } else if ((sensors[i].reference) == "SHT1x") {
+      std::unique_ptr<ExternalSensor<SHT1x>> CoolSHT1x(
+          new ExternalSensor<SHT1x>());
+      sensors[i].exSensor = CoolSHT1x.release();
+      sensors[i].exSensor->begin();
     }
+#else
+    } else if ((sensors[i].reference) == "MCP23017") {
+      INFO_LOG("Configuring MCP23017");
+      std::unique_ptr<ExternalSensor<Adafruit_MCP23017>> mcp23017(
+          new ExternalSensor<Adafruit_MCP23017>(sensors[i].address));
+      sensors[i].exSensor = mcp23017.release();
+      sensors[i].exSensor->begin();
+    }
+#endif
   }
 }
 
@@ -224,6 +227,16 @@ void ExternalSensors::read(JsonObject &root) {
           DEBUG_VAR("Temperature : ", A);
           DEBUG_VAR("Pressure : ", B);
           DEBUG_VAR("Humidity : ", C);
+        } else if (sensors[i].reference == "MCP23017") {
+          uint16_t result = 0;
+          sensors[i].exSensor->read((int16_t *)&result);
+          root[sensors[i].kind0] = result;
+          Serial.print("DEBUG: MCP 23017 read result: ");
+          for (uint8_t i = 0; i < 16; i++) {
+            bool value = (bool)((result & (1 << i)) >> i);
+            Serial.print(value);
+          }
+          Serial.println();
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }
