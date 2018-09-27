@@ -24,6 +24,8 @@
 #ifndef COOLFILESYSTEM_H
 #define COOLFILESYSTEM_H
 
+#include <FS.h>
+
 #include <Arduino.h>
 
 #include <ArduinoJson.h>

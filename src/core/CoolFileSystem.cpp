@@ -21,13 +21,44 @@
  *
  */
 
-#ifdef ESP32
-#include <SPIFFS.h>
-#endif
-#include "CoolConfig.h"
 #include "CoolFileSystem.h"
+#include "CoolConfig.h"
 #include "CoolLog.h"
+#include <SPIFFS.h>
+#ifdef ESP32
+
+File open_dir(const char * path) {
+  File root = SPIFFS.open(path);
+
+  if (!root.isDirectory()) {
+    return (File)NULL;
+  }
+  return root;
+}
+
+File next_file(File file) {
+  return file.openNextFile();
+}
+
+String file_name(File file) {
+  return file.name();
+}
+
+#else
 #include <FS.h>
+
+File open_dir(char *path) {
+  return SPIFFS.openDir(path);
+}
+
+File next_file(Dir root) {
+  return root.next();
+}
+
+String file_name(File file) {
+  return file.fileName();
+}
+#endif
 
 #define JSON_FILE_EXT_SIZE 5
 
@@ -77,18 +108,10 @@ bool CoolFileSystem::fileUpdate(JsonObject &updateJson, const char *path) {
 
 bool CoolFileSystem::saveLogToFile(const char *data) {
   String lastName = "0";
-#ifdef ESP8266
-  FSInfo fs_info;
-  if (SPIFFS.info(fs_info) == true) {
-    DEBUG_LOG("SPIFFS status before saving:");
-    DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
-    DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
-  }
-#elif ESP32
+
   DEBUG_LOG("SPIFFS status before saving:");
-  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
-  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
-#endif
+  DEBUG_VAR("SPIFFS used bytes:", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes:", SPIFFS.totalBytes());
 
   int nextLog = lastSavedLogNumber();
   nextLog++;
@@ -105,63 +128,33 @@ bool CoolFileSystem::saveLogToFile(const char *data) {
     DEBUG_VAR("Could not save data file (already exists):", nextName);
     return false;
   }
-#ifdef ESP8266
-  if (SPIFFS.info(fs_info) == true) {
-    DEBUG_LOG("SPIFFS status before saving:");
-    DEBUG_VAR("SPIFFS used bytes", fs_info.usedBytes);
-    DEBUG_VAR("SPIFFS total bytes", fs_info.totalBytes);
-  }
-#elif ESP32
-  DEBUG_LOG("SPIFFS status before saving:");
-  DEBUG_VAR("SPIFFS used bytes", SPIFFS.usedBytes());
-  DEBUG_VAR("SPIFFS total bytes", SPIFFS.totalBytes());
-#endif
+  DEBUG_LOG("SPIFFS status after saving:");
+  DEBUG_VAR("SPIFFS used bytes:", SPIFFS.usedBytes());
+  DEBUG_VAR("SPIFFS total bytes:", SPIFFS.totalBytes());
   return true;
 }
 
 bool CoolFileSystem::hasSavedLogs() {
-#ifdef ESP8266
-  Dir dir = SPIFFS.openDir("/log");
-  if (dir.next()) {
+  File dir = open_dir("/log");
+  if (next_file(dir)) {
     return true;
   } else {
     return false;
   }
-#elif ESP32
-  File dir = SPIFFS.open("/log");
-  if (dir.isDirectory()) {
-    return dir.openNextFile();
-  } else {
-    return false;
-  }
-#endif
 }
 
 int CoolFileSystem::lastSavedLogNumber() {
-  int next = 0;
-  int temp = 0;
-#ifdef ESP8266
-  Dir dir = SPIFFS.openDir("/log");
-  while (dir.next()) {
-    temp = dir.fileName().substring(JSON_FILE_EXT_SIZE).toInt();
-    DEBUG_VAR("Saved file data name: ", dir.fileName());
-    if (temp >= next) {
-      next = temp;
+  int result = 0;
+  File dir = open_dir("/log");
+  if (dir) {
+    File entry;
+
+    while (entry = next_file(dir)) {
+      result = file_name(entry).substring(JSON_FILE_EXT_SIZE).toInt();
+      DEBUG_VAR("Saved file data name:", file_name(entry));
     }
   }
-#elif ESP32
-  File dir = SPIFFS.open("/log");
-  if (dir.isDirectory()) {
-    while (dir.openNextFile()) {
-      temp = String(dir.name()).substring(JSON_FILE_EXT_SIZE).toInt();
-      DEBUG_VAR("Saved file data name: ", dir.name());
-      if (temp >= next) {
-        next = temp;
-      }
-    }
-  }
-#endif
-  return next;
+  return result;
 }
 
 String CoolFileSystem::getSavedLogAsString(int num) {

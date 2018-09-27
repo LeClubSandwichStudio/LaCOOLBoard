@@ -202,8 +202,9 @@ void CoolBoard::connect() {
 
 void CoolBoard::sendSavedMessages() {
   int savedLogNumber;
-  while ((savedLogNumber = CoolFileSystem::lastSavedLogNumber()) &&
-         !this->shouldLog()) {
+  bool shouldLog = false;
+  while ((savedLogNumber = CoolFileSystem::lastSavedLogNumber()) && !shouldLog) {
+    shouldLog = this->shouldLog();
     INFO_VAR("Sending saved log number:", savedLogNumber);
     String jsonData = CoolFileSystem::getSavedLogAsString(savedLogNumber);
     DEBUG_VAR("Saved JSON data to send:", jsonData);
