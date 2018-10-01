@@ -42,7 +42,6 @@ public:
   static CoolTime &getInstance();
   void begin();
   bool sync();
-  void printStatus();
   void setDateTime(int year, int month, int day, int hour, int minutes,
                    int seconds);
   String getIso8601DateTime();
@@ -53,6 +52,7 @@ public:
   void operator=(CoolTime const &) = delete;
 
 private:
+  void printStatus();
   CoolTime() {}
 };
 

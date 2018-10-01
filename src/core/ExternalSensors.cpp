@@ -25,13 +25,15 @@
 
 #include "CoolConfig.h"
 #include "ExternalSensors.h"
+
 #ifdef ESP8266
 OneWire oneWire(0);
 #include <OneWire.h>
 #endif
 
 void ExternalSensors::begin() {
-
+  INFO_LOG("External::begin() i2c LOCK");
+  lockI2c();
   for (uint8_t i = 0; i < this->sensorsNumber; i++) {
     if ((sensors[i].reference) == "NDIR_I2C") {
       std::unique_ptr<ExternalSensor<NDIR_I2C>> sensorCO2(
@@ -137,11 +139,14 @@ void ExternalSensors::begin() {
     }
 #endif
   }
+  unlockI2c();
+  INFO_LOG("External::begin() i2c LOCK");
 }
 
 void ExternalSensors::read(JsonObject &root) {
-
   if (sensorsNumber > 0) {
+    INFO_LOG("External::read() i2c LOCK");
+    lockI2c();
     for (uint8_t i = 0; i < sensorsNumber; i++) {
       if (sensors[i].exSensor != NULL) {
         if (sensors[i].reference == "Adafruit_TCS34725") {
@@ -244,6 +249,8 @@ void ExternalSensors::read(JsonObject &root) {
         ERROR_VAR("Undefined (NULL) external sensor at index #", i);
       }
     }
+    unlockI2c();
+    INFO_LOG("External::read() i2c UN-LOCK");
   }
   DEBUG_JSON("External sensors data:", root);
 }

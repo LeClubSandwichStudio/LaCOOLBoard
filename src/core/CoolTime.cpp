@@ -25,6 +25,7 @@
 
 #include <ArduinoJson.h>
 
+#include "Concurrent.h"
 #include "CoolLog.h"
 #include "CoolTime.h"
 
@@ -47,6 +48,8 @@ void CoolTime::printStatus() {
 }
 
 void CoolTime::begin() {
+  DEBUG_LOG("CoolTime::begin() i2c LOCK");
+  lockI2c();
   this->printStatus();
   if (this->rtc.hasStopped()) {
     WARN_LOG("RTC has stopped, need to resync");
@@ -55,6 +58,8 @@ void CoolTime::begin() {
   settimeofday_cb(timeSet);
 #endif
   configTime(0, 0, "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org");
+  unlockI2c();
+  DEBUG_LOG("CoolTime::begin() i2c UN-LOCK");
 }
 
 bool CoolTime::sync() {
@@ -70,17 +75,25 @@ bool CoolTime::sync() {
 #endif
     delay(100);
   }
+  DEBUG_LOG("CoolTime::sync() i2c LOCK");
+  lockI2c();
   if (CoolTime::ntpSync) {
     this->rtc.setDateTime(time(nullptr));
     this->rtc.clearOSF();
     INFO_LOG("RTC was synchronized with NTP");
     this->printStatus();
+    unlockI2c();
+    DEBUG_LOG("CoolTime::sync() i2c UN-LOCK");
     return true;
   } else {
     if (rtc.hasStopped()) {
+      unlockI2c();
+      DEBUG_LOG("CoolTime::sync() i2c UN-LOCK");
       return false;
     } else {
       WARN_LOG("NTP failed, falling back to RTC");
+      unlockI2c();
+      DEBUG_LOG("CoolTime::sync() i2c UN-LOCK");
       return true;
     }
   }
@@ -88,7 +101,8 @@ bool CoolTime::sync() {
 
 String CoolTime::getIso8601DateTime() {
   char iso8601Date[] = "YYYY-MM-DDTHH:MM:SSZ";
-  time_t t = this->rtc.getTimestamp();
+  time_t t;
+  time(&t);
   strftime(iso8601Date, sizeof iso8601Date, "%FT%TZ", gmtime(&t));
   return String(iso8601Date);
 }

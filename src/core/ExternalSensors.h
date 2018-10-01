@@ -25,7 +25,7 @@
 #define EXTERNALSENSORS_H
 
 #include <ArduinoJson.h>
-
+#include "Concurrent.h"
 #include "ExternalSensor.h"
 
 class ExternalSensors {

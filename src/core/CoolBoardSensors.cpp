@@ -28,6 +28,7 @@
 #include "CoolBoardSensors.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "Concurrent.h"
 
 #define SENSOR_STARTUP_TIMEOUT 5000
 
@@ -74,6 +75,8 @@ void scanI2c() {
 }
 
 void CoolBoardSensors::begin() {
+  INFO_LOG("Sensors::begin() i2c LOCK");
+  lockI2c();
   INFO_LOG("Starting I2C bus");
   Wire.begin(SDA, SCL);
   scanI2c();
@@ -100,12 +103,22 @@ void CoolBoardSensors::begin() {
   if (!this->envSensor.begin()) {
     ERROR_LOG("BME280 did not start!");
   }
+  unlockI2c();
+  INFO_LOG("Sensors::begin() i2c UN-LOCK");
 }
 
-void CoolBoardSensors::end() { this->lightSensor.DeInit(); }
+void CoolBoardSensors::end() {
+  INFO_LOG("Sensors::end() i2c LOCK");
+  lockI2c();
+  this->lightSensor.DeInit();
+  unlockI2c();
+  INFO_LOG("Sensors::end() i2c UN-LOCK");
+}
 
 void CoolBoardSensors::read(JsonObject &root) {
   delay(100);
+  INFO_LOG("Sensors::read() i2c LOCK");
+  lockI2c();
 #ifdef ESP8266
   if (this->lightDataActive.visible) {
     if (this->lightSensor.ReadResponseReg() == CoolSI114X_VIS_OVERFLOW) {
@@ -171,6 +184,8 @@ void CoolBoardSensors::read(JsonObject &root) {
   }
 #endif
   DEBUG_JSON("Builtin sensors data:", root);
+  unlockI2c();
+  INFO_LOG("Sensors::read() i2c UN-LOCK");
 }
 
 bool CoolBoardSensors::config() {

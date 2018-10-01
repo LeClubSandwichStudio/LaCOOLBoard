@@ -20,20 +20,20 @@
  *  IN THE SOFTWARE.
  *
  */
-#define BEGIN_CERT "-----BEGIN CERTIFICATE-----\n"
-#define END_CERT "\n-----END CERTIFICATE-----\n"
-
-#define BEGIN_PKEY "-----BEGIN RSA PRIVATE KEY-----\n"
-#define END_PKEY "\n-----END RSA PRIVATE KEY-----\n"
 
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 #include <FS.h>
 #include <memory>
 
+#ifdef ESP32
+  #include "CoolPwm.h"
+#endif
+
 #include "CoolBoard.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
+#include "Concurrent.h"
 #include "libb64/cdecode.h"
 
 #define SEND_MSG_BATCH 10
@@ -44,6 +44,7 @@ void CoolBoard::begin() {
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
   }
+  createI2cMutex();
   this->coolBoardLed.config();
   this->coolBoardLed.begin();
   delay(10);
@@ -72,8 +73,8 @@ void CoolBoard::begin() {
     this->jetPack.printConf();
     delay(100);
   }
-#elif ESP32
-
+#else
+  initPwm();
 #endif
   if (this->ireneActive) {
     this->irene3000.config();
@@ -221,9 +222,9 @@ void CoolBoard::sendSavedMessages() {
 
 void CoolBoard::handleActuators(JsonObject &reported) {
   if (this->manual == 0) {
-    Date date = CoolTime::getInstance().rtc.getDate();
-#ifdef ESP8266
     INFO_LOG("Actuators configuration: automatic");
+#ifdef ESP8266
+    Date date = CoolTime::getInstance().rtc.getDate();
     if (this->jetpackActive) {
       DEBUG_LOG("Updating and recording Jetpack state...");
       this->jetPack.doAction(reported, date.getHour(), date.getMinutes());
@@ -237,6 +238,16 @@ void CoolBoard::handleActuators(JsonObject &reported) {
       this->coolBoardActuator.write(0);
       reported["ActB"] = 0;
     }
+#else
+  DEBUG_LOG("Sending params to PWM...");
+
+  // PwmParams_t pwmParams = {
+  //     {4095, false}, {0, false}, {4095, false}, {0, false},
+  //     {4095, false}, {0, false}, {4095, false}, {0, false},
+  //     {4095, false}, {0, false}, {4095, false}, {0, false},
+  //     {4095, false}, {0, false}, {4095, false}, {0, false},
+  // };
+  // updatePwm(pwmParams);
 #endif
   } else {
     INFO_LOG("Actuators configuration: manual");

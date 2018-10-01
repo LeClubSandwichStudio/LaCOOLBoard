@@ -51,6 +51,12 @@
 #define MQTT_RETRIES 5
 #define MAX_MQTT_RETRIES 15
 #define MAX_SLEEP_TIME 3600
+#define BEGIN_CERT "-----BEGIN CERTIFICATE-----\n"
+#define END_CERT "\n-----END CERTIFICATE-----\n"
+#define BEGIN_PKEY "-----BEGIN RSA PRIVATE KEY-----\n"
+#define END_PKEY "\n-----END RSA PRIVATE KEY-----\n"
+
+
 class CoolBoard {
 
 public:
