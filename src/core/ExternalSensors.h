@@ -23,9 +23,7 @@
 
 #ifndef EXTERNALSENSORS_H
 #define EXTERNALSENSORS_H
-
 #include <ArduinoJson.h>
-
 #include "ExternalSensor.h"
 
 class ExternalSensors {
@@ -34,6 +32,10 @@ public:
   void begin();
   void read(JsonObject &root);
   bool config();
+#ifdef ESP32 
+  #define EM111_INT_PIN 35
+  static void IRAM_ATTR isr();
+#endif
 
 private:
   struct Sensor {

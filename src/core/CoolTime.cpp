@@ -63,7 +63,7 @@ bool CoolTime::sync() {
   INFO_LOG("Waiting for NTP...");
   while (!CoolTime::ntpSync && millis() < waitUntil) {
 #ifdef ESP32
-    struct tm timeinfo;
+    timeinfo;
     if (getLocalTime(&timeinfo)) {
       timeSet();
     }
@@ -71,7 +71,12 @@ bool CoolTime::sync() {
     delay(100);
   }
   if (CoolTime::ntpSync) {
+    #ifdef ESP32
+    unsigned long time_mk = mktime(&timeinfo);
+    this->rtc.setDateTime(time_mk);
+    #elif ESP8266
     this->rtc.setDateTime(time(nullptr));
+    #endif
     this->rtc.clearOSF();
     INFO_LOG("RTC was synchronized with NTP");
     this->printStatus();

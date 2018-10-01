@@ -28,6 +28,9 @@
 #ifdef ESP8266
 OneWire oneWire(0);
 #include <OneWire.h>
+#elif ESP32
+portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+uint32_t emiClicks = 0;
 #endif
 
 void ExternalSensors::begin() {
@@ -134,13 +137,26 @@ void ExternalSensors::begin() {
           new ExternalSensor<Adafruit_MCP23017>(sensors[i].address));
       sensors[i].exSensor = mcp23017.release();
       sensors[i].exSensor->begin();
+    } else if ((sensors[i].reference) == "EM111") {
+      std::unique_ptr<ExternalSensor<dummySensor>> EM111(
+          new ExternalSensor<dummySensor>());
+      sensors[i].exSensor = EM111.release();
+      pinMode(EM111_INT_PIN, INPUT);
+      attachInterrupt(digitalPinToInterrupt(EM111_INT_PIN), isr,
+                      FALLING);
     }
 #endif
   }
 }
 
-void ExternalSensors::read(JsonObject &root) {
+void IRAM_ATTR ExternalSensors::isr() {
+  portENTER_CRITICAL_ISR(&mux);
+  detachInterrupt(EM111_INT_PIN);
+  emiClicks++;
+  portEXIT_CRITICAL_ISR(&mux);
+}
 
+void ExternalSensors::read(JsonObject &root) {
   if (sensorsNumber > 0) {
     for (uint8_t i = 0; i < sensorsNumber; i++) {
       if (sensors[i].exSensor != NULL) {
@@ -237,6 +253,14 @@ void ExternalSensors::read(JsonObject &root) {
             Serial.print(value);
           }
           Serial.println();
+        } else if (sensors[i].reference == "EM111") {
+          root[sensors[i].kind0] = emiClicks;
+          // found ESP32 bug on interrupts from GPIO
+          // HOTFIX: need to detach the interrupt to get the counting and reatach afther
+          // TO DO: add on a Task check the interrupt's detached to reatach
+          attachInterrupt(digitalPinToInterrupt(EM111_INT_PIN), isr,
+                      FALLING);
+          DEBUG_VAR("DEBUG: EM111 read result: ", emiClicks);
         } else {
           root[sensors[i].type] = sensors[i].exSensor->read();
         }

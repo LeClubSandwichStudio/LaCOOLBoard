@@ -54,6 +54,9 @@ public:
 
 private:
   CoolTime() {}
+  #ifdef ESP32
+  struct tm timeinfo;
+  #endif
 };
 
 #endif

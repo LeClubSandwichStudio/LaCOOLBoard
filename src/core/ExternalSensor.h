@@ -43,6 +43,7 @@
 #elif ESP32
 #include <Adafruit_MCP23017.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <CoolClick.h>
 #endif
 class BaseExternalSensor {
 
@@ -51,6 +52,7 @@ public:
   virtual uint8_t begin() { return (-2); }
   virtual float read() { return (-2); }
   virtual float read(int16_t *a) { return (-42); }
+  virtual uint32_t read(uint32_t *a) { return (0); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
   virtual float read(uint32_t *a, uint32_t *b, uint32_t *c) { return (-42.42); }
   virtual float read(int16_t *a, int16_t *b, int16_t *c, int16_t *d) {
@@ -418,5 +420,35 @@ public:
 private:
   BME280 sensor;
 };
+
+class dummySensor{
+  public:
+  void begin();
+  private:
+  void end();
+};
+
+template <> class ExternalSensor<dummySensor> : public BaseExternalSensor {
+public:
+  ExternalSensor() : sensor() {}
+  virtual uint8_t begin() {
+    return true;
+  }
+private:
+  dummySensor sensor;
+};
+
+// template<> class ExternalSensor<CoolClick>: public BaseExternalSensor {
+//   public:
+
+//   ExternalSensor(uint8_t pin) { sensor = CoolClick(EM111_INT_PIN); }
+
+//   virtual uint32_t read(uint32_t *a){
+//   *a = sensor.numberKeyPresses;
+//   }
+
+// private:
+// CoolClick sensor(EM111_INT_PIN);
+// };
 
 #endif
