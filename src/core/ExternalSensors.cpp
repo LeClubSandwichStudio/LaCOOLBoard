@@ -145,6 +145,17 @@ void ExternalSensors::read(JsonObject &root) {
           int16_t C, V;
           float T;
 
+
+          Serial.println();
+          Serial.print("Humidity BME280 : ");
+          Serial.println((uint8_t)root["Humidity"]);
+          Serial.println();
+          Serial.print("Temperature BME280 : ");
+          Serial.println((double)root["Temperature"]);
+
+          uint8_t h = root.get<uint8_t>("Humidity");
+          double t = root.get<float>("Temperature");
+          sensors[i].exSensor->setEnvironmentalData(&h, &t);
           sensors[i].exSensor->read(&C, &V, &T);
           root[sensors[i].kind0] = C;
           root[sensors[i].kind1] = V;

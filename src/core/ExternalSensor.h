@@ -47,6 +47,7 @@ class BaseExternalSensor {
 public:
   BaseExternalSensor() {}
   virtual uint8_t begin() { return (-2); }
+  virtual float setEnvironmentalData(uint8_t *a, double *b) { return (-2); }
   virtual float read() { return (-2); }
   virtual float read(int16_t *a) { return (-42); }
   virtual float read(int16_t *a, int16_t *b, float *c) { return (-42.42); }
@@ -181,14 +182,30 @@ public:
     return (0);
   }
 
+  virtual float setEnvironmentalData(uint8_t *a, double *b) {
+    Serial.println("data in virtual : ");
+    Serial.println(*a);
+    Serial.println(*b);
+    sensor.setEnvironmentalData(*a, *b);
+  }
+
   virtual float read(int16_t *a, int16_t *b, float *c) {
-    if (sensor.available()) {
+    int16_t Co2 = 0;
+    int16_t VOCT = 0;
+    for (int i = 0; i <= 9; i++) {
+      while (!sensor.available()) {
+        yield();
+      }
       *c = sensor.calculateTemperature();
       if (!sensor.readData()) {
-        *a = sensor.geteCO2();
-        *b = sensor.getTVOC();
+      Co2 += sensor.geteCO2();
+      VOCT += sensor.getTVOC();
+      Serial.print("i = ");
+      Serial.println(i);
       }
     }
+    *a = Co2 / 10;
+    *b = VOCT / 10;
     return (0.0);
   }
 
