@@ -2,9 +2,8 @@
 
 bool Adafruit_CCS811::begin(uint8_t addr)
 {
-	_i2caddr = 0x5A;//addr; //SJ
-	
-	//_i2c_init();  //SJ
+	_i2caddr = 0x5A;
+	Wire.setClockStretchLimit(200000);
 
 	SWReset();
 	delay(100);
@@ -65,13 +64,7 @@ uint8_t Adafruit_CCS811::readData()
 
 		_eCO2 = ((uint16_t)buf[0] << 8) | ((uint16_t)buf[1]);
 		_TVOC = ((uint16_t)buf[2] << 8) | ((uint16_t)buf[3]);
-		/*
-		Serial.print("In lib values");
-		Serial.print("CO2  : ");
-		Serial.println(_eCO2);
-		Serial.print("TVOC : ");
-		Serial.println(_eCO2);
-		*/
+		
 		if(_status.ERROR)
 			return buf[5];
 			

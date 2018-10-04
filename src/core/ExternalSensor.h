@@ -167,11 +167,15 @@ private:
 
 template <> class ExternalSensor<Adafruit_CCS811> : public BaseExternalSensor {
 public:
-  ExternalSensor(uint8_t i2c_addr) { sensor = Adafruit_CCS811(); }
+  ExternalSensor(uint8_t i2c_addr) { sensor = Adafruit_CCS811();
+    sensor.begin(i2c_addr); 
+    delay(200);
+    while (!sensor.available()){
+      yield();
+    } 
+  }
 
   virtual uint8_t begin() {
-    while (!sensor.available())
-      ;
     float T = sensor.calculateTemperature();
     sensor.setTempOffset(T - 25.0);
     return (0);
