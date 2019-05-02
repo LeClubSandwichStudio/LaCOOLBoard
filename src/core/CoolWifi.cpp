@@ -21,11 +21,11 @@
  *
  */
 
-#include <FS.h>
-#include <ArduinoJson.h>
+#include "CoolWifi.h"
 #include "CoolConfig.h"
 #include "CoolLog.h"
-#include "CoolWifi.h"
+#include <ArduinoJson.h>
+#include <FS.h>
 
 CoolWifi &CoolWifi::getInstance() {
   static CoolWifi instance;
@@ -140,7 +140,8 @@ uint8_t CoolWifi::connect(String ssid, String pass) {
     delay(1000);
   }
   if ((WiFi.status() != WL_CONNECTED) && this->isAvailable(ssid)) {
-    WARN_LOG("Something goes wrong, SSID is available but impossible to connect, please retry");
+    WARN_LOG("Something goes wrong, SSID is available but impossible to "
+             "connect, please retry");
     WARN_VAR("Reason: ", this->stringStatus(WiFi.status()));
     WiFi.persistent(false);
 #ifdef ESP8266
