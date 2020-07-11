@@ -24,6 +24,8 @@
 #ifndef COOLBOARD_H
 #define COOLBOARD_H
 
+#define USE_MQTT 0
+
 #include "CoolAsyncEditor.h"
 #include "CoolBoardActuator.h"
 #include "CoolBoardLed.h"
@@ -34,7 +36,9 @@
 #include "ExternalSensors.h"
 #include "Irene3000.h"
 #include "Jetpack.h"
+#if USE_MQTT
 #include "PubSubClient.h"
+#endif
 #include <Arduino.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
@@ -49,7 +53,7 @@
 #define ANSWER_MAX_SIZE 1024
 #define MAX_ACTIVE_TIME_WEBSERVER 900
 
-    class CoolBoard {
+class CoolBoard {
 
 public:
   void begin();
@@ -76,6 +80,7 @@ public:
   void messageSent();
   unsigned long secondsToNextLog();
   bool shouldLog();
+#if USE_MQTT
   void printMqttState(int state);
   void mqttConnect();
   bool mqttPublish(String data);
@@ -84,13 +89,14 @@ public:
   void mqttsConfig();
   static int b64decode(String b64Text, uint8_t *output);
   void mqttsConvert(String cert);
+#endif
   void updateFirmware(String firmwareVersion, String firmwareUrl,
                       String firmwareUrlFingerprint);
   void tryFirmwareUpdate();
-  void mqttLog(String data);
+  bool publishData(String data);
 
 private:
-  uint8_t mqttRetries = 0;
+  uint8_t retries = 0;
   CoolBoardSensors coolBoardSensors;
   CoolBoardLed coolBoardLed;
   CoolWebServer coolWebServer;
@@ -99,8 +105,10 @@ private:
   Irene3000 irene3000;
   ExternalSensors *externalSensors = new ExternalSensors;
   CoolBoardActuator coolBoardActuator;
+#if USE_MQTT
   PubSubClient *coolPubSubClient = new PubSubClient;
   WiFiClientSecure *wifiClientSecure = new WiFiClientSecure;
+#endif
   bool ireneActive = false;
   bool jetpackActive = false;
   bool externalSensorsActive = false;
@@ -112,10 +120,12 @@ private:
   bool connection;
   unsigned long logInterval = 3600;
   unsigned long previousLogTime = 0;
+#if USE_MQTT
   String mqttId;
   String mqttServer;
   String mqttInTopic;
   String mqttOutTopic;
+#endif
   String updateAnswer = "";
 };
 

@@ -9,6 +9,7 @@
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
+AsyncWebSocket ws("/ws");
 
 String handleMessageReceived;
 
@@ -29,9 +30,11 @@ bool CoolWebServer::begin() {
   if (!SPIFFS.begin()) {
     return (false);
   }
+
   events.onConnect([](AsyncEventSourceClient *client) {
     client->send("hello!", NULL, millis(), 1000);
   });
+
   server.addHandler(&events);
   this->requestConfiguration();
   if (CoolAsyncEditor::getInstance().beginAdminCredential()) {
@@ -73,94 +76,94 @@ void CoolWebServer::end() {
 }
 
 void CoolWebServer::requestConfiguration() {
-  server.on("/add/wifi", HTTP_POST,
-            [](AsyncWebServerRequest *request) { request->send(200); },
-            [](AsyncWebServerRequest *request, String filename, size_t index,
-               uint8_t *data, size_t len, bool final) {
-              if (!index) {
-                DEBUG_VAR("BodyStart: ", filename.length());
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == filename.length()) {
-                Serial.printf("BodyEnd: %u B\n", filename.length());
-              }
-              if (final) {
-                INFO_VAR("File len: ", (uint32_t)len);
-                INFO_VAR("File name: ", filename.c_str());
-                INFO_VAR("File data: ", String((char *)data));
-                INFO_VAR("File data: ", handleMessageReceived);
-                handleMessageReceived = "";
-              }
-            },
-            [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
-               size_t index, size_t total) {
-              if (!index) {
-                DEBUG_VAR("BodyStart: ", total);
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == total) {
-                DEBUG_VAR("BodyEnd: %u B\n", total);
-                StaticJsonBuffer<256> jsonBuffer;
-                JsonObject &root =
-                    jsonBuffer.parseObject(handleMessageReceived);
-                if (root["ssid"].success() && root["pass"].success()) {
-                  INFO_VAR("New SSID received:", root.get<String>("ssid"));
-                  DEBUG_VAR("pass: :", root.get<String>("pass"));
-                  if (CoolAsyncEditor::getInstance().addNewWifi(
-                          root.get<String>("ssid"), root.get<String>("pass"))) {
-                    request->send(201);
-                  } else {
-                    request->send(500);
-                  }
-                } else {
-                  request->send(415);
-                }
-                handleMessageReceived = "";
-              }
-            });
+  server.on(
+      "/add/wifi", HTTP_POST,
+      [](AsyncWebServerRequest *request) { request->send(200); },
+      [](AsyncWebServerRequest *request, String filename, size_t index,
+         uint8_t *data, size_t len, bool final) {
+        if (!index) {
+          DEBUG_VAR("BodyStart: ", filename.length());
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == filename.length()) {
+          Serial.printf("BodyEnd: %u B\n", filename.length());
+        }
+        if (final) {
+          INFO_VAR("File len: ", (uint32_t)len);
+          INFO_VAR("File name: ", filename.c_str());
+          INFO_VAR("File data: ", String((char *)data));
+          INFO_VAR("File data: ", handleMessageReceived);
+          handleMessageReceived = "";
+        }
+      },
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
+         size_t index, size_t total) {
+        if (!index) {
+          DEBUG_VAR("BodyStart: ", total);
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == total) {
+          DEBUG_VAR("BodyEnd: %u B\n", total);
+          StaticJsonBuffer<256> jsonBuffer;
+          JsonObject &root = jsonBuffer.parseObject(handleMessageReceived);
+          if (root["ssid"].success() && root["pass"].success()) {
+            INFO_VAR("New SSID received:", root.get<String>("ssid"));
+            DEBUG_VAR("pass: :", root.get<String>("pass"));
+            if (CoolAsyncEditor::getInstance().addNewWifi(
+                    root.get<String>("ssid"), root.get<String>("pass"))) {
+              request->send(201);
+            } else {
+              request->send(500);
+            }
+          } else {
+            request->send(415);
+          }
+          handleMessageReceived = "";
+        }
+      });
 
-  server.on("/reset/wifi", HTTP_POST,
-            [](AsyncWebServerRequest *request) { request->send(200); },
-            [](AsyncWebServerRequest *request, String filename, size_t index,
-               uint8_t *data, size_t len, bool final) {
-              if (!index) {
-                DEBUG_VAR("BodyStart: ", filename.length());
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == filename.length()) {
-                Serial.printf("BodyEnd: %u B\n", filename.length());
-              }
-              if (final) {
-                INFO_VAR("File len: ", (uint32_t)len);
-                INFO_VAR("File name: ", filename.c_str());
-                INFO_VAR("File data: ", String((char *)data));
-                INFO_VAR("File data: ", handleMessageReceived);
-                handleMessageReceived = "";
-              }
-            },
-            [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
-               size_t index, size_t total) {
-              if (!index) {
-                DEBUG_VAR("total: ", total);
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == total) {
-                DEBUG_VAR("BodyEnd: ", total);
-                DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
-                CoolAsyncEditor::getInstance().reWriteWifi(
-                    handleMessageReceived);
-                request->send(201);
-                handleMessageReceived = "";
-              }
-            });
+  server.on(
+      "/reset/wifi", HTTP_POST,
+      [](AsyncWebServerRequest *request) { request->send(200); },
+      [](AsyncWebServerRequest *request, String filename, size_t index,
+         uint8_t *data, size_t len, bool final) {
+        if (!index) {
+          DEBUG_VAR("BodyStart: ", filename.length());
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == filename.length()) {
+          Serial.printf("BodyEnd: %u B\n", filename.length());
+        }
+        if (final) {
+          INFO_VAR("File len: ", (uint32_t)len);
+          INFO_VAR("File name: ", filename.c_str());
+          INFO_VAR("File data: ", String((char *)data));
+          INFO_VAR("File data: ", handleMessageReceived);
+          handleMessageReceived = "";
+        }
+      },
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
+         size_t index, size_t total) {
+        if (!index) {
+          DEBUG_VAR("total: ", total);
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == total) {
+          DEBUG_VAR("BodyEnd: ", total);
+          DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
+          CoolAsyncEditor::getInstance().reWriteWifi(handleMessageReceived);
+          request->send(201);
+          handleMessageReceived = "";
+        }
+      });
 
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
@@ -344,7 +347,7 @@ void CoolWebServer::ssdpBegin() {
   String coolName = "CoolBoard-" + this->getCoolMac();
   SSDP.setDeviceType("upnp:rootdevice");
   MDNS.addService("cool-api", "tcp", 80);
-  MDNS.addServiceTxt("cool-api", "tcp", "Firmware", COOL_FW_VERSION);
+  // MDNS.addServiceTxt("cool-api", "tcp", "Firmware", COOL_FW_VERSION);
   MDNS.addServiceTxt("cool-api", "tcp", "coreVersion", ESP.getCoreVersion());
   MDNS.addServiceTxt("cool-api", "tcp", "sdkVersion", ESP.getSdkVersion());
   MDNS.addServiceTxt("cool-api", "tcp", "firwmareMD5", ESP.getSketchMD5());
