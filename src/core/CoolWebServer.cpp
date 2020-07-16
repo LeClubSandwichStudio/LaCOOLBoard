@@ -9,8 +9,96 @@
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
+AsyncWebSocket ws("/ws");
 
 String handleMessageReceived;
+String datalog;
+
+void CoolWebServer::sendDataToAll(String data) {
+  datalog = data;
+  ws.textAll(datalog);
+}
+
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+               AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    // client connected
+    os_printf("ws[%s][%u] connect\n", server->url(), client->id());
+    // client->printf("Hello Client %u :)", client->id());
+    client->ping();
+    ws.textAll(datalog);
+  } else if (type == WS_EVT_DISCONNECT) {
+    // client disconnected
+    os_printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+  } else if (type == WS_EVT_ERROR) {
+    // error was received from the other end
+    os_printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(),
+              *((uint16_t *)arg), (char *)data);
+  } else if (type == WS_EVT_PONG) {
+    // pong message was received (in response to a ping request maybe)
+    os_printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len,
+              (len) ? (char *)data : "");
+  } else if (type == WS_EVT_DATA) {
+    // data packet
+    AwsFrameInfo *info = (AwsFrameInfo *)arg;
+    if (info->final && info->index == 0 && info->len == len) {
+      // the whole message is in a single frame and we got all of it's data
+      os_printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(),
+                (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
+      if (info->opcode == WS_TEXT) {
+        data[len] = 0;
+        os_printf("%s\n", (char *)data);
+      } else {
+        for (size_t i = 0; i < info->len; i++) {
+          os_printf("%02x ", data[i]);
+        }
+        os_printf("\n");
+      }
+      if (info->opcode == WS_TEXT)
+        client->text("I got your text message");
+      else
+        client->binary("I got your binary message");
+    } else {
+      // message is comprised of multiple frames or the frame is split into
+      // multiple packets
+      if (info->index == 0) {
+        if (info->num == 0)
+          os_printf("ws[%s][%u] %s-message start\n", server->url(),
+                    client->id(),
+                    (info->message_opcode == WS_TEXT) ? "text" : "binary");
+        os_printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(),
+                  client->id(), info->num, info->len);
+      }
+
+      os_printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(),
+                client->id(), info->num,
+                (info->message_opcode == WS_TEXT) ? "text" : "binary",
+                info->index, info->index + len);
+      if (info->message_opcode == WS_TEXT) {
+        data[len] = 0;
+        os_printf("%s\n", (char *)data);
+      } else {
+        for (size_t i = 0; i < len; i++) {
+          os_printf("%02x ", data[i]);
+        }
+        os_printf("\n");
+      }
+
+      if ((info->index + len) == info->len) {
+        os_printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(),
+                  client->id(), info->num, info->len);
+        if (info->final) {
+          os_printf("ws[%s][%u] %s-message end\n", server->url(), client->id(),
+                    (info->message_opcode == WS_TEXT) ? "text" : "binary");
+          if (info->message_opcode == WS_TEXT)
+            client->text("I got your text message");
+          else
+            client->binary("I got your binary message");
+        }
+      }
+    }
+  }
+}
 
 bool CoolWebServer::begin() {
   DEBUG_LOG("AsyncWebServer begin");
@@ -50,6 +138,11 @@ bool CoolWebServer::begin() {
       CoolAsyncEditor::getInstance().read("/certificate.bin").c_str(),
       CoolAsyncEditor::getInstance().read("/privateKey.bin").c_str(), "admin");
 #else
+
+  // attach AsyncWebSocket
+  ws.onEvent(onWsEvent);
+  server.addHandler(&ws);
+
   server.begin();
 #endif
   INFO_VAR("CoolBoard WebServer started! with SSID: ", name);
@@ -137,52 +230,52 @@ void CoolWebServer::requestConfiguration() {
   //             }
   //           });
 
-  server.on("/wifi/reset", HTTP_POST,
-            [](AsyncWebServerRequest *request) { request->send(200); },
-            [](AsyncWebServerRequest *request, String filename, size_t index,
-               uint8_t *data, size_t len, bool final) {
-              if (!request->authenticate(
-                      CoolAsyncEditor::getInstance().HTTPuserName.c_str(),
-                      CoolAsyncEditor::getInstance().HTTPpassword.c_str()))
-                return request->requestAuthentication();
-              if (!index) {
-                DEBUG_VAR("BodyStart: ", filename.length());
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == filename.length()) {
-                Serial.printf("BodyEnd: %u B\n", filename.length());
-              }
-              if (final) {
-                INFO_VAR("File len: ", (uint32_t)len);
-                INFO_VAR("File name: ", filename.c_str());
-                INFO_VAR("File data: ", String((char *)data));
-                INFO_VAR("File data: ", handleMessageReceived);
-                handleMessageReceived = "";
-              }
-            },
-            [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
-               size_t index, size_t total) {
-              if (!request->authenticate(
-                      CoolAsyncEditor::getInstance().HTTPuserName.c_str(),
-                      CoolAsyncEditor::getInstance().HTTPpassword.c_str()))
-                return request->requestAuthentication();
-              if (!index) {
-                DEBUG_VAR("total: ", total);
-              }
-              for (size_t i = 0; i < len; i++) {
-                handleMessageReceived += (const char)data[i];
-              }
-              if (index + len == total) {
-                DEBUG_VAR("BodyEnd: ", total);
-                DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
-                CoolAsyncEditor::getInstance().reWriteWifi(
-                    handleMessageReceived);
-                request->send(201);
-                handleMessageReceived = "";
-              }
-            });
+  server.on(
+      "/wifi/reset", HTTP_POST,
+      [](AsyncWebServerRequest *request) { request->send(200); },
+      [](AsyncWebServerRequest *request, String filename, size_t index,
+         uint8_t *data, size_t len, bool final) {
+        if (!request->authenticate(
+                CoolAsyncEditor::getInstance().HTTPuserName.c_str(),
+                CoolAsyncEditor::getInstance().HTTPpassword.c_str()))
+          return request->requestAuthentication();
+        if (!index) {
+          DEBUG_VAR("BodyStart: ", filename.length());
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == filename.length()) {
+          Serial.printf("BodyEnd: %u B\n", filename.length());
+        }
+        if (final) {
+          INFO_VAR("File len: ", (uint32_t)len);
+          INFO_VAR("File name: ", filename.c_str());
+          INFO_VAR("File data: ", String((char *)data));
+          INFO_VAR("File data: ", handleMessageReceived);
+          handleMessageReceived = "";
+        }
+      },
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
+         size_t index, size_t total) {
+        if (!request->authenticate(
+                CoolAsyncEditor::getInstance().HTTPuserName.c_str(),
+                CoolAsyncEditor::getInstance().HTTPpassword.c_str()))
+          return request->requestAuthentication();
+        if (!index) {
+          DEBUG_VAR("total: ", total);
+        }
+        for (size_t i = 0; i < len; i++) {
+          handleMessageReceived += (const char)data[i];
+        }
+        if (index + len == total) {
+          DEBUG_VAR("BodyEnd: ", total);
+          DEBUG_VAR("handleMessageReceived: ", handleMessageReceived);
+          CoolAsyncEditor::getInstance().reWriteWifi(handleMessageReceived);
+          request->send(201);
+          handleMessageReceived = "";
+        }
+      });
 
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (!request->authenticate(
@@ -259,8 +352,7 @@ void CoolWebServer::requestConfiguration() {
         }
       },
       [](AsyncWebServerRequest *request, String filename, size_t index,
-         uint8_t *data, size_t len, bool final) {
-      },
+         uint8_t *data, size_t len, bool final) {},
       [](AsyncWebServerRequest *request, uint8_t *data, size_t len,
          size_t index, size_t total) {
         DEBUG_VAR("request->method(): ", request->method());
@@ -422,6 +514,10 @@ void CoolWebServer::requestConfiguration() {
     String descriptor = CoolAsyncEditor::getInstance().getSdpConfig();
     request->send(200, "text/xml", descriptor);
   });
+
+  server.on("/sensors", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/json", datalog);
+  });
 }
 
 void CoolWebServer::onNotFoundConfig() {
@@ -474,6 +570,7 @@ void CoolWebServer::onNotFoundConfig() {
   });
 }
 void CoolWebServer::ssdpBegin() {
+  DEBUG_LOG("SSDP Setting up ");
   SSDP.setSchemaURL("description.xml");
   SSDP.setHTTPPort(80);
   SSDP.setName("CoolBoard");

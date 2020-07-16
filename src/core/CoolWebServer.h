@@ -20,6 +20,8 @@ public:
   void end();
   bool isRunning = false;
   void ssdpBegin();
+  void sendDataToAll(String data);
+
 private:
   void requestConfiguration();
   void onNotFoundConfig();
@@ -54,6 +56,7 @@ public:
   bool connectToSavedBssidAsync(String bssid);
   int lostConnections = -1;
   String getStatusAsjsonString();
+
 private:
   CoolWifi() {}
 };

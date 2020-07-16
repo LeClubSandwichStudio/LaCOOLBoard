@@ -76,19 +76,17 @@ void CoolBoard::begin() {
     this->externalSensors->begin();
     delay(100);
   }
-  this->mqttsConfig();
+  // this->mqttsConfig();
+  this->coolWebServer.begin();
   delay(100);
   SPIFFS.end();
+  INFO_LOG("Setup Done");
 }
 
 void CoolBoard::loop() {
   this->powerCheck();
   if (!SPIFFS.begin()) {
     this->spiffsProblem();
-  }
-  if (!this->isConnected() && !this->coolWebServer.isRunning) {
-    this->coolPubSubClient->disconnect();
-    this->connect();
   }
   INFO_LOG("Synchronizing RTC...");
   bool rtcSynced = CoolTime::getInstance().sync();
@@ -109,53 +107,41 @@ void CoolBoard::loop() {
     JsonObject &state = root.createNestedObject("state");
     JsonObject &reported = state.createNestedObject("reported");
     INFO_LOG("Collecting board and sensor data...");
-    this->readPublicIP(reported);
+    // this->readPublicIP(reported);
     this->readBoardData(reported);
     this->readSensors(reported);
     INFO_LOG("Setting actuators and reporting their state...");
     this->handleActuators(reported);
     delay(50);
+
+    String data;
+    root.printTo(data);
+    coolWebServer.sendDataToAll(data);
+
     if (this->shouldLog()) {
       INFO_LOG("Sending log over MQTT...");
       String data;
       root.printTo(data);
-      this->mqttLog(data);
+      coolWebServer.sendDataToAll(data);
+
       this->previousLogTime = millis();
       this->webServer = false;
     }
-    if (digitalRead(BOOTSTRAP_PIN) == LOW || this->webServer) {
-      INFO_LOG("Bootstrap is in LOAD position, starting AP for further "
-               "configuration...");
-      this->coolPubSubClient->disconnect();
-      if (!this->coolWebServer.isRunning) {
-        this->coolPubSubClient->disconnect();
-        this->coolWebServer.begin();
-      } else {
-        CoolWifi::getInstance().manageConnectionPortal();
-      }
-    } else {
-      if (this->coolWebServer.isRunning) {
-        this->webServer = false;
-        this->configAsChanged = true;
-        this->coolWebServer.end();
-      }
-    }
+
     INFO_LOG("Listening to update messages...");
-    this->mqttListen();
+    // this->mqttListen();
     // if (this->configAsChanged) {
     //   this->configAsChanged = false;
     //   INFO_LOG("Sending all configuration");
     //   this->sendAllConfig();
     // }
+
     if (CoolFileSystem::hasSavedLogs()) {
       INFO_LOG("Sending saved messages...");
     }
   }
+
   SPIFFS.end();
-  if (this->sleepActive && (!this->shouldLog() || !rtcSynced) &&
-      !this->coolWebServer.isRunning) {
-    this->sleep(this->secondsToNextLog());
-  }
 }
 
 bool CoolBoard::isConnected() {
@@ -184,8 +170,8 @@ void CoolBoard::connect() {
   if (WiFi.status() == WL_CONNECTED) {
     CoolTime::getInstance().begin();
     delay(100);
-    this->mqttConnect();
-    delay(100);
+    // this->mqttConnect();
+    // delay(100);
   }
   if (!this->isConnected()) {
     this->networkProblem();
@@ -259,10 +245,7 @@ bool CoolBoard::config() {
   INFO_VAR("Firmware version is:", COOL_FW_VERSION);
   INFO_LOG("Connecting to WiFi...");
   CoolWifi::getInstance().setupHandlers();
-  if (!CoolWifi::getInstance().autoConnect()) {
-    WARN_LOG("No Network Disponible");
-    return false;
-  }
+  this->connect();
   this->tryFirmwareUpdate();
   CoolConfig config("/coolBoardConfig.json");
   if (!config.readFileAsJson()) {
@@ -280,7 +263,7 @@ bool CoolBoard::config() {
   config.set<bool>(json, "webServer", this->webServer);
   config.set<String>(json, "mqttServer", this->mqttServer);
   INFO_LOG("Main configuration loaded");
-  this->coolWebServer.ssdpBegin();
+  // this->coolWebServer.ssdpBegin();
   return (true);
 }
 
@@ -398,7 +381,7 @@ void CoolBoard::readSensors(JsonObject &reported) {
 
 void CoolBoard::readBoardData(JsonObject &reported) {
   reported["timestamp"] = CoolTime::getInstance().getIso8601DateTime();
-  reported["mac"] = this->mqttId;
+  reported["mac"] = WiFi.macAddress();
   reported["firmwareVersion"] = COOL_FW_VERSION;
   if (WiFi.status() == WL_CONNECTED) {
     reported["wifiSignal"] = WiFi.RSSI();
@@ -611,7 +594,8 @@ void CoolBoard::mqttsConvert(String cert) {
 }
 
 void CoolBoard::mqttsConfig() {
-  if (CoolAsyncEditor::getInstance().exist("/certificate.bin") && CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
+  if (CoolAsyncEditor::getInstance().exist("/certificate.bin") &&
+      CoolAsyncEditor::getInstance().exist("/privateKey.bin")) {
     this->mqttsConvert("/certificate.bin");
     this->mqttsConvert("/privateKey.bin");
     DEBUG_LOG("Configuring MQTT");
